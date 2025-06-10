@@ -80,18 +80,6 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
         db.getArchivedProjects(userId),
       ]);
 
-      console.log('📊 ProjectStore: Raw active projects result:', {
-        data: activeResult.data,
-        error: activeResult.error,
-        dataLength: activeResult.data?.length || 0
-      });
-      
-      console.log('📊 ProjectStore: Raw archived projects result:', {
-        data: archivedResult.data,
-        error: archivedResult.error,
-        dataLength: archivedResult.data?.length || 0
-      });
-
       if (activeResult.error) {
         console.error('❌ ProjectStore: Active projects fetch error:', activeResult.error);
         throw activeResult.error;
@@ -115,17 +103,6 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
         activeProjects,
         archivedProjects,
         loading: false 
-      });
-      
-      console.log('✅ ProjectStore: Projects successfully set in store');
-      
-      // Log the final state after setting
-      const finalState = get();
-      console.log('📊 ProjectStore: Final state after update:', {
-        activeProjectsLength: finalState.activeProjects.length,
-        archivedProjectsLength: finalState.archivedProjects.length,
-        loading: finalState.loading,
-        error: finalState.error
       });
       
     } catch (error: any) {

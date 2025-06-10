@@ -1,14 +1,26 @@
+// Fixed Sidebar.tsx - Simplified navigation logic
 import React, { useState } from 'react';
 import { useProjectStore } from '../../stores/projectStore';
 import { Plus, Folder, Settings, Archive, ChevronDown, ChevronRight, RotateCcw } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface SidebarProps {
   onNewProjectClick: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
+  const navigate = useNavigate();
   const { activeProjects, archivedProjects, currentProject, setCurrentProject, restoreProject } = useProjectStore();
   const [showArchived, setShowArchived] = useState(false);
+
+  const handleProjectClick = (project: any) => {
+    // Only navigate - let the Workspace component handle setting currentProject
+    navigate(`/workspace/${project.id}`);
+    // // Optional: Add a small delay to ensure navigation completes
+    //   setTimeout(() => {
+    //     setCurrentProject(project);
+    //   }, 500);
+  };
 
   const handleRestoreProject = async (projectId: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -38,7 +50,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
             {activeProjects.map((project) => (
               <button
                 key={project.id}
-                onClick={() => setCurrentProject(project)}
+                onClick={() => handleProjectClick(project)}
                 className={`w-full flex items-center space-x-2 px-3 py-2 text-sm rounded-md transition-colors ${
                   currentProject?.id === project.id
                     ? 'bg-blue-50 text-blue-700'
@@ -76,7 +88,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
                     className="group flex items-center space-x-2 px-3 py-2 text-sm rounded-md text-gray-500 hover:bg-gray-50 transition-colors"
                   >
                     <button
-                      onClick={() => setCurrentProject(project)}
+                      onClick={() => handleProjectClick(project)}
                       className="flex items-center space-x-2 flex-1 text-left"
                     >
                       <Folder className="w-4 h-4" />

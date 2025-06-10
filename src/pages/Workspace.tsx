@@ -74,19 +74,9 @@ export const Workspace: React.FC = () => {
 
   // Combine active and archived projects
   const allProjects = [...(activeProjects || []), ...(archivedProjects || [])];
-  console.log('🏠 Workspace: All projects combined:', allProjects.length, 'projects:', allProjects.map(p => ({ id: p.id, name: p.name })));
 
   // Fetch projects when user is available and we don't have projects yet
   useEffect(() => {
-    console.log('🔄 Workspace: useEffect[user, projectsLoading] triggered', {
-      userExists: !!user,
-      userId: user?.id,
-      activeProjectsLength: activeProjects.length,
-      archivedProjectsLength: archivedProjects.length,
-      projectsLoading,
-      projectsError
-    });
-    
     if (user && !projectsLoading && activeProjects.length === 0 && archivedProjects.length === 0 && !projectsError) {
       console.log('📊 Workspace: Triggering fetchProjects for user:', user.id);
       fetchProjects(user.id);
@@ -251,17 +241,6 @@ export const Workspace: React.FC = () => {
 
   // Handle project selection and data fetching
   useEffect(() => {
-    console.log('🔄 Workspace: useEffect[projectId, allProjects, projectsLoading, workspaceData] triggered', {
-      projectId,
-      allProjectsLength: allProjects.length,
-      currentProjectId: currentProject?.id,
-      projectsLoading,
-      userExists: !!user,
-      projectsError,
-      hasWorkspaceData: Object.values(workspaceData).some(arr => arr.length > 0),
-      workspaceLoading: loading
-    });
-
     // Wait for projects to be loaded and user to be available
     if (projectId && allProjects.length > 0 && !projectsLoading && user) {
       const project = allProjects.find(p => p.id === projectId);
@@ -276,6 +255,9 @@ export const Workspace: React.FC = () => {
         
         // Only fetch data if we haven't already loaded data for this project AND we're not currently loading
         const hasWorkspaceData = Object.values(workspaceData).some(arr => arr.length > 0);
+        console.log('🔄 Workspace: workspaceData:', workspaceData);
+        console.log('🔄 Workspace: hasWorkspaceData:', hasWorkspaceData);
+        console.log('🔄 Workspace: loading:', loading);
         if (!hasWorkspaceData && !loading) {
           console.log('📡 Workspace: Triggering fetchWorkspaceData');
           fetchWorkspaceData(projectId);
@@ -304,18 +286,18 @@ export const Workspace: React.FC = () => {
     }
   }, [projectId, allProjects, currentProject, setCurrentProject, fetchWorkspaceData, navigate, projectsLoading, user, projectsError, workspaceData, loading]);
 
-  // Handle navigation when currentProject changes from sidebar
-  useEffect(() => {
-    console.log('🔄 Workspace: useEffect[currentProject, projectId] triggered', {
-      currentProjectId: currentProject?.id,
-      urlProjectId: projectId,
-    });
+  // // Handle navigation when currentProject changes from sidebar
+  // useEffect(() => {
+  //   console.log('🔄 Workspace: useEffect[currentProject, projectId] triggered', {
+  //     currentProjectId: currentProject?.id,
+  //     urlProjectId: projectId,
+  //   });
 
-    if (currentProject && currentProject.id !== projectId) {
-      console.log('🧭 Workspace: Navigating to different project:', currentProject.id);
-      navigate(`/workspace/${currentProject.id}`);
-    }
-  }, [currentProject, projectId, navigate]);
+  //   if (currentProject && currentProject.id !== projectId) {
+  //     console.log('🧭 Workspace: Navigating to different project:', currentProject.id);
+  //     navigate(`/workspace/${currentProject.id}`);
+  //   }
+  // }, [currentProject, projectId, navigate]);
 
   const handleAddMissingModules = async () => {
     console.log('➕ Workspace: handleAddMissingModules called');
@@ -394,7 +376,6 @@ export const Workspace: React.FC = () => {
   };
 
   const getModuleSummary = (type: ModuleType): string => {
-    console.log('📊 Workspace: Getting module summary for:', type);
     switch (type) {
       case 'prd':
         const latestPRD = workspaceData.prds[0];
@@ -536,7 +517,6 @@ export const Workspace: React.FC = () => {
           </button>
           <button 
             onClick={() => {
-              console.log('🗑️ Workspace: Delete button clicked');
               setShowDeleteConfirm(true);
             }}
             className="inline-flex items-center px-3 py-2 border border-red-300 text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50 transition-colors"
@@ -573,7 +553,6 @@ export const Workspace: React.FC = () => {
               <div className="flex space-x-3">
                 <button
                   onClick={() => {
-                    console.log('❌ Workspace: Delete cancelled');
                     setShowDeleteConfirm(false);
                   }}
                   disabled={isDeleting}
@@ -607,7 +586,6 @@ export const Workspace: React.FC = () => {
       {/* Module Cards Grid */}
       <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {ALL_MODULE_TYPES.map((type) => {
-          console.log('🎯 Workspace: Rendering module card for:', type);
           return (
             <ModuleCard
               key={type}
