@@ -108,11 +108,15 @@ export interface RoadmapItem {
   id: string;
   project_id: string;
   title: string;
-  description?: string;
-  status: 'planned' | 'in_progress' | 'completed';
+  description: string;
+  status: 'planned' | 'in_progress' | 'completed' | 'cancelled';
   start_date?: string;
   end_date?: string;
+  progress: number;
   dependencies: string[];
+  milestone: boolean;
+  color: string;
+  position: number;
   created_at: string;
   updated_at: string;
 }
