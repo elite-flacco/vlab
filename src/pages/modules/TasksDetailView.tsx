@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CheckSquare, Square, Plus, Filter, Clock, Tag, ArrowLeft, Edit3, Save, X, Trash2, Loader2 } from 'lucide-react';
+import { CheckSquare, Square, Plus, Filter, Tag, ArrowLeft, Edit3, Save, X, Trash2, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useParams, useNavigate } from 'react-router-dom';
 import { db } from '../../lib/supabase';
@@ -12,8 +12,6 @@ interface TaskItem {
   description: string;
   status: 'todo' | 'in_progress' | 'done' | 'blocked';
   priority: 'low' | 'medium' | 'high' | 'urgent';
-  estimated_hours?: number;
-  actual_hours?: number;
   due_date?: string;
   tags: string[];
   dependencies: string[];
@@ -32,7 +30,6 @@ export const TasksDetailView: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'todo' | 'in_progress' | 'done'>('all');
   const [showCompleted, setShowCompleted] = useState(true);
-  const [isEditingList, setIsEditingList] = useState(false);
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [newTask, setNewTask] = useState<Partial<TaskItem> | null>(null);
   const [saving, setSaving] = useState(false);
@@ -95,7 +92,6 @@ export const TasksDetailView: React.FC = () => {
         description: taskData.description || '',
         status: taskData.status || 'todo',
         priority: taskData.priority || 'medium',
-        estimated_hours: taskData.estimated_hours,
         due_date: taskData.due_date,
         tags: taskData.tags || [],
         dependencies: taskData.dependencies || [],
@@ -208,7 +204,7 @@ export const TasksDetailView: React.FC = () => {
     );
   }
 
-  if (tasks.length === 0 && !isEditingList) {
+  if (tasks.length === 0 && !newTask) {
     return (
       <div className="max-w-6xl mx-auto">
         <div className="mb-6">
@@ -229,7 +225,14 @@ export const TasksDetailView: React.FC = () => {
                 Create tasks to track your development progress.
               </p>
               <button 
-                onClick={() => setIsEditingList(true)}
+                onClick={() => setNewTask({
+                  title: '',
+                  description: '',
+                  status: 'todo',
+                  priority: 'medium',
+                  tags: [],
+                  dependencies: [],
+                })}
                 className="inline-flex items-center px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm"
               >
                 <Plus className="w-4 h-4 mr-2" />
@@ -281,19 +284,20 @@ export const TasksDetailView: React.FC = () => {
               </button>
             </div>
             
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={() => setIsEditingList(!isEditingList)}
-                className={`inline-flex items-center px-3 py-1 text-xs rounded-md transition-colors ${
-                  isEditingList 
-                    ? 'bg-orange-100 text-orange-800' 
-                    : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                <Edit3 className="w-3 h-3 mr-1" />
-                {isEditingList ? 'Done Editing' : 'Edit Tasks'}
-              </button>
-            </div>
+            <button
+              onClick={() => setNewTask({
+                title: '',
+                description: '',
+                status: 'todo',
+                priority: 'medium',
+                tags: [],
+                dependencies: [],
+              })}
+              className="inline-flex items-center px-3 py-1 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors text-xs"
+            >
+              <Plus className="w-3 h-3 mr-1" />
+              Add New Task
+            </button>
           </div>
 
           {/* Tasks List */}
@@ -340,7 +344,7 @@ export const TasksDetailView: React.FC = () => {
                       />
                     </div>
                     
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                       <div>
                         <label className="block text-xs font-medium text-gray-700 mb-1">Status</label>
                         <select
@@ -377,24 +381,6 @@ export const TasksDetailView: React.FC = () => {
                           <option value="high">High</option>
                           <option value="urgent">Urgent</option>
                         </select>
-                      </div>
-                      
-                      <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">Hours</label>
-                        <input
-                          type="number"
-                          value={task.estimated_hours || ''}
-                          onChange={(e) => {
-                            const updatedTasks = tasks.map(t => 
-                              t.id === task.id ? { ...t, estimated_hours: e.target.value ? Number(e.target.value) : undefined } : t
-                            );
-                            setTasks(updatedTasks);
-                          }}
-                          className="w-full px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-xs"
-                          placeholder="Hours"
-                          min="0"
-                          step="0.5"
-                        />
                       </div>
                       
                       <div>
@@ -479,25 +465,23 @@ export const TasksDetailView: React.FC = () => {
                           <span className={`px-2 py-1 rounded-full text-xs font-medium border flex-shrink-0 ${getPriorityColor(task.priority)}`}>
                             {task.priority}
                           </span>
-                          {isEditingList && (
-                            <div className="flex items-center space-x-1">
-                              <button
-                                onClick={() => setEditingTaskId(task.id)}
-                                className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
-                                title="Edit task"
-                              >
-                                <Edit3 className="w-3 h-3" />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteTask(task.id)}
-                                disabled={saving}
-                                className="p-1 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50"
-                                title="Delete task"
-                              >
-                                <Trash2 className="w-3 h-3" />
-                              </button>
-                            </div>
-                          )}
+                          <div className="flex items-center space-x-1">
+                            <button
+                              onClick={() => setEditingTaskId(task.id)}
+                              className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                              title="Edit task"
+                            >
+                              <Edit3 className="w-3 h-3" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteTask(task.id)}
+                              disabled={saving}
+                              className="p-1 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50"
+                              title="Delete task"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
                         </div>
                       </div>
                       
@@ -506,13 +490,6 @@ export const TasksDetailView: React.FC = () => {
                       )}
                       
                       <div className="flex items-center flex-wrap gap-2 mt-2">
-                        {task.estimated_hours && (
-                          <span className="flex items-center space-x-1 text-xs text-gray-500">
-                            <Clock className="w-3 h-3" />
-                            <span>{task.estimated_hours}h</span>
-                          </span>
-                        )}
-                        
                         {task.due_date && (
                           <span className="text-xs text-gray-500">
                             Due {format(new Date(task.due_date), 'MMM d')}
@@ -563,7 +540,7 @@ export const TasksDetailView: React.FC = () => {
                     />
                   </div>
                   
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">Status</label>
                       <select
@@ -590,19 +567,6 @@ export const TasksDetailView: React.FC = () => {
                         <option value="high">High</option>
                         <option value="urgent">Urgent</option>
                       </select>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">Hours</label>
-                      <input
-                        type="number"
-                        value={newTask.estimated_hours || ''}
-                        onChange={(e) => setNewTask(prev => ({ ...prev, estimated_hours: e.target.value ? Number(e.target.value) : undefined }))}
-                        className="w-full px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs"
-                        placeholder="Hours"
-                        min="0"
-                        step="0.5"
-                      />
                     </div>
                     
                     <div>
@@ -657,17 +621,6 @@ export const TasksDetailView: React.FC = () => {
                 </div>
               </div>
             )}
-
-            {/* Add Task Button */}
-            {isEditingList && !newTask && (
-              <button
-                onClick={() => setNewTask({ title: '', description: '', status: 'todo', priority: 'medium', tags: [], dependencies: [] })}
-                className="w-full border-2 border-dashed border-gray-300 rounded-lg p-6 text-gray-500 hover:border-gray-400 hover:text-gray-600 transition-colors flex items-center justify-center space-x-2"
-              >
-                <Plus className="w-5 h-5" />
-                <span>Add New Task</span>
-              </button>
-            )}
           </div>
 
           {/* Footer */}
@@ -675,14 +628,6 @@ export const TasksDetailView: React.FC = () => {
             <div className="text-xs text-gray-500">
               {tasks.filter(t => t.status !== 'done').length} active • {tasks.filter(t => t.status === 'done').length} completed
             </div>
-            {!isEditingList && (
-              <button 
-                onClick={() => setIsEditingList(true)}
-                className="text-xs px-3 py-1 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors"
-              >
-                Add Task
-              </button>
-            )}
           </div>
         </div>
       </ModuleContainer>
