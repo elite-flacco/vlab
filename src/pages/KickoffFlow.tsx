@@ -48,14 +48,17 @@ const KICKOFF_STEPS = [
 export const KickoffFlow: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
-  const { projects, currentProject, setCurrentProject } = useProjectStore();
+  const { activeProjects, archivedProjects, currentProject, setCurrentProject } = useProjectStore();
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
   const [stepData, setStepData] = useState<Record<string, any>>({});
 
+  // Combine active and archived projects
+  const allProjects = [...(activeProjects || []), ...(archivedProjects || [])];
+
   useEffect(() => {
     if (projectId) {
-      const project = projects.find(p => p.id === projectId);
+      const project = allProjects.find(p => p.id === projectId);
       if (project) {
         setCurrentProject(project);
       } else {
@@ -63,7 +66,7 @@ export const KickoffFlow: React.FC = () => {
         navigate('/');
       }
     }
-  }, [projectId, projects, setCurrentProject, navigate]);
+  }, [projectId, allProjects, setCurrentProject, navigate]);
 
   // Debug logging for step data
   useEffect(() => {
