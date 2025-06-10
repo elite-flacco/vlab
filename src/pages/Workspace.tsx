@@ -49,6 +49,7 @@ export const Workspace: React.FC = () => {
     secrets: [],
   });
   const [loading, setLoading] = useState(false);
+  const [isProjectLoading, setIsProjectLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -61,6 +62,7 @@ export const Workspace: React.FC = () => {
     projectId,
     currentProject: currentProject?.id,
     loading,
+    isProjectLoading,
     error,
     retryCount,
     isRetrying,
@@ -241,63 +243,81 @@ export const Workspace: React.FC = () => {
 
   // Handle project selection and data fetching
   useEffect(() => {
-    // Wait for projects to be loaded and user to be available
-    if (projectId && allProjects.length > 0 && !projectsLoading && user) {
+    console.log('🔄 Workspace: useEffect[projectId, allProjects, projectsLoading, workspaceData] triggered', {
+      projectId,
+      allProjectsLength: allProjects.length,
+      currentProjectId: currentProject?.id,
+      projectsLoading,
+      userExists: !!user,
+      hasWorkspaceData: Object.values(workspaceData).some(arr => arr.length > 0),
+      loading,
+      isProjectLoading,
+    });
+
+    // Wait for user to be available
+    if (!user) {
+      console.log('⏳ Workspace: Waiting for user to be available');
+      return;
+    }
+
+    // If we have a projectId but no currentProject or currentProject doesn't match
+    if (projectId && (!currentProject || currentProject.id !== projectId)) {
+      console.log('🔍 Workspace: Need to load project:', projectId);
+      
+      // First check if project exists in already-loaded projects
       const project = allProjects.find(p => p.id === projectId);
-      console.log('🔍 Workspace: Looking for project:', projectId, 'found:', !!project);
       
       if (project) {
-        // Only set current project if it's different from the current one
-        if (!currentProject || currentProject.id !== project.id) {
-          console.log('🔄 Workspace: Setting current project:', project.name);
-          setCurrentProject(project);
-        }
+        console.log('🔄 Workspace: Found project in loaded projects, setting as current:', project.name);
+        setCurrentProject(project);
+      } else if (!projectsLoading && allProjects.length > 0) {
+        // Projects have been loaded but project not found in list - try fetching it directly
+        console.log('🔍 Workspace: Project not found in loaded projects, fetching directly');
+        setIsProjectLoading(true);
         
-        // Only fetch data if we haven't already loaded data for this project AND we're not currently loading
-        const hasWorkspaceData = Object.values(workspaceData).some(arr => arr.length > 0);
-        console.log('🔄 Workspace: workspaceData:', workspaceData);
-        console.log('🔄 Workspace: hasWorkspaceData:', hasWorkspaceData);
-        console.log('🔄 Workspace: loading:', loading);
-        if (!hasWorkspaceData && !loading) {
-          console.log('📡 Workspace: Triggering fetchWorkspaceData');
-          fetchWorkspaceData(projectId);
-        } else if (hasWorkspaceData) {
-          console.log('📡 Workspace: Workspace data already loaded, skipping fetch');
-        } else if (loading) {
-          console.log('📡 Workspace: Already loading workspace data, skipping fetch');
-        }
-      } else {
-        // Project not found, redirect to dashboard
-        console.log('❌ Workspace: Project not found, redirecting to dashboard');
+        db.getProject(projectId)
+          .then(({ data, error }) => {
+            if (error) {
+              console.error('❌ Workspace: Error fetching project:', error);
+              // Project not found, redirect to dashboard
+              navigate('/');
+            } else if (data) {
+              console.log('✅ Workspace: Project fetched successfully:', data.name);
+              setCurrentProject(data);
+            } else {
+              console.log('❌ Workspace: Project not found, redirecting to dashboard');
+              navigate('/');
+            }
+          })
+          .catch((error) => {
+            console.error('❌ Workspace: Error fetching project:', error);
+            navigate('/');
+          })
+          .finally(() => {
+            setIsProjectLoading(false);
+          });
+      } else if (!projectsLoading && allProjects.length === 0 && !projectsError) {
+        // No projects exist for user - redirect to dashboard
+        console.log('❌ Workspace: No projects exist for user, redirecting to dashboard');
         navigate('/');
       }
-    } else if (projectId && !projectsLoading && allProjects.length === 0 && user && !projectsError) {
-      // Projects have been loaded but none exist - redirect to dashboard
-      console.log('❌ Workspace: No projects exist for user, redirecting to dashboard');
-      navigate('/');
-    } else {
-      console.log('⏳ Workspace: Waiting for conditions to be met:', {
-        hasProjectId: !!projectId,
-        hasProjects: allProjects.length > 0,
-        projectsNotLoading: !projectsLoading,
-        hasUser: !!user,
-        noProjectsError: !projectsError
-      });
+      // If projectsLoading is true, we wait for projects to load first
+    }
+
+    // Once we have a currentProject that matches the URL, fetch workspace data if needed
+    if (currentProject && currentProject.id === projectId) {
+      const hasWorkspaceData = Object.values(workspaceData).some(arr => arr.length > 0);
+      
+      if (!hasWorkspaceData && !loading) {
+        console.log('📡 Workspace: Triggering fetchWorkspaceData for current project');
+        fetchWorkspaceData(projectId);
+      } else if (hasWorkspaceData) {
+        console.log('📡 Workspace: Workspace data already loaded for current project');
+      } else if (loading) {
+        console.log('📡 Workspace: Already loading workspace data');
+      }
     }
   }, [projectId, allProjects, currentProject, setCurrentProject, fetchWorkspaceData, navigate, projectsLoading, user, projectsError, workspaceData, loading]);
-
-  // // Handle navigation when currentProject changes from sidebar
-  // useEffect(() => {
-  //   console.log('🔄 Workspace: useEffect[currentProject, projectId] triggered', {
-  //     currentProjectId: currentProject?.id,
-  //     urlProjectId: projectId,
-  //   });
-
-  //   if (currentProject && currentProject.id !== projectId) {
-  //     console.log('🧭 Workspace: Navigating to different project:', currentProject.id);
-  //     navigate(`/workspace/${currentProject.id}`);
-  //   }
-  // }, [currentProject, projectId, navigate]);
 
   const handleAddMissingModules = async () => {
     console.log('➕ Workspace: handleAddMissingModules called');
@@ -400,9 +420,9 @@ export const Workspace: React.FC = () => {
     }
   };
 
-  // Show loading if either projects are loading OR workspace data is loading
-  if (projectsLoading || loading) {
-    console.log('⏳ Workspace: Rendering loading state', { projectsLoading, loading });
+  // Show loading if projects are loading OR we're loading a specific project OR workspace data is loading
+  if (projectsLoading || isProjectLoading || loading) {
+    console.log('⏳ Workspace: Rendering loading state', { projectsLoading, isProjectLoading, loading });
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
@@ -410,6 +430,7 @@ export const Workspace: React.FC = () => {
           <p className="mt-4 text-gray-600">
             {isRetrying ? 'Retrying connection...' : 
              projectsLoading ? 'Loading projects...' : 
+             isProjectLoading ? 'Loading project...' :
              'Loading workspace...'}
           </p>
         </div>
@@ -472,16 +493,11 @@ export const Workspace: React.FC = () => {
     );
   }
 
-  if (!currentProject) {
-    console.log('⏳ Workspace: Rendering no project state');
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading project...</p>
-        </div>
-      </div>
-    );
+  // Always render workspace content if we have a projectId, even without currentProject or data
+  if (!projectId) {
+    console.log('❌ Workspace: No projectId in URL, redirecting to dashboard');
+    navigate('/');
+    return null;
   }
 
   console.log('✅ Workspace: Rendering main workspace content');
@@ -491,27 +507,34 @@ export const Workspace: React.FC = () => {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            {currentProject.name}
+            {currentProject?.name || 'Loading Project...'}
           </h1>
-          {currentProject.description && (
+          {currentProject?.description && (
             <p className="text-gray-600">{currentProject.description}</p>
           )}
-          <p className="text-xs text-gray-500 mt-1">Project ID: {currentProject.id}</p>
+          <p className="text-xs text-gray-500 mt-1">Project ID: {projectId}</p>
         </div>
         
         <div className="flex items-center space-x-3">
           <button 
             onClick={handleAddMissingModules}
-            className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+            disabled={!currentProject}
+            className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <Plus className="w-4 h-4 mr-2" />
             Add Missing Modules
           </button>
-          <button className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+          <button 
+            disabled={!currentProject}
+            className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
             <Grid3X3 className="w-4 h-4 mr-2" />
             Layout
           </button>
-          <button className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+          <button 
+            disabled={!currentProject}
+            className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
             <Settings className="w-4 h-4 mr-2" />
             Settings
           </button>
@@ -519,7 +542,8 @@ export const Workspace: React.FC = () => {
             onClick={() => {
               setShowDeleteConfirm(true);
             }}
-            className="inline-flex items-center px-3 py-2 border border-red-300 text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50 transition-colors"
+            disabled={!currentProject}
+            className="inline-flex items-center px-3 py-2 border border-red-300 text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <Trash2 className="w-4 h-4 mr-2" />
             Delete Project
@@ -528,7 +552,7 @@ export const Workspace: React.FC = () => {
       </div>
 
       {/* Delete Confirmation Modal */}
-      {showDeleteConfirm && (
+      {showDeleteConfirm && currentProject && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-md transform transition-all">
             <div className="p-6">
@@ -586,6 +610,7 @@ export const Workspace: React.FC = () => {
       {/* Module Cards Grid */}
       <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {ALL_MODULE_TYPES.map((type) => {
+          console.log('🎯 Workspace: Rendering module card for:', type);
           return (
             <ModuleCard
               key={type}

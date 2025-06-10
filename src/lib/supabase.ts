@@ -107,6 +107,21 @@ export const db = {
   },
 
   // Projects
+  getProject: async (projectId: string) => {
+    console.log('📊 DB: Getting single project:', projectId);
+    const operation = () => supabase
+      .from('projects')
+      .select('*')
+      .eq('id', projectId)
+      .single();
+    
+    return withTimeout(
+      withTiming('DB GetProject', operation),
+      DB_TIMEOUT,
+      'Get project operation timed out'
+    );
+  },
+
   getProjects: async (userId: string) => {
     console.log('📊 DB: Getting all projects for user:', userId);
     const operation = () => supabase
