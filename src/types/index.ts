@@ -78,10 +78,15 @@ export interface Prompt {
   id: string;
   project_id: string;
   name: string;
+  description: string;
   content: string;
   variables: PromptVariable[];
   version: number;
   is_template: boolean;
+  category: string;
+  tags: string[];
+  usage_count: number;
+  parent_id?: string;
   created_at: string;
   updated_at: string;
 }

@@ -442,6 +442,20 @@ export const db = {
     );
   },
 
+  deletePrompt: async (id: string) => {
+    console.log('📊 DB: Deleting prompt:', id);
+    const operation = () => supabase
+      .from('prompts')
+      .delete()
+      .eq('id', id);
+    
+    return withTimeout(
+      withTiming('DB DeletePrompt', operation),
+      DB_TIMEOUT,
+      'Delete prompt operation timed out'
+    );
+  },
+
   // Scratchpad Notes
   getScratchpadNotes: async (projectId: string) => {
     console.log('📊 DB: Getting scratchpad notes for project:', projectId);
