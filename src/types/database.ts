@@ -307,6 +307,7 @@ export interface Database {
           title: string;
           description: string;
           status: string;
+          phase: string;
           start_date: string | null;
           end_date: string | null;
           progress: number;
@@ -323,6 +324,7 @@ export interface Database {
           title: string;
           description?: string;
           status?: string;
+          phase?: string;
           start_date?: string | null;
           end_date?: string | null;
           progress?: number;
@@ -339,6 +341,7 @@ export interface Database {
           title?: string;
           description?: string;
           status?: string;
+          phase?: string;
           start_date?: string | null;
           end_date?: string | null;
           progress?: number;

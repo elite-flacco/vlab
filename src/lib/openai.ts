@@ -15,6 +15,7 @@ interface RoadmapItem {
   title: string;
   description: string;
   status: 'planned' | 'in_progress' | 'completed';
+  phase: 'mvp' | 'phase_2' | 'backlog';
   start_date?: string;
   end_date?: string;
   milestone: boolean;
@@ -221,7 +222,7 @@ export const generateRoadmap = async (prdContent: string): Promise<RoadmapItem[]
             role: 'system',
             content: `You are a senior product manager creating a development roadmap. Based on the PRD provided, generate a phased roadmap that breaks down the project into logical development phases.
 
-Create 3-5 roadmap items representing different phases (MVP, Phase 2, Phase 3, etc.). Each phase should build upon the previous one.
+Create 3-5 roadmap items representing different phases. Each phase should build upon the previous one.
 
 Return ONLY a valid JSON array with this exact structure:
 [
@@ -229,6 +230,7 @@ Return ONLY a valid JSON array with this exact structure:
     "title": "MVP - Core Features",
     "description": "Detailed description of what will be built in this phase",
     "status": "planned",
+    "phase": "mvp",
     "milestone": true,
     "color": "#3b82f6",
     "position": 0
@@ -236,12 +238,14 @@ Return ONLY a valid JSON array with this exact structure:
 ]
 
 Guidelines:
-- First phase should be MVP with core features
-- Each phase should have a clear focus and deliverables
+- First phase should ALWAYS have phase: "mvp" with core features
+- Second phase should have phase: "phase_2" for enhanced features
+- Additional phases should have phase: "backlog" for future items
 - Mark major phases as milestones (milestone: true)
 - Use colors: #3b82f6 (blue), #10b981 (green), #f59e0b (amber), #ef4444 (red), #8b5cf6 (purple)
 - Keep descriptions concise but specific
-- Status should always be "planned" for new roadmaps`
+- Status should always be "planned" for new roadmaps
+- Position should increment from 0`
           },
           {
             role: 'user',
@@ -282,6 +286,7 @@ Guidelines:
         title: item.title || `Phase ${index + 1}`,
         description: item.description || 'Description not provided',
         status: 'planned' as const,
+        phase: item.phase || (index === 0 ? 'mvp' : index === 1 ? 'phase_2' : 'backlog'),
         milestone: item.milestone || false,
         color: item.color || '#3b82f6',
         position: index,
@@ -295,6 +300,7 @@ Guidelines:
           title: 'MVP - Core Features',
           description: 'Build the essential features needed for the minimum viable product',
           status: 'planned' as const,
+          phase: 'mvp' as const,
           milestone: true,
           color: '#3b82f6',
           position: 0,
@@ -303,15 +309,17 @@ Guidelines:
           title: 'Phase 2 - Enhanced Features',
           description: 'Add additional features and improvements based on user feedback',
           status: 'planned' as const,
+          phase: 'phase_2' as const,
           milestone: false,
           color: '#10b981',
           position: 1,
         },
         {
-          title: 'Phase 3 - Scale & Optimize',
-          description: 'Focus on performance, scalability, and advanced features',
+          title: 'Future Enhancements',
+          description: 'Advanced features and optimizations for future releases',
           status: 'planned' as const,
-          milestone: true,
+          phase: 'backlog' as const,
+          milestone: false,
           color: '#f59e0b',
           position: 2,
         },

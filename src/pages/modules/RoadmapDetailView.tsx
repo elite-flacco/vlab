@@ -11,6 +11,7 @@ interface RoadmapItem {
   title: string;
   description: string;
   status: 'planned' | 'in_progress' | 'completed' | 'cancelled';
+  phase: 'mvp' | 'phase_2' | 'backlog';
   start_date: string | null;
   end_date: string | null;
   progress: number;
@@ -90,6 +91,7 @@ export const RoadmapDetailView: React.FC = () => {
         title: itemData.title || 'New Phase',
         description: itemData.description || '',
         status: itemData.status || 'planned',
+        phase: itemData.phase || 'backlog',
         start_date: itemData.start_date || null,
         end_date: itemData.end_date || null,
         progress: itemData.progress || 0,
@@ -181,7 +183,23 @@ export const RoadmapDetailView: React.FC = () => {
     await handleUpdateRoadmapItem(itemId, { color: newColor });
   };
 
+  const handleDirectPhaseChange = async (itemId: string, newPhase: string) => {
+    // Update local state immediately
+    const updatedItems = roadmapItems.map(item => 
+      item.id === itemId ? { ...item, phase: newPhase as RoadmapItem['phase'] } : item
+    );
+    setRoadmapItems(updatedItems);
+    
+    // Save to database
+    await handleUpdateRoadmapItem(itemId, { phase: newPhase as RoadmapItem['phase'] });
+  };
+
   const sortedItems = roadmapItems.sort((a, b) => a.position - b.position);
+
+  // Group items by phase for Kanban view
+  const mvpItems = roadmapItems.filter(item => item.phase === 'mvp');
+  const phase2Items = roadmapItems.filter(item => item.phase === 'phase_2');
+  const backlogItems = roadmapItems.filter(item => item.phase === 'backlog');
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -199,6 +217,15 @@ export const RoadmapDetailView: React.FC = () => {
     return 'bg-gray-300';
   };
 
+  const getPhaseColor = (phase: string) => {
+    switch (phase) {
+      case 'mvp': return 'bg-red-100 text-red-800 border-red-200';
+      case 'phase_2': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'backlog': return 'bg-gray-100 text-gray-800 border-gray-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
   const colorOptions = [
     { value: '#3b82f6', label: 'Blue', class: 'bg-blue-500' },
     { value: '#10b981', label: 'Green', class: 'bg-green-500' },
@@ -209,6 +236,336 @@ export const RoadmapDetailView: React.FC = () => {
     { value: '#84cc16', label: 'Lime', class: 'bg-lime-500' },
     { value: '#f97316', label: 'Orange', class: 'bg-orange-500' },
   ];
+
+  const renderRoadmapItem = (item: RoadmapItem, showPhaseSelector = false) => (
+    <div 
+      key={item.id}
+      className="bg-white border-2 rounded-lg p-3 hover:shadow-sm transition-shadow mb-3"
+      style={{ borderColor: item.color }}
+    >
+      {editingItemId === item.id ? (
+        // Edit Form
+        <div className="space-y-3">
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">Title</label>
+            <input
+              type="text"
+              value={item.title}
+              onChange={(e) => {
+                const updatedItems = roadmapItems.map(i => 
+                  i.id === item.id ? { ...i, title: e.target.value } : i
+                );
+                setRoadmapItems(updatedItems);
+              }}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm font-semibold"
+              placeholder="Phase title"
+              autoFocus
+            />
+          </div>
+          
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">Description</label>
+            <textarea
+              value={item.description}
+              onChange={(e) => {
+                const updatedItems = roadmapItems.map(i => 
+                  i.id === item.id ? { ...i, description: e.target.value } : i
+                );
+                setRoadmapItems(updatedItems);
+              }}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm resize-none"
+              rows={3}
+              placeholder="Phase description..."
+            />
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Status</label>
+              <select
+                value={item.status}
+                onChange={(e) => {
+                  const updatedItems = roadmapItems.map(i => 
+                    i.id === item.id ? { ...i, status: e.target.value as any } : i
+                  );
+                  setRoadmapItems(updatedItems);
+                }}
+                className="w-full px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 text-xs"
+              >
+                <option value="planned">Planned</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Phase</label>
+              <select
+                value={item.phase}
+                onChange={(e) => {
+                  const updatedItems = roadmapItems.map(i => 
+                    i.id === item.id ? { ...i, phase: e.target.value as any } : i
+                  );
+                  setRoadmapItems(updatedItems);
+                }}
+                className="w-full px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 text-xs"
+              >
+                <option value="mvp">MVP</option>
+                <option value="phase_2">Phase 2</option>
+                <option value="backlog">Backlog</option>
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Progress (%)</label>
+              <input
+                type="number"
+                value={item.progress}
+                onChange={(e) => {
+                  const progress = Math.max(0, Math.min(100, Number(e.target.value)));
+                  const updatedItems = roadmapItems.map(i => 
+                    i.id === item.id ? { ...i, progress } : i
+                  );
+                  setRoadmapItems(updatedItems);
+                }}
+                className="w-full px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 text-xs"
+                min="0"
+                max="100"
+              />
+            </div>
+          </div>
+          
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">Color</label>
+            <div className="flex flex-wrap gap-1">
+              {colorOptions.map((color) => (
+                <button
+                  key={color.value}
+                  onClick={() => {
+                    const updatedItems = roadmapItems.map(i => 
+                      i.id === item.id ? { ...i, color: color.value } : i
+                    );
+                    setRoadmapItems(updatedItems);
+                  }}
+                  className={`w-5 h-5 rounded-full border-2 ${color.class} ${
+                    item.color === color.value ? 'border-gray-800' : 'border-gray-300'
+                  } hover:border-gray-600 transition-colors`}
+                  title={color.label}
+                />
+              ))}
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Start Date</label>
+              <input
+                type="date"
+                value={item.start_date || ''}
+                onChange={(e) => {
+                  const updatedItems = roadmapItems.map(i => 
+                    i.id === item.id ? { ...i, start_date: e.target.value || null } : i
+                  );
+                  setRoadmapItems(updatedItems);
+                }}
+                className="w-full px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 text-xs"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">End Date</label>
+              <input
+                type="date"
+                value={item.end_date || ''}
+                onChange={(e) => {
+                  const updatedItems = roadmapItems.map(i => 
+                    i.id === item.id ? { ...i, end_date: e.target.value || null } : i
+                  );
+                  setRoadmapItems(updatedItems);
+                }}
+                className="w-full px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 text-xs"
+              />
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <label className="flex items-center space-x-2 text-sm">
+              <input
+                type="checkbox"
+                checked={item.milestone}
+                onChange={(e) => {
+                  const updatedItems = roadmapItems.map(i => 
+                    i.id === item.id ? { ...i, milestone: e.target.checked } : i
+                  );
+                  setRoadmapItems(updatedItems);
+                }}
+                className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+              />
+              <span className="text-gray-700">Mark as milestone</span>
+            </label>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => handleUpdateRoadmapItem(item.id, item)}
+              disabled={saving}
+              className="inline-flex items-center px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
+            >
+              {saving ? (
+                <>
+                  <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="w-3 h-3 mr-1" />
+                  Save
+                </>
+              )}
+            </button>
+            <button
+              onClick={() => setEditingItemId(null)}
+              disabled={saving}
+              className="inline-flex items-center px-3 py-1 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors text-sm"
+            >
+              <X className="w-3 h-3 mr-1" />
+              Cancel
+            </button>
+          </div>
+        </div>
+      ) : (
+        // Display Mode with Direct Editing
+        <div>
+          <div className="flex items-start justify-between mb-2">
+            <div className="flex items-center space-x-2">
+              {/* Direct Color Picker */}
+              <div className="relative group">
+                <div 
+                  className="w-3 h-3 rounded-full cursor-pointer border border-gray-300 hover:border-gray-500 transition-colors"
+                  style={{ backgroundColor: item.color }}
+                />
+                <div className="absolute top-5 left-0 hidden group-hover:block bg-white border border-gray-200 rounded-lg p-2 shadow-lg z-10">
+                  <div className="flex flex-wrap gap-1 w-24">
+                    {colorOptions.map((color) => (
+                      <button
+                        key={color.value}
+                        onClick={() => handleDirectColorChange(item.id, color.value)}
+                        className={`w-4 h-4 rounded-full border ${color.class} ${
+                          item.color === color.value ? 'border-gray-800' : 'border-gray-300'
+                        } hover:border-gray-600 transition-colors`}
+                        title={color.label}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <h4 className="font-semibold text-gray-900 text-sm">{item.title}</h4>
+              {/* Direct Milestone Toggle */}
+              <input
+                type="checkbox"
+                checked={item.milestone}
+                onChange={(e) => handleDirectMilestoneToggle(item.id, e.target.checked)}
+                disabled={saving}
+                className="rounded border-gray-300 text-yellow-600 focus:ring-yellow-500 disabled:opacity-50"
+                title="Toggle milestone"
+              />
+              {item.milestone && (
+                <Target className="w-4 h-4 text-yellow-500" />
+              )}
+            </div>
+            <div className="flex items-center space-x-2">
+              {/* Direct Status Dropdown */}
+              <select
+                value={item.status}
+                onChange={(e) => handleDirectStatusChange(item.id, e.target.value)}
+                disabled={saving}
+                className={`appearance-none cursor-pointer px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(item.status)} disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-1`}
+              >
+                <option value="planned">Planned</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+              {/* Direct Phase Dropdown (only show in timeline view) */}
+              {showPhaseSelector && (
+                <select
+                  value={item.phase}
+                  onChange={(e) => handleDirectPhaseChange(item.id, e.target.value)}
+                  disabled={saving}
+                  className={`appearance-none cursor-pointer px-2 py-1 rounded-full text-xs font-medium border ${getPhaseColor(item.phase)} disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-1`}
+                >
+                  <option value="mvp">MVP</option>
+                  <option value="phase_2">Phase 2</option>
+                  <option value="backlog">Backlog</option>
+                </select>
+              )}
+              <div className="flex items-center space-x-1">
+                <button
+                  onClick={() => setEditingItemId(item.id)}
+                  className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                  title="Edit item"
+                >
+                  <Edit3 className="w-3 h-3" />
+                </button>
+                <button
+                  onClick={() => handleDeleteRoadmapItem(item.id)}
+                  disabled={saving}
+                  className="p-1 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50"
+                  title="Delete item"
+                >
+                  <Trash2 className="w-3 h-3" />
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <p className="text-gray-600 text-xs mb-3 leading-relaxed">{item.description}</p>
+          
+          {/* Direct Progress Input */}
+          <div className="mb-3">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs text-gray-500">Progress</span>
+              <input
+                type="number"
+                value={item.progress}
+                onChange={(e) => handleDirectProgressChange(item.id, Number(e.target.value))}
+                disabled={saving}
+                className="w-12 px-1 py-0 text-xs font-medium text-gray-700 bg-transparent border-none focus:outline-none focus:ring-1 focus:ring-green-500 rounded disabled:opacity-50"
+                min="0"
+                max="100"
+              />
+              <span className="text-xs text-gray-500">%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-1.5">
+              <div 
+                className={`h-1.5 rounded-full transition-all ${getProgressColor(item.progress)}`}
+                style={{ width: `${item.progress}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Dates */}
+          {(item.start_date || item.end_date) && (
+            <div className="flex items-center space-x-3 text-xs text-gray-500">
+              {item.start_date && (
+                <div className="flex items-center space-x-1">
+                  <Calendar className="w-3 h-3" />
+                  <span>Start: {format(new Date(item.start_date), 'MMM d')}</span>
+                </div>
+              )}
+              {item.end_date && (
+                <div className="flex items-center space-x-1">
+                  <Calendar className="w-3 h-3" />
+                  <span>End: {format(new Date(item.end_date), 'MMM d')}</span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
 
   if (loading) {
     return (
@@ -280,6 +637,7 @@ export const RoadmapDetailView: React.FC = () => {
                   title: '',
                   description: '',
                   status: 'planned',
+                  phase: 'mvp',
                   progress: 0,
                   milestone: false,
                   color: '#3b82f6',
@@ -341,6 +699,7 @@ export const RoadmapDetailView: React.FC = () => {
                 title: '',
                 description: '',
                 status: 'planned',
+                phase: 'mvp',
                 progress: 0,
                 milestone: false,
                 color: '#3b82f6',
@@ -356,6 +715,62 @@ export const RoadmapDetailView: React.FC = () => {
           {/* Roadmap Content */}
           <div className="flex-1 overflow-y-auto">
             {viewMode === 'kanban' ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-full">
+                {/* MVP Column */}
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-semibold text-red-900 flex items-center">
+                      <Target className="w-4 h-4 mr-2" />
+                      MVP ({mvpItems.length})
+                    </h3>
+                  </div>
+                  <div className="space-y-3 max-h-96 overflow-y-auto">
+                    {mvpItems.map(item => renderRoadmapItem(item))}
+                    {mvpItems.length === 0 && (
+                      <div className="text-center py-8 text-gray-500">
+                        <p className="text-sm">No MVP items yet</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Phase 2 Column */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-semibold text-blue-900 flex items-center">
+                      <Map className="w-4 h-4 mr-2" />
+                      Phase 2 ({phase2Items.length})
+                    </h3>
+                  </div>
+                  <div className="space-y-3 max-h-96 overflow-y-auto">
+                    {phase2Items.map(item => renderRoadmapItem(item))}
+                    {phase2Items.length === 0 && (
+                      <div className="text-center py-8 text-gray-500">
+                        <p className="text-sm">No Phase 2 items yet</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Backlog Column */}
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-semibold text-gray-900 flex items-center">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Backlog ({backlogItems.length})
+                    </h3>
+                  </div>
+                  <div className="space-y-3 max-h-96 overflow-y-auto">
+                    {backlogItems.map(item => renderRoadmapItem(item))}
+                    {backlogItems.length === 0 && (
+                      <div className="text-center py-8 text-gray-500">
+                        <p className="text-sm">No backlog items yet</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : (
               <div className="space-y-3">
                 {/* New Roadmap Item Form - Now at the top */}
                 {newRoadmapItem && (
@@ -385,7 +800,7 @@ export const RoadmapDetailView: React.FC = () => {
                         />
                       </div>
                       
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                         <div>
                           <label className="block text-xs font-medium text-gray-700 mb-1">Status</label>
                           <select
@@ -397,6 +812,19 @@ export const RoadmapDetailView: React.FC = () => {
                             <option value="in_progress">In Progress</option>
                             <option value="completed">Completed</option>
                             <option value="cancelled">Cancelled</option>
+                          </select>
+                        </div>
+                        
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">Phase</label>
+                          <select
+                            value={newRoadmapItem.phase || 'mvp'}
+                            onChange={(e) => setNewRoadmapItem(prev => ({ ...prev, phase: e.target.value as any }))}
+                            className="w-full px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs"
+                          >
+                            <option value="mvp">MVP</option>
+                            <option value="phase_2">Phase 2</option>
+                            <option value="backlog">Backlog</option>
                           </select>
                         </div>
                         
@@ -497,338 +925,8 @@ export const RoadmapDetailView: React.FC = () => {
                   </div>
                 )}
 
-                {/* Existing Roadmap Items */}
-                {sortedItems.map((item, index) => (
-                  <div key={item.id} className="relative">
-                    <div 
-                      className="bg-white border-2 rounded-lg p-3 hover:shadow-sm transition-shadow"
-                      style={{ borderColor: item.color }}
-                    >
-                      {editingItemId === item.id ? (
-                        // Edit Form
-                        <div className="space-y-3">
-                          <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">Title</label>
-                            <input
-                              type="text"
-                              value={item.title}
-                              onChange={(e) => {
-                                const updatedItems = roadmapItems.map(i => 
-                                  i.id === item.id ? { ...i, title: e.target.value } : i
-                                );
-                                setRoadmapItems(updatedItems);
-                              }}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm font-semibold"
-                              placeholder="Phase title"
-                              autoFocus
-                            />
-                          </div>
-                          
-                          <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">Description</label>
-                            <textarea
-                              value={item.description}
-                              onChange={(e) => {
-                                const updatedItems = roadmapItems.map(i => 
-                                  i.id === item.id ? { ...i, description: e.target.value } : i
-                                );
-                                setRoadmapItems(updatedItems);
-                              }}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm resize-none"
-                              rows={3}
-                              placeholder="Phase description..."
-                            />
-                          </div>
-                          
-                          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                            <div>
-                              <label className="block text-xs font-medium text-gray-700 mb-1">Status</label>
-                              <select
-                                value={item.status}
-                                onChange={(e) => {
-                                  const updatedItems = roadmapItems.map(i => 
-                                    i.id === item.id ? { ...i, status: e.target.value as any } : i
-                                  );
-                                  setRoadmapItems(updatedItems);
-                                }}
-                                className="w-full px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 text-xs"
-                              >
-                                <option value="planned">Planned</option>
-                                <option value="in_progress">In Progress</option>
-                                <option value="completed">Completed</option>
-                                <option value="cancelled">Cancelled</option>
-                              </select>
-                            </div>
-                            
-                            <div>
-                              <label className="block text-xs font-medium text-gray-700 mb-1">Progress (%)</label>
-                              <input
-                                type="number"
-                                value={item.progress}
-                                onChange={(e) => {
-                                  const progress = Math.max(0, Math.min(100, Number(e.target.value)));
-                                  const updatedItems = roadmapItems.map(i => 
-                                    i.id === item.id ? { ...i, progress } : i
-                                  );
-                                  setRoadmapItems(updatedItems);
-                                }}
-                                className="w-full px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 text-xs"
-                                min="0"
-                                max="100"
-                              />
-                            </div>
-                            
-                            <div>
-                              <label className="block text-xs font-medium text-gray-700 mb-1">Color</label>
-                              <div className="flex flex-wrap gap-1">
-                                {colorOptions.slice(0, 4).map((color) => (
-                                  <button
-                                    key={color.value}
-                                    onClick={() => {
-                                      const updatedItems = roadmapItems.map(i => 
-                                        i.id === item.id ? { ...i, color: color.value } : i
-                                      );
-                                      setRoadmapItems(updatedItems);
-                                    }}
-                                    className={`w-5 h-5 rounded-full border-2 ${color.class} ${
-                                      item.color === color.value ? 'border-gray-800' : 'border-gray-300'
-                                    } hover:border-gray-600 transition-colors`}
-                                    title={color.label}
-                                  />
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                          
-                          <div className="grid grid-cols-2 gap-3">
-                            <div>
-                              <label className="block text-xs font-medium text-gray-700 mb-1">Start Date</label>
-                              <input
-                                type="date"
-                                value={item.start_date || ''}
-                                onChange={(e) => {
-                                  const updatedItems = roadmapItems.map(i => 
-                                    i.id === item.id ? { ...i, start_date: e.target.value || null } : i
-                                  );
-                                  setRoadmapItems(updatedItems);
-                                }}
-                                className="w-full px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 text-xs"
-                              />
-                            </div>
-                            
-                            <div>
-                              <label className="block text-xs font-medium text-gray-700 mb-1">End Date</label>
-                              <input
-                                type="date"
-                                value={item.end_date || ''}
-                                onChange={(e) => {
-                                  const updatedItems = roadmapItems.map(i => 
-                                    i.id === item.id ? { ...i, end_date: e.target.value || null } : i
-                                  );
-                                  setRoadmapItems(updatedItems);
-                                }}
-                                className="w-full px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 text-xs"
-                              />
-                            </div>
-                          </div>
-                          
-                          <div className="flex items-center space-x-2">
-                            <label className="flex items-center space-x-2 text-sm">
-                              <input
-                                type="checkbox"
-                                checked={item.milestone}
-                                onChange={(e) => {
-                                  const updatedItems = roadmapItems.map(i => 
-                                    i.id === item.id ? { ...i, milestone: e.target.checked } : i
-                                  );
-                                  setRoadmapItems(updatedItems);
-                                }}
-                                className="rounded border-gray-300 text-green-600 focus:ring-green-500"
-                              />
-                              <span className="text-gray-700">Mark as milestone</span>
-                            </label>
-                          </div>
-                          
-                          <div className="flex items-center space-x-2">
-                            <button
-                              onClick={() => handleUpdateRoadmapItem(item.id, item)}
-                              disabled={saving}
-                              className="inline-flex items-center px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
-                            >
-                              {saving ? (
-                                <>
-                                  <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-                                  Saving...
-                                </>
-                              ) : (
-                                <>
-                                  <Save className="w-3 h-3 mr-1" />
-                                  Save
-                                </>
-                              )}
-                            </button>
-                            <button
-                              onClick={() => setEditingItemId(null)}
-                              disabled={saving}
-                              className="inline-flex items-center px-3 py-1 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors text-sm"
-                            >
-                              <X className="w-3 h-3 mr-1" />
-                              Cancel
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        // Display Mode with Direct Editing
-                        <div>
-                          <div className="flex items-start justify-between mb-2">
-                            <div className="flex items-center space-x-2">
-                              {/* Direct Color Picker */}
-                              <div className="relative group">
-                                <div 
-                                  className="w-3 h-3 rounded-full cursor-pointer border border-gray-300 hover:border-gray-500 transition-colors"
-                                  style={{ backgroundColor: item.color }}
-                                />
-                                <div className="absolute top-5 left-0 hidden group-hover:block bg-white border border-gray-200 rounded-lg p-2 shadow-lg z-10">
-                                  <div className="flex flex-wrap gap-1 w-24">
-                                    {colorOptions.map((color) => (
-                                      <button
-                                        key={color.value}
-                                        onClick={() => handleDirectColorChange(item.id, color.value)}
-                                        className={`w-4 h-4 rounded-full border ${color.class} ${
-                                          item.color === color.value ? 'border-gray-800' : 'border-gray-300'
-                                        } hover:border-gray-600 transition-colors`}
-                                        title={color.label}
-                                      />
-                                    ))}
-                                  </div>
-                                </div>
-                              </div>
-                              <h4 className="font-semibold text-gray-900 text-sm">{item.title}</h4>
-                              {/* Direct Milestone Toggle */}
-                              <input
-                                type="checkbox"
-                                checked={item.milestone}
-                                onChange={(e) => handleDirectMilestoneToggle(item.id, e.target.checked)}
-                                disabled={saving}
-                                className="rounded border-gray-300 text-yellow-600 focus:ring-yellow-500 disabled:opacity-50"
-                                title="Toggle milestone"
-                              />
-                              {item.milestone && (
-                                <Target className="w-4 h-4 text-yellow-500" />
-                              )}
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              {/* Direct Status Dropdown */}
-                              <select
-                                value={item.status}
-                                onChange={(e) => handleDirectStatusChange(item.id, e.target.value)}
-                                disabled={saving}
-                                className={`appearance-none cursor-pointer px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(item.status)} disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-1`}
-                              >
-                                <option value="planned">Planned</option>
-                                <option value="in_progress">In Progress</option>
-                                <option value="completed">Completed</option>
-                                <option value="cancelled">Cancelled</option>
-                              </select>
-                              <div className="flex items-center space-x-1">
-                                <button
-                                  onClick={() => setEditingItemId(item.id)}
-                                  className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
-                                  title="Edit item"
-                                >
-                                  <Edit3 className="w-3 h-3" />
-                                </button>
-                                <button
-                                  onClick={() => handleDeleteRoadmapItem(item.id)}
-                                  disabled={saving}
-                                  className="p-1 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50"
-                                  title="Delete item"
-                                >
-                                  <Trash2 className="w-3 h-3" />
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          <p className="text-gray-600 text-xs mb-3 leading-relaxed">{item.description}</p>
-                          
-                          {/* Direct Progress Input */}
-                          <div className="mb-3">
-                            <div className="flex items-center justify-between mb-1">
-                              <span className="text-xs text-gray-500">Progress</span>
-                              <input
-                                type="number"
-                                value={item.progress}
-                                onChange={(e) => handleDirectProgressChange(item.id, Number(e.target.value))}
-                                disabled={saving}
-                                className="w-12 px-1 py-0 text-xs font-medium text-gray-700 bg-transparent border-none focus:outline-none focus:ring-1 focus:ring-green-500 rounded disabled:opacity-50"
-                                min="0"
-                                max="100"
-                              />
-                              <span className="text-xs text-gray-500">%</span>
-                            </div>
-                            <div className="w-full bg-gray-200 rounded-full h-1.5">
-                              <div 
-                                className={`h-1.5 rounded-full transition-all ${getProgressColor(item.progress)}`}
-                                style={{ width: `${item.progress}%` }}
-                              />
-                            </div>
-                          </div>
-
-                          {/* Dates */}
-                          {(item.start_date || item.end_date) && (
-                            <div className="flex items-center space-x-3 text-xs text-gray-500">
-                              {item.start_date && (
-                                <div className="flex items-center space-x-1">
-                                  <Calendar className="w-3 h-3" />
-                                  <span>Start: {format(new Date(item.start_date), 'MMM d')}</span>
-                                </div>
-                              )}
-                              {item.end_date && (
-                                <div className="flex items-center space-x-1">
-                                  <Calendar className="w-3 h-3" />
-                                  <span>End: {format(new Date(item.end_date), 'MMM d')}</span>
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Connection Line */}
-                    {index < sortedItems.length - 1 && (
-                      <div className="flex justify-center my-2">
-                        <div className="w-0.5 h-4 bg-gray-300"></div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {sortedItems.map((item) => (
-                  <div key={item.id} className="bg-white border border-gray-200 rounded-lg p-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div 
-                          className="w-3 h-3 rounded-full"
-                          style={{ backgroundColor: item.color }}
-                        />
-                        <span className="font-medium text-gray-900 text-sm">{item.title}</span>
-                        {item.milestone && (
-                          <Target className="w-4 h-4 text-yellow-500" />
-                        )}
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <span className="text-xs text-gray-500">{item.progress}%</span>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(item.status)}`}>
-                          {item.status.replace('_', ' ')}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                {/* Timeline View - Show all items with phase selector */}
+                {sortedItems.map(item => renderRoadmapItem(item, true))}
               </div>
             )}
           </div>
