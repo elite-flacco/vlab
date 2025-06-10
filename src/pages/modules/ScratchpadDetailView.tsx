@@ -35,7 +35,6 @@ export const ScratchpadDetailView: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
-  const [isEditingList, setIsEditingList] = useState(false);
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [newNote, setNewNote] = useState<Partial<ScratchpadNote> | null>(null);
   const [saving, setSaving] = useState(false);
@@ -226,10 +225,10 @@ export const ScratchpadDetailView: React.FC = () => {
                   is_pinned: false,
                   tags: ['Project Notes'], // Default to first tag option
                 })}
-                className="inline-flex items-center px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors text-sm"
+                className="inline-flex items-center px-6 py-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors text-base font-medium shadow-lg"
               >
-                <Plus className="w-4 h-4 mr-2" />
-                Add Note
+                <Plus className="w-5 h-5 mr-2" />
+                New Note
               </button>
             </div>
           </div>
@@ -252,54 +251,59 @@ export const ScratchpadDetailView: React.FC = () => {
       
       <ModuleContainer title="Scratchpad" type="scratchpad">
         <div className="h-full flex flex-col">
-          {/* Header */}
-          <div className="flex items-center space-x-2 mb-4">
+          {/* Prominent New Note Button at the top */}
+          <div className="mb-6">
+            <button
+              onClick={() => setNewNote({
+                content: '',
+                color: '#fef3c7',
+                font_size: 14,
+                is_pinned: false,
+                tags: ['Project Notes'], // Default to first tag option
+              })}
+              disabled={!!newNote}
+              className="w-full inline-flex items-center justify-center px-6 py-4 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-lg hover:from-yellow-600 hover:to-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-lg font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            >
+              <Plus className="w-6 h-6 mr-3" />
+              New Note
+            </button>
+          </div>
+
+          {/* Search and Filter Controls */}
+          <div className="flex items-center space-x-3 mb-4">
             <div className="relative flex-1">
-              <Search className="w-4 h-4 absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search notes..."
-                className="w-full pl-8 pr-3 py-1 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+                className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
               />
-            </div>
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={() => setIsEditingList(!isEditingList)}
-                className={`inline-flex items-center px-3 py-1 text-xs rounded-md transition-colors ${
-                  isEditingList 
-                    ? 'bg-yellow-100 text-yellow-800' 
-                    : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                <Edit3 className="w-3 h-3 mr-1" />
-                {isEditingList ? 'Done Editing' : 'Edit Notes'}
-              </button>
             </div>
           </div>
 
           {/* Tags Filter */}
           {allTags.length > 0 && (
-            <div className="flex items-center space-x-2 mb-4 overflow-x-auto">
+            <div className="flex items-center space-x-2 mb-6 overflow-x-auto">
               <button
                 onClick={() => setSelectedTag(null)}
-                className={`px-2 py-1 text-xs rounded-full whitespace-nowrap transition-colors ${
+                className={`px-3 py-1 text-sm rounded-full whitespace-nowrap transition-colors ${
                   !selectedTag 
-                    ? 'bg-yellow-100 text-yellow-800' 
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    ? 'bg-yellow-100 text-yellow-800 border border-yellow-300' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-300'
                 }`}
               >
-                All
+                All Notes
               </button>
               {allTags.map((tag) => (
                 <button
                   key={tag}
                   onClick={() => setSelectedTag(tag)}
-                  className={`px-2 py-1 text-xs rounded-full whitespace-nowrap transition-colors ${
+                  className={`px-3 py-1 text-sm rounded-full whitespace-nowrap transition-colors ${
                     selectedTag === tag 
-                      ? 'bg-yellow-100 text-yellow-800' 
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      ? 'bg-yellow-100 text-yellow-800 border border-yellow-300' 
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-300'
                   }`}
                 >
                   {tag}
@@ -308,196 +312,38 @@ export const ScratchpadDetailView: React.FC = () => {
             </div>
           )}
 
-          {/* Notes Grid */}
+          {/* Notes List */}
           <div className="flex-1 overflow-y-auto">
-            <div className="grid grid-cols-1 gap-3">
-              {/* New Note Form - Rendered at the top when newNote state is active */}
+            <div className="space-y-4">
+              {/* New Note Form - Immediately displayed when New Note is clicked */}
               {newNote && (
-                <div className="bg-blue-50 border-2 border-dashed border-blue-300 rounded-lg p-4">
-                  <h4 className="font-medium text-blue-900 mb-3">Add New Note</h4>
-                  <div className="space-y-3">
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-6 shadow-lg">
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-lg font-semibold text-blue-900 flex items-center">
+                      <Plus className="w-5 h-5 mr-2" />
+                      Create New Note
+                    </h4>
+                  </div>
+                  
+                  <div className="space-y-4">
                     <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">Content</label>
                       <textarea
                         value={newNote.content || ''}
                         onChange={(e) => setNewNote(prev => ({ ...prev, content: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm resize-none"
-                        rows={4}
-                        placeholder="Write your note here..."
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm resize-none"
+                        rows={6}
+                        placeholder="Start writing your note here..."
                         autoFocus
                       />
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">Color</label>
-                        <div className="flex flex-wrap gap-1">
-                          {colorOptions.map((color) => (
-                            <button
-                              key={color.value}
-                              onClick={() => setNewNote(prev => ({ ...prev, color: color.value }))}
-                              className={`w-6 h-6 rounded-full border-2 ${color.class} ${
-                                newNote.color === color.value ? 'border-gray-800' : 'border-gray-300'
-                              } hover:border-gray-600 transition-colors`}
-                              title={color.label}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">Font Size</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Tag</label>
                         <select
-                          value={newNote.font_size || 14}
-                          onChange={(e) => setNewNote(prev => ({ ...prev, font_size: Number(e.target.value) }))}
-                          className="w-full px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs"
-                        >
-                          <option value={12}>Small (12px)</option>
-                          <option value={14}>Medium (14px)</option>
-                          <option value={16}>Large (16px)</option>
-                          <option value={18}>Extra Large (18px)</option>
-                        </select>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">Tag</label>
-                      <select
-                        value={newNote.tags?.[0] || TAG_OPTIONS[0]}
-                        onChange={(e) => setNewNote(prev => ({ ...prev, tags: [e.target.value] }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                      >
-                        {TAG_OPTIONS.map((tag) => (
-                          <option key={tag} value={tag}>
-                            {tag}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <label className="flex items-center space-x-2 text-sm">
-                        <input
-                          type="checkbox"
-                          checked={newNote.is_pinned || false}
-                          onChange={(e) => setNewNote(prev => ({ ...prev, is_pinned: e.target.checked }))}
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="text-gray-700">Pin this note</span>
-                      </label>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => handleCreateNote(newNote)}
-                        disabled={saving || !newNote.content?.trim()}
-                        className="inline-flex items-center px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
-                      >
-                        {saving ? (
-                          <>
-                            <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-                            Creating...
-                          </>
-                        ) : (
-                          <>
-                            <Plus className="w-3 h-3 mr-1" />
-                            Create Note
-                          </>
-                        )}
-                      </button>
-                      <button
-                        onClick={() => setNewNote(null)}
-                        disabled={saving}
-                        className="inline-flex items-center px-3 py-1 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors text-sm"
-                      >
-                        <X className="w-3 h-3 mr-1" />
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Existing Notes */}
-              {filteredNotes.map((note) => (
-                <div 
-                  key={note.id}
-                  className="relative bg-white border-l-4 border-yellow-400 rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow"
-                  style={{ backgroundColor: note.color || '#fef3c7' }}
-                >
-                  {editingNoteId === note.id ? (
-                    // Edit Form
-                    <div className="space-y-3">
-                      <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">Content</label>
-                        <textarea
-                          value={note.content}
-                          onChange={(e) => {
-                            const updatedNotes = notes.map(n => 
-                              n.id === note.id ? { ...n, content: e.target.value } : n
-                            );
-                            setNotes(updatedNotes);
-                          }}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-sm resize-none"
-                          rows={4}
-                          placeholder="Note content..."
-                          autoFocus
-                        />
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">Color</label>
-                          <div className="flex flex-wrap gap-1">
-                            {colorOptions.map((color) => (
-                              <button
-                                key={color.value}
-                                onClick={() => {
-                                  const updatedNotes = notes.map(n => 
-                                    n.id === note.id ? { ...n, color: color.value } : n
-                                  );
-                                  setNotes(updatedNotes);
-                                }}
-                                className={`w-6 h-6 rounded-full border-2 ${color.class} ${
-                                  note.color === color.value ? 'border-gray-800' : 'border-gray-300'
-                                } hover:border-gray-600 transition-colors`}
-                                title={color.label}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                        
-                        <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">Font Size</label>
-                          <select
-                            value={note.font_size}
-                            onChange={(e) => {
-                              const updatedNotes = notes.map(n => 
-                                n.id === note.id ? { ...n, font_size: Number(e.target.value) } : n
-                              );
-                              setNotes(updatedNotes);
-                            }}
-                            className="w-full px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-xs"
-                          >
-                            <option value={12}>Small (12px)</option>
-                            <option value={14}>Medium (14px)</option>
-                            <option value={16}>Large (16px)</option>
-                            <option value={18}>Extra Large (18px)</option>
-                          </select>
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">Tag</label>
-                        <select
-                          value={note.tags?.[0] || TAG_OPTIONS[0]}
-                          onChange={(e) => {
-                            const updatedNotes = notes.map(n => 
-                              n.id === note.id ? { ...n, tags: [e.target.value] } : n
-                            );
-                            setNotes(updatedNotes);
-                          }}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-sm"
+                          value={newNote.tags?.[0] || TAG_OPTIONS[0]}
+                          onChange={(e) => setNewNote(prev => ({ ...prev, tags: [e.target.value] }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                         >
                           {TAG_OPTIONS.map((tag) => (
                             <option key={tag} value={tag}>
@@ -507,109 +353,231 @@ export const ScratchpadDetailView: React.FC = () => {
                         </select>
                       </div>
                       
-                      <div className="flex items-center space-x-2">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Color</label>
+                        <div className="flex flex-wrap gap-2">
+                          {colorOptions.slice(0, 4).map((color) => (
+                            <button
+                              key={color.value}
+                              onClick={() => setNewNote(prev => ({ ...prev, color: color.value }))}
+                              className={`w-8 h-8 rounded-full border-2 ${color.class} ${
+                                newNote.color === color.value ? 'border-gray-800 ring-2 ring-blue-300' : 'border-gray-300'
+                              } hover:border-gray-600 transition-all`}
+                              title={color.label}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Options</label>
                         <label className="flex items-center space-x-2 text-sm">
                           <input
                             type="checkbox"
-                            checked={note.is_pinned}
-                            onChange={(e) => {
-                              const updatedNotes = notes.map(n => 
-                                n.id === note.id ? { ...n, is_pinned: e.target.checked } : n
-                              );
-                              setNotes(updatedNotes);
-                            }}
-                            className="rounded border-gray-300 text-yellow-600 focus:ring-yellow-500"
+                            checked={newNote.is_pinned || false}
+                            onChange={(e) => setNewNote(prev => ({ ...prev, is_pinned: e.target.checked }))}
+                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                           />
                           <span className="text-gray-700">Pin this note</span>
                         </label>
                       </div>
-                      
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => handleUpdateNote(note.id, note)}
-                          disabled={saving}
-                          className="inline-flex items-center px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
-                        >
-                          {saving ? (
-                            <>
-                              <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-                              Saving...
-                            </>
-                          ) : (
-                            <>
-                              <Save className="w-3 h-3 mr-1" />
-                              Save
-                            </>
-                          )}
-                        </button>
-                        <button
-                          onClick={() => setEditingNoteId(null)}
-                          disabled={saving}
-                          className="inline-flex items-center px-3 py-1 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors text-sm"
-                        >
-                          <X className="w-3 h-3 mr-1" />
-                          Cancel
-                        </button>
+                    </div>
+                    
+                    <div className="flex items-center space-x-3 pt-2">
+                      <button
+                        onClick={() => handleCreateNote(newNote)}
+                        disabled={saving || !newNote.content?.trim()}
+                        className="inline-flex items-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+                      >
+                        {saving ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Creating...
+                          </>
+                        ) : (
+                          <>
+                            <Save className="w-4 h-4 mr-2" />
+                            Save Note
+                          </>
+                        )}
+                      </button>
+                      <button
+                        onClick={() => setNewNote(null)}
+                        disabled={saving}
+                        className="inline-flex items-center px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors font-medium"
+                      >
+                        <X className="w-4 h-4 mr-2" />
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Individual Note Cards with Direct Edit/Delete Icons */}
+              {filteredNotes.map((note) => (
+                <div 
+                  key={note.id}
+                  className="relative bg-white border-l-4 border-yellow-400 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 group"
+                  style={{ backgroundColor: note.color || '#fef3c7' }}
+                >
+                  {editingNoteId === note.id ? (
+                    // Edit Form
+                    <div className="p-4">
+                      <div className="space-y-4">
+                        <div>
+                          <textarea
+                            value={note.content}
+                            onChange={(e) => {
+                              const updatedNotes = notes.map(n => 
+                                n.id === note.id ? { ...n, content: e.target.value } : n
+                              );
+                              setNotes(updatedNotes);
+                            }}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-sm resize-none"
+                            rows={6}
+                            placeholder="Note content..."
+                            autoFocus
+                          />
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Tag</label>
+                            <select
+                              value={note.tags?.[0] || TAG_OPTIONS[0]}
+                              onChange={(e) => {
+                                const updatedNotes = notes.map(n => 
+                                  n.id === note.id ? { ...n, tags: [e.target.value] } : n
+                                );
+                                setNotes(updatedNotes);
+                              }}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-sm"
+                            >
+                              {TAG_OPTIONS.map((tag) => (
+                                <option key={tag} value={tag}>
+                                  {tag}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Color</label>
+                            <div className="flex flex-wrap gap-2">
+                              {colorOptions.slice(0, 4).map((color) => (
+                                <button
+                                  key={color.value}
+                                  onClick={() => {
+                                    const updatedNotes = notes.map(n => 
+                                      n.id === note.id ? { ...n, color: color.value } : n
+                                    );
+                                    setNotes(updatedNotes);
+                                  }}
+                                  className={`w-8 h-8 rounded-full border-2 ${color.class} ${
+                                    note.color === color.value ? 'border-gray-800 ring-2 ring-yellow-300' : 'border-gray-300'
+                                  } hover:border-gray-600 transition-all`}
+                                  title={color.label}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Options</label>
+                            <label className="flex items-center space-x-2 text-sm">
+                              <input
+                                type="checkbox"
+                                checked={note.is_pinned}
+                                onChange={(e) => {
+                                  const updatedNotes = notes.map(n => 
+                                    n.id === note.id ? { ...n, is_pinned: e.target.checked } : n
+                                  );
+                                  setNotes(updatedNotes);
+                                }}
+                                className="rounded border-gray-300 text-yellow-600 focus:ring-yellow-500"
+                              />
+                              <span className="text-gray-700">Pin this note</span>
+                            </label>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center space-x-3 pt-2">
+                          <button
+                            onClick={() => handleUpdateNote(note.id, note)}
+                            disabled={saving}
+                            className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+                          >
+                            {saving ? (
+                              <>
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                Saving...
+                              </>
+                            ) : (
+                              <>
+                                <Save className="w-4 h-4 mr-2" />
+                                Save Changes
+                              </>
+                            )}
+                          </button>
+                          <button
+                            onClick={() => setEditingNoteId(null)}
+                            disabled={saving}
+                            className="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors text-sm font-medium"
+                          >
+                            <X className="w-4 h-4 mr-2" />
+                            Cancel
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ) : (
-                    // Display Mode
-                    <div>
-                      <div className="flex items-start justify-between mb-2">
+                    // Display Mode with Direct Edit/Delete Icons
+                    <div className="p-4">
+                      <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center space-x-2">
                           {note.is_pinned && (
                             <Pin className="w-4 h-4 text-yellow-600" />
                           )}
+                          {note.tags && note.tags.length > 0 && (
+                            <div className="flex items-center space-x-1">
+                              <Tag className="w-3 h-3 text-gray-500" />
+                              <span className="text-xs bg-yellow-200 text-yellow-800 px-2 py-1 rounded-full font-medium">
+                                {note.tags[0]}
+                              </span>
+                            </div>
+                          )}
                         </div>
-                        {isEditingList && (
-                          <div className="flex items-center space-x-1">
-                            <button
-                              onClick={() => setEditingNoteId(note.id)}
-                              className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
-                              title="Edit note"
-                            >
-                              <Edit3 className="w-3 h-3" />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteNote(note.id)}
-                              disabled={saving}
-                              className="p-1 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50"
-                              title="Delete note"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </button>
-                          </div>
-                        )}
+                        
+                        {/* Direct Edit/Delete Icons - Always visible */}
+                        <div className="flex items-center space-x-1">
+                          <button
+                            onClick={() => setEditingNoteId(note.id)}
+                            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-white hover:bg-opacity-50 rounded-lg transition-all"
+                            title="Edit note"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteNote(note.id)}
+                            disabled={saving}
+                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-white hover:bg-opacity-50 rounded-lg transition-all disabled:opacity-50"
+                            title="Delete note"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
                       
-                      <div className="pr-6">
+                      <div className="pr-2">
                         <p 
-                          className="text-gray-800 leading-relaxed whitespace-pre-wrap"
+                          className="text-gray-800 leading-relaxed whitespace-pre-wrap mb-3"
                           style={{ fontSize: `${note.font_size}px` }}
                         >
-                          {note.content.length > 200 
-                            ? `${note.content.substring(0, 200)}...` 
-                            : note.content
-                          }
+                          {note.content}
                         </p>
                         
-                        {note.tags && note.tags.length > 0 && (
-                          <div className="flex items-center space-x-1 mt-2">
-                            <Tag className="w-3 h-3 text-gray-400" />
-                            <div className="flex flex-wrap gap-1">
-                              {note.tags.map((tag, index) => (
-                                <span 
-                                  key={index}
-                                  className="text-xs bg-yellow-200 text-yellow-800 px-1 py-0.5 rounded"
-                                >
-                                  {tag}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                        
-                        <div className="text-xs text-gray-500 mt-2">
+                        <div className="text-xs text-gray-500">
                           {format(new Date(note.created_at), 'MMM d, h:mm a')}
                         </div>
                       </div>
@@ -618,38 +586,29 @@ export const ScratchpadDetailView: React.FC = () => {
                 </div>
               ))}
 
-              {/* Add Note Button - Only show when isEditingList is true and no new note form is active */}
-              {isEditingList && !newNote && (
-                <button
-                  onClick={() => setNewNote({
-                    content: '',
-                    color: '#fef3c7',
-                    font_size: 14,
-                    is_pinned: false,
-                    tags: [TAG_OPTIONS[0]], // Default to first tag option
-                  })}
-                  className="w-full border-2 border-dashed border-gray-300 rounded-lg p-6 text-gray-500 hover:border-gray-400 hover:text-gray-600 transition-colors flex items-center justify-center space-x-2"
-                >
-                  <Plus className="w-5 h-5" />
-                  <span>Add New Note</span>
-                </button>
+              {/* Empty state when filtered */}
+              {filteredNotes.length === 0 && notes.length > 0 && (
+                <div className="text-center py-12">
+                  <Search className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No notes found</h3>
+                  <p className="text-gray-500">
+                    {searchTerm ? `No notes match "${searchTerm}"` : `No notes with tag "${selectedTag}"`}
+                  </p>
+                </div>
               )}
             </div>
           </div>
 
           {/* Footer */}
-          <div className="mt-4 flex items-center justify-between pt-3 border-t border-gray-200">
-            <div className="text-xs text-gray-500">
+          <div className="mt-6 flex items-center justify-between pt-4 border-t border-gray-200">
+            <div className="text-sm text-gray-500">
               {filteredNotes.length} of {notes.length} notes
+              {selectedTag && (
+                <span className="ml-2">
+                  • Filtered by: <span className="font-medium">{selectedTag}</span>
+                </span>
+              )}
             </div>
-            {!isEditingList && (
-              <button 
-                onClick={() => setIsEditingList(true)}
-                className="text-xs px-3 py-1 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition-colors"
-              >
-                New Note
-              </button>
-            )}
           </div>
         </div>
       </ModuleContainer>
