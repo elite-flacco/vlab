@@ -302,6 +302,117 @@ export const TasksDetailView: React.FC = () => {
 
           {/* Tasks List */}
           <div className="flex-1 overflow-y-auto space-y-2">
+            {/* New Task Form - Now at the top */}
+            {newTask && (
+              <div className="bg-blue-50 border-2 border-dashed border-blue-300 rounded-lg p-4">
+                <h4 className="font-medium text-blue-900 mb-3">Add New Task</h4>
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Title</label>
+                    <input
+                      type="text"
+                      value={newTask.title || ''}
+                      onChange={(e) => setNewTask(prev => ({ ...prev, title: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                      placeholder="Task title"
+                      autoFocus
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Description</label>
+                    <textarea
+                      value={newTask.description || ''}
+                      onChange={(e) => setNewTask(prev => ({ ...prev, description: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm resize-none"
+                      rows={2}
+                      placeholder="Task description..."
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">Status</label>
+                      <select
+                        value={newTask.status || 'todo'}
+                        onChange={(e) => setNewTask(prev => ({ ...prev, status: e.target.value as any }))}
+                        className="w-full px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs"
+                      >
+                        <option value="todo">To Do</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="done">Done</option>
+                        <option value="blocked">Blocked</option>
+                      </select>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">Priority</label>
+                      <select
+                        value={newTask.priority || 'medium'}
+                        onChange={(e) => setNewTask(prev => ({ ...prev, priority: e.target.value as any }))}
+                        className="w-full px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs"
+                      >
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                        <option value="urgent">Urgent</option>
+                      </select>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">Due Date</label>
+                      <input
+                        type="date"
+                        value={newTask.due_date || ''}
+                        onChange={(e) => setNewTask(prev => ({ ...prev, due_date: e.target.value || undefined }))}
+                        className="w-full px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Tags (comma-separated)</label>
+                    <input
+                      type="text"
+                      value={formatTagsInput(newTask.tags || [])}
+                      onChange={(e) => setNewTask(prev => ({ ...prev, tags: parseTagsInput(e.target.value) }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                      placeholder="frontend, backend, design"
+                    />
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => handleAddTask(newTask)}
+                      disabled={saving || !newTask.title?.trim()}
+                      className="inline-flex items-center px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
+                    >
+                      {saving ? (
+                        <>
+                          <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                          Creating...
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="w-3 h-3 mr-1" />
+                          Create Task
+                        </>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => setNewTask(null)}
+                      disabled={saving}
+                      className="inline-flex items-center px-3 py-1 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors text-sm"
+                    >
+                      <X className="w-3 h-3 mr-1" />
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Existing Tasks */}
             {filteredTasks.map((task) => (
               <div 
                 key={task.id} 
@@ -511,116 +622,6 @@ export const TasksDetailView: React.FC = () => {
                 )}
               </div>
             ))}
-
-            {/* New Task Form */}
-            {newTask && (
-              <div className="bg-blue-50 border-2 border-dashed border-blue-300 rounded-lg p-4">
-                <h4 className="font-medium text-blue-900 mb-3">Add New Task</h4>
-                <div className="space-y-3">
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Title</label>
-                    <input
-                      type="text"
-                      value={newTask.title || ''}
-                      onChange={(e) => setNewTask(prev => ({ ...prev, title: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                      placeholder="Task title"
-                      autoFocus
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Description</label>
-                    <textarea
-                      value={newTask.description || ''}
-                      onChange={(e) => setNewTask(prev => ({ ...prev, description: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm resize-none"
-                      rows={2}
-                      placeholder="Task description..."
-                    />
-                  </div>
-                  
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">Status</label>
-                      <select
-                        value={newTask.status || 'todo'}
-                        onChange={(e) => setNewTask(prev => ({ ...prev, status: e.target.value as any }))}
-                        className="w-full px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs"
-                      >
-                        <option value="todo">To Do</option>
-                        <option value="in_progress">In Progress</option>
-                        <option value="done">Done</option>
-                        <option value="blocked">Blocked</option>
-                      </select>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">Priority</label>
-                      <select
-                        value={newTask.priority || 'medium'}
-                        onChange={(e) => setNewTask(prev => ({ ...prev, priority: e.target.value as any }))}
-                        className="w-full px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs"
-                      >
-                        <option value="low">Low</option>
-                        <option value="medium">Medium</option>
-                        <option value="high">High</option>
-                        <option value="urgent">Urgent</option>
-                      </select>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">Due Date</label>
-                      <input
-                        type="date"
-                        value={newTask.due_date || ''}
-                        onChange={(e) => setNewTask(prev => ({ ...prev, due_date: e.target.value || undefined }))}
-                        className="w-full px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Tags (comma-separated)</label>
-                    <input
-                      type="text"
-                      value={formatTagsInput(newTask.tags || [])}
-                      onChange={(e) => setNewTask(prev => ({ ...prev, tags: parseTagsInput(e.target.value) }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                      placeholder="frontend, backend, design"
-                    />
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => handleAddTask(newTask)}
-                      disabled={saving || !newTask.title?.trim()}
-                      className="inline-flex items-center px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
-                    >
-                      {saving ? (
-                        <>
-                          <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-                          Creating...
-                        </>
-                      ) : (
-                        <>
-                          <Plus className="w-3 h-3 mr-1" />
-                          Create Task
-                        </>
-                      )}
-                    </button>
-                    <button
-                      onClick={() => setNewTask(null)}
-                      disabled={saving}
-                      className="inline-flex items-center px-3 py-1 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors text-sm"
-                    >
-                      <X className="w-3 h-3 mr-1" />
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Footer */}
