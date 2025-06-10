@@ -58,6 +58,11 @@ export const KickoffFlow: React.FC = () => {
 
   useEffect(() => {
     if (projectId) {
+      // Prevent redundant calls to setCurrentProject
+      if (currentProject && currentProject.id === projectId) {
+        return;
+      }
+      
       const project = allProjects.find(p => p.id === projectId);
       if (project) {
         setCurrentProject(project);
@@ -66,7 +71,7 @@ export const KickoffFlow: React.FC = () => {
         navigate('/');
       }
     }
-  }, [projectId, allProjects, setCurrentProject, navigate]);
+  }, [projectId, allProjects, currentProject, setCurrentProject, navigate]);
 
   // Debug logging for step data
   useEffect(() => {
