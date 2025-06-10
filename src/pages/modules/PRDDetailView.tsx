@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Edit3, Eye, Plus, Calendar, ArrowLeft } from 'lucide-react';
+import { FileText, Edit3, Eye, Plus, Calendar, ArrowLeft, Save, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { useParams, useNavigate } from 'react-router-dom';
 import { db } from '../../lib/supabase';
@@ -13,12 +13,22 @@ export const PRDDetailView: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedPRD, setSelectedPRD] = useState<any>(null);
   const [isPreviewMode, setIsPreviewMode] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedPRD, setEditedPRD] = useState<any>(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (projectId) {
       fetchPRDs(projectId);
     }
   }, [projectId]);
+
+  // Sync editedPRD with selectedPRD when not editing
+  useEffect(() => {
+    if (selectedPRD && !isEditing) {
+      setEditedPRD({ ...selectedPRD });
+    }
+  }, [selectedPRD, isEditing]);
 
   const fetchPRDs = async (id: string) => {
     setLoading(true);
@@ -35,6 +45,41 @@ export const PRDDetailView: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSavePRD = async () => {
+    if (!editedPRD || saving) return;
+
+    setSaving(true);
+    setError(null);
+
+    try {
+      const { data, error: updateError } = await db.updatePRD(editedPRD.id, {
+        title: editedPRD.title,
+        content: editedPRD.content,
+        status: editedPRD.status,
+      });
+
+      if (updateError) throw updateError;
+
+      // Update local state
+      const updatedPRDs = prds.map(prd => 
+        prd.id === editedPRD.id ? data : prd
+      );
+      setPrds(updatedPRDs);
+      setSelectedPRD(data);
+      setIsEditing(false);
+    } catch (err: any) {
+      setError(err.message || 'Failed to save PRD');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditedPRD({ ...selectedPRD });
+    setIsEditing(false);
+    setError(null);
   };
 
   const handleReturnToWorkspace = () => {
@@ -167,8 +212,10 @@ export const PRDDetailView: React.FC = () => {
                 onChange={(e) => {
                   const prd = prds.find(p => p.id === e.target.value);
                   setSelectedPRD(prd);
+                  setIsEditing(false);
                 }}
-                className="text-sm border border-gray-300 rounded-md px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                disabled={isEditing}
+                className="text-sm border border-gray-300 rounded-md px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
               >
                 {prds.map((prd) => (
                   <option key={prd.id} value={prd.id}>
@@ -183,14 +230,54 @@ export const PRDDetailView: React.FC = () => {
               )}
             </div>
             
-            <div className="flex items-center space-x-1">
-              <button
-                onClick={() => setIsPreviewMode(!isPreviewMode)}
-                className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
-                title={isPreviewMode ? 'Edit Mode' : 'Preview Mode'}
-              >
-                {isPreviewMode ? <Edit3 className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
+            <div className="flex items-center space-x-2">
+              {!isEditing && (
+                <button
+                  onClick={() => setIsPreviewMode(!isPreviewMode)}
+                  className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                  title={isPreviewMode ? 'Edit Mode' : 'Preview Mode'}
+                >
+                  {isPreviewMode ? <Edit3 className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              )}
+              
+              {isEditing ? (
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={handleSavePRD}
+                    disabled={saving}
+                    className="inline-flex items-center px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
+                  >
+                    {saving ? (
+                      <>
+                        <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></div>
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-3 h-3 mr-1" />
+                        Save
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={handleCancelEdit}
+                    disabled={saving}
+                    className="inline-flex items-center px-3 py-1 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors text-sm"
+                  >
+                    <X className="w-3 h-3 mr-1" />
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="inline-flex items-center px-3 py-1 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors text-sm"
+                >
+                  <Edit3 className="w-3 h-3 mr-1" />
+                  Edit
+                </button>
+              )}
             </div>
           </div>
 
@@ -206,30 +293,71 @@ export const PRDDetailView: React.FC = () => {
                         <Calendar className="w-3 h-3" />
                         <span>Updated {format(new Date(currentPRD.updated_at), 'MMM d, yyyy')}</span>
                       </span>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        currentPRD.status === 'approved' ? 'bg-green-100 text-green-800' :
-                        currentPRD.status === 'review' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-gray-100 text-gray-800'
-                      }`}>
-                        {currentPRD.status}
-                      </span>
+                      {isEditing ? (
+                        <select
+                          value={editedPRD?.status || 'draft'}
+                          onChange={(e) => setEditedPRD(prev => ({ ...prev, status: e.target.value }))}
+                          className="text-xs border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                          <option value="draft">Draft</option>
+                          <option value="review">Review</option>
+                          <option value="approved">Approved</option>
+                          <option value="archived">Archived</option>
+                        </select>
+                      ) : (
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          currentPRD.status === 'approved' ? 'bg-green-100 text-green-800' :
+                          currentPRD.status === 'review' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-gray-100 text-gray-800'
+                        }`}>
+                          {currentPRD.status}
+                        </span>
+                      )}
                     </div>
                     <span>Version {currentPRD.version}</span>
                   </div>
                 </div>
 
+                {/* PRD Title */}
+                {isEditing ? (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
+                    <input
+                      type="text"
+                      value={editedPRD?.title || ''}
+                      onChange={(e) => setEditedPRD(prev => ({ ...prev, title: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-semibold"
+                      placeholder="PRD Title"
+                    />
+                  </div>
+                ) : (
+                  <h1 className="text-2xl font-bold text-gray-900">{currentPRD.title}</h1>
+                )}
+
                 {/* PRD Content */}
                 <div className="bg-white border border-gray-200 rounded-lg p-4">
-                  {isPreviewMode ? (
+                  {isEditing ? (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Content</label>
+                      <textarea
+                        value={editedPRD?.content || ''}
+                        onChange={(e) => setEditedPRD(prev => ({ ...prev, content: e.target.value }))}
+                        className="w-full h-96 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm resize-none"
+                        placeholder="Edit your PRD content here..."
+                      />
+                      <p className="text-xs text-gray-500 mt-2">
+                        Tip: Use markdown formatting (# for headings, - for bullets, **bold**)
+                      </p>
+                    </div>
+                  ) : isPreviewMode ? (
                     <div className="prose prose-sm max-w-none">
                       {renderMarkdown(currentPRD.content)}
                     </div>
                   ) : (
                     <textarea
                       value={currentPRD.content}
-                      onChange={() => {}} // TODO: Implement editing
-                      className="w-full h-64 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm resize-none"
-                      placeholder="Edit your PRD content here..."
+                      readOnly
+                      className="w-full h-64 p-3 border border-gray-300 rounded-md font-mono text-sm resize-none bg-gray-50"
                     />
                   )}
                 </div>
