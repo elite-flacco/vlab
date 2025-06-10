@@ -134,6 +134,10 @@ export const TasksDetailView: React.FC = () => {
     await handleUpdateTask(taskId, { status: newStatus });
   };
 
+  const handlePriorityChange = async (taskId: string, newPriority: string) => {
+    await handleUpdateTask(taskId, { priority: newPriority as TaskItem['priority'] });
+  };
+
   const filteredTasks = tasks.filter(task => {
     if (filter === 'all') return showCompleted || task.status !== 'done';
     return task.status === filter;
@@ -573,9 +577,18 @@ export const TasksDetailView: React.FC = () => {
                           {task.title}
                         </h4>
                         <div className="flex items-center space-x-2 ml-2">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium border flex-shrink-0 ${getPriorityColor(task.priority)}`}>
-                            {task.priority}
-                          </span>
+                          {/* Interactive Priority Dropdown */}
+                          <select
+                            value={task.priority}
+                            onChange={(e) => handlePriorityChange(task.id, e.target.value)}
+                            disabled={saving}
+                            className={`appearance-none cursor-pointer px-2 py-1 rounded-full text-xs font-medium border flex-shrink-0 ${getPriorityColor(task.priority)} disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-1`}
+                          >
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                            <option value="urgent">Urgent</option>
+                          </select>
                           <div className="flex items-center space-x-1">
                             <button
                               onClick={() => setEditingTaskId(task.id)}
