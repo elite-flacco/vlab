@@ -1,7 +1,8 @@
 import React from 'react';
 import { useAuthStore } from '../../stores/authStore';
 import { useProjectStore } from '../../stores/projectStore';
-import { LogOut, Settings, User, Plus } from 'lucide-react';
+import { LogOut, Settings, User, Plus, Users } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface HeaderProps {
   onNewProjectClick: () => void;
@@ -10,13 +11,22 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ onNewProjectClick }) => {
   const { user, signOut } = useAuthStore();
   const { currentProject } = useProjectStore();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const isOnCommunity = location.pathname === '/community';
 
   return (
     <header className="bg-white border-b border-gray-200 px-6 py-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <h1 className="text-2xl font-bold text-gray-900">VibeLab</h1>
-          {currentProject && (
+          <button
+            onClick={() => navigate('/')}
+            className="text-2xl font-bold text-gray-900 hover:text-blue-600 transition-colors"
+          >
+            VibeLab
+          </button>
+          {currentProject && !isOnCommunity && (
             <div className="text-sm text-gray-500">
               / {currentProject.name}
             </div>
@@ -24,6 +34,18 @@ export const Header: React.FC<HeaderProps> = ({ onNewProjectClick }) => {
         </div>
         
         <div className="flex items-center space-x-4">
+          <button
+            onClick={() => navigate('/community')}
+            className={`inline-flex items-center px-3 py-2 border text-sm font-medium rounded-md transition-colors ${
+              isOnCommunity
+                ? 'border-blue-300 text-blue-700 bg-blue-50'
+                : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
+            }`}
+          >
+            <Users className="w-4 h-4 mr-2" />
+            Community
+          </button>
+          
           <button
             onClick={onNewProjectClick}
             className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"

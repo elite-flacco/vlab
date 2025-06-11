@@ -6,6 +6,7 @@ import { AppLayout } from './components/Layout/AppLayout';
 import { Dashboard } from './pages/Dashboard';
 import { Workspace } from './pages/Workspace';
 import { KickoffFlow } from './pages/KickoffFlow';
+import { Community } from './pages/Community';
 import { PRDDetailView } from './pages/modules/PRDDetailView';
 import { RoadmapDetailView } from './pages/modules/RoadmapDetailView';
 import { TasksDetailView } from './pages/modules/TasksDetailView';
@@ -40,6 +41,7 @@ function App() {
       <Routes>
         <Route path="/" element={<AppLayout />}>
           <Route index element={<Dashboard />} />
+          <Route path="community" element={<Community />} />
           <Route path="kickoff/:projectId" element={<KickoffFlow />} />
           <Route path="workspace/:projectId" element={<Workspace />} />
           <Route path="workspace/:projectId/prd" element={<PRDDetailView />} />
@@ -49,7 +51,7 @@ function App() {
           <Route path="workspace/:projectId/prompts" element={<PromptsDetailView />} />
           <Route path="workspace/:projectId/secrets" element={<SecretsDetailView />} />
         </Route>
-        <Route path="*" element={<Navigate to="/\" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );

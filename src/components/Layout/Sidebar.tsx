@@ -1,8 +1,8 @@
 // Fixed Sidebar.tsx - Simplified navigation logic
 import React, { useState } from 'react';
 import { useProjectStore } from '../../stores/projectStore';
-import { Plus, Folder, Settings, Archive, ChevronDown, ChevronRight, RotateCcw } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Plus, Folder, Settings, Archive, ChevronDown, ChevronRight, RotateCcw, Users } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface SidebarProps {
   onNewProjectClick: () => void;
@@ -10,8 +10,11 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { activeProjects, archivedProjects, currentProject, setCurrentProject, restoreProject } = useProjectStore();
   const [showArchived, setShowArchived] = useState(false);
+
+  const isOnCommunity = location.pathname === '/community';
 
   const handleProjectClick = (project: any) => {
     // Only navigate - let the Workspace component handle setting currentProject
@@ -34,6 +37,24 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
   return (
     <aside className="w-64 bg-white border-r border-gray-200 p-4">
       <div className="space-y-6">
+        {/* Navigation */}
+        <div>
+          <h2 className="text-sm font-semibold text-gray-900 mb-3">Navigation</h2>
+          <div className="space-y-1">
+            <button
+              onClick={() => navigate('/community')}
+              className={`w-full flex items-center space-x-2 px-3 py-2 text-sm rounded-md transition-colors ${
+                isOnCommunity
+                  ? 'bg-blue-50 text-blue-700'
+                  : 'text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              <Users className="w-4 h-4" />
+              <span>Community Hub</span>
+            </button>
+          </div>
+        </div>
+
         {/* Active Projects */}
         <div>
           <div className="flex items-center justify-between mb-3">
@@ -52,7 +73,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
                 key={project.id}
                 onClick={() => handleProjectClick(project)}
                 className={`w-full flex items-center space-x-2 px-3 py-2 text-sm rounded-md transition-colors ${
-                  currentProject?.id === project.id
+                  currentProject?.id === project.id && !isOnCommunity
                     ? 'bg-blue-50 text-blue-700'
                     : 'text-gray-600 hover:bg-gray-50'
                 }`}
