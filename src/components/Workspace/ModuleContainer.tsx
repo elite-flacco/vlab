@@ -14,13 +14,13 @@ interface ModuleContainerProps {
 
 const getModuleColor = (type: ModuleType) => {
   switch (type) {
-    case 'prd': return 'border-blue-200 bg-blue-50';
-    case 'roadmap': return 'border-green-200 bg-green-50';
-    case 'tasks': return 'border-orange-200 bg-orange-50';
-    case 'scratchpad': return 'border-yellow-200 bg-yellow-50';
-    case 'prompts': return 'border-purple-200 bg-purple-50';
-    case 'secrets': return 'border-red-200 bg-red-50';
-    default: return 'border-gray-200 bg-gray-50';
+    case 'prd': return 'border-blue-200 bg-white';
+    case 'roadmap': return 'border-green-200 bg-white';
+    case 'tasks': return 'border-orange-200 bg-white';
+    case 'scratchpad': return 'border-yellow-200 bg-white';
+    case 'prompts': return 'border-purple-200 bg-white';
+    case 'secrets': return 'border-red-200 bg-white';
+    default: return 'border-gray-200 bg-white';
   }
 };
 
@@ -46,7 +46,7 @@ export const ModuleContainer: React.FC<ModuleContainerProps> = ({
   isMaximized = false,
 }) => {
   return (
-    <div className={`h-full bg-white border-2 rounded-lg shadow-sm hover:shadow-md transition-shadow ${getModuleColor(type)}`}>
+    <div className={`h-full border-2 rounded-lg shadow-sm hover:shadow-md transition-shadow ${getModuleColor(type)}`}>
       {/* Header */}
       <div className="flex items-center justify-between p-3 border-b border-gray-200 bg-white rounded-t-lg">
         <div className="flex items-center space-x-2">

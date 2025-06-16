@@ -38,7 +38,7 @@ export const ScratchpadDetailView: React.FC = () => {
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [newNote, setNewNote] = useState<Partial<ScratchpadNote> | null>(null);
   const [saving, setSaving] = useState(false);
-  
+
   useEffect(() => {
     if (projectId) {
       fetchNotes(projectId);
@@ -72,7 +72,7 @@ export const ScratchpadDetailView: React.FC = () => {
       if (updateError) throw updateError;
 
       // Update local state
-      const updatedNotes = notes.map(note => 
+      const updatedNotes = notes.map(note =>
         note.id === noteId ? data : note
       );
       setNotes(updatedNotes);
@@ -134,7 +134,7 @@ export const ScratchpadDetailView: React.FC = () => {
   };
 
   const allTags = Array.from(new Set(notes.flatMap(note => note.tags || [])));
-  
+
   const filteredNotes = notes.filter(note => {
     const matchesSearch = note.content.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesTag = !selectedTag || (note.tags && note.tags.includes(selectedTag));
@@ -210,26 +210,13 @@ export const ScratchpadDetailView: React.FC = () => {
           </button>
         </div>
         <ModuleContainer title="Scratchpad" type="scratchpad">
-          <div className="h-full flex items-center justify-center">
+          <div className="h-full flex items-center justify-center py-12">
             <div className="text-center">
               <StickyNote className="w-12 h-12 text-gray-300 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-900 mb-2">No Notes Yet</h3>
               <p className="text-gray-600 mb-4 text-sm">
                 Create notes to capture ideas and important information.
               </p>
-              <button 
-                onClick={() => setNewNote({
-                  content: '',
-                  color: '#fef3c7',
-                  font_size: 14,
-                  is_pinned: false,
-                  tags: ['Project Notes'], // Default to first tag option
-                })}
-                className="inline-flex items-center px-6 py-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors text-base font-medium shadow-lg"
-              >
-                <Plus className="w-5 h-5 mr-2" />
-                New Note
-              </button>
             </div>
           </div>
         </ModuleContainer>
@@ -248,178 +235,175 @@ export const ScratchpadDetailView: React.FC = () => {
           Return to Workspace
         </button>
       </div>
-      
+
       <ModuleContainer title="Scratchpad" type="scratchpad">
         <div className="h-full flex flex-col">
-          {/* Prominent New Note Button at the top */}
-          <div className="mb-6">
+          {/* Add New Note Button - Always visible at the top */}
+          {!newNote && (
             <button
               onClick={() => setNewNote({
                 content: '',
                 color: '#fef3c7',
                 font_size: 14,
                 is_pinned: false,
-                tags: ['Project Notes'], // Default to first tag option
+                tags: ['Project Notes'],
               })}
-              disabled={!!newNote}
-              className="w-full inline-flex items-center justify-center px-6 py-4 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-lg hover:from-yellow-600 hover:to-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-lg font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              className="w-full border-2 border-dashed border-gray-300 rounded-lg p-4 text-gray-500 hover:border-gray-400 hover:text-gray-600 transition-colors flex items-center justify-center space-x-2 text-sm mb-6"
             >
-              <Plus className="w-6 h-6 mr-3" />
-              New Note
+              <Plus className="w-4 h-4" />
+              <span>Add New Note</span>
             </button>
-          </div>
-
-          {/* Search and Filter Controls */}
-          <div className="flex items-center space-x-3 mb-4">
-            <div className="relative flex-1">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search notes..."
-                className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
-              />
-            </div>
-          </div>
-
-          {/* Tags Filter */}
-          {allTags.length > 0 && (
-            <div className="flex items-center space-x-2 mb-6 overflow-x-auto">
-              <button
-                onClick={() => setSelectedTag(null)}
-                className={`px-3 py-1 text-sm rounded-full whitespace-nowrap transition-colors ${
-                  !selectedTag 
-                    ? 'bg-yellow-100 text-yellow-800 border border-yellow-300' 
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-300'
-                }`}
-              >
-                All Notes
-              </button>
-              {allTags.map((tag) => (
-                <button
-                  key={tag}
-                  onClick={() => setSelectedTag(tag)}
-                  className={`px-3 py-1 text-sm rounded-full whitespace-nowrap transition-colors ${
-                    selectedTag === tag 
-                      ? 'bg-yellow-100 text-yellow-800 border border-yellow-300' 
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-300'
-                  }`}
-                >
-                  {tag}
-                </button>
-              ))}
-            </div>
           )}
 
+          {/* New Note Form - Immediately displayed when New Note is clicked */}
+          {newNote && (
+            <div className="mb-6 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-6 shadow-lg">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="text-lg font-semibold text-blue-900 flex items-center">
+                  <Plus className="w-5 h-5 mr-2" />
+                  Create New Note
+                </h4>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <textarea
+                    value={newNote.content || ''}
+                    onChange={(e) => setNewNote(prev => ({ ...prev, content: e.target.value }))}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm resize-none"
+                    rows={6}
+                    placeholder="Start writing your note here..."
+                    autoFocus
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Tag</label>
+                    <select
+                      value={newNote.tags?.[0] || TAG_OPTIONS[0]}
+                      onChange={(e) => setNewNote(prev => ({ ...prev, tags: [e.target.value] }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                    >
+                      {TAG_OPTIONS.map((tag) => (
+                        <option key={tag} value={tag}>
+                          {tag}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Color</label>
+                    <div className="flex flex-wrap gap-2">
+                      {colorOptions.slice(0, 4).map((color) => (
+                        <button
+                          key={color.value}
+                          onClick={() => setNewNote(prev => ({ ...prev, color: color.value }))}
+                          className={`w-8 h-8 rounded-full border-2 ${color.class} ${newNote.color === color.value ? 'border-gray-800 ring-2 ring-blue-300' : 'border-gray-300'
+                            } hover:border-gray-600 transition-all`}
+                          title={color.label}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Options</label>
+                    <label className="flex items-center space-x-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={newNote.is_pinned || false}
+                        onChange={(e) => setNewNote(prev => ({ ...prev, is_pinned: e.target.checked }))}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="text-gray-700">Pin this note</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-3 pt-2">
+                  <button
+                    onClick={() => handleCreateNote(newNote)}
+                    disabled={saving || !newNote.content?.trim()}
+                    className="inline-flex items-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+                  >
+                    {saving ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Creating...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-4 h-4 mr-2" />
+                        Save Note
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => setNewNote(null)}
+                    disabled={saving}
+                    className="inline-flex items-center px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors font-medium"
+                  >
+                    <X className="w-4 h-4 mr-2" />
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+          <div className="flex items-center space-x-3">
+            {/* Tags Filter */}
+            {allTags.length > 0 && (
+              <div className="flex items-center space-x-2 mb-6 overflow-x-auto">
+                <button
+                  onClick={() => setSelectedTag(null)}
+                  className={`px-3 py-1 text-sm rounded-lg whitespace-nowrap transition-colors ${!selectedTag
+                      ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-300'
+                    }`}
+                >
+                  All Notes
+                </button>
+                {allTags.map((tag) => (
+                  <button
+                    key={tag}
+                    onClick={() => setSelectedTag(tag)}
+                    className={`px-3 py-1 text-sm rounded-lg whitespace-nowrap transition-colors ${selectedTag === tag
+                        ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-300'
+                      }`}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            )}
+            {/* Search and Filter Controls */}
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="relative flex-1">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search notes..."
+                  className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+                />
+              </div>
+            </div>
+          </div>
           {/* Notes List */}
           <div className="flex-1 overflow-y-auto">
             <div className="space-y-4">
-              {/* New Note Form - Immediately displayed when New Note is clicked */}
-              {newNote && (
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-6 shadow-lg">
-                  <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-lg font-semibold text-blue-900 flex items-center">
-                      <Plus className="w-5 h-5 mr-2" />
-                      Create New Note
-                    </h4>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <textarea
-                        value={newNote.content || ''}
-                        onChange={(e) => setNewNote(prev => ({ ...prev, content: e.target.value }))}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm resize-none"
-                        rows={6}
-                        placeholder="Start writing your note here..."
-                        autoFocus
-                      />
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Tag</label>
-                        <select
-                          value={newNote.tags?.[0] || TAG_OPTIONS[0]}
-                          onChange={(e) => setNewNote(prev => ({ ...prev, tags: [e.target.value] }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                        >
-                          {TAG_OPTIONS.map((tag) => (
-                            <option key={tag} value={tag}>
-                              {tag}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Color</label>
-                        <div className="flex flex-wrap gap-2">
-                          {colorOptions.slice(0, 4).map((color) => (
-                            <button
-                              key={color.value}
-                              onClick={() => setNewNote(prev => ({ ...prev, color: color.value }))}
-                              className={`w-8 h-8 rounded-full border-2 ${color.class} ${
-                                newNote.color === color.value ? 'border-gray-800 ring-2 ring-blue-300' : 'border-gray-300'
-                              } hover:border-gray-600 transition-all`}
-                              title={color.label}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Options</label>
-                        <label className="flex items-center space-x-2 text-sm">
-                          <input
-                            type="checkbox"
-                            checked={newNote.is_pinned || false}
-                            onChange={(e) => setNewNote(prev => ({ ...prev, is_pinned: e.target.checked }))}
-                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                          />
-                          <span className="text-gray-700">Pin this note</span>
-                        </label>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center space-x-3 pt-2">
-                      <button
-                        onClick={() => handleCreateNote(newNote)}
-                        disabled={saving || !newNote.content?.trim()}
-                        className="inline-flex items-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
-                      >
-                        {saving ? (
-                          <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            Creating...
-                          </>
-                        ) : (
-                          <>
-                            <Save className="w-4 h-4 mr-2" />
-                            Save Note
-                          </>
-                        )}
-                      </button>
-                      <button
-                        onClick={() => setNewNote(null)}
-                        disabled={saving}
-                        className="inline-flex items-center px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors font-medium"
-                      >
-                        <X className="w-4 h-4 mr-2" />
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
+
 
               {/* Individual Note Cards with Direct Edit/Delete Icons */}
               {filteredNotes.map((note) => (
-                <div 
+                <div
                   key={note.id}
                   className="relative bg-white border-l-4 border-yellow-400 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 group"
-                  style={{ backgroundColor: note.color || '#fef3c7' }}
+                  style={{ backgroundColor: note.color }}
                 >
                   {editingNoteId === note.id ? (
                     // Edit Form
@@ -429,7 +413,7 @@ export const ScratchpadDetailView: React.FC = () => {
                           <textarea
                             value={note.content}
                             onChange={(e) => {
-                              const updatedNotes = notes.map(n => 
+                              const updatedNotes = notes.map(n =>
                                 n.id === note.id ? { ...n, content: e.target.value } : n
                               );
                               setNotes(updatedNotes);
@@ -440,14 +424,14 @@ export const ScratchpadDetailView: React.FC = () => {
                             autoFocus
                           />
                         </div>
-                        
+
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">Tag</label>
                             <select
                               value={note.tags?.[0] || TAG_OPTIONS[0]}
                               onChange={(e) => {
-                                const updatedNotes = notes.map(n => 
+                                const updatedNotes = notes.map(n =>
                                   n.id === note.id ? { ...n, tags: [e.target.value] } : n
                                 );
                                 setNotes(updatedNotes);
@@ -461,7 +445,7 @@ export const ScratchpadDetailView: React.FC = () => {
                               ))}
                             </select>
                           </div>
-                          
+
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">Color</label>
                             <div className="flex flex-wrap gap-2">
@@ -469,20 +453,19 @@ export const ScratchpadDetailView: React.FC = () => {
                                 <button
                                   key={color.value}
                                   onClick={() => {
-                                    const updatedNotes = notes.map(n => 
+                                    const updatedNotes = notes.map(n =>
                                       n.id === note.id ? { ...n, color: color.value } : n
                                     );
                                     setNotes(updatedNotes);
                                   }}
-                                  className={`w-8 h-8 rounded-full border-2 ${color.class} ${
-                                    note.color === color.value ? 'border-gray-800 ring-2 ring-yellow-300' : 'border-gray-300'
-                                  } hover:border-gray-600 transition-all`}
+                                  className={`w-8 h-8 rounded-full border-2 ${color.class} ${note.color === color.value ? 'border-gray-800 ring-2 ring-yellow-300' : 'border-gray-300'
+                                    } hover:border-gray-600 transition-all`}
                                   title={color.label}
                                 />
                               ))}
                             </div>
                           </div>
-                          
+
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">Options</label>
                             <label className="flex items-center space-x-2 text-sm">
@@ -490,7 +473,7 @@ export const ScratchpadDetailView: React.FC = () => {
                                 type="checkbox"
                                 checked={note.is_pinned}
                                 onChange={(e) => {
-                                  const updatedNotes = notes.map(n => 
+                                  const updatedNotes = notes.map(n =>
                                     n.id === note.id ? { ...n, is_pinned: e.target.checked } : n
                                   );
                                   setNotes(updatedNotes);
@@ -501,7 +484,7 @@ export const ScratchpadDetailView: React.FC = () => {
                             </label>
                           </div>
                         </div>
-                        
+
                         <div className="flex items-center space-x-3 pt-2">
                           <button
                             onClick={() => handleUpdateNote(note.id, note)}
@@ -548,7 +531,7 @@ export const ScratchpadDetailView: React.FC = () => {
                             </div>
                           )}
                         </div>
-                        
+
                         {/* Direct Edit/Delete Icons - Always visible */}
                         <div className="flex items-center space-x-1">
                           <button
@@ -568,15 +551,15 @@ export const ScratchpadDetailView: React.FC = () => {
                           </button>
                         </div>
                       </div>
-                      
+
                       <div className="pr-2">
-                        <p 
+                        <p
                           className="text-gray-800 leading-relaxed whitespace-pre-wrap mb-3"
                           style={{ fontSize: `${note.font_size}px` }}
                         >
                           {note.content}
                         </p>
-                        
+
                         <div className="text-xs text-gray-500">
                           {format(new Date(note.created_at), 'MMM d, h:mm a')}
                         </div>

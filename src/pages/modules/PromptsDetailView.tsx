@@ -34,7 +34,7 @@ export const PromptsDetailView: React.FC = () => {
   const [editingPromptId, setEditingPromptId] = useState<string | null>(null);
   const [newPrompt, setNewPrompt] = useState<Partial<PromptItem> | null>(null);
   const [saving, setSaving] = useState(false);
-  
+
   useEffect(() => {
     if (projectId) {
       fetchPrompts(projectId);
@@ -68,7 +68,7 @@ export const PromptsDetailView: React.FC = () => {
       if (updateError) throw updateError;
 
       // Update local state
-      const updatedPrompts = prompts.map(prompt => 
+      const updatedPrompts = prompts.map(prompt =>
         prompt.id === promptId ? data : prompt
       );
       setPrompts(updatedPrompts);
@@ -141,16 +141,16 @@ export const PromptsDetailView: React.FC = () => {
   };
 
   const categories = Array.from(new Set(prompts.map(prompt => prompt.category)));
-  
+
   const filteredPrompts = prompts.filter(prompt => {
     const matchesSearch = prompt.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         prompt.content.toLowerCase().includes(searchTerm.toLowerCase());
+      prompt.content.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = !selectedCategory || prompt.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
   const formatTagsInput = (tags: string[]) => tags.join(', ');
-  const parseTagsInput = (input: string) => 
+  const parseTagsInput = (input: string) =>
     input.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
 
   const categoryOptions = [
@@ -229,23 +229,6 @@ export const PromptsDetailView: React.FC = () => {
               <p className="text-gray-600 mb-4 text-sm">
                 Create AI prompts to streamline your development workflow.
               </p>
-              <button 
-                onClick={() => {
-                  setIsEditingList(true);
-                  setNewPrompt({
-                    name: '',
-                    description: '',
-                    content: '',
-                    category: 'general',
-                    tags: [],
-                    is_template: false,
-                  });
-                }}
-                className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add Prompt
-              </button>
             </div>
           </div>
         </ModuleContainer>
@@ -264,11 +247,167 @@ export const PromptsDetailView: React.FC = () => {
           Return to Workspace
         </button>
       </div>
-      
+
       <ModuleContainer title="Prompts" type="prompts">
         <div className="h-full flex flex-col">
           {/* Header */}
-          <div className="flex items-center space-x-2 mb-4">
+          {!newPrompt && (
+              <button
+                onClick={() => {
+                  setIsEditingList(true);
+                  setNewPrompt({
+                    name: '',
+                    description: '',
+                    content: '',
+                    category: 'general',
+                    tags: [],
+                    is_template: false,
+                  });
+                }}
+                className="w-full border-2 border-dashed border-gray-300 rounded-lg p-4 text-gray-500 hover:border-gray-400 hover:text-gray-600 transition-colors flex items-center justify-center space-x-2 text-sm mb-4"
+                data-component-name="PromptsDetailView"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add New Prompt</span>
+              </button>
+          )}
+          {/* New Prompt Form */}
+          {newPrompt && (
+            <div className="bg-blue-50 border-2 border-dashed border-blue-300 rounded-lg p-4 mb-3">
+              <h4 className="font-medium text-blue-900 mb-3">Add New Prompt</h4>
+              <div className="space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Name</label>
+                    <input
+                      type="text"
+                      value={newPrompt.name || ''}
+                      onChange={(e) => setNewPrompt(prev => ({ ...prev, name: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm font-medium"
+                      placeholder="Prompt name"
+                      autoFocus
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Category</label>
+                    <select
+                      value={newPrompt.category || 'general'}
+                      onChange={(e) => setNewPrompt(prev => ({ ...prev, category: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                    >
+                      {categoryOptions.map((cat) => (
+                        <option key={cat} value={cat}>
+                          {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Description</label>
+                  <input
+                    type="text"
+                    value={newPrompt.description || ''}
+                    onChange={(e) => setNewPrompt(prev => ({ ...prev, description: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                    placeholder="Brief description of the prompt"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Content</label>
+                  <textarea
+                    value={newPrompt.content || ''}
+                    onChange={(e) => setNewPrompt(prev => ({ ...prev, content: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm font-mono resize-none"
+                    rows={6}
+                    placeholder="Enter your prompt content here..."
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Tags (comma-separated)</label>
+                  <input
+                    type="text"
+                    value={formatTagsInput(newPrompt.tags || [])}
+                    onChange={(e) => setNewPrompt(prev => ({ ...prev, tags: parseTagsInput(e.target.value) }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                    placeholder="ai, coding, documentation"
+                  />
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <label className="flex items-center space-x-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={newPrompt.is_template || false}
+                      onChange={(e) => setNewPrompt(prev => ({ ...prev, is_template: e.target.checked }))}
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-gray-700">Mark as template</span>
+                  </label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => handleCreatePrompt(newPrompt)}
+                    disabled={saving || !newPrompt.name?.trim() || !newPrompt.content?.trim()}
+                    className="inline-flex items-center px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
+                  >
+                    {saving ? (
+                      <>
+                        <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                        Creating...
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-3 h-3 mr-1" />
+                        Create Prompt
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => setNewPrompt(null)}
+                    disabled={saving}
+                    className="inline-flex items-center px-3 py-1 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors text-sm"
+                  >
+                    <X className="w-3 h-3 mr-1" />
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="flex items-center space-x-3">
+            {/* Category Filter */}
+            {categories.length > 0 && (
+              <div className="flex items-center space-x-2 mb-4 overflow-x-auto">
+                <button
+                  onClick={() => setSelectedCategory(null)}
+                  className={`px-2 py-1 text-xs rounded-full whitespace-nowrap transition-colors ${!selectedCategory
+                    ? 'bg-purple-100 text-purple-800'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                >
+                  All
+                </button>
+                {categories.map((category) => (
+                  <button
+                    key={category}
+                    onClick={() => setSelectedCategory(category)}
+                    className={`px-2 py-1 text-xs rounded-full whitespace-nowrap transition-colors ${selectedCategory === category
+                      ? 'bg-purple-100 text-purple-800'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+            )}
             <div className="relative flex-1">
               <Search className="w-4 h-4 absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
@@ -279,54 +418,12 @@ export const PromptsDetailView: React.FC = () => {
                 className="w-full pl-8 pr-3 py-1 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
               />
             </div>
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={() => setIsEditingList(!isEditingList)}
-                className={`inline-flex items-center px-3 py-1 text-xs rounded-md transition-colors ${
-                  isEditingList 
-                    ? 'bg-purple-100 text-purple-800' 
-                    : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                <Edit3 className="w-3 h-3 mr-1" />
-                {isEditingList ? 'Done Editing' : 'Edit Prompts'}
-              </button>
-            </div>
           </div>
-
-          {/* Category Filter */}
-          {categories.length > 0 && (
-            <div className="flex items-center space-x-2 mb-4 overflow-x-auto">
-              <button
-                onClick={() => setSelectedCategory(null)}
-                className={`px-2 py-1 text-xs rounded-full whitespace-nowrap transition-colors ${
-                  !selectedCategory 
-                    ? 'bg-purple-100 text-purple-800' 
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                All
-              </button>
-              {categories.map((category) => (
-                <button
-                  key={category}
-                  onClick={() => setSelectedCategory(category)}
-                  className={`px-2 py-1 text-xs rounded-full whitespace-nowrap transition-colors ${
-                    selectedCategory === category 
-                      ? 'bg-purple-100 text-purple-800' 
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  {category}
-                </button>
-              ))}
-            </div>
-          )}
-
           {/* Prompts List */}
           <div className="flex-1 overflow-y-auto space-y-3">
+
             {filteredPrompts.map((prompt) => (
-              <div 
+              <div
                 key={prompt.id}
                 className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-sm transition-shadow"
               >
@@ -340,7 +437,7 @@ export const PromptsDetailView: React.FC = () => {
                           type="text"
                           value={prompt.name}
                           onChange={(e) => {
-                            const updatedPrompts = prompts.map(p => 
+                            const updatedPrompts = prompts.map(p =>
                               p.id === prompt.id ? { ...p, name: e.target.value } : p
                             );
                             setPrompts(updatedPrompts);
@@ -350,13 +447,13 @@ export const PromptsDetailView: React.FC = () => {
                           autoFocus
                         />
                       </div>
-                      
+
                       <div>
                         <label className="block text-xs font-medium text-gray-700 mb-1">Category</label>
                         <select
                           value={prompt.category}
                           onChange={(e) => {
-                            const updatedPrompts = prompts.map(p => 
+                            const updatedPrompts = prompts.map(p =>
                               p.id === prompt.id ? { ...p, category: e.target.value } : p
                             );
                             setPrompts(updatedPrompts);
@@ -371,14 +468,14 @@ export const PromptsDetailView: React.FC = () => {
                         </select>
                       </div>
                     </div>
-                    
+
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">Description</label>
                       <input
                         type="text"
                         value={prompt.description}
                         onChange={(e) => {
-                          const updatedPrompts = prompts.map(p => 
+                          const updatedPrompts = prompts.map(p =>
                             p.id === prompt.id ? { ...p, description: e.target.value } : p
                           );
                           setPrompts(updatedPrompts);
@@ -387,13 +484,13 @@ export const PromptsDetailView: React.FC = () => {
                         placeholder="Brief description of the prompt"
                       />
                     </div>
-                    
+
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">Content</label>
                       <textarea
                         value={prompt.content}
                         onChange={(e) => {
-                          const updatedPrompts = prompts.map(p => 
+                          const updatedPrompts = prompts.map(p =>
                             p.id === prompt.id ? { ...p, content: e.target.value } : p
                           );
                           setPrompts(updatedPrompts);
@@ -403,14 +500,14 @@ export const PromptsDetailView: React.FC = () => {
                         placeholder="Enter your prompt content here..."
                       />
                     </div>
-                    
+
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">Tags (comma-separated)</label>
                       <input
                         type="text"
                         value={formatTagsInput(prompt.tags)}
                         onChange={(e) => {
-                          const updatedPrompts = prompts.map(p => 
+                          const updatedPrompts = prompts.map(p =>
                             p.id === prompt.id ? { ...p, tags: parseTagsInput(e.target.value) } : p
                           );
                           setPrompts(updatedPrompts);
@@ -419,14 +516,14 @@ export const PromptsDetailView: React.FC = () => {
                         placeholder="ai, coding, documentation"
                       />
                     </div>
-                    
+
                     <div className="flex items-center space-x-2">
                       <label className="flex items-center space-x-2 text-sm">
                         <input
                           type="checkbox"
                           checked={prompt.is_template}
                           onChange={(e) => {
-                            const updatedPrompts = prompts.map(p => 
+                            const updatedPrompts = prompts.map(p =>
                               p.id === prompt.id ? { ...p, is_template: e.target.checked } : p
                             );
                             setPrompts(updatedPrompts);
@@ -436,7 +533,7 @@ export const PromptsDetailView: React.FC = () => {
                         <span className="text-gray-700">Mark as template</span>
                       </label>
                     </div>
-                    
+
                     <div className="flex items-center space-x-2">
                       <button
                         onClick={() => handleUpdatePrompt(prompt.id, prompt)}
@@ -467,207 +564,60 @@ export const PromptsDetailView: React.FC = () => {
                   </div>
                 ) : (
                   // Display Mode
-                  <div>
-                    <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 min-w-0">
                       <div className="flex items-center space-x-2">
-                        <h4 className="font-medium text-sm text-gray-900">{prompt.name}</h4>
+                        <h4 className="font-medium text-sm text-gray-900 truncate">{prompt.name}</h4>
                         {prompt.is_template && (
-                          <Star className="w-4 h-4 text-yellow-500" />
+                          <Star className="w-3 h-3 text-yellow-500 flex-shrink-0" />
                         )}
                       </div>
-                      <div className="flex items-center space-x-1">
-                        <button 
-                          onClick={() => handleCopyPrompt(prompt.content)}
-                          className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
-                          title="Copy prompt"
-                        >
-                          <Copy className="w-3 h-3" />
-                        </button>
-                        <button 
-                          className="p-1 text-gray-400 hover:text-purple-600 transition-colors"
-                          title="Use prompt"
-                        >
-                          <Play className="w-3 h-3" />
-                        </button>
-                        {isEditingList && (
-                          <div className="flex items-center space-x-1 ml-2">
-                            <button
-                              onClick={() => setEditingPromptId(prompt.id)}
-                              className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
-                              title="Edit prompt"
-                            >
-                              <Edit3 className="w-3 h-3" />
-                            </button>
-                            <button
-                              onClick={() => handleDeletePrompt(prompt.id)}
-                              disabled={saving}
-                              className="p-1 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50"
-                              title="Delete prompt"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    
-                    {prompt.description && (
-                      <p className="text-xs text-gray-600 mb-2">{prompt.description}</p>
-                    )}
-                    
-                    <div className="bg-gray-50 rounded-md p-2 mb-2">
-                      <p className="text-xs text-gray-700 font-mono leading-relaxed">
-                        {prompt.content.length > 150 
-                          ? `${prompt.content.substring(0, 150)}...` 
-                          : prompt.content
-                        }
-                      </p>
-                    </div>
-                    
-                    <div className="flex items-center justify-between text-xs text-gray-500">
-                      <div className="flex items-center space-x-3">
-                        <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded-full">
+
+                      {prompt.description && (
+                        <p className="text-xs text-gray-600 mt-1 truncate">{prompt.description}</p>
+                      )}
+
+                      <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                           {prompt.category}
                         </span>
-                        <span>Used {prompt.usage_count} times</span>
                         {prompt.tags && prompt.tags.length > 0 && (
-                          <span>Tags: {prompt.tags.slice(0, 2).join(', ')}{prompt.tags.length > 2 && ` +${prompt.tags.length - 2}`}</span>
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            {prompt.tags[0]}{prompt.tags.length > 1 ? ` +${prompt.tags.length - 1}` : ''}
+                          </span>
                         )}
                       </div>
-                      <span>{format(new Date(prompt.updated_at), 'MMM d')}</span>
+                    </div>
+
+                    <div className="ml-2 flex items-center space-x-1">
+                      <button
+                        onClick={() => handleCopyPrompt(prompt.content)}
+                        className="p-1.5 text-gray-400 hover:text-gray-600 transition-colors"
+                        title="Copy prompt"
+                      >
+                        <Copy className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => setEditingPromptId(prompt.id)}
+                        className="p-1.5 text-gray-400 hover:text-blue-600 transition-colors"
+                        title="Edit prompt"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => handleDeletePrompt(prompt.id)}
+                        disabled={saving}
+                        className="p-1.5 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50"
+                        title="Delete prompt"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   </div>
                 )}
               </div>
             ))}
 
-            {/* New Prompt Form */}
-            {newPrompt && (
-              <div className="bg-blue-50 border-2 border-dashed border-blue-300 rounded-lg p-4">
-                <h4 className="font-medium text-blue-900 mb-3">Add New Prompt</h4>
-                <div className="space-y-3">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">Name</label>
-                      <input
-                        type="text"
-                        value={newPrompt.name || ''}
-                        onChange={(e) => setNewPrompt(prev => ({ ...prev, name: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm font-medium"
-                        placeholder="Prompt name"
-                        autoFocus
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">Category</label>
-                      <select
-                        value={newPrompt.category || 'general'}
-                        onChange={(e) => setNewPrompt(prev => ({ ...prev, category: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                      >
-                        {categoryOptions.map((cat) => (
-                          <option key={cat} value={cat}>
-                            {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Description</label>
-                    <input
-                      type="text"
-                      value={newPrompt.description || ''}
-                      onChange={(e) => setNewPrompt(prev => ({ ...prev, description: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                      placeholder="Brief description of the prompt"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Content</label>
-                    <textarea
-                      value={newPrompt.content || ''}
-                      onChange={(e) => setNewPrompt(prev => ({ ...prev, content: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm font-mono resize-none"
-                      rows={6}
-                      placeholder="Enter your prompt content here..."
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Tags (comma-separated)</label>
-                    <input
-                      type="text"
-                      value={formatTagsInput(newPrompt.tags || [])}
-                      onChange={(e) => setNewPrompt(prev => ({ ...prev, tags: parseTagsInput(e.target.value) }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                      placeholder="ai, coding, documentation"
-                    />
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <label className="flex items-center space-x-2 text-sm">
-                      <input
-                        type="checkbox"
-                        checked={newPrompt.is_template || false}
-                        onChange={(e) => setNewPrompt(prev => ({ ...prev, is_template: e.target.checked }))}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                      />
-                      <span className="text-gray-700">Mark as template</span>
-                    </label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => handleCreatePrompt(newPrompt)}
-                      disabled={saving || !newPrompt.name?.trim() || !newPrompt.content?.trim()}
-                      className="inline-flex items-center px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
-                    >
-                      {saving ? (
-                        <>
-                          <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-                          Creating...
-                        </>
-                      ) : (
-                        <>
-                          <Plus className="w-3 h-3 mr-1" />
-                          Create Prompt
-                        </>
-                      )}
-                    </button>
-                    <button
-                      onClick={() => setNewPrompt(null)}
-                      disabled={saving}
-                      className="inline-flex items-center px-3 py-1 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors text-sm"
-                    >
-                      <X className="w-3 h-3 mr-1" />
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Add Prompt Button */}
-            {isEditingList && !newPrompt && (
-              <button
-                onClick={() => setNewPrompt({
-                  name: '',
-                  description: '',
-                  content: '',
-                  category: 'general',
-                  tags: [],
-                  is_template: false,
-                })}
-                className="w-full border-2 border-dashed border-gray-300 rounded-lg p-6 text-gray-500 hover:border-gray-400 hover:text-gray-600 transition-colors flex items-center justify-center space-x-2"
-              >
-                <Plus className="w-5 h-5" />
-                <span>Add New Prompt</span>
-              </button>
-            )}
           </div>
 
           {/* Footer */}
@@ -675,14 +625,6 @@ export const PromptsDetailView: React.FC = () => {
             <div className="text-xs text-gray-500">
               {filteredPrompts.length} of {prompts.length} prompts
             </div>
-            {!isEditingList && (
-              <button 
-                onClick={() => setIsEditingList(true)}
-                className="text-xs px-3 py-1 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
-              >
-                New Prompt
-              </button>
-            )}
           </div>
         </div>
       </ModuleContainer>

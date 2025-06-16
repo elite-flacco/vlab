@@ -45,7 +45,7 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({ title, type, summary, on
       <div className={`p-3 rounded-full mb-4 ${colorClass}`}>
         <IconComponent className="w-6 h-6" />
       </div>
-      <h3 className="text-xl font-semibold text-gray-900 mb-2">{title}</h3>
+      <h3 className="text-xl font-semibold text-gray-900 mb-2">{type === 'prd' ? title.toUpperCase() : title}</h3>
       <p className="text-gray-600 text-sm flex-1">{summary}</p>
     </button>
   );
