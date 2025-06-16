@@ -12,18 +12,6 @@ interface ModuleContainerProps {
   isMaximized?: boolean;
 }
 
-const getModuleColor = (type: ModuleType) => {
-  switch (type) {
-    case 'prd': return 'border-blue-200 bg-white';
-    case 'roadmap': return 'border-green-200 bg-white';
-    case 'tasks': return 'border-orange-200 bg-white';
-    case 'scratchpad': return 'border-yellow-200 bg-white';
-    case 'prompts': return 'border-purple-200 bg-white';
-    case 'secrets': return 'border-red-200 bg-white';
-    default: return 'border-gray-200 bg-white';
-  }
-};
-
 const getModuleIcon = (type: ModuleType) => {
   switch (type) {
     case 'prd': return '📝';
@@ -46,51 +34,51 @@ export const ModuleContainer: React.FC<ModuleContainerProps> = ({
   isMaximized = false,
 }) => {
   return (
-    <div className={`h-full border-2 rounded-lg shadow-sm hover:shadow-md transition-shadow ${getModuleColor(type)}`}>
+    <div className={`module-container module-container--${type}`}>
       {/* Header */}
-      <div className="flex items-center justify-between p-3 border-b border-gray-200 bg-white rounded-t-lg">
-        <div className="flex items-center space-x-2">
-          <span className="text-lg">{getModuleIcon(type)}</span>
-          <h3 className="font-semibold text-gray-900 text-sm">{title}</h3>
+      <div className="module-container-header">
+        <div className="module-container-title-section">
+          <span className="module-container-icon">{getModuleIcon(type)}</span>
+          <h3 className="module-container-title">{title}</h3>
         </div>
         
-        <div className="flex items-center space-x-1">
+        <div className="module-container-actions">
           {onMaximize && (
             <button
               onClick={onMaximize}
-              className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
+              className="module-action-btn"
               title={isMaximized ? 'Minimize' : 'Maximize'}
             >
               {isMaximized ? (
-                <Minimize2 className="w-4 h-4" />
+                <Minimize2 className="module-action-icon" />
               ) : (
-                <Maximize2 className="w-4 h-4" />
+                <Maximize2 className="module-action-icon" />
               )}
             </button>
           )}
           {onSettings && (
             <button
               onClick={onSettings}
-              className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
+              className="module-action-btn"
               title="Module Settings"
             >
-              <Settings className="w-4 h-4" />
+              <Settings className="module-action-icon" />
             </button>
           )}
           {onClose && (
             <button
               onClick={onClose}
-              className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+              className="module-action-btn module-action-btn--close"
               title="Close Module"
             >
-              <X className="w-4 h-4" />
+              <X className="module-action-icon" />
             </button>
           )}
         </div>
       </div>
 
       {/* Content */}
-      <div className="h-full p-4 overflow-hidden" style={{ height: 'calc(100% - 60px)' }}>
+      <div className="module-container-content">
         {children}
       </div>
     </div>

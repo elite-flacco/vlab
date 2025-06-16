@@ -1,4 +1,3 @@
-// Fixed Sidebar.tsx - Simplified navigation logic
 import React, { useState } from 'react';
 import { useProjectStore } from '../../stores/projectStore';
 import { Plus, Folder, Settings, Archive, ChevronDown, ChevronRight, RotateCcw, Users } from 'lucide-react';
@@ -17,12 +16,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
   const isOnCommunity = location.pathname === '/community';
 
   const handleProjectClick = (project: any) => {
-    // Only navigate - let the Workspace component handle setting currentProject
     navigate(`/workspace/${project.id}`);
-    // // Optional: Add a small delay to ensure navigation completes
-    //   setTimeout(() => {
-    //     setCurrentProject(project);
-    //   }, 500);
   };
 
   const handleRestoreProject = async (projectId: string, e: React.MouseEvent) => {
@@ -35,51 +29,49 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
   };
 
   return (
-    <aside className="w-64 bg-white border-r border-gray-200 p-4">
-      <div className="space-y-6">
+    <aside className="app-sidebar">
+      <div className="sidebar-content">
         {/* Navigation */}
-        <div>
-          <h2 className="text-sm font-semibold text-gray-900 mb-3">Navigation</h2>
-          <div className="space-y-1">
+        <div className="sidebar-section">
+          <h2 className="sidebar-section-title">Navigation</h2>
+          <div className="sidebar-nav-list">
             <button
               onClick={() => navigate('/community')}
-              className={`w-full flex items-center space-x-2 px-3 py-2 text-sm rounded-md transition-colors ${
-                isOnCommunity
-                  ? 'bg-blue-50 text-blue-700'
-                  : 'text-gray-600 hover:bg-gray-50'
+              className={`sidebar-nav-item ${
+                isOnCommunity ? 'sidebar-nav-item--active' : ''
               }`}
             >
-              <Users className="w-4 h-4" />
+              <Users className="sidebar-nav-icon" />
               <span>Community Hub</span>
             </button>
           </div>
         </div>
 
         {/* Active Projects */}
-        <div>
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold text-gray-900">Projects</h2>
+        <div className="sidebar-section">
+          <div className="sidebar-section-header">
+            <h2 className="sidebar-section-title">Projects</h2>
             <button 
               onClick={onNewProjectClick}
-              className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+              className="sidebar-add-btn"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="sidebar-add-icon" />
             </button>
           </div>
           
-          <div className="space-y-1">
+          <div className="sidebar-project-list">
             {activeProjects.map((project) => (
               <button
                 key={project.id}
                 onClick={() => handleProjectClick(project)}
-                className={`w-full flex items-center space-x-2 px-3 py-2 text-sm rounded-md transition-colors ${
+                className={`sidebar-project-item ${
                   currentProject?.id === project.id && !isOnCommunity
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-gray-600 hover:bg-gray-50'
+                    ? 'sidebar-project-item--active'
+                    : ''
                 }`}
               >
-                <Folder className="w-4 h-4" />
-                <span className="truncate">{project.name}</span>
+                <Folder className="sidebar-project-icon" />
+                <span className="sidebar-project-name">{project.name}</span>
               </button>
             ))}
           </div>
@@ -87,40 +79,40 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
 
         {/* Archived Projects */}
         {archivedProjects.length > 0 && (
-          <div>
+          <div className="sidebar-section">
             <button
               onClick={() => setShowArchived(!showArchived)}
-              className="flex items-center space-x-2 text-sm font-semibold text-gray-700 hover:text-gray-900 transition-colors mb-3"
+              className="sidebar-archived-toggle"
             >
               {showArchived ? (
-                <ChevronDown className="w-4 h-4" />
+                <ChevronDown className="sidebar-chevron-icon" />
               ) : (
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className="sidebar-chevron-icon" />
               )}
-              <Archive className="w-4 h-4 text-orange-600" />
+              <Archive className="sidebar-archived-icon" />
               <span>Archived ({archivedProjects.length})</span>
             </button>
 
             {showArchived && (
-              <div className="space-y-1">
+              <div className="sidebar-archived-list">
                 {archivedProjects.map((project) => (
                   <div
                     key={project.id}
-                    className="group flex items-center space-x-2 px-3 py-2 text-sm rounded-md text-gray-500 hover:bg-gray-50 transition-colors"
+                    className="sidebar-archived-item"
                   >
                     <button
                       onClick={() => handleProjectClick(project)}
-                      className="flex items-center space-x-2 flex-1 text-left"
+                      className="sidebar-archived-project"
                     >
-                      <Folder className="w-4 h-4" />
-                      <span className="truncate">{project.name}</span>
+                      <Folder className="sidebar-project-icon" />
+                      <span className="sidebar-project-name">{project.name}</span>
                     </button>
                     <button
                       onClick={(e) => handleRestoreProject(project.id, e)}
-                      className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-green-600 transition-all"
+                      className="sidebar-restore-btn"
                       title="Restore project"
                     >
-                      <RotateCcw className="w-3 h-3" />
+                      <RotateCcw className="sidebar-restore-icon" />
                     </button>
                   </div>
                 ))}
@@ -129,9 +121,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
           </div>
         )}
         
-        <div className="pt-4 border-t border-gray-200">
-          <button className="w-full flex items-center space-x-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-md transition-colors">
-            <Settings className="w-4 h-4" />
+        <div className="sidebar-footer">
+          <button className="sidebar-settings-btn">
+            <Settings className="sidebar-settings-icon" />
             <span>Settings</span>
           </button>
         </div>

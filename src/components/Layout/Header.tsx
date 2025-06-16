@@ -17,57 +17,55 @@ export const Header: React.FC<HeaderProps> = ({ onNewProjectClick }) => {
   const isOnCommunity = location.pathname === '/community';
 
   return (
-    <header className="bg-white border-b border-gray-200 px-6 py-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+    <header className="app-header">
+      <div className="header-content">
+        <div className="header-left">
           <button
             onClick={() => navigate('/')}
-            className="text-2xl font-bold text-gray-900 hover:text-blue-600 transition-colors"
+            className="header-logo"
           >
             VibeLab
           </button>
           {currentProject && !isOnCommunity && (
-            <div className="text-sm text-gray-500">
+            <div className="header-breadcrumb">
               / {currentProject.name}
             </div>
           )}
         </div>
         
-        <div className="flex items-center space-x-4">
+        <div className="header-right">
           <button
             onClick={() => navigate('/community')}
-            className={`inline-flex items-center px-3 py-2 border text-sm font-medium rounded-md transition-colors ${
-              isOnCommunity
-                ? 'border-blue-300 text-blue-700 bg-blue-50'
-                : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
+            className={`btn btn-outline header-nav-btn ${
+              isOnCommunity ? 'header-nav-btn--active' : ''
             }`}
           >
-            <Users className="w-4 h-4 mr-2" />
+            <Users className="btn-icon" />
             Community
           </button>
           
           <button
             onClick={onNewProjectClick}
-            className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+            className="btn btn-primary header-nav-btn"
           >
-            <Plus className="w-4 h-4 mr-2" />
+            <Plus className="btn-icon" />
             New Project
           </button>
           
-          <div className="flex items-center space-x-2 text-sm text-gray-600">
-            <User className="w-4 h-4" />
-            <span>{user?.name || user?.email}</span>
+          <div className="header-user-info">
+            <User className="header-user-icon" />
+            <span className="header-user-name">{user?.name || user?.email}</span>
           </div>
           
-          <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
-            <Settings className="w-5 h-5" />
+          <button className="header-action-btn">
+            <Settings className="header-action-icon" />
           </button>
           
           <button
             onClick={signOut}
-            className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+            className="header-action-btn"
           >
-            <LogOut className="w-5 h-5" />
+            <LogOut className="header-action-icon" />
           </button>
         </div>
       </div>
