@@ -540,7 +540,7 @@
   
   /* Module-specific Components */
   .module-card {
-    @apply card p-6 cursor-pointer hover:shadow-lg transition-all duration-200 group h-full flex flex-col items-start text-left;
+    @apply card p-6 cursor-pointer hover:shadow-lg transition-all duration-200 h-full flex flex-col items-start text-left;
   }
   
   .module-card--prd {

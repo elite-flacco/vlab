@@ -27,7 +27,7 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({ title, type, summary, on
   return (
     <button
       onClick={onClick}
-      className={`module-card module-card--${type}`}
+      className={`module-card module-card--${type} group`}
     >
       <div className={`module-icon module-icon-${type}`}>
         <IconComponent className="module-icon-svg" />
