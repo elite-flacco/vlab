@@ -32,19 +32,19 @@ export const AuthForm: React.FC = () => {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <div className="auth-header">
-          <h2 className="auth-title">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             {isSignUp ? 'Create your account' : 'Sign in to your account'}
           </h2>
-          <p className="auth-subtitle">
+          <p className="mt-2 text-center text-sm text-gray-600">
             Welcome to VibeLab - Your Solo Developer Workspace
           </p>
         </div>
         
-        <form className="auth-form" onSubmit={handleSubmit}>
-          <div className="auth-form-fields">
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <div className="space-y-4">
             {isSignUp && (
               <div className="form-field">
                 <label htmlFor="name" className="form-label">
@@ -83,7 +83,7 @@ export const AuthForm: React.FC = () => {
               <label htmlFor="password" className="form-label">
                 Password
               </label>
-              <div className="password-input-container">
+              <div className="relative">
                 <input
                   id="password"
                   name="password"
@@ -91,18 +91,18 @@ export const AuthForm: React.FC = () => {
                   required
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="form-input password-input"
+                  className="form-input pr-10"
                   placeholder="Enter your password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="password-toggle-btn"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
                 >
                   {showPassword ? (
-                    <EyeOff className="password-toggle-icon" />
+                    <EyeOff className="h-4 w-4 text-gray-400" />
                   ) : (
-                    <Eye className="password-toggle-icon" />
+                    <Eye className="h-4 w-4 text-gray-400" />
                   )}
                 </button>
               </div>
@@ -115,24 +115,24 @@ export const AuthForm: React.FC = () => {
             </div>
           )}
 
-          <div className="auth-submit-section">
+          <div>
             <button
               type="submit"
               disabled={loading}
-              className="btn btn-primary btn-full auth-submit-btn"
+              className="btn btn-primary btn-full"
             >
               {loading ? 'Loading...' : (isSignUp ? 'Sign up' : 'Sign in')}
             </button>
           </div>
 
-          <div className="auth-toggle-section">
+          <div className="text-center">
             <button
               type="button"
               onClick={() => {
                 setIsSignUp(!isSignUp);
                 clearError();
               }}
-              className="auth-toggle-btn"
+              className="text-blue-600 hover:text-blue-500 text-sm"
             >
               {isSignUp 
                 ? 'Already have an account? Sign in' 

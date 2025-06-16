@@ -35,24 +35,24 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-container">
-        <div className="modal-header">
-          <div className="modal-title-section">
-            <div className="modal-icon-container">
-              <Folder className="modal-icon" />
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md transform transition-all">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <Folder className="w-5 h-5 text-blue-600" />
             </div>
-            <h2 className="modal-title">Create New Project</h2>
+            <h2 className="text-xl font-semibold text-gray-900">Create New Project</h2>
           </div>
           <button
             onClick={handleClose}
-            className="modal-close-btn"
+            className="p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-lg hover:bg-gray-100"
           >
-            <X className="modal-close-icon" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="modal-form">
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <div className="form-field">
             <label htmlFor="project-name" className="form-label">
               Project Name *
@@ -83,30 +83,30 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
             />
           </div>
 
-          <div className="modal-info-section">
-            <div className="modal-info-content">
-              <Sparkles className="modal-info-icon" />
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-start space-x-3">
+              <Sparkles className="w-5 h-5 text-blue-600 mt-0.5" />
               <div>
-                <h3 className="modal-info-title">AI-Powered Kick-off</h3>
-                <p className="modal-info-description">
+                <h3 className="text-sm font-medium text-blue-900">AI-Powered Kick-off</h3>
+                <p className="text-sm text-blue-700 mt-1">
                   After creating your project, we'll guide you through an AI-powered setup to transform your idea into a structured workspace with PRDs, roadmaps, and tasks.
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="modal-actions">
+          <div className="flex space-x-3 pt-4">
             <button
               type="button"
               onClick={handleClose}
-              className="btn btn-outline modal-action-btn"
+              className="btn btn-outline flex-1"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading || !formData.name.trim()}
-              className="btn btn-primary modal-action-btn modal-submit-btn"
+              className="btn btn-primary flex-1"
             >
               {loading ? (
                 <>
