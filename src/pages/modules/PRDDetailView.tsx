@@ -1,10 +1,10 @@
 import { format } from 'date-fns';
-import { Calendar, Edit3, Eye, FileText, Save, X, History, GitBranch, User, Clock, ChevronDown } from 'lucide-react';
+import { ChevronDown, Clock, Edit3, Eye, FileText, GitBranch, History, Plus, Save, User, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ModuleContainer } from '../../components/Workspace/ModuleContainer';
 import { BackButton } from '../../components/common/BackButton';
 import { VersionHistory } from '../../components/PRD/VersionHistory';
+import { ModuleContainer } from '../../components/Workspace/ModuleContainer';
 import { db } from '../../lib/supabase';
 
 export const PRDDetailView: React.FC = () => {
@@ -259,27 +259,6 @@ export const PRDDetailView: React.FC = () => {
           {/* Header */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-4">
-              {/* PRD Selection Dropdown */}
-              <select
-                value={selectedPRD?.id || ''}
-                onChange={(e) => {
-                  const prd = prds.find(p => p.id === e.target.value);
-                  if (prd) {
-                    setSelectedPRD(prd);
-                    fetchAllVersionsForPRD(prd);
-                  }
-                  setIsEditing(false);
-                }}
-                disabled={isEditing}
-                className="text-sm border border-gray-300 rounded-md px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
-              >
-                {prds.map((prd) => (
-                  <option key={prd.id} value={prd.id}>
-                    {prd.title} (v{prd.version})
-                  </option>
-                ))}
-              </select>
-
               {/* Version Selection Dropdown */}
               {allPRDVersions.length > 0 && (
                 <div className="relative">
@@ -321,16 +300,6 @@ export const PRDDetailView: React.FC = () => {
                 >
                   <History className="w-3 h-3 mr-1" />
                   History
-                </button>
-              )}
-
-              {!isEditing && (
-                <button
-                  onClick={() => setIsPreviewMode(!isPreviewMode)}
-                  className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
-                  title={isPreviewMode ? 'Edit Mode' : 'Preview Mode'}
-                >
-                  {isPreviewMode ? <Edit3 className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               )}
 
@@ -386,10 +355,10 @@ export const PRDDetailView: React.FC = () => {
                     <div className="flex items-center space-x-2">
                       <GitBranch className="w-4 h-4 text-blue-600" />
                       <div>
-                        <p className="font-medium text-gray-900">
+                        <p className="text-sm font-medium text-gray-900">
                           Version {selectedVersionData.version_number}
                         </p>
-                        <p className="text-gray-500">
+                        <p className="text-xs text-gray-500">
                           {isCurrentVersion ? 'Current' : 'Historical'}
                         </p>
                       </div>
@@ -397,8 +366,8 @@ export const PRDDetailView: React.FC = () => {
                     <div className="flex items-center space-x-2">
                       <Clock className="w-4 h-4 text-gray-500" />
                       <div>
-                        <p className="font-medium text-gray-900">Last Modified</p>
-                        <p className="text-gray-500">
+                        <p className="text-sm font-medium text-gray-900">Last Modified</p>
+                        <p className="text-xs text-gray-500">
                           {format(new Date(selectedVersionData.updated_at || selectedVersionData.created_at), 'MMM d, yyyy h:mm a')}
                         </p>
                       </div>
@@ -406,27 +375,14 @@ export const PRDDetailView: React.FC = () => {
                     <div className="flex items-center space-x-2">
                       <User className="w-4 h-4 text-gray-500" />
                       <div>
-                        <p className="font-medium text-gray-900">
+                        <p className="text-sm font-medium text-gray-900">
                           {isCurrentVersion ? 'Updated By' : 'Created By'}
                         </p>
-                        <p className="text-gray-500">
+                        <p className="text-xs text-gray-500">
                           {(selectedVersionData.updated_by_profile?.name || selectedVersionData.created_by_profile?.name) || 'Unknown'}
                         </p>
                       </div>
                     </div>
-                    {isCurrentVersion && (
-                      <div className="flex items-center space-x-2">
-                        <div className={`w-3 h-3 rounded-full ${
-                          selectedVersionData.status === 'approved' ? 'bg-green-500' :
-                          selectedVersionData.status === 'review' ? 'bg-yellow-500' :
-                          'bg-gray-400'
-                        }`} />
-                        <div>
-                          <p className="font-medium text-gray-900">Status</p>
-                          <p className="text-gray-500 capitalize">{selectedVersionData.status}</p>
-                        </div>
-                      </div>
-                    )}
                   </div>
                   
                   {selectedVersionData.change_description && (
@@ -468,23 +424,6 @@ export const PRDDetailView: React.FC = () => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                       placeholder="Briefly describe what changed in this version..."
                     />
-                  </div>
-                )}
-
-                {/* Status Selection (only when editing) */}
-                {isEditing && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                    <select
-                      value={editedPRD?.status || 'draft'}
-                      onChange={(e) => setEditedPRD(prev => ({ ...prev, status: e.target.value }))}
-                      className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                    >
-                      <option value="draft">Draft</option>
-                      <option value="review">Review</option>
-                      <option value="approved">Approved</option>
-                      <option value="archived">Archived</option>
-                    </select>
                   </div>
                 )}
 
@@ -530,16 +469,11 @@ export const PRDDetailView: React.FC = () => {
                 </span>
               )}
             </div>
-            <div className="flex items-center space-x-2">
+            {/* <div className="flex items-center space-x-2">
               <button className="text-xs px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
                 Export
               </button>
-              {isCurrentVersion && (
-                <button className="text-xs px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
-                  New Version
-                </button>
-              )}
-            </div>
+            </div> */}
           </div>
         </div>
       </ModuleContainer>
