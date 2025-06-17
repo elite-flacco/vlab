@@ -2,66 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
-
 /* CSS Custom Properties for Design System */
 :root {
-  /* Color Variables */
-  --color-primary: theme('colors.primary.500');
-  --color-primary-hover: theme('colors.primary.600');
-  --color-primary-light: theme('colors.primary.50');
-  
-  --color-secondary: theme('colors.secondary.500');
-  --color-secondary-hover: theme('colors.secondary.600');
-  
-  --color-success: theme('colors.success.500');
-  --color-warning: theme('colors.warning.500');
-  --color-error: theme('colors.error.500');
-  
-  /* Text Colors */
-  --color-text-primary: theme('colors.gray.900');
-  --color-text-secondary: theme('colors.gray.600');
-  --color-text-muted: theme('colors.gray.500');
-  --color-text-inverse: theme('colors.white');
-  
-  /* Background Colors */
-  --color-bg-primary: theme('colors.white');
-  --color-bg-secondary: theme('colors.gray.50');
-  --color-bg-tertiary: theme('colors.gray.100');
-  
-  /* Border Colors */
-  --color-border-primary: theme('colors.gray.200');
-  --color-border-secondary: theme('colors.gray.300');
-  
-  /* Spacing Variables */
-  --spacing-xs: theme('spacing.1');
-  --spacing-sm: theme('spacing.2');
-  --spacing-md: theme('spacing.4');
-  --spacing-lg: theme('spacing.6');
-  --spacing-xl: theme('spacing.8');
-  --spacing-2xl: theme('spacing.12');
-  
-  /* Border Radius */
-  --radius-sm: theme('borderRadius.sm');
-  --radius-md: theme('borderRadius.md');
-  --radius-lg: theme('borderRadius.lg');
-  --radius-xl: theme('borderRadius.xl');
-  
-  /* Shadows */
-  --shadow-sm: theme('boxShadow.sm');
-  --shadow-md: theme('boxShadow.md');
-  --shadow-lg: theme('boxShadow.lg');
-  
-  /* Transitions */
-  --transition-fast: theme('transitionDuration.150');
-  --transition-normal: theme('transitionDuration.200');
-  --transition-slow: theme('transitionDuration.300');
+  /* Typography */
+  --font-sans: Inter, sans-serif;
+  --font-heading: 'Share Tech Mono', monospace;
 }
 
 /* Base Layer - Typography & Reset */
 @layer base {
-  /* Modern CSS Reset */
   *,
   *::before,
   *::after {
@@ -115,28 +64,25 @@
   }
   
   /* Heading Styles */
+  h1, h2, h3 {
+    font-family: var(--font-heading);
+    @apply font-bold text-gray-900 leading-tight;
+  }
+  
   h1 {
-    @apply text-4xl font-bold leading-tight tracking-tight text-gray-900;
+    @apply text-4xl tracking-tight;
   }
   
   h2 {
-    @apply text-3xl font-bold leading-tight tracking-tight text-gray-900;
+    @apply text-3xl tracking-tight;
   }
   
   h3 {
-    @apply text-2xl font-semibold leading-tight tracking-tight text-gray-900;
+    @apply text-2xl;
   }
   
   h4 {
     @apply text-xl font-semibold leading-tight text-gray-900;
-  }
-  
-  h5 {
-    @apply text-lg font-medium leading-tight text-gray-900;
-  }
-  
-  h6 {
-    @apply text-base font-medium leading-tight text-gray-900;
   }
   
   /* Body Text */
@@ -146,341 +92,63 @@
   
   /* Link Styles */
   a {
-    @apply text-primary-600 hover:text-primary-700 transition-colors duration-200;
+    @apply text-primary hover:text-primary-dark transition-colors duration-200;
     text-decoration: none;
   }
   
   a:hover {
     text-decoration: underline;
   }
-  
-  /* Code Styles */
-  code {
-    @apply font-mono text-sm bg-gray-100 px-1.5 py-0.5 rounded text-gray-800;
-  }
-  
-  pre {
-    @apply font-mono text-sm bg-gray-100 p-4 rounded-lg overflow-x-auto;
-  }
-  
-  pre code {
-    @apply bg-transparent p-0;
-  }
-  
-  /* List Styles */
-  ul,
-  ol {
-    @apply pl-6 space-y-1;
-  }
-  
-  li {
-    @apply text-gray-700;
-  }
-  
-  /* Table Styles */
-  table {
-    @apply w-full border-collapse;
-  }
-  
-  th {
-    @apply text-left font-semibold text-gray-900 border-b border-gray-200 pb-2;
-  }
-  
-  td {
-    @apply text-gray-700 border-b border-gray-100 py-2;
-  }
 }
 
 /* Component Layer - Reusable Components */
 @layer components {
-  /* Button Components - Keep these as they're used frequently */
+  /* Button Components */
   .btn {
-    @apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
   }
   
   .btn-primary {
-    @apply btn bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500 shadow-sm hover:shadow-md;
+    @apply btn bg-primary text-white hover:bg-primary-dark focus:ring-primary shadow-sm hover:shadow-md;
   }
-  
+
   .btn-secondary {
-    @apply btn bg-secondary-100 text-secondary-700 hover:bg-secondary-200 focus:ring-secondary-500 border border-secondary-200;
+    @apply btn bg-secondary text-secondary hover:bg-secondary-200 focus:ring-secondary border border-secondary;
   }
   
   .btn-outline {
-    @apply btn bg-white text-gray-700 hover:bg-gray-50 focus:ring-primary-500 border border-gray-300 hover:border-gray-400;
+    @apply btn bg-white text-gray-700 hover:bg-gray-50 focus:ring-primary border border-gray-300 hover:border-gray-400;
   }
   
   .btn-ghost {
-    @apply btn bg-transparent text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:ring-primary-500;
+    @apply btn bg-transparent text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:ring-primary;
   }
   
   .btn-success {
-    @apply btn bg-success-600 text-white hover:bg-success-700 focus:ring-success-500 shadow-sm hover:shadow-md;
+    @apply btn bg-success text-white hover:bg-success-700 focus:ring-success shadow-sm hover:shadow-md;
   }
   
   .btn-warning {
-    @apply btn bg-warning-600 text-white hover:bg-warning-700 focus:ring-warning-500 shadow-sm hover:shadow-md;
+    @apply btn bg-warning text-white hover:bg-warning focus:ring-warning shadow-sm hover:shadow-md;
   }
   
   .btn-error {
-    @apply btn bg-error-600 text-white hover:bg-error-700 focus:ring-error-500 shadow-sm hover:shadow-md;
+    @apply btn bg-error text-white hover:bg-error focus:ring-error shadow-sm hover:shadow-md;
   }
-  
-  /* Button Sizes */
-  .btn-xs {
-    @apply px-2 py-1 text-xs;
-  }
-  
-  .btn-sm {
-    @apply px-3 py-1.5 text-sm;
-  }
-  
-  .btn-lg {
-    @apply px-6 py-3 text-base;
-  }
-  
-  .btn-xl {
-    @apply px-8 py-4 text-lg;
-  }
-  
-  /* Button Modifiers */
-  .btn-full {
-    @apply w-full;
-  }
-  
   .btn-icon {
     @apply w-4 h-4;
   }
-  
-  /* Form Components - Keep these as they're used frequently */
-  .form-input {
-    @apply block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200;
+
+  .btn-add {
+    @apply btn w-full border-2 border-dashed border-gray-300 rounded-lg p-4 text-gray-500 transition-colors;
+  }
+
+  .btn-add:hover {
+    @apply text-gray-600 border-gray-400;
   }
   
-  .form-textarea {
-    @apply form-input resize-none;
-  }
-  
-  .form-select {
-    @apply form-input pr-10 bg-white cursor-pointer;
-  }
-  
-  .form-checkbox {
-    @apply h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500 focus:ring-offset-0;
-  }
-  
-  .form-radio {
-    @apply h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500 focus:ring-offset-0;
-  }
-  
-  .form-label {
-    @apply block text-sm font-medium text-gray-700 mb-1;
-  }
-  
-  .form-error {
-    @apply text-sm text-error-600 mt-1;
-  }
-  
-  .form-help {
-    @apply text-sm text-gray-500 mt-1;
-  }
-  
-  .form-field {
-    @apply space-y-1;
-  }
-  
-  /* Form States */
-  .form-input-error {
-    @apply border-error-300 focus:border-error-500 focus:ring-error-500;
-  }
-  
-  .form-input-success {
-    @apply border-success-300 focus:border-success-500 focus:ring-success-500;
-  }
-  
-  /* Card Components - Keep these as they're used frequently */
-  .card {
-    @apply bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200;
-  }
-  
-  .card-header {
-    @apply px-6 py-4 border-b border-gray-200;
-  }
-  
-  .card-body {
-    @apply px-6 py-4;
-  }
-  
-  .card-footer {
-    @apply px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-xl;
-  }
-  
-  /* Alert Components - Keep these as they're used frequently */
-  .alert {
-    @apply p-4 rounded-lg border;
-  }
-  
-  .alert-info {
-    @apply alert bg-primary-50 border-primary-200 text-primary-800;
-  }
-  
-  .alert-success {
-    @apply alert bg-success-50 border-success-200 text-success-800;
-  }
-  
-  .alert-warning {
-    @apply alert bg-warning-50 border-warning-200 text-warning-800;
-  }
-  
-  .alert-error {
-    @apply alert bg-error-50 border-error-200 text-error-800;
-  }
-  
-  /* Loading Components - Keep these as they're used frequently */
+  /* Loading Spinner */
   .loading-spinner {
-    @apply animate-spin rounded-full h-4 w-4 border-b-2 border-current;
-  }
-  
-  .loading-spinner-lg {
-    @apply animate-spin rounded-full h-8 w-8 border-b-2 border-current;
-  }
-}
-
-/* Utility Layer - Custom Utilities */
-@layer utilities {
-  /* Animation Utilities */
-  .animate-fade-in {
-    animation: fadeIn 0.3s ease-in-out;
-  }
-  
-  .animate-slide-up {
-    animation: slideUp 0.3s ease-out;
-  }
-  
-  .animate-scale-in {
-    animation: scaleIn 0.2s ease-out;
-  }
-  
-  /* Scroll Utilities */
-  .scrollbar-thin {
-    scrollbar-width: thin;
-    scrollbar-color: theme('colors.gray.300') transparent;
-  }
-  
-  .scrollbar-thin::-webkit-scrollbar {
-    width: 6px;
-  }
-  
-  .scrollbar-thin::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  
-  .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: theme('colors.gray.300');
-    border-radius: 3px;
-  }
-  
-  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    background-color: theme('colors.gray.400');
-  }
-  
-  /* Focus Utilities */
-  .focus-ring {
-    @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
-  }
-  
-  .focus-ring-inset {
-    @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-inset;
-  }
-  
-  /* Text Utilities */
-  .text-balance {
-    text-wrap: balance;
-  }
-  
-  .text-pretty {
-    text-wrap: pretty;
-  }
-  
-  /* Layout Utilities */
-  .safe-area-inset {
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
-  }
-  
-  /* Line Clamp Utilities */
-  .line-clamp-1 {
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 1;
-  }
-  
-  .line-clamp-2 {
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-  }
-  
-  .line-clamp-3 {
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 3;
-  }
-}
-
-/* Keyframe Animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* Print Styles */
-@media print {
-  .no-print {
-    display: none !important;
-  }
-  
-  .print-only {
-    display: block !important;
-  }
-}
-
-/* Reduced Motion Support */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    @apply animate-spin rounded-full border-b-2 border-current;
   }
 }
