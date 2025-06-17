@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { MessageSquare, Plus, Search, Copy, Star, Play, ArrowLeft, Edit3, Save, X, Trash2, Loader2 } from 'lucide-react';
-import { format } from 'date-fns';
-import { useParams, useNavigate } from 'react-router-dom';
-import { db } from '../../lib/supabase';
+import { Copy, Edit3, Loader2, MessageSquare, Plus, Save, Search, Star, Trash2, X } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ModuleContainer } from '../../components/Workspace/ModuleContainer';
+import { BackButton } from '../../components/common/BackButton';
+import { db } from '../../lib/supabase';
 
 interface PromptItem {
   id: string;
@@ -167,15 +167,7 @@ export const PromptsDetailView: React.FC = () => {
   if (loading) {
     return (
       <div className="max-w-6xl mx-auto">
-        <div className="mb-6">
-          <button
-            onClick={handleReturnToWorkspace}
-            className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Return to Workspace
-          </button>
-        </div>
+        <BackButton onClick={handleReturnToWorkspace} />
         <ModuleContainer title="Prompts" type="prompts">
           <div className="h-full flex items-center justify-center">
             <div className="text-center">
@@ -191,15 +183,7 @@ export const PromptsDetailView: React.FC = () => {
   if (error) {
     return (
       <div className="max-w-6xl mx-auto">
-        <div className="mb-6">
-          <button
-            onClick={handleReturnToWorkspace}
-            className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Return to Workspace
-          </button>
-        </div>
+        <BackButton onClick={handleReturnToWorkspace} />
         <ModuleContainer title="Prompts" type="prompts">
           <div className="bg-red-50 border border-red-200 rounded-lg p-4">
             <p className="text-sm text-red-600">{error}</p>
@@ -212,15 +196,7 @@ export const PromptsDetailView: React.FC = () => {
   if (prompts.length === 0 && !isEditingList) {
     return (
       <div className="max-w-6xl mx-auto">
-        <div className="mb-6">
-          <button
-            onClick={handleReturnToWorkspace}
-            className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Return to Workspace
-          </button>
-        </div>
+        <BackButton onClick={handleReturnToWorkspace} />
         <ModuleContainer title="Prompts" type="prompts">
           <div className="h-full flex items-center justify-center">
             <div className="text-center">
@@ -238,38 +214,29 @@ export const PromptsDetailView: React.FC = () => {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="mb-6">
-        <button
-          onClick={handleReturnToWorkspace}
-          className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Return to Workspace
-        </button>
-      </div>
-
+      <BackButton onClick={handleReturnToWorkspace} />
       <ModuleContainer title="Prompts" type="prompts">
         <div className="h-full flex flex-col">
           {/* Header */}
           {!newPrompt && (
-              <button
-                onClick={() => {
-                  setIsEditingList(true);
-                  setNewPrompt({
-                    name: '',
-                    description: '',
-                    content: '',
-                    category: 'general',
-                    tags: [],
-                    is_template: false,
-                  });
-                }}
-                className="w-full border-2 border-dashed border-gray-300 rounded-lg p-4 text-gray-500 hover:border-gray-400 hover:text-gray-600 transition-colors flex items-center justify-center space-x-2 text-sm mb-4"
-                data-component-name="PromptsDetailView"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Add New Prompt</span>
-              </button>
+            <button
+              onClick={() => {
+                setIsEditingList(true);
+                setNewPrompt({
+                  name: '',
+                  description: '',
+                  content: '',
+                  category: 'general',
+                  tags: [],
+                  is_template: false,
+                });
+              }}
+              className="btn-add mb-6"
+              data-component-name="PromptsDetailView"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add New Prompt</span>
+            </button>
           )}
           {/* New Prompt Form */}
           {newPrompt && (

@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { CheckSquare, Square, Plus, Filter, Tag, ArrowLeft, Edit3, Save, X, Trash2, Loader2, Search } from 'lucide-react';
 import { format } from 'date-fns';
-import { useParams, useNavigate } from 'react-router-dom';
-import { db } from '../../lib/supabase';
+import { CheckSquare, Edit3, Loader2, Plus, Save, Search, Square, Tag, Trash2, X } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { BackButton } from '../../components/common/BackButton';
 import { ModuleContainer } from '../../components/Workspace/ModuleContainer';
+import { db } from '../../lib/supabase';
 
 interface TaskItem {
   id: string;
@@ -188,15 +189,7 @@ export const TasksDetailView: React.FC = () => {
   if (loading) {
     return (
       <div className="max-w-6xl mx-auto">
-        <div className="mb-6">
-          <button
-            onClick={handleReturnToWorkspace}
-            className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Return to Workspace
-          </button>
-        </div>
+        <BackButton onClick={handleReturnToWorkspace} />
         <ModuleContainer title="Tasks" type="tasks">
           <div className="h-full flex items-center justify-center">
             <div className="text-center">
@@ -212,15 +205,7 @@ export const TasksDetailView: React.FC = () => {
   if (error) {
     return (
       <div className="max-w-6xl mx-auto">
-        <div className="mb-6">
-          <button
-            onClick={handleReturnToWorkspace}
-            className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Return to Workspace
-          </button>
-        </div>
+        <BackButton onClick={handleReturnToWorkspace} />
         <ModuleContainer title="Tasks" type="tasks">
           <div className="bg-red-50 border border-red-200 rounded-lg p-4">
             <p className="text-sm text-red-600">{error}</p>
@@ -233,15 +218,7 @@ export const TasksDetailView: React.FC = () => {
   if (tasks.length === 0 && !newTask) {
     return (
       <div className="max-w-6xl mx-auto">
-        <div className="mb-6">
-          <button
-            onClick={handleReturnToWorkspace}
-            className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Return to Workspace
-          </button>
-        </div>
+        <BackButton onClick={handleReturnToWorkspace} />
         <ModuleContainer title="Tasks" type="tasks">
           <div className="h-full flex items-center justify-center py-12">
             <div className="text-center">
@@ -273,16 +250,7 @@ export const TasksDetailView: React.FC = () => {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="mb-6">
-        <button
-          onClick={handleReturnToWorkspace}
-          className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Return to Workspace
-        </button>
-      </div>
-
+      <BackButton onClick={handleReturnToWorkspace} />
       <ModuleContainer title="Tasks" type="tasks">
         <div className="h-full flex flex-col">
           {/* Header and Search */}
@@ -419,8 +387,8 @@ export const TasksDetailView: React.FC = () => {
                 <button
                   onClick={() => setShowCompleted(!showCompleted)}
                   className={`text-xs px-2 py-1 rounded-md transition-colors ${showCompleted
-                      ? 'bg-orange-100 text-orange-800'
-                      : 'text-gray-600 hover:bg-gray-100'
+                    ? 'bg-orange-100 text-orange-800'
+                    : 'text-gray-600 hover:bg-gray-100'
                     }`}
                 >
                   {showCompleted ? 'Hide' : 'Show'} Completed

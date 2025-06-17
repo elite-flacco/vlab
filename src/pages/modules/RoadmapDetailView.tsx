@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Map, Calendar, Target, Plus, Edit3, ArrowLeft, Save, X, Trash2, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
-import { useParams, useNavigate } from 'react-router-dom';
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
-import { db } from '../../lib/supabase';
+import { ArrowLeft, Calendar, Edit3, Loader2, Map, Plus, Save, Target, Trash2, X } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ModuleContainer } from '../../components/Workspace/ModuleContainer';
+import { BackButton } from '../../components/common/BackButton';
+import { db } from '../../lib/supabase';
 
 interface RoadmapItem {
   id: string;
@@ -35,7 +36,7 @@ export const RoadmapDetailView: React.FC = () => {
   const [newRoadmapItem, setNewRoadmapItem] = useState<Partial<RoadmapItem> | null>(null);
   const [saving, setSaving] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  
+
   useEffect(() => {
     if (projectId) {
       fetchRoadmapItems(projectId);
@@ -69,7 +70,7 @@ export const RoadmapDetailView: React.FC = () => {
       if (updateError) throw updateError;
 
       // Update local state
-      const updatedItems = roadmapItems.map(item => 
+      const updatedItems = roadmapItems.map(item =>
         item.id === itemId ? data : item
       );
       setRoadmapItems(updatedItems);
@@ -128,7 +129,7 @@ export const RoadmapDetailView: React.FC = () => {
       const updatedItems = roadmapItems
         .filter(item => item.id !== itemId)
         .map((item, index) => ({ ...item, position: index }));
-      
+
       setRoadmapItems(updatedItems);
       setEditingItemId(null);
     } catch (err: any) {
@@ -141,7 +142,7 @@ export const RoadmapDetailView: React.FC = () => {
   // Drag and Drop Handler
   const handleDragEnd = async (result: DropResult) => {
     setIsDragging(false);
-    
+
     const { destination, source, draggableId } = result;
 
     // If dropped outside a droppable area, do nothing
@@ -159,64 +160,64 @@ export const RoadmapDetailView: React.FC = () => {
 
     const sourcePhase = source.droppableId as RoadmapItem['phase'];
     const destinationPhase = destination.droppableId as RoadmapItem['phase'];
-    
+
     // Get the item being moved
     const movedItem = roadmapItems.find(item => item.id === draggableId);
     if (!movedItem) return;
 
     // Create new roadmap items array with updated positions and phases
     let updatedItems = [...roadmapItems];
-    
+
     // Remove the item from its current position
     updatedItems = updatedItems.filter(item => item.id !== draggableId);
-    
+
     // Get items in the destination phase (excluding the moved item)
     const destinationItems = updatedItems.filter(item => item.phase === destinationPhase);
-    
+
     // Insert the moved item at the new position
     const updatedMovedItem = {
       ...movedItem,
       phase: destinationPhase,
     };
-    
+
     destinationItems.splice(destination.index, 0, updatedMovedItem);
-    
+
     // Update positions for items in the destination phase
     const destinationItemsWithPositions = destinationItems.map((item, index) => ({
       ...item,
       position: index,
     }));
-    
+
     // Combine all items
     const otherPhaseItems = updatedItems.filter(item => item.phase !== destinationPhase);
     const finalItems = [...otherPhaseItems, ...destinationItemsWithPositions];
-    
+
     // Update local state immediately for better UX
     setRoadmapItems(finalItems);
 
     // Update the database for all affected items
     try {
       setSaving(true);
-      
+
       // Update the moved item's phase
       if (sourcePhase !== destinationPhase) {
-        await handleUpdateRoadmapItem(draggableId, { 
+        await handleUpdateRoadmapItem(draggableId, {
           phase: destinationPhase,
-          position: destination.index 
+          position: destination.index
         });
       } else {
-        await handleUpdateRoadmapItem(draggableId, { 
-          position: destination.index 
+        await handleUpdateRoadmapItem(draggableId, {
+          position: destination.index
         });
       }
-      
+
       // Update positions for other items in the destination phase if needed
       const positionUpdates = destinationItemsWithPositions
         .filter(item => item.id !== draggableId)
         .map(item => handleUpdateRoadmapItem(item.id, { position: item.position }));
-      
+
       await Promise.all(positionUpdates);
-      
+
     } catch (err: any) {
       // Revert local state on error
       setRoadmapItems(roadmapItems);
@@ -233,57 +234,57 @@ export const RoadmapDetailView: React.FC = () => {
   // Direct editing handlers
   const handleDirectStatusChange = async (itemId: string, newStatus: string) => {
     // Update local state immediately for better UX
-    const updatedItems = roadmapItems.map(item => 
+    const updatedItems = roadmapItems.map(item =>
       item.id === itemId ? { ...item, status: newStatus as RoadmapItem['status'] } : item
     );
     setRoadmapItems(updatedItems);
-    
+
     // Save to database
     await handleUpdateRoadmapItem(itemId, { status: newStatus as RoadmapItem['status'] });
   };
 
   const handleDirectProgressChange = async (itemId: string, newProgress: number) => {
     const progress = Math.max(0, Math.min(100, newProgress));
-    
+
     // Update local state immediately
-    const updatedItems = roadmapItems.map(item => 
+    const updatedItems = roadmapItems.map(item =>
       item.id === itemId ? { ...item, progress } : item
     );
     setRoadmapItems(updatedItems);
-    
+
     // Save to database
     await handleUpdateRoadmapItem(itemId, { progress });
   };
 
   const handleDirectMilestoneToggle = async (itemId: string, milestone: boolean) => {
     // Update local state immediately
-    const updatedItems = roadmapItems.map(item => 
+    const updatedItems = roadmapItems.map(item =>
       item.id === itemId ? { ...item, milestone } : item
     );
     setRoadmapItems(updatedItems);
-    
+
     // Save to database
     await handleUpdateRoadmapItem(itemId, { milestone });
   };
 
   const handleDirectColorChange = async (itemId: string, newColor: string) => {
     // Update local state immediately
-    const updatedItems = roadmapItems.map(item => 
+    const updatedItems = roadmapItems.map(item =>
       item.id === itemId ? { ...item, color: newColor } : item
     );
     setRoadmapItems(updatedItems);
-    
+
     // Save to database
     await handleUpdateRoadmapItem(itemId, { color: newColor });
   };
 
   const handleDirectPhaseChange = async (itemId: string, newPhase: string) => {
     // Update local state immediately
-    const updatedItems = roadmapItems.map(item => 
+    const updatedItems = roadmapItems.map(item =>
       item.id === itemId ? { ...item, phase: newPhase as RoadmapItem['phase'] } : item
     );
     setRoadmapItems(updatedItems);
-    
+
     // Save to database
     await handleUpdateRoadmapItem(itemId, { phase: newPhase as RoadmapItem['phase'] });
   };
@@ -333,10 +334,9 @@ export const RoadmapDetailView: React.FC = () => {
 
   const renderRoadmapItem = (item: RoadmapItem, index: number, showPhaseSelector = false, isDraggable = false) => {
     const itemContent = (
-      <div 
-        className={`bg-white border-2 rounded-lg p-3 transition-all ${
-          isDragging ? 'shadow-lg' : 'hover:shadow-sm'
-        } mb-3 ${isDraggable ? 'cursor-grab active:cursor-grabbing' : ''}`}
+      <div
+        className={`bg-white border-2 rounded-lg p-3 transition-all ${isDragging ? 'shadow-lg' : 'hover:shadow-sm'
+          } mb-3 ${isDraggable ? 'cursor-grab active:cursor-grabbing' : ''}`}
         style={{ borderColor: item.color }}
       >
         {editingItemId === item.id ? (
@@ -348,7 +348,7 @@ export const RoadmapDetailView: React.FC = () => {
                 type="text"
                 value={item.title}
                 onChange={(e) => {
-                  const updatedItems = roadmapItems.map(i => 
+                  const updatedItems = roadmapItems.map(i =>
                     i.id === item.id ? { ...i, title: e.target.value } : i
                   );
                   setRoadmapItems(updatedItems);
@@ -358,13 +358,13 @@ export const RoadmapDetailView: React.FC = () => {
                 autoFocus
               />
             </div>
-            
+
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">Description</label>
               <textarea
                 value={item.description}
                 onChange={(e) => {
-                  const updatedItems = roadmapItems.map(i => 
+                  const updatedItems = roadmapItems.map(i =>
                     i.id === item.id ? { ...i, description: e.target.value } : i
                   );
                   setRoadmapItems(updatedItems);
@@ -374,14 +374,14 @@ export const RoadmapDetailView: React.FC = () => {
                 placeholder="Phase description..."
               />
             </div>
-            
+
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Status</label>
                 <select
                   value={item.status}
                   onChange={(e) => {
-                    const updatedItems = roadmapItems.map(i => 
+                    const updatedItems = roadmapItems.map(i =>
                       i.id === item.id ? { ...i, status: e.target.value as any } : i
                     );
                     setRoadmapItems(updatedItems);
@@ -394,13 +394,13 @@ export const RoadmapDetailView: React.FC = () => {
                   <option value="cancelled">Cancelled</option>
                 </select>
               </div>
-              
+
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Phase</label>
                 <select
                   value={item.phase}
                   onChange={(e) => {
-                    const updatedItems = roadmapItems.map(i => 
+                    const updatedItems = roadmapItems.map(i =>
                       i.id === item.id ? { ...i, phase: e.target.value as any } : i
                     );
                     setRoadmapItems(updatedItems);
@@ -412,7 +412,7 @@ export const RoadmapDetailView: React.FC = () => {
                   <option value="backlog">Backlog</option>
                 </select>
               </div>
-              
+
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Progress (%)</label>
                 <input
@@ -420,7 +420,7 @@ export const RoadmapDetailView: React.FC = () => {
                   value={item.progress}
                   onChange={(e) => {
                     const progress = Math.max(0, Math.min(100, Number(e.target.value)));
-                    const updatedItems = roadmapItems.map(i => 
+                    const updatedItems = roadmapItems.map(i =>
                       i.id === item.id ? { ...i, progress } : i
                     );
                     setRoadmapItems(updatedItems);
@@ -431,7 +431,7 @@ export const RoadmapDetailView: React.FC = () => {
                 />
               </div>
             </div>
-            
+
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">Color</label>
               <div className="flex flex-wrap gap-1">
@@ -439,20 +439,19 @@ export const RoadmapDetailView: React.FC = () => {
                   <button
                     key={color.value}
                     onClick={() => {
-                      const updatedItems = roadmapItems.map(i => 
+                      const updatedItems = roadmapItems.map(i =>
                         i.id === item.id ? { ...i, color: color.value } : i
                       );
                       setRoadmapItems(updatedItems);
                     }}
-                    className={`w-5 h-5 rounded-full border-2 ${color.class} ${
-                      item.color === color.value ? 'border-gray-800' : 'border-gray-300'
-                    } hover:border-gray-600 transition-colors`}
+                    className={`w-5 h-5 rounded-full border-2 ${color.class} ${item.color === color.value ? 'border-gray-800' : 'border-gray-300'
+                      } hover:border-gray-600 transition-colors`}
                     title={color.label}
                   />
                 ))}
               </div>
             </div>
-            
+
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Start Date</label>
@@ -460,7 +459,7 @@ export const RoadmapDetailView: React.FC = () => {
                   type="date"
                   value={item.start_date || ''}
                   onChange={(e) => {
-                    const updatedItems = roadmapItems.map(i => 
+                    const updatedItems = roadmapItems.map(i =>
                       i.id === item.id ? { ...i, start_date: e.target.value || null } : i
                     );
                     setRoadmapItems(updatedItems);
@@ -468,14 +467,14 @@ export const RoadmapDetailView: React.FC = () => {
                   className="w-full px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 text-xs"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">End Date</label>
                 <input
                   type="date"
                   value={item.end_date || ''}
                   onChange={(e) => {
-                    const updatedItems = roadmapItems.map(i => 
+                    const updatedItems = roadmapItems.map(i =>
                       i.id === item.id ? { ...i, end_date: e.target.value || null } : i
                     );
                     setRoadmapItems(updatedItems);
@@ -484,14 +483,14 @@ export const RoadmapDetailView: React.FC = () => {
                 />
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-2">
               <label className="flex items-center space-x-2 text-sm">
                 <input
                   type="checkbox"
                   checked={item.milestone}
                   onChange={(e) => {
-                    const updatedItems = roadmapItems.map(i => 
+                    const updatedItems = roadmapItems.map(i =>
                       i.id === item.id ? { ...i, milestone: e.target.checked } : i
                     );
                     setRoadmapItems(updatedItems);
@@ -501,7 +500,7 @@ export const RoadmapDetailView: React.FC = () => {
                 <span className="text-gray-700">Mark as milestone</span>
               </label>
             </div>
-            
+
             <div className="flex items-center space-x-2">
               <button
                 onClick={() => handleUpdateRoadmapItem(item.id, item)}
@@ -537,7 +536,7 @@ export const RoadmapDetailView: React.FC = () => {
               <div className="flex items-center space-x-2">
                 {/* Direct Color Picker */}
                 <div className="relative group">
-                  <div 
+                  <div
                     className="w-3 h-3 rounded-full cursor-pointer border border-gray-300 hover:border-gray-500 transition-colors"
                     style={{ backgroundColor: item.color }}
                   />
@@ -547,9 +546,8 @@ export const RoadmapDetailView: React.FC = () => {
                         <button
                           key={color.value}
                           onClick={() => handleDirectColorChange(item.id, color.value)}
-                          className={`w-4 h-4 rounded-full border ${color.class} ${
-                            item.color === color.value ? 'border-gray-800' : 'border-gray-300'
-                          } hover:border-gray-600 transition-colors`}
+                          className={`w-4 h-4 rounded-full border ${color.class} ${item.color === color.value ? 'border-gray-800' : 'border-gray-300'
+                            } hover:border-gray-600 transition-colors`}
                           title={color.label}
                         />
                       ))}
@@ -615,9 +613,9 @@ export const RoadmapDetailView: React.FC = () => {
                 </div>
               </div>
             </div>
-            
+
             <p className="text-gray-600 text-xs mb-3 leading-relaxed">{item.description}</p>
-            
+
             {/* Direct Progress Input */}
             <div className="mb-3">
               <div className="flex items-center justify-between mb-1">
@@ -634,7 +632,7 @@ export const RoadmapDetailView: React.FC = () => {
                 <span className="text-xs text-gray-500">%</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-1.5">
-                <div 
+                <div
                   className={`h-1.5 rounded-full transition-all ${getProgressColor(item.progress)}`}
                   style={{ width: `${item.progress}%` }}
                 />
@@ -697,9 +695,8 @@ export const RoadmapDetailView: React.FC = () => {
           <div
             ref={provided.innerRef}
             {...provided.droppableProps}
-            className={`flex-1 space-y-3 min-h-32 transition-colors ${
-              snapshot.isDraggingOver ? 'bg-blue-50 border-2 border-dashed border-blue-300 rounded-lg p-2' : ''
-            }`}
+            className={`flex-1 space-y-3 min-h-32 transition-colors ${snapshot.isDraggingOver ? 'bg-blue-50 border-2 border-dashed border-blue-300 rounded-lg p-2' : ''
+              }`}
           >
             {items.map((item, index) => renderRoadmapItem(item, index, false, true))}
             {provided.placeholder}
@@ -718,15 +715,7 @@ export const RoadmapDetailView: React.FC = () => {
   if (loading) {
     return (
       <div className="max-w-6xl mx-auto">
-        <div className="mb-6">
-          <button
-            onClick={handleReturnToWorkspace}
-            className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Return to Workspace
-          </button>
-        </div>
+        <BackButton onClick={handleReturnToWorkspace} />
         <ModuleContainer title="Roadmap" type="roadmap">
           <div className="h-full flex items-center justify-center">
             <div className="text-center">
@@ -742,15 +731,7 @@ export const RoadmapDetailView: React.FC = () => {
   if (error) {
     return (
       <div className="max-w-6xl mx-auto">
-        <div className="mb-6">
-          <button
-            onClick={handleReturnToWorkspace}
-            className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Return to Workspace
-          </button>
-        </div>
+        <BackButton onClick={handleReturnToWorkspace} />
         <ModuleContainer title="Roadmap" type="roadmap">
           <div className="bg-red-50 border border-red-200 rounded-lg p-4">
             <p className="text-sm text-red-600">{error}</p>
@@ -763,15 +744,7 @@ export const RoadmapDetailView: React.FC = () => {
   if (roadmapItems.length === 0 && !newRoadmapItem) {
     return (
       <div className="max-w-6xl mx-auto">
-        <div className="mb-6">
-          <button
-            onClick={handleReturnToWorkspace}
-            className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Return to Workspace
-          </button>
-        </div>
+        <BackButton onClick={handleReturnToWorkspace} />
         <ModuleContainer title="Roadmap" type="roadmap">
           <div className="h-full flex items-center justify-center">
             <div className="text-center">
@@ -780,7 +753,7 @@ export const RoadmapDetailView: React.FC = () => {
               <p className="text-gray-600 mb-4 text-sm">
                 Create roadmap items to plan your project phases.
               </p>
-              <button 
+              <button
                 onClick={() => setNewRoadmapItem({
                   title: '',
                   description: '',
@@ -805,16 +778,7 @@ export const RoadmapDetailView: React.FC = () => {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="mb-6">
-        <button
-          onClick={handleReturnToWorkspace}
-          className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Return to Workspace
-        </button>
-      </div>
-      
+      <BackButton onClick={handleReturnToWorkspace} />
       <ModuleContainer title="Roadmap" type="roadmap">
         <div className="h-full flex flex-col">
           {/* Header */}
@@ -822,26 +786,24 @@ export const RoadmapDetailView: React.FC = () => {
             <div className="flex items-center space-x-2">
               <button
                 onClick={() => setViewMode('kanban')}
-                className={`px-3 py-1 text-xs rounded-md transition-colors ${
-                  viewMode === 'kanban' 
-                    ? 'bg-green-100 text-green-800' 
+                className={`px-3 py-1 text-xs rounded-md transition-colors ${viewMode === 'kanban'
+                    ? 'bg-green-100 text-green-800'
                     : 'text-gray-600 hover:bg-gray-100'
-                }`}
+                  }`}
               >
                 Kanban
               </button>
               <button
                 onClick={() => setViewMode('timeline')}
-                className={`px-3 py-1 text-xs rounded-md transition-colors ${
-                  viewMode === 'timeline' 
-                    ? 'bg-green-100 text-green-800' 
+                className={`px-3 py-1 text-xs rounded-md transition-colors ${viewMode === 'timeline'
+                    ? 'bg-green-100 text-green-800'
                     : 'text-gray-600 hover:bg-gray-100'
-                }`}
+                  }`}
               >
                 Timeline
               </button>
             </div>
-            
+
             <button
               onClick={() => setNewRoadmapItem({
                 title: '',
@@ -906,7 +868,7 @@ export const RoadmapDetailView: React.FC = () => {
                           autoFocus
                         />
                       </div>
-                      
+
                       <div>
                         <label className="block text-xs font-medium text-gray-700 mb-1">Description</label>
                         <textarea
@@ -917,7 +879,7 @@ export const RoadmapDetailView: React.FC = () => {
                           placeholder="Phase description..."
                         />
                       </div>
-                      
+
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                         <div>
                           <label className="block text-xs font-medium text-gray-700 mb-1">Status</label>
@@ -932,7 +894,7 @@ export const RoadmapDetailView: React.FC = () => {
                             <option value="cancelled">Cancelled</option>
                           </select>
                         </div>
-                        
+
                         <div>
                           <label className="block text-xs font-medium text-gray-700 mb-1">Phase</label>
                           <select
@@ -945,7 +907,7 @@ export const RoadmapDetailView: React.FC = () => {
                             <option value="backlog">Backlog</option>
                           </select>
                         </div>
-                        
+
                         <div>
                           <label className="block text-xs font-medium text-gray-700 mb-1">Progress (%)</label>
                           <input
@@ -960,7 +922,7 @@ export const RoadmapDetailView: React.FC = () => {
                             max="100"
                           />
                         </div>
-                        
+
                         <div>
                           <label className="block text-xs font-medium text-gray-700 mb-1">Color</label>
                           <div className="flex flex-wrap gap-1">
@@ -968,16 +930,15 @@ export const RoadmapDetailView: React.FC = () => {
                               <button
                                 key={color.value}
                                 onClick={() => setNewRoadmapItem(prev => ({ ...prev, color: color.value }))}
-                                className={`w-5 h-5 rounded-full border-2 ${color.class} ${
-                                  newRoadmapItem.color === color.value ? 'border-gray-800' : 'border-gray-300'
-                                } hover:border-gray-600 transition-colors`}
+                                className={`w-5 h-5 rounded-full border-2 ${color.class} ${newRoadmapItem.color === color.value ? 'border-gray-800' : 'border-gray-300'
+                                  } hover:border-gray-600 transition-colors`}
                                 title={color.label}
                               />
                             ))}
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <label className="block text-xs font-medium text-gray-700 mb-1">Start Date</label>
@@ -988,7 +949,7 @@ export const RoadmapDetailView: React.FC = () => {
                             className="w-full px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs"
                           />
                         </div>
-                        
+
                         <div>
                           <label className="block text-xs font-medium text-gray-700 mb-1">End Date</label>
                           <input
@@ -999,7 +960,7 @@ export const RoadmapDetailView: React.FC = () => {
                           />
                         </div>
                       </div>
-                      
+
                       <div className="flex items-center space-x-2">
                         <label className="flex items-center space-x-2 text-sm">
                           <input
@@ -1011,7 +972,7 @@ export const RoadmapDetailView: React.FC = () => {
                           <span className="text-gray-700">Mark as milestone</span>
                         </label>
                       </div>
-                      
+
                       <div className="flex items-center space-x-2">
                         <button
                           onClick={() => handleCreateRoadmapItem(newRoadmapItem)}

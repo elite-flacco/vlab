@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Lock, Plus, Eye, EyeOff, Copy, Key, Shield, ArrowLeft } from 'lucide-react';
 import { format } from 'date-fns';
-import { useParams, useNavigate } from 'react-router-dom';
-import { db } from '../../lib/supabase';
+import { ArrowLeft, Copy, Eye, EyeOff, Key, Lock, Plus, Shield } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ModuleContainer } from '../../components/Workspace/ModuleContainer';
+import { BackButton } from '../../components/common/BackButton';
+import { db } from '../../lib/supabase';
 
 export const SecretsDetailView: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
@@ -13,7 +14,7 @@ export const SecretsDetailView: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [visibleSecrets, setVisibleSecrets] = useState<Set<string>>(new Set());
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  
+
   useEffect(() => {
     if (projectId) {
       fetchSecrets(projectId);
@@ -39,7 +40,7 @@ export const SecretsDetailView: React.FC = () => {
   };
 
   const categories = Array.from(new Set(secrets.map(secret => secret.category)));
-  
+
   const filteredSecrets = secrets.filter(secret => {
     return !selectedCategory || secret.category === selectedCategory;
   });
@@ -74,15 +75,7 @@ export const SecretsDetailView: React.FC = () => {
   if (loading) {
     return (
       <div className="max-w-6xl mx-auto">
-        <div className="mb-6">
-          <button
-            onClick={handleReturnToWorkspace}
-            className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Return to Workspace
-          </button>
-        </div>
+        <BackButton onClick={handleReturnToWorkspace} />
         <ModuleContainer title="Secrets" type="secrets">
           <div className="h-full flex items-center justify-center">
             <div className="text-center">
@@ -98,15 +91,7 @@ export const SecretsDetailView: React.FC = () => {
   if (error) {
     return (
       <div className="max-w-6xl mx-auto">
-        <div className="mb-6">
-          <button
-            onClick={handleReturnToWorkspace}
-            className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Return to Workspace
-          </button>
-        </div>
+        <BackButton onClick={handleReturnToWorkspace} />
         <ModuleContainer title="Secrets" type="secrets">
           <div className="bg-red-50 border border-red-200 rounded-lg p-4">
             <p className="text-sm text-red-600">{error}</p>
@@ -119,15 +104,7 @@ export const SecretsDetailView: React.FC = () => {
   if (secrets.length === 0) {
     return (
       <div className="max-w-6xl mx-auto">
-        <div className="mb-6">
-          <button
-            onClick={handleReturnToWorkspace}
-            className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Return to Workspace
-          </button>
-        </div>
+        <BackButton onClick={handleReturnToWorkspace} />
         <ModuleContainer title="Secrets" type="secrets">
           <div className="h-full flex items-center justify-center">
             <div className="text-center">
@@ -149,16 +126,7 @@ export const SecretsDetailView: React.FC = () => {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="mb-6">
-        <button
-          onClick={handleReturnToWorkspace}
-          className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Return to Workspace
-        </button>
-      </div>
-      
+      <BackButton onClick={handleReturnToWorkspace} />
       <ModuleContainer title="Secrets" type="secrets">
         <div className="h-full flex flex-col">
           {/* Header */}
@@ -179,7 +147,7 @@ export const SecretsDetailView: React.FC = () => {
                 </select>
               )}
             </div>
-            
+
             <button className="p-1 text-gray-400 hover:text-gray-600 transition-colors">
               <Plus className="w-4 h-4" />
             </button>
@@ -188,7 +156,7 @@ export const SecretsDetailView: React.FC = () => {
           {/* Secrets List */}
           <div className="flex-1 overflow-y-auto space-y-3">
             {filteredSecrets.map((secret) => (
-              <div 
+              <div
                 key={secret.id}
                 className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-sm transition-shadow"
               >
@@ -201,7 +169,7 @@ export const SecretsDetailView: React.FC = () => {
                     </span>
                   </div>
                   <div className="flex items-center space-x-1">
-                    <button 
+                    <button
                       onClick={() => toggleSecretVisibility(secret.id)}
                       className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
                       title={visibleSecrets.has(secret.id) ? 'Hide value' : 'Show value'}
@@ -212,7 +180,7 @@ export const SecretsDetailView: React.FC = () => {
                         <Eye className="w-3 h-3" />
                       )}
                     </button>
-                    <button 
+                    <button
                       className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
                       title="Copy to clipboard"
                     >
@@ -220,20 +188,20 @@ export const SecretsDetailView: React.FC = () => {
                     </button>
                   </div>
                 </div>
-                
+
                 {secret.description && (
                   <p className="text-xs text-gray-600 mb-2">{secret.description}</p>
                 )}
-                
+
                 <div className="bg-gray-50 rounded-md p-2 mb-2">
                   <p className="text-xs text-gray-700 font-mono">
-                    {visibleSecrets.has(secret.id) 
+                    {visibleSecrets.has(secret.id)
                       ? '••••••••••••••••' // In real app, this would show decrypted value
                       : '••••••••••••••••'
                     }
                   </p>
                 </div>
-                
+
                 <div className="flex items-center justify-between text-xs text-gray-500">
                   <div className="flex items-center space-x-3">
                     <span className={`w-2 h-2 rounded-full ${secret.is_active ? 'bg-green-500' : 'bg-gray-300'}`} />

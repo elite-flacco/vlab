@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { StickyNote, Plus, Search, Pin, Tag, ArrowLeft, Edit3, Save, X, Trash2, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
-import { useParams, useNavigate } from 'react-router-dom';
-import { db } from '../../lib/supabase';
+import { Edit3, Loader2, Pin, Plus, Save, Search, StickyNote, Tag, Trash2, X } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ModuleContainer } from '../../components/Workspace/ModuleContainer';
+import { BackButton } from '../../components/common/BackButton';
+import { db } from '../../lib/supabase';
 
 interface ScratchpadNote {
   id: string;
@@ -154,15 +155,7 @@ export const ScratchpadDetailView: React.FC = () => {
   if (loading) {
     return (
       <div className="max-w-6xl mx-auto">
-        <div className="mb-6">
-          <button
-            onClick={handleReturnToWorkspace}
-            className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Return to Workspace
-          </button>
-        </div>
+        <BackButton onClick={handleReturnToWorkspace} />
         <ModuleContainer title="Scratchpad" type="scratchpad">
           <div className="h-full flex items-center justify-center">
             <div className="text-center">
@@ -178,15 +171,7 @@ export const ScratchpadDetailView: React.FC = () => {
   if (error) {
     return (
       <div className="max-w-6xl mx-auto">
-        <div className="mb-6">
-          <button
-            onClick={handleReturnToWorkspace}
-            className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Return to Workspace
-          </button>
-        </div>
+        <BackButton onClick={handleReturnToWorkspace} />
         <ModuleContainer title="Scratchpad" type="scratchpad">
           <div className="bg-red-50 border border-red-200 rounded-lg p-4">
             <p className="text-sm text-red-600">{error}</p>
@@ -200,15 +185,7 @@ export const ScratchpadDetailView: React.FC = () => {
   if (notes.length === 0 && !newNote) {
     return (
       <div className="max-w-6xl mx-auto">
-        <div className="mb-6">
-          <button
-            onClick={handleReturnToWorkspace}
-            className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Return to Workspace
-          </button>
-        </div>
+        <BackButton onClick={handleReturnToWorkspace} />
         <ModuleContainer title="Scratchpad" type="scratchpad">
           <div className="h-full flex items-center justify-center py-12">
             <div className="text-center">
@@ -226,16 +203,7 @@ export const ScratchpadDetailView: React.FC = () => {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="mb-6">
-        <button
-          onClick={handleReturnToWorkspace}
-          className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Return to Workspace
-        </button>
-      </div>
-
+      <BackButton onClick={handleReturnToWorkspace} />
       <ModuleContainer title="Scratchpad" type="scratchpad">
         <div className="h-full flex flex-col">
           {/* Add New Note Button - Always visible at the top */}
@@ -248,7 +216,7 @@ export const ScratchpadDetailView: React.FC = () => {
                 is_pinned: false,
                 tags: ['Project Notes'],
               })}
-              className="w-full border-2 border-dashed border-gray-300 rounded-lg p-4 text-gray-500 hover:border-gray-400 hover:text-gray-600 transition-colors flex items-center justify-center space-x-2 text-sm mb-6"
+              className="btn-add transition-colors mb-6"
             >
               <Plus className="w-4 h-4" />
               <span>Add New Note</span>
@@ -359,8 +327,8 @@ export const ScratchpadDetailView: React.FC = () => {
                 <button
                   onClick={() => setSelectedTag(null)}
                   className={`px-3 py-1 text-sm rounded-lg whitespace-nowrap transition-colors ${!selectedTag
-                      ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-300'
+                    ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-300'
                     }`}
                 >
                   All Notes
@@ -370,8 +338,8 @@ export const ScratchpadDetailView: React.FC = () => {
                     key={tag}
                     onClick={() => setSelectedTag(tag)}
                     className={`px-3 py-1 text-sm rounded-lg whitespace-nowrap transition-colors ${selectedTag === tag
-                        ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-300'
+                      ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-300'
                       }`}
                   >
                     {tag}

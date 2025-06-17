@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { FileText, Edit3, Eye, Plus, Calendar, ArrowLeft, Save, X } from 'lucide-react';
 import { format } from 'date-fns';
-import { useParams, useNavigate } from 'react-router-dom';
-import { db } from '../../lib/supabase';
+import { Calendar, Edit3, Eye, FileText, Save, X } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ModuleContainer } from '../../components/Workspace/ModuleContainer';
+import { BackButton } from '../../components/common/BackButton';
+import { db } from '../../lib/supabase';
 
 export const PRDDetailView: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
@@ -63,7 +64,7 @@ export const PRDDetailView: React.FC = () => {
       if (updateError) throw updateError;
 
       // Update local state
-      const updatedPRDs = prds.map(prd => 
+      const updatedPRDs = prds.map(prd =>
         prd.id === editedPRD.id ? data : prd
       );
       setPrds(updatedPRDs);
@@ -115,15 +116,7 @@ export const PRDDetailView: React.FC = () => {
   if (loading) {
     return (
       <div className="max-w-6xl mx-auto">
-        <div className="mb-6">
-          <button
-            onClick={handleReturnToWorkspace}
-            className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Return to Workspace
-          </button>
-        </div>
+        <BackButton onClick={handleReturnToWorkspace} />
         <ModuleContainer title="PRD" type="prd">
           <div className="h-full flex items-center justify-center">
             <div className="text-center">
@@ -139,15 +132,7 @@ export const PRDDetailView: React.FC = () => {
   if (error) {
     return (
       <div className="max-w-6xl mx-auto">
-        <div className="mb-6">
-          <button
-            onClick={handleReturnToWorkspace}
-            className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Return to Workspace
-          </button>
-        </div>
+        <BackButton onClick={handleReturnToWorkspace} />
         <ModuleContainer title="PRD" type="prd">
           <div className="bg-red-50 border border-red-200 rounded-lg p-4">
             <p className="text-sm text-red-600">{error}</p>
@@ -160,15 +145,7 @@ export const PRDDetailView: React.FC = () => {
   if (prds.length === 0) {
     return (
       <div className="max-w-6xl mx-auto">
-        <div className="mb-6">
-          <button
-            onClick={handleReturnToWorkspace}
-            className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Return to Workspace
-          </button>
-        </div>
+        <BackButton onClick={handleReturnToWorkspace} />
         <ModuleContainer title="PRD" type="prd">
           <div className="h-full flex items-center justify-center">
             <div className="text-center">
@@ -192,16 +169,8 @@ export const PRDDetailView: React.FC = () => {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="mb-6">
-        <button
-          onClick={handleReturnToWorkspace}
-          className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Return to Workspace
-        </button>
-      </div>
-      
+      <BackButton onClick={handleReturnToWorkspace} />
+
       <ModuleContainer title="PRD" type="prd">
         <div className="h-full flex flex-col">
           {/* Header */}
@@ -229,7 +198,7 @@ export const PRDDetailView: React.FC = () => {
                 </span>
               )}
             </div>
-            
+
             <div className="flex items-center space-x-2">
               {!isEditing && (
                 <button
@@ -240,7 +209,7 @@ export const PRDDetailView: React.FC = () => {
                   {isPreviewMode ? <Edit3 className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               )}
-              
+
               {isEditing ? (
                 <div className="flex items-center space-x-2">
                   <button
@@ -305,11 +274,10 @@ export const PRDDetailView: React.FC = () => {
                           <option value="archived">Archived</option>
                         </select>
                       ) : (
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          currentPRD.status === 'approved' ? 'bg-green-100 text-green-800' :
-                          currentPRD.status === 'review' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-gray-100 text-gray-800'
-                        }`}>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${currentPRD.status === 'approved' ? 'bg-green-100 text-green-800' :
+                            currentPRD.status === 'review' ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-gray-100 text-gray-800'
+                          }`}>
                           {currentPRD.status}
                         </span>
                       )}
