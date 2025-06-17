@@ -123,6 +123,9 @@ export interface Database {
           metadata: any;
           ai_generated: boolean;
           parent_id: string | null;
+          change_description: string | null;
+          created_by: string | null;
+          updated_by: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -136,6 +139,9 @@ export interface Database {
           metadata?: any;
           ai_generated?: boolean;
           parent_id?: string | null;
+          change_description?: string | null;
+          created_by?: string | null;
+          updated_by?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -149,8 +155,43 @@ export interface Database {
           metadata?: any;
           ai_generated?: boolean;
           parent_id?: string | null;
+          change_description?: string | null;
+          created_by?: string | null;
+          updated_by?: string | null;
           created_at?: string;
           updated_at?: string;
+        };
+      };
+      prd_versions: {
+        Row: {
+          id: string;
+          prd_id: string;
+          version_number: number;
+          title: string;
+          content: string;
+          change_description: string | null;
+          created_by: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          prd_id: string;
+          version_number: number;
+          title: string;
+          content: string;
+          change_description?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          prd_id?: string;
+          version_number?: number;
+          title?: string;
+          content?: string;
+          change_description?: string | null;
+          created_by?: string | null;
+          created_at?: string;
         };
       };
       tasks: {
@@ -482,6 +523,17 @@ export interface Database {
           project_uuid: string;
         };
         Returns: string;
+      };
+      get_prd_version_comparison: {
+        Args: {
+          prd_uuid: string;
+          version_a: number;
+          version_b: number;
+        };
+        Returns: {
+          version_a_data: any;
+          version_b_data: any;
+        }[];
       };
     };
     Enums: {

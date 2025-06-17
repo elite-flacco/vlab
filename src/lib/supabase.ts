@@ -292,7 +292,11 @@ export const db = {
     console.log('📊 DB: Getting PRDs for project:', projectId);
     const operation = () => supabase
       .from('prds')
-      .select('*')
+      .select(`
+        *,
+        created_by_profile:created_by(name, email),
+        updated_by_profile:updated_by(name, email)
+      `)
       .eq('project_id', projectId)
       .order('updated_at', { ascending: false });
     
@@ -308,7 +312,11 @@ export const db = {
     const operation = () => supabase
       .from('prds')
       .insert(prd)
-      .select()
+      .select(`
+        *,
+        created_by_profile:created_by(name, email),
+        updated_by_profile:updated_by(name, email)
+      `)
       .single();
     
     return withTimeout(
@@ -324,13 +332,88 @@ export const db = {
       .from('prds')
       .update(updates)
       .eq('id', id)
-      .select()
+      .select(`
+        *,
+        created_by_profile:created_by(name, email),
+        updated_by_profile:updated_by(name, email)
+      `)
       .single();
     
     return withTimeout(
       withTiming('DB UpdatePRD', operation),
       DB_TIMEOUT,
       'Update PRD operation timed out'
+    );
+  },
+
+  // PRD Versions
+  getPRDVersions: async (prdId: string) => {
+    console.log('📊 DB: Getting PRD versions for:', prdId);
+    const operation = () => supabase
+      .from('prd_versions')
+      .select(`
+        *,
+        created_by_profile:created_by(name, email)
+      `)
+      .eq('prd_id', prdId)
+      .order('version_number', { ascending: false });
+    
+    return withTimeout(
+      withTiming('DB GetPRDVersions', operation),
+      DB_TIMEOUT,
+      'Get PRD versions operation timed out'
+    );
+  },
+
+  getPRDVersionComparison: async (prdId: string, versionA: number, versionB: number) => {
+    console.log('📊 DB: Getting PRD version comparison:', prdId, versionA, 'vs', versionB);
+    const operation = () => supabase
+      .rpc('get_prd_version_comparison', {
+        prd_uuid: prdId,
+        version_a: versionA,
+        version_b: versionB
+      });
+    
+    return withTimeout(
+      withTiming('DB GetPRDVersionComparison', operation),
+      DB_TIMEOUT,
+      'Get PRD version comparison operation timed out'
+    );
+  },
+
+  restorePRDVersion: async (prdId: string, versionNumber: number, changeDescription?: string) => {
+    console.log('📊 DB: Restoring PRD version:', prdId, 'to version', versionNumber);
+    
+    // First get the version data
+    const versionResult = await supabase
+      .from('prd_versions')
+      .select('title, content')
+      .eq('prd_id', prdId)
+      .eq('version_number', versionNumber)
+      .single();
+    
+    if (versionResult.error) throw versionResult.error;
+    
+    // Then update the current PRD with the version data
+    const operation = () => supabase
+      .from('prds')
+      .update({
+        title: versionResult.data.title,
+        content: versionResult.data.content,
+        change_description: changeDescription || `Restored to version ${versionNumber}`
+      })
+      .eq('id', prdId)
+      .select(`
+        *,
+        created_by_profile:created_by(name, email),
+        updated_by_profile:updated_by(name, email)
+      `)
+      .single();
+    
+    return withTimeout(
+      withTiming('DB RestorePRDVersion', operation),
+      DB_TIMEOUT,
+      'Restore PRD version operation timed out'
     );
   },
 
