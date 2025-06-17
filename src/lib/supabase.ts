@@ -365,6 +365,56 @@ export const db = {
     );
   },
 
+  getSpecificPRDVersion: async (prdId: string, versionNumber: number) => {
+    console.log('📊 DB: Getting specific PRD version:', prdId, 'version', versionNumber);
+    
+    // First get the current PRD to check if this is the current version
+    const currentPRDResult = await supabase
+      .from('prds')
+      .select(`
+        *,
+        created_by_profile:created_by(name, email),
+        updated_by_profile:updated_by(name, email)
+      `)
+      .eq('id', prdId)
+      .single();
+    
+    if (currentPRDResult.error) throw currentPRDResult.error;
+    
+    // If requesting the current version, return the current PRD data
+    if (versionNumber === currentPRDResult.data.version) {
+      return {
+        ...currentPRDResult.data,
+        version_number: currentPRDResult.data.version,
+        is_current: true
+      };
+    }
+    
+    // Otherwise, fetch from prd_versions table
+    const operation = () => supabase
+      .from('prd_versions')
+      .select(`
+        *,
+        created_by_profile:created_by(name, email)
+      `)
+      .eq('prd_id', prdId)
+      .eq('version_number', versionNumber)
+      .single();
+    
+    const result = await withTimeout(
+      withTiming('DB GetSpecificPRDVersion', operation),
+      DB_TIMEOUT,
+      'Get specific PRD version operation timed out'
+    );
+    
+    if (result.error) throw result.error;
+    
+    return {
+      ...result.data,
+      is_current: false
+    };
+  },
+
   getPRDVersionComparison: async (prdId: string, versionA: number, versionB: number) => {
     console.log('📊 DB: Getting PRD version comparison:', prdId, versionA, 'vs', versionB);
     const operation = () => supabase
