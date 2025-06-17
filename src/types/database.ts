@@ -505,6 +505,180 @@ export interface Database {
           created_at?: string;
         };
       };
+      community_posts: {
+        Row: {
+          id: string;
+          title: string;
+          content: string;
+          category: string;
+          author_id: string;
+          image_url: string | null;
+          upvotes: number;
+          downvotes: number;
+          comment_count: number;
+          view_count: number;
+          is_featured: boolean;
+          is_published: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          title: string;
+          content: string;
+          category: string;
+          author_id: string;
+          image_url?: string | null;
+          upvotes?: number;
+          downvotes?: number;
+          comment_count?: number;
+          view_count?: number;
+          is_featured?: boolean;
+          is_published?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          title?: string;
+          content?: string;
+          category?: string;
+          author_id?: string;
+          image_url?: string | null;
+          upvotes?: number;
+          downvotes?: number;
+          comment_count?: number;
+          view_count?: number;
+          is_featured?: boolean;
+          is_published?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      community_comments: {
+        Row: {
+          id: string;
+          post_id: string;
+          author_id: string;
+          content: string;
+          parent_comment_id: string | null;
+          upvotes: number;
+          downvotes: number;
+          is_deleted: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          post_id: string;
+          author_id: string;
+          content: string;
+          parent_comment_id?: string | null;
+          upvotes?: number;
+          downvotes?: number;
+          is_deleted?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          post_id?: string;
+          author_id?: string;
+          content?: string;
+          parent_comment_id?: string | null;
+          upvotes?: number;
+          downvotes?: number;
+          is_deleted?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      community_post_votes: {
+        Row: {
+          id: string;
+          post_id: string;
+          user_id: string;
+          vote_type: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          post_id: string;
+          user_id: string;
+          vote_type: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          post_id?: string;
+          user_id?: string;
+          vote_type?: string;
+          created_at?: string;
+        };
+      };
+      community_comment_votes: {
+        Row: {
+          id: string;
+          comment_id: string;
+          user_id: string;
+          vote_type: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          comment_id: string;
+          user_id: string;
+          vote_type: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          comment_id?: string;
+          user_id?: string;
+          vote_type?: string;
+          created_at?: string;
+        };
+      };
+      community_post_saves: {
+        Row: {
+          id: string;
+          post_id: string;
+          user_id: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          post_id: string;
+          user_id: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          post_id?: string;
+          user_id?: string;
+          created_at?: string;
+        };
+      };
+      community_post_tags: {
+        Row: {
+          id: string;
+          post_id: string;
+          tag: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          post_id: string;
+          tag: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          post_id?: string;
+          tag?: string;
+          created_at?: string;
+        };
+      };
     };
     Views: {
       [_ in never]: never;
