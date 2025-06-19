@@ -105,50 +105,65 @@
 @layer components {
   /* Button Components */
   .btn {
-    @apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center px-3 py-1 text-sm font-medium rounded-md transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
   }
-  
   .btn-primary {
-    @apply btn bg-primary text-white hover:bg-primary-dark focus:ring-primary shadow-sm hover:shadow-md;
+    @apply btn bg-foreground text-background border border-foreground;
   }
-
-  .btn-secondary {
-    @apply btn bg-secondary text-secondary hover:bg-secondary-200 focus:ring-secondary border border-secondary;
+  .btn-primary:hover {
+    @apply bg-foreground-dark text-background;
+    text-shadow: 0 0 4px #00ff9f;
+    box-shadow: 0 0 6px #00ff9f66;
   }
-  
-  .btn-outline {
-    @apply btn bg-white text-gray-700 hover:bg-gray-50 focus:ring-primary border border-gray-300 hover:border-gray-400;
-  }
-  
   .btn-ghost {
-    @apply btn bg-transparent text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:ring-primary;
+    @apply btn bg-transparent text-foreground-dim border border-foreground-dim;
   }
-  
-  .btn-success {
-    @apply btn bg-success text-white hover:bg-success-700 focus:ring-success shadow-sm hover:shadow-md;
+  .btn-ghost:hover {
+    @apply text-foreground border-foreground;
   }
-  
-  .btn-warning {
-    @apply btn bg-warning text-white hover:bg-warning focus:ring-warning shadow-sm hover:shadow-md;
-  }
-  
-  .btn-error {
-    @apply btn bg-error text-white hover:bg-error focus:ring-error shadow-sm hover:shadow-md;
-  }
-  .btn-icon {
-    @apply w-4 h-4;
-  }
-
   .btn-add {
-    @apply btn w-full border-2 border-dashed border-gray-300 rounded-lg p-4 text-gray-500 transition-colors;
+    @apply btn bg-transparent border-2 border-dashed border-gray-300 rounded-lg p-4 text-gray-500 transition-colors;
   }
-
   .btn-add:hover {
     @apply text-gray-600 border-gray-400;
   }
-  
-  /* Loading Spinner */
+  .btn-outline {
+    @apply btn border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors text-sm
+  }
   .loading-spinner {
     @apply animate-spin rounded-full border-b-2 border-current;
   }
+
+  .search-icon {
+    @apply w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400;
+  }
+
+  .search-input {
+    @apply w-full pl-10 pr-4 py-2 text-xs border border-gray-300 rounded-lg;
+  }
+
+  .search-input:focus {
+    @apply ring-2 ring-orange-500 border-orange-500;
+  }
+
+  .new-form {
+    @apply bg-white border rounded-md p-6 shadow-lg mb-6;
+  }
+}
+
+/* Optional scanline effect */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 255, 159, 0.02),
+    rgba(0, 255, 159, 0.02) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  z-index: 50;
 }

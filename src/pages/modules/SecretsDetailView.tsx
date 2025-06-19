@@ -113,7 +113,7 @@ export const SecretsDetailView: React.FC = () => {
               <p className="text-gray-600 mb-4 text-sm">
                 Securely store API keys, passwords, and other sensitive data.
               </p>
-              <button className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm">
+              <button className="btn-add mb-4">
                 <Plus className="w-4 h-4 mr-2" />
                 Add Secret
               </button>

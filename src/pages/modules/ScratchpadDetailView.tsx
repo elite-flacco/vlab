@@ -159,7 +159,7 @@ export const ScratchpadDetailView: React.FC = () => {
         <ModuleContainer title="Scratchpad" type="scratchpad">
           <div className="h-full flex items-center justify-center">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-600 mx-auto"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 mx-auto"></div>
               <p className="mt-4 text-gray-600">Loading notes...</p>
             </div>
           </div>
@@ -225,20 +225,20 @@ export const ScratchpadDetailView: React.FC = () => {
 
           {/* New Note Form - Immediately displayed when New Note is clicked */}
           {newNote && (
-            <div className="mb-6 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-6 shadow-lg">
+            <div className="new-form">
               <div className="flex items-center justify-between mb-4">
-                <h4 className="text-lg font-semibold text-blue-900 flex items-center">
+                <h4 className="flex items-center">
                   <Plus className="w-5 h-5 mr-2" />
-                  Create New Note
+                  Add New Note
                 </h4>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <div>
                   <textarea
                     value={newNote.content || ''}
                     onChange={(e) => setNewNote(prev => ({ ...prev, content: e.target.value }))}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm resize-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-1text-sm resize-none"
                     rows={6}
                     placeholder="Start writing your note here..."
                     autoFocus
@@ -251,7 +251,7 @@ export const ScratchpadDetailView: React.FC = () => {
                     <select
                       value={newNote.tags?.[0] || TAG_OPTIONS[0]}
                       onChange={(e) => setNewNote(prev => ({ ...prev, tags: [e.target.value] }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 text-sm"
                     >
                       {TAG_OPTIONS.map((tag) => (
                         <option key={tag} value={tag}>
@@ -260,22 +260,6 @@ export const ScratchpadDetailView: React.FC = () => {
                       ))}
                     </select>
                   </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Color</label>
-                    <div className="flex flex-wrap gap-2">
-                      {colorOptions.slice(0, 4).map((color) => (
-                        <button
-                          key={color.value}
-                          onClick={() => setNewNote(prev => ({ ...prev, color: color.value }))}
-                          className={`w-8 h-8 rounded-full border-2 ${color.class} ${newNote.color === color.value ? 'border-gray-800 ring-2 ring-blue-300' : 'border-gray-300'
-                            } hover:border-gray-600 transition-all`}
-                          title={color.label}
-                        />
-                      ))}
-                    </div>
-                  </div>
-
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Options</label>
                     <label className="flex items-center space-x-2 text-sm">
@@ -294,7 +278,7 @@ export const ScratchpadDetailView: React.FC = () => {
                   <button
                     onClick={() => handleCreateNote(newNote)}
                     disabled={saving || !newNote.content?.trim()}
-                    className="inline-flex items-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+                    className="btn-primary"
                   >
                     {saving ? (
                       <>
@@ -311,7 +295,7 @@ export const ScratchpadDetailView: React.FC = () => {
                   <button
                     onClick={() => setNewNote(null)}
                     disabled={saving}
-                    className="inline-flex items-center px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors font-medium"
+                    className="inline-flex items-center px-3 py-1 btn-outline"
                   >
                     <X className="w-4 h-4 mr-2" />
                     Cancel
@@ -320,13 +304,13 @@ export const ScratchpadDetailView: React.FC = () => {
               </div>
             </div>
           )}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3 mb-6">
             {/* Tags Filter */}
             {allTags.length > 0 && (
-              <div className="flex items-center space-x-2 mb-6 overflow-x-auto">
+              <div className="flex items-center space-x-2 overflow-x-auto">
                 <button
                   onClick={() => setSelectedTag(null)}
-                  className={`px-3 py-1 text-sm rounded-lg whitespace-nowrap transition-colors ${!selectedTag
+                  className={`px-3 py-1 text-xs rounded-md whitespace-nowrap transition-colors ${!selectedTag
                     ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-300'
                     }`}
@@ -337,7 +321,7 @@ export const ScratchpadDetailView: React.FC = () => {
                   <button
                     key={tag}
                     onClick={() => setSelectedTag(tag)}
-                    className={`px-3 py-1 text-sm rounded-lg whitespace-nowrap transition-colors ${selectedTag === tag
+                    className={`px-3 py-1 text-xs rounded-md whitespace-nowrap transition-colors ${selectedTag === tag
                       ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-300'
                       }`}
@@ -348,17 +332,15 @@ export const ScratchpadDetailView: React.FC = () => {
               </div>
             )}
             {/* Search and Filter Controls */}
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="relative flex-1">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search notes..."
-                  className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
-                />
-              </div>
+            <div className="relative flex-1">
+              <Search className="search-icon" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search notes..."
+                className="search-input"
+              />
             </div>
           </div>
           {/* Notes List */}
@@ -370,8 +352,7 @@ export const ScratchpadDetailView: React.FC = () => {
               {filteredNotes.map((note) => (
                 <div
                   key={note.id}
-                  className="relative bg-white border-l-4 border-yellow-400 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 group"
-                  style={{ backgroundColor: note.color }}
+                  className="relative bg-white border rounded-md shadow-lg hover:shadow-md transition-all duration-200 group"
                 >
                   {editingNoteId === note.id ? (
                     // Edit Form
@@ -386,7 +367,7 @@ export const ScratchpadDetailView: React.FC = () => {
                               );
                               setNotes(updatedNotes);
                             }}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-sm resize-none"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-1 text-sm resize-none"
                             rows={6}
                             placeholder="Note content..."
                             autoFocus
@@ -404,7 +385,7 @@ export const ScratchpadDetailView: React.FC = () => {
                                 );
                                 setNotes(updatedNotes);
                               }}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-sm"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 text-sm"
                             >
                               {TAG_OPTIONS.map((tag) => (
                                 <option key={tag} value={tag}>
@@ -412,26 +393,6 @@ export const ScratchpadDetailView: React.FC = () => {
                                 </option>
                               ))}
                             </select>
-                          </div>
-
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Color</label>
-                            <div className="flex flex-wrap gap-2">
-                              {colorOptions.slice(0, 4).map((color) => (
-                                <button
-                                  key={color.value}
-                                  onClick={() => {
-                                    const updatedNotes = notes.map(n =>
-                                      n.id === note.id ? { ...n, color: color.value } : n
-                                    );
-                                    setNotes(updatedNotes);
-                                  }}
-                                  className={`w-8 h-8 rounded-full border-2 ${color.class} ${note.color === color.value ? 'border-gray-800 ring-2 ring-yellow-300' : 'border-gray-300'
-                                    } hover:border-gray-600 transition-all`}
-                                  title={color.label}
-                                />
-                              ))}
-                            </div>
                           </div>
 
                           <div>
@@ -457,7 +418,7 @@ export const ScratchpadDetailView: React.FC = () => {
                           <button
                             onClick={() => handleUpdateNote(note.id, note)}
                             disabled={saving}
-                            className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+                            className="btn-primary"
                           >
                             {saving ? (
                               <>
@@ -474,7 +435,7 @@ export const ScratchpadDetailView: React.FC = () => {
                           <button
                             onClick={() => setEditingNoteId(null)}
                             disabled={saving}
-                            className="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors text-sm font-medium"
+                            className="btn-outline"
                           >
                             <X className="w-4 h-4 mr-2" />
                             Cancel

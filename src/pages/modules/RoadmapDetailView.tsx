@@ -337,7 +337,6 @@ export const RoadmapDetailView: React.FC = () => {
       <div
         className={`bg-white border-2 rounded-lg p-3 transition-all ${isDragging ? 'shadow-lg' : 'hover:shadow-sm'
           } mb-3 ${isDraggable ? 'cursor-grab active:cursor-grabbing' : ''}`}
-        style={{ borderColor: item.color }}
       >
         {editingItemId === item.id ? (
           // Edit Form
@@ -412,62 +411,6 @@ export const RoadmapDetailView: React.FC = () => {
                   <option value="backlog">Backlog</option>
                 </select>
               </div>
-
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Progress (%)</label>
-                <input
-                  type="number"
-                  value={item.progress}
-                  onChange={(e) => {
-                    const progress = Math.max(0, Math.min(100, Number(e.target.value)));
-                    const updatedItems = roadmapItems.map(i =>
-                      i.id === item.id ? { ...i, progress } : i
-                    );
-                    setRoadmapItems(updatedItems);
-                  }}
-                  className="w-full px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 text-xs"
-                  min="0"
-                  max="100"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Color</label>
-              <div className="flex flex-wrap gap-1">
-                {colorOptions.map((color) => (
-                  <button
-                    key={color.value}
-                    onClick={() => {
-                      const updatedItems = roadmapItems.map(i =>
-                        i.id === item.id ? { ...i, color: color.value } : i
-                      );
-                      setRoadmapItems(updatedItems);
-                    }}
-                    className={`w-5 h-5 rounded-full border-2 ${color.class} ${item.color === color.value ? 'border-gray-800' : 'border-gray-300'
-                      } hover:border-gray-600 transition-colors`}
-                    title={color.label}
-                  />
-                ))}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Start Date</label>
-                <input
-                  type="date"
-                  value={item.start_date || ''}
-                  onChange={(e) => {
-                    const updatedItems = roadmapItems.map(i =>
-                      i.id === item.id ? { ...i, start_date: e.target.value || null } : i
-                    );
-                    setRoadmapItems(updatedItems);
-                  }}
-                  className="w-full px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 text-xs"
-                />
-              </div>
-
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">End Date</label>
                 <input
@@ -534,26 +477,6 @@ export const RoadmapDetailView: React.FC = () => {
           <div>
             <div className="flex items-start justify-between mb-2">
               <div className="flex items-center space-x-2">
-                {/* Direct Color Picker */}
-                <div className="relative group">
-                  <div
-                    className="w-3 h-3 rounded-full cursor-pointer border border-gray-300 hover:border-gray-500 transition-colors"
-                    style={{ backgroundColor: item.color }}
-                  />
-                  <div className="absolute top-5 left-0 hidden group-hover:block bg-white border border-gray-200 rounded-lg p-2 shadow-lg z-10">
-                    <div className="flex flex-wrap gap-1 w-24">
-                      {colorOptions.map((color) => (
-                        <button
-                          key={color.value}
-                          onClick={() => handleDirectColorChange(item.id, color.value)}
-                          className={`w-4 h-4 rounded-full border ${color.class} ${item.color === color.value ? 'border-gray-800' : 'border-gray-300'
-                            } hover:border-gray-600 transition-colors`}
-                          title={color.label}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
                 <h4 className="font-semibold text-gray-900 text-sm">{item.title}</h4>
                 {/* Direct Milestone Toggle */}
                 <input
@@ -615,29 +538,6 @@ export const RoadmapDetailView: React.FC = () => {
             </div>
 
             <p className="text-gray-600 text-xs mb-3 leading-relaxed">{item.description}</p>
-
-            {/* Direct Progress Input */}
-            <div className="mb-3">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-gray-500">Progress</span>
-                <input
-                  type="number"
-                  value={item.progress}
-                  onChange={(e) => handleDirectProgressChange(item.id, Number(e.target.value))}
-                  disabled={saving}
-                  className="w-12 px-1 py-0 text-xs font-medium text-gray-700 bg-transparent border-none focus:outline-none focus:ring-1 focus:ring-green-500 rounded disabled:opacity-50"
-                  min="0"
-                  max="100"
-                />
-                <span className="text-xs text-gray-500">%</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-1.5">
-                <div
-                  className={`h-1.5 rounded-full transition-all ${getProgressColor(item.progress)}`}
-                  style={{ width: `${item.progress}%` }}
-                />
-              </div>
-            </div>
 
             {/* Dates */}
             {(item.start_date || item.end_date) && (
@@ -764,7 +664,7 @@ export const RoadmapDetailView: React.FC = () => {
                   color: '#3b82f6',
                   dependencies: [],
                 })}
-                className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
+                className="inline-flex items-center btn-primary"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Add Phase
@@ -787,8 +687,8 @@ export const RoadmapDetailView: React.FC = () => {
               <button
                 onClick={() => setViewMode('kanban')}
                 className={`px-3 py-1 text-xs rounded-md transition-colors ${viewMode === 'kanban'
-                    ? 'bg-green-100 text-green-800'
-                    : 'text-gray-600 hover:bg-gray-100'
+                  ? 'bg-green-100 text-green-800'
+                  : 'text-gray-600 hover:bg-gray-100'
                   }`}
               >
                 Kanban
@@ -796,8 +696,8 @@ export const RoadmapDetailView: React.FC = () => {
               <button
                 onClick={() => setViewMode('timeline')}
                 className={`px-3 py-1 text-xs rounded-md transition-colors ${viewMode === 'timeline'
-                    ? 'bg-green-100 text-green-800'
-                    : 'text-gray-600 hover:bg-gray-100'
+                  ? 'bg-green-100 text-green-800'
+                  : 'text-gray-600 hover:bg-gray-100'
                   }`}
               >
                 Timeline
@@ -815,7 +715,7 @@ export const RoadmapDetailView: React.FC = () => {
                 color: '#3b82f6',
                 dependencies: [],
               })}
-              className="inline-flex items-center px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors text-xs"
+              className="inline-flex items-center px-3 py-1 btn-primary"
             >
               <Plus className="w-3 h-3 mr-1" />
               Add New Phase
@@ -851,11 +751,16 @@ export const RoadmapDetailView: React.FC = () => {
                 </div>
               </DragDropContext>
             ) : (
-              <div className="space-y-3 overflow-y-auto h-full">
+              <div className="space-y-3 overflow-y-auto h-full mb-6">
                 {/* New Roadmap Item Form - Now at the top */}
                 {newRoadmapItem && (
-                  <div className="bg-blue-50 border-2 border-dashed border-blue-300 rounded-lg p-4">
-                    <h4 className="font-medium text-blue-900 mb-3">Add New Phase</h4>
+                  <div className="new-form">
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="flex items-center">
+                        <Plus className="w-5 h-5 mr-2" />
+                        Add New Roadmap Item
+                      </h4>
+                    </div>
                     <div className="space-y-3">
                       <div>
                         <label className="block text-xs font-medium text-gray-700 mb-1">Title</label>
@@ -882,20 +787,6 @@ export const RoadmapDetailView: React.FC = () => {
 
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">Status</label>
-                          <select
-                            value={newRoadmapItem.status || 'planned'}
-                            onChange={(e) => setNewRoadmapItem(prev => ({ ...prev, status: e.target.value as any }))}
-                            className="w-full px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs"
-                          >
-                            <option value="planned">Planned</option>
-                            <option value="in_progress">In Progress</option>
-                            <option value="completed">Completed</option>
-                            <option value="cancelled">Cancelled</option>
-                          </select>
-                        </div>
-
-                        <div>
                           <label className="block text-xs font-medium text-gray-700 mb-1">Phase</label>
                           <select
                             value={newRoadmapItem.phase || 'mvp'}
@@ -907,49 +798,6 @@ export const RoadmapDetailView: React.FC = () => {
                             <option value="backlog">Backlog</option>
                           </select>
                         </div>
-
-                        <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">Progress (%)</label>
-                          <input
-                            type="number"
-                            value={newRoadmapItem.progress || 0}
-                            onChange={(e) => {
-                              const progress = Math.max(0, Math.min(100, Number(e.target.value)));
-                              setNewRoadmapItem(prev => ({ ...prev, progress }));
-                            }}
-                            className="w-full px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs"
-                            min="0"
-                            max="100"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">Color</label>
-                          <div className="flex flex-wrap gap-1">
-                            {colorOptions.slice(0, 4).map((color) => (
-                              <button
-                                key={color.value}
-                                onClick={() => setNewRoadmapItem(prev => ({ ...prev, color: color.value }))}
-                                className={`w-5 h-5 rounded-full border-2 ${color.class} ${newRoadmapItem.color === color.value ? 'border-gray-800' : 'border-gray-300'
-                                  } hover:border-gray-600 transition-colors`}
-                                title={color.label}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">Start Date</label>
-                          <input
-                            type="date"
-                            value={newRoadmapItem.start_date || ''}
-                            onChange={(e) => setNewRoadmapItem(prev => ({ ...prev, start_date: e.target.value || null }))}
-                            className="w-full px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs"
-                          />
-                        </div>
-
                         <div>
                           <label className="block text-xs font-medium text-gray-700 mb-1">End Date</label>
                           <input
@@ -977,7 +825,7 @@ export const RoadmapDetailView: React.FC = () => {
                         <button
                           onClick={() => handleCreateRoadmapItem(newRoadmapItem)}
                           disabled={saving || !newRoadmapItem.title?.trim()}
-                          className="inline-flex items-center px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
+                          className="inline-flex items-center btn-primary"
                         >
                           {saving ? (
                             <>

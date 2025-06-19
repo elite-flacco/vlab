@@ -1,6 +1,7 @@
 import { Copy, Edit3, Loader2, MessageSquare, Plus, Save, Search, Star, Trash2, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+// import { toast } from 'react-toastify';
 import { ModuleContainer } from '../../components/Workspace/ModuleContainer';
 import { BackButton } from '../../components/common/BackButton';
 import { db } from '../../lib/supabase';
@@ -134,7 +135,7 @@ export const PromptsDetailView: React.FC = () => {
   const handleCopyPrompt = async (content: string) => {
     try {
       await navigator.clipboard.writeText(content);
-      // You could add a toast notification here
+      // toast.success('Prompt copied to clipboard');
     } catch (err) {
       console.error('Failed to copy prompt:', err);
     }
@@ -171,7 +172,7 @@ export const PromptsDetailView: React.FC = () => {
         <ModuleContainer title="Prompts" type="prompts">
           <div className="h-full flex items-center justify-center">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 mx-auto"></div>
               <p className="mt-4 text-gray-600">Loading prompts...</p>
             </div>
           </div>
@@ -193,7 +194,7 @@ export const PromptsDetailView: React.FC = () => {
     );
   }
 
-  if (prompts.length === 0 && !isEditingList) {
+  if (prompts.length === 0 && !newPrompt) {
     return (
       <div className="max-w-6xl mx-auto">
         <BackButton onClick={handleReturnToWorkspace} />
@@ -205,6 +206,20 @@ export const PromptsDetailView: React.FC = () => {
               <p className="text-gray-600 mb-4 text-sm">
                 Create AI prompts to streamline your development workflow.
               </p>
+              <button
+                onClick={() => setNewPrompt({
+                  name: '',
+                  description: '',
+                  category: 'general',
+                  content: '',
+                  tags: [],
+                  is_template: false,
+                })}
+                className="btn-add mb-4"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Prompt
+              </button>
             </div>
           </div>
         </ModuleContainer>
@@ -240,8 +255,13 @@ export const PromptsDetailView: React.FC = () => {
           )}
           {/* New Prompt Form */}
           {newPrompt && (
-            <div className="bg-blue-50 border-2 border-dashed border-blue-300 rounded-lg p-4 mb-3">
-              <h4 className="font-medium text-blue-900 mb-3">Add New Prompt</h4>
+            <div className="new-form">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="flex items-center">
+                  <Plus className="w-5 h-5 mr-2" />
+                  Add New Prompt
+                </h4>
+              </div>
               <div className="space-y-3">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
@@ -250,7 +270,7 @@ export const PromptsDetailView: React.FC = () => {
                       type="text"
                       value={newPrompt.name || ''}
                       onChange={(e) => setNewPrompt(prev => ({ ...prev, name: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm font-medium"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 text-sm font-medium"
                       placeholder="Prompt name"
                       autoFocus
                     />
@@ -261,7 +281,7 @@ export const PromptsDetailView: React.FC = () => {
                     <select
                       value={newPrompt.category || 'general'}
                       onChange={(e) => setNewPrompt(prev => ({ ...prev, category: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 text-sm"
                     >
                       {categoryOptions.map((cat) => (
                         <option key={cat} value={cat}>
@@ -278,7 +298,7 @@ export const PromptsDetailView: React.FC = () => {
                     type="text"
                     value={newPrompt.description || ''}
                     onChange={(e) => setNewPrompt(prev => ({ ...prev, description: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 text-sm"
                     placeholder="Brief description of the prompt"
                   />
                 </div>
@@ -288,7 +308,7 @@ export const PromptsDetailView: React.FC = () => {
                   <textarea
                     value={newPrompt.content || ''}
                     onChange={(e) => setNewPrompt(prev => ({ ...prev, content: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm font-mono resize-none"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 text-sm font-mono resize-none"
                     rows={6}
                     placeholder="Enter your prompt content here..."
                   />
@@ -300,7 +320,7 @@ export const PromptsDetailView: React.FC = () => {
                     type="text"
                     value={formatTagsInput(newPrompt.tags || [])}
                     onChange={(e) => setNewPrompt(prev => ({ ...prev, tags: parseTagsInput(e.target.value) }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 text-sm"
                     placeholder="ai, coding, documentation"
                   />
                 </div>
@@ -311,7 +331,7 @@ export const PromptsDetailView: React.FC = () => {
                       type="checkbox"
                       checked={newPrompt.is_template || false}
                       onChange={(e) => setNewPrompt(prev => ({ ...prev, is_template: e.target.checked }))}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      className="rounded border-gray-300"
                     />
                     <span className="text-gray-700">Mark as template</span>
                   </label>
@@ -321,7 +341,7 @@ export const PromptsDetailView: React.FC = () => {
                   <button
                     onClick={() => handleCreatePrompt(newPrompt)}
                     disabled={saving || !newPrompt.name?.trim() || !newPrompt.content?.trim()}
-                    className="inline-flex items-center px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
+                    className="btn-primary"
                   >
                     {saving ? (
                       <>
@@ -338,7 +358,7 @@ export const PromptsDetailView: React.FC = () => {
                   <button
                     onClick={() => setNewPrompt(null)}
                     disabled={saving}
-                    className="inline-flex items-center px-3 py-1 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors text-sm"
+                    className="btn-outline"
                   >
                     <X className="w-3 h-3 mr-1" />
                     Cancel
@@ -348,44 +368,46 @@ export const PromptsDetailView: React.FC = () => {
             </div>
           )}
 
-          <div className="flex items-center space-x-3">
-            {/* Category Filter */}
-            {categories.length > 0 && (
-              <div className="flex items-center space-x-2 mb-4 overflow-x-auto">
-                <button
-                  onClick={() => setSelectedCategory(null)}
-                  className={`px-2 py-1 text-xs rounded-full whitespace-nowrap transition-colors ${!selectedCategory
-                    ? 'bg-purple-100 text-purple-800'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                >
-                  All
-                </button>
-                {categories.map((category) => (
+          {!newPrompt && (
+            <div className="flex items-center space-x-3 mb-6">
+              {/* Category Filter */}
+              {categories.length > 0 && (
+                <div className="flex items-center space-x-2 overflow-x-auto">
                   <button
-                    key={category}
-                    onClick={() => setSelectedCategory(category)}
-                    className={`px-2 py-1 text-xs rounded-full whitespace-nowrap transition-colors ${selectedCategory === category
+                    onClick={() => setSelectedCategory(null)}
+                    className={`px-2 py-1 text-xs rounded-md whitespace-nowrap transition-colors ${!selectedCategory
                       ? 'bg-purple-100 text-purple-800'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                       }`}
                   >
-                    {category}
+                    All
                   </button>
-                ))}
+                  {categories.map((category) => (
+                    <button
+                      key={category}
+                      onClick={() => setSelectedCategory(category)}
+                      className={`px-2 py-1 text-xs rounded-md whitespace-nowrap transition-colors ${selectedCategory === category
+                        ? 'bg-purple-100 text-purple-800'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                    >
+                      {category}
+                    </button>
+                  ))}
+                </div>
+              )}
+              <div className="relative">
+                <Search className="search-icon" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search prompts..."
+                  className="search-input"
+                />
               </div>
-            )}
-            <div className="relative flex-1">
-              <Search className="w-4 h-4 absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search prompts..."
-                className="w-full pl-8 pr-3 py-1 text-xs border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-              />
             </div>
-          </div>
+          )}
           {/* Prompts List */}
           <div className="flex-1 overflow-y-auto space-y-3">
 

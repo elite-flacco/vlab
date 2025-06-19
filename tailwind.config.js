@@ -7,34 +7,33 @@ export default {
       colors: {
         // Primary Brand Colors
         primary: {
-          DEFAULT: '#3b82f6',
-          light: '#3b82f6',
-          dark: '#3b82f6',
+          DEFAULT: '#00ff9f',
+          light: '#66ffcc',
+          dark: '#00cc7a',
         },
-        // Secondary Colors
+        background: {
+          DEFAULT: '#0f0f0f',
+        },
+        foreground: {
+          DEFAULT: '#00ff9f',
+          dim: '#00cc7a',
+          dark: '#00b36a',
+        },
         secondary: {
-          DEFAULT: '#64748b',
+          DEFAULT: '#1f1f1f',
         },
-        // Success Colors
-        success: {
-          DEFAULT: '#22c55e',
-        },
-        // Warning Colors
-        warning: {
-          DEFAULT: '#f59e0b', // Main warning
-        },
-        // Error Colors
-        error: {
-          DEFAULT: '#ef4444', // Main error
-        },
+        success: { DEFAULT: '#22c55e' },
+        warning: { DEFAULT: '#facc15' },
+        error: { DEFAULT: '#ff4b4b' },
         // Module-specific Colors
         module: {
-          prd: '#3b82f6',
-          roadmap: '#10b981',
-          tasks: '#f59e0b',
-          scratchpad: '#eab308',
-          prompts: '#8b5cf6',
-          secrets: '#ef4444',
+          DEFAULT: '#00ff9f',
+          prd: 'rgba(0, 255, 159, 1.0)',
+          roadmap: 'rgba(0, 255, 159, 0.85)',
+          tasks: 'rgba(0, 255, 159, 0.7)',
+          scratchpad: 'rgba(0, 255, 159, 0.55)',
+          prompts: 'rgba(0, 255, 159, 0.4)',
+          secrets: 'rgba(0, 255, 159, 0.25)',
         },
       },
 

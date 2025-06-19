@@ -193,7 +193,7 @@ export const TasksDetailView: React.FC = () => {
         <ModuleContainer title="Tasks" type="tasks">
           <div className="h-full flex items-center justify-center">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600 mx-auto"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 mx-auto"></div>
               <p className="mt-4 text-gray-600">Loading tasks...</p>
             </div>
           </div>
@@ -220,7 +220,7 @@ export const TasksDetailView: React.FC = () => {
       <div className="max-w-6xl mx-auto">
         <BackButton onClick={handleReturnToWorkspace} />
         <ModuleContainer title="Tasks" type="tasks">
-          <div className="h-full flex items-center justify-center py-12">
+          <div className="h-full flex items-center justify-center">
             <div className="text-center">
               <CheckSquare className="w-12 h-12 text-gray-300 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-900 mb-2">No Tasks Yet</h3>
@@ -236,7 +236,7 @@ export const TasksDetailView: React.FC = () => {
                   tags: [],
                   dependencies: [],
                 })}
-                className="inline-flex items-center px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm"
+                className="btn-add mb-4"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Add Task
@@ -254,159 +254,147 @@ export const TasksDetailView: React.FC = () => {
       <ModuleContainer title="Tasks" type="tasks">
         <div className="h-full flex flex-col">
           {/* Header and Search */}
-          <div className="space-y-3 mb-4">
-            {/* Add New Task Button - Always visible at the top */}
-            {!newTask && (
-              <button
-                onClick={() => setNewTask({
-                  title: '',
-                  description: '',
-                  status: 'todo',
-                  priority: 'medium',
-                  tags: [],
-                  dependencies: [],
-                  position: tasks.length
-                })}
-                className="w-full border-2 border-dashed border-gray-300 rounded-lg p-4 text-gray-500 hover:border-gray-400 hover:text-gray-600 transition-colors flex items-center justify-center space-x-2 text-sm mb-4"
-                data-component-name="TasksDetailView"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Add New Task</span>
-              </button>
-            )}
-            {/* New Task Form - Shows when newTask is set */}
-            {newTask && (
-              <div className="bg-white border border-orange-200 rounded-lg p-4 shadow-sm">
-                <div className="space-y-3">
+          {/* Add New Task Button - Always visible at the top */}
+          {!newTask && (
+            <button
+              onClick={() => setNewTask({
+                title: '',
+                description: '',
+                status: 'todo',
+                priority: 'medium',
+                tags: [],
+                dependencies: [],
+                position: tasks.length
+              })}
+              className="btn-add mb-6"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add New Task</span>
+            </button>
+          )}
+          {/* New Task Form - Shows when newTask is set */}
+          {newTask && (
+            <div className="new-form">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="flex items-center">
+                  <Plus className="w-5 h-5 mr-2" />
+                  Add New Task
+                </h4>
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Task Title</label>
+                  <input
+                    type="text"
+                    value={newTask.title}
+                    onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-1 text-sm"
+                    placeholder="Enter task title"
+                    autoFocus
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                  <textarea
+                    value={newTask.description}
+                    onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-1 text-sm"
+                    rows={3}
+                    placeholder="Enter task description"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Task Title</label>
-                    <input
-                      type="text"
-                      value={newTask.title}
-                      onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm"
-                      placeholder="Enter task title"
-                      autoFocus
-                    />
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+                    <select
+                      value={newTask.priority}
+                      onChange={(e) => setNewTask({ ...newTask, priority: e.target.value as any })}
+                      className="w-full px-2 py-1 border border-gray-200 rounded-md focus:ring-1 text-sm"
+                    >
+                      <option value="low">Low</option>
+                      <option value="medium">Medium</option>
+                      <option value="high">High</option>
+                      <option value="urgent">Urgent</option>
+                    </select>
                   </div>
-
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                    <textarea
-                      value={newTask.description}
-                      onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm"
-                      rows={3}
-                      placeholder="Enter task description"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">Status</label>
-                      <select
-                        value={newTask.status}
-                        onChange={(e) => setNewTask({ ...newTask, status: e.target.value as any })}
-                        className="w-full px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-xs"
-                      >
-                        <option value="todo">To Do</option>
-                        <option value="in_progress">In Progress</option>
-                        <option value="done">Done</option>
-                        <option value="blocked">Blocked</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">Priority</label>
-                      <select
-                        value={newTask.priority}
-                        onChange={(e) => setNewTask({ ...newTask, priority: e.target.value as any })}
-                        className="w-full px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-xs"
-                      >
-                        <option value="low">Low</option>
-                        <option value="medium">Medium</option>
-                        <option value="high">High</option>
-                        <option value="urgent">Urgent</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="mt-3">
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Tags (comma-separated)</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Tags (comma-separated)</label>
                     <input
                       type="text"
                       value={newTask.tags ? newTask.tags.join(', ') : ''}
                       onChange={(e) => setNewTask({ ...newTask, tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag) })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm"
+                      className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-1 text-sm"
                       placeholder="frontend, backend, design"
                     />
                   </div>
+                </div>
 
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => handleAddTask(newTask)}
-                      disabled={saving || !newTask.title?.trim()}
-                      className="inline-flex items-center px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
-                    >
-                      {saving ? (
-                        <>
-                          <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-                          Creating...
-                        </>
-                      ) : (
-                        <>
-                          <Plus className="w-3 h-3 mr-1" />
-                          Create Task
-                        </>
-                      )}
-                    </button>
-                    <button
-                      onClick={() => setNewTask(null)}
-                      disabled={saving}
-                      className="inline-flex items-center px-3 py-1 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors text-sm"
-                    >
-                      <X className="w-3 h-3 mr-1" />
-                      Cancel
-                    </button>
-                  </div>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => handleAddTask(newTask)}
+                    disabled={saving || !newTask.title?.trim()}
+                    className="btn-primary"
+                  >
+                    {saving ? (
+                      <>
+                        <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                        Creating...
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-3 h-3 mr-1" />
+                        Create Task
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => setNewTask(null)}
+                    disabled={saving}
+                    className="btn-outline"
+                  >
+                    <X className="w-3 h-3 mr-1" />
+                    Cancel
+                  </button>
                 </div>
               </div>
-            )}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <select
-                  value={filter}
-                  onChange={(e) => setFilter(e.target.value as any)}
-                  className="text-xs border border-gray-300 rounded-md px-2 py-1 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                >
-                  <option value="all">All Tasks</option>
-                  <option value="todo">To Do</option>
-                  <option value="in_progress">In Progress</option>
-                  <option value="done">Completed</option>
-                </select>
-                <button
-                  onClick={() => setShowCompleted(!showCompleted)}
-                  className={`text-xs px-2 py-1 rounded-md transition-colors ${showCompleted
-                    ? 'bg-orange-100 text-orange-800'
-                    : 'text-gray-600 hover:bg-gray-100'
-                    }`}
-                >
-                  {showCompleted ? 'Hide' : 'Show'} Completed
-                </button>
-                {/* Search Bar */}
-                <div className="relative">
-                  <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Search tasks..."
-                    className="w-full pl-10 pr-4 py-2 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                  />
-                </div>
-              </div>
-
             </div>
+          )}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-2">
+              <select
+                value={filter}
+                onChange={(e) => setFilter(e.target.value as any)}
+                className="text-sm border border-gray-200 rounded-md px-2 py-1 focus:ring-1"
+              >
+                <option value="all">All Tasks</option>
+                <option value="todo">To Do</option>
+                <option value="in_progress">In Progress</option>
+                <option value="done">Completed</option>
+              </select>
+              <button
+                onClick={() => setShowCompleted(!showCompleted)}
+                className={`text-xs px-2 py-1 rounded-md transition-colors ${showCompleted
+                  ? 'bg-orange-100 text-orange-800'
+                  : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+              >
+                {showCompleted ? 'Hide' : 'Show'} Completed
+              </button>
+              {/* Search Bar */}
+              <div className="relative">
+                <Search className="search-icon" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search tasks..."
+                  className="search-input"
+                />
+              </div>
+            </div>
+
           </div>
 
           {/* Tasks List */}
@@ -423,7 +411,7 @@ export const TasksDetailView: React.FC = () => {
                   // Edit Form
                   <div className="space-y-3">
                     <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">Title</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
                       <input
                         type="text"
                         value={task.title}
@@ -433,13 +421,13 @@ export const TasksDetailView: React.FC = () => {
                           );
                           setTasks(updatedTasks);
                         }}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm"
+                        className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-1 text-sm"
                         placeholder="Task title"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">Description</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
                       <textarea
                         value={task.description}
                         onChange={(e) => {
@@ -448,7 +436,7 @@ export const TasksDetailView: React.FC = () => {
                           );
                           setTasks(updatedTasks);
                         }}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm resize-none"
+                        className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-1 text-sm resize-none"
                         rows={2}
                         placeholder="Task description..."
                       />
@@ -456,7 +444,7 @@ export const TasksDetailView: React.FC = () => {
 
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                       <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">Status</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                         <select
                           value={task.status}
                           onChange={(e) => {
@@ -465,7 +453,7 @@ export const TasksDetailView: React.FC = () => {
                             );
                             setTasks(updatedTasks);
                           }}
-                          className="w-full px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-xs"
+                          className="w-full px-2 py-1 border border-gray-200 rounded-md focus:ring-1 text-xs"
                         >
                           <option value="todo">To Do</option>
                           <option value="in_progress">In Progress</option>
@@ -475,7 +463,7 @@ export const TasksDetailView: React.FC = () => {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">Priority</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
                         <select
                           value={task.priority}
                           onChange={(e) => {
@@ -484,7 +472,7 @@ export const TasksDetailView: React.FC = () => {
                             );
                             setTasks(updatedTasks);
                           }}
-                          className="w-full px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-xs"
+                          className="w-full px-2 py-1 border border-gray-200 rounded-md focus:ring-1 text-xs"
                         >
                           <option value="low">Low</option>
                           <option value="medium">Medium</option>
@@ -492,25 +480,10 @@ export const TasksDetailView: React.FC = () => {
                           <option value="urgent">Urgent</option>
                         </select>
                       </div>
-
-                      <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">Due Date</label>
-                        <input
-                          type="date"
-                          value={task.due_date ? task.due_date.split('T')[0] : ''}
-                          onChange={(e) => {
-                            const updatedTasks = tasks.map(t =>
-                              t.id === task.id ? { ...t, due_date: e.target.value || undefined } : t
-                            );
-                            setTasks(updatedTasks);
-                          }}
-                          className="w-full px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-xs"
-                        />
-                      </div>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">Tags (comma-separated)</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Tags (comma-separated)</label>
                       <input
                         type="text"
                         value={formatTagsInput(task.tags)}
@@ -520,7 +493,7 @@ export const TasksDetailView: React.FC = () => {
                           );
                           setTasks(updatedTasks);
                         }}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm"
+                        className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-1 text-sm"
                         placeholder="frontend, backend, design"
                       />
                     </div>
@@ -576,7 +549,7 @@ export const TasksDetailView: React.FC = () => {
                             value={task.priority}
                             onChange={(e) => handlePriorityChange(task.id, e.target.value)}
                             disabled={saving}
-                            className={`appearance-none cursor-pointer px-2 py-1 rounded-full text-xs font-medium border flex-shrink-0 ${getPriorityColor(task.priority)} disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-1`}
+                            className={`appearance-none cursor-pointer px-2 py-1 rounded-full text-xs font-medium border flex-shrink-0 ${getPriorityColor(task.priority)} disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-1`}
                           >
                             <option value="low">Low</option>
                             <option value="medium">Medium</option>
