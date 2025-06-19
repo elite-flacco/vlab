@@ -20,6 +20,8 @@ interface PostCardProps {
     title: string;
     content: string;
     category: 'tool' | 'tip';
+    tool?: string;
+    tip_category?: string;
     author: {
       name: string;
       avatar_url?: string;
@@ -127,14 +129,50 @@ export const PostCard: React.FC<PostCardProps> = ({
     return category === 'tool' ? '🛠️' : '💡';
   };
 
+  const getToolLabel = (tool: string) => {
+    const toolLabels: Record<string, string> = {
+      'bolt': 'Bolt',
+      'loveable': 'Loveable',
+      'replit': 'Replit',
+      'v0': 'V0',
+      'other': 'Other'
+    };
+    return toolLabels[tool] || tool;
+  };
+
+  const getTipCategoryLabel = (tipCategory: string) => {
+    const categoryLabels: Record<string, string> = {
+      'prompt_tricks': 'Prompt Tricks',
+      'integrations': 'Integrations',
+      'authentication': 'Authentication',
+      'payment': 'Payment',
+      'other': 'Other'
+    };
+    return categoryLabels[tipCategory] || tipCategory;
+  };
+
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-3 flex-wrap">
           <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getCategoryColor(post.category)}`}>
             {getCategoryIcon(post.category)} {post.category}
           </span>
+          
+          {/* Tool/Category specific badge */}
+          {post.category === 'tool' && post.tool && (
+            <span className="px-2 py-1 bg-purple-100 text-purple-800 border border-purple-200 rounded-full text-xs font-medium">
+              {getToolLabel(post.tool)}
+            </span>
+          )}
+          
+          {post.category === 'tip' && post.tip_category && (
+            <span className="px-2 py-1 bg-orange-100 text-orange-800 border border-orange-200 rounded-full text-xs font-medium">
+              {getTipCategoryLabel(post.tip_category)}
+            </span>
+          )}
+          
           {post.tags && post.tags.length > 0 && (
             <div className="flex items-center space-x-1">
               <Tag className="w-3 h-3 text-gray-400" />

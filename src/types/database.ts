@@ -511,6 +511,8 @@ export interface Database {
           title: string;
           content: string;
           category: string;
+          tool: string | null;
+          tip_category: string | null;
           author_id: string;
           image_url: string | null;
           upvotes: number;
@@ -527,6 +529,8 @@ export interface Database {
           title: string;
           content: string;
           category: string;
+          tool?: string | null;
+          tip_category?: string | null;
           author_id: string;
           image_url?: string | null;
           upvotes?: number;
@@ -543,6 +547,8 @@ export interface Database {
           title?: string;
           content?: string;
           category?: string;
+          tool?: string | null;
+          tip_category?: string | null;
           author_id?: string;
           image_url?: string | null;
           upvotes?: number;

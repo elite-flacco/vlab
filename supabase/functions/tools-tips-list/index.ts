@@ -30,6 +30,8 @@ serve(async (req) => {
     const page = parseInt(url.searchParams.get('page') || '1')
     const limit = Math.min(parseInt(url.searchParams.get('limit') || '20'), 50) // Max 50 items per page
     const category = url.searchParams.get('category')
+    const tool = url.searchParams.get('tool')
+    const tip_category = url.searchParams.get('tip_category')
     const sortBy = url.searchParams.get('sort') || 'newest'
     const search = url.searchParams.get('search')
     const tag = url.searchParams.get('tag')
@@ -51,6 +53,14 @@ serve(async (req) => {
     // Apply filters
     if (category && ['tool', 'tip'].includes(category)) {
       query = query.eq('category', category)
+    }
+
+    if (tool) {
+      query = query.eq('tool', tool)
+    }
+
+    if (tip_category) {
+      query = query.eq('tip_category', tip_category)
     }
 
     if (search) {

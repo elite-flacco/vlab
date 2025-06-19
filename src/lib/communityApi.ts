@@ -3,17 +3,21 @@ import { supabase } from './supabase';
 const SUPABASE_FUNCTIONS_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`;
 
 interface CreatePostData {
-  title: string;
-  content: string;
-  category: 'tool' | 'tip';
-  tags: string[];
-  image_url?: string;
+  title: string
+  content: string
+  category: 'tool' | 'tip'
+  tool?: string
+  tip_category?: string
+  tags: string[]
+  image_url?: string
 }
 
 interface ListPostsParams {
   page?: number;
   limit?: number;
   category?: 'tool' | 'tip';
+  tool?: string;
+  tip_category?: string;
   sort?: 'newest' | 'oldest' | 'popular' | 'trending';
   search?: string;
   tag?: string;
@@ -61,6 +65,8 @@ class CommunityAPI {
     if (params.page) searchParams.set('page', params.page.toString());
     if (params.limit) searchParams.set('limit', params.limit.toString());
     if (params.category) searchParams.set('category', params.category);
+    if (params.tool) searchParams.set('tool', params.tool);
+    if (params.tip_category) searchParams.set('tip_category', params.tip_category);
     if (params.sort) searchParams.set('sort', params.sort);
     if (params.search) searchParams.set('search', params.search);
     if (params.tag) searchParams.set('tag', params.tag);

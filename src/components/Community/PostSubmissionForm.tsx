@@ -8,6 +8,24 @@ interface PostSubmissionFormProps {
   onSuccess: () => void;
 }
 
+// Tool options for the dropdown
+const TOOL_OPTIONS = [
+  { value: 'bolt', label: 'Bolt' },
+  { value: 'loveable', label: 'Loveable' },
+  { value: 'replit', label: 'Replit' },
+  { value: 'v0', label: 'V0' },
+  { value: 'other', label: 'Other' },
+];
+
+// Category options for tips
+const TIP_CATEGORY_OPTIONS = [
+  { value: 'prompt_tricks', label: 'Prompt Tricks' },
+  { value: 'integrations', label: 'Integrations' },
+  { value: 'authentication', label: 'Authentication' },
+  { value: 'payment', label: 'Payment' },
+  { value: 'other', label: 'Other' },
+];
+
 export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
   isOpen,
   onClose,
@@ -17,6 +35,8 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
     title: '',
     content: '',
     category: 'tool' as 'tool' | 'tip',
+    tool: '',
+    tip_category: '',
     tags: [] as string[],
     image_url: '',
   });
@@ -28,6 +48,17 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
     e.preventDefault();
     if (!formData.title.trim() || !formData.content.trim()) {
       setError('Title and content are required');
+      return;
+    }
+
+    // Validate required fields based on category
+    if (formData.category === 'tool' && !formData.tool) {
+      setError('Please select a tool');
+      return;
+    }
+
+    if (formData.category === 'tip' && !formData.tip_category) {
+      setError('Please select a tip category');
       return;
     }
 
@@ -43,6 +74,8 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
         title: '',
         content: '',
         category: 'tool',
+        tool: '',
+        tip_category: '',
         tags: [],
         image_url: '',
       });
@@ -75,6 +108,16 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
       e.preventDefault();
       handleAddTag();
     }
+  };
+
+  const handleCategoryChange = (category: 'tool' | 'tip') => {
+    setFormData(prev => ({
+      ...prev,
+      category,
+      // Reset the other category field when switching
+      tool: category === 'tool' ? prev.tool : '',
+      tip_category: category === 'tip' ? prev.tip_category : '',
+    }));
   };
 
   if (!isOpen) return null;
@@ -111,7 +154,7 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
             <div className="grid grid-cols-2 gap-4">
               <button
                 type="button"
-                onClick={() => setFormData(prev => ({ ...prev, category: 'tool' }))}
+                onClick={() => handleCategoryChange('tool')}
                 className={`p-4 border-2 rounded-lg text-left transition-all ${
                   formData.category === 'tool'
                     ? 'border-blue-500 bg-blue-50 text-blue-900'
@@ -125,7 +168,7 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
               </button>
               <button
                 type="button"
-                onClick={() => setFormData(prev => ({ ...prev, category: 'tip' }))}
+                onClick={() => handleCategoryChange('tip')}
                 className={`p-4 border-2 rounded-lg text-left transition-all ${
                   formData.category === 'tip'
                     ? 'border-green-500 bg-green-50 text-green-900'
@@ -139,6 +182,60 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
               </button>
             </div>
           </div>
+
+          {/* Tool Selection (only for tools) */}
+          {formData.category === 'tool' && (
+            <div>
+              <label htmlFor="tool" className="block text-sm font-medium text-gray-700 mb-2">
+                Select Tool *
+              </label>
+              <select
+                id="tool"
+                value={formData.tool}
+                onChange={(e) => setFormData(prev => ({ ...prev, tool: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                required
+                aria-label="Select the relevant tool"
+              >
+                <option value="">Choose the relevant tool</option>
+                {TOOL_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-500 mt-1">
+                Select the tool this post is about
+              </p>
+            </div>
+          )}
+
+          {/* Tip Category Selection (only for tips) */}
+          {formData.category === 'tip' && (
+            <div>
+              <label htmlFor="tip_category" className="block text-sm font-medium text-gray-700 mb-2">
+                Select Category *
+              </label>
+              <select
+                id="tip_category"
+                value={formData.tip_category}
+                onChange={(e) => setFormData(prev => ({ ...prev, tip_category: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                required
+                aria-label="Choose the tip category"
+              >
+                <option value="">Choose the tip category</option>
+                {TIP_CATEGORY_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-500 mt-1">
+                Select the category that best describes your tip
+              </p>
+            </div>
+          )}
 
           {/* Title */}
           <div>

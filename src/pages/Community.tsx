@@ -6,6 +6,23 @@ import { PostDetailView } from '../components/Community/PostDetailView';
 import { UserProfile } from '../components/Community/UserProfile';
 import { communityApi } from '../lib/communityApi';
 
+// Tool and category options for filtering
+const TOOL_OPTIONS = [
+  { value: 'bolt', label: 'Bolt' },
+  { value: 'loveable', label: 'Loveable' },
+  { value: 'replit', label: 'Replit' },
+  { value: 'v0', label: 'V0' },
+  { value: 'other', label: 'Other' },
+];
+
+const TIP_CATEGORY_OPTIONS = [
+  { value: 'prompt_tricks', label: 'Prompt Tricks' },
+  { value: 'integrations', label: 'Integrations' },
+  { value: 'authentication', label: 'Authentication' },
+  { value: 'payment', label: 'Payment' },
+  { value: 'other', label: 'Other' },
+];
+
 export const Community: React.FC = () => {
   const [activeSection, setActiveSection] = useState<'tools-tips' | 'profile'>('tools-tips');
   const [posts, setPosts] = useState<any[]>([]);
@@ -17,6 +34,8 @@ export const Community: React.FC = () => {
   // Filters
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<'tool' | 'tip' | ''>('');
+  const [selectedTool, setSelectedTool] = useState<string>('');
+  const [selectedTipCategory, setSelectedTipCategory] = useState<string>('');
   const [selectedTag, setSelectedTag] = useState<string>('');
   const [sortBy, setSortBy] = useState<'newest' | 'popular' | 'trending'>('trending');
   
@@ -27,7 +46,7 @@ export const Community: React.FC = () => {
 
   useEffect(() => {
     fetchPosts();
-  }, [currentPage, selectedCategory, sortBy, selectedTag]);
+  }, [currentPage, selectedCategory, selectedTool, selectedTipCategory, sortBy, selectedTag]);
 
   useEffect(() => {
     // Reset to first page when filters change
@@ -36,7 +55,7 @@ export const Community: React.FC = () => {
     } else {
       fetchPosts();
     }
-  }, [searchTerm, selectedCategory, sortBy, selectedTag]);
+  }, [searchTerm, selectedCategory, selectedTool, selectedTipCategory, sortBy, selectedTag]);
 
   const fetchPosts = async () => {
     setLoading(true);
@@ -46,6 +65,8 @@ export const Community: React.FC = () => {
         page: currentPage,
         limit: 10,
         category: selectedCategory || undefined,
+        tool: selectedTool || undefined,
+        tip_category: selectedTipCategory || undefined,
         sort: sortBy,
         search: searchTerm || undefined,
         tag: selectedTag || undefined,
@@ -73,6 +94,17 @@ export const Community: React.FC = () => {
 
   const handlePostClick = (postId: string) => {
     setSelectedPostId(postId);
+  };
+
+  const handleCategoryChange = (category: 'tool' | 'tip' | '') => {
+    setSelectedCategory(category);
+    // Reset specific filters when changing category
+    if (category !== 'tool') {
+      setSelectedTool('');
+    }
+    if (category !== 'tip') {
+      setSelectedTipCategory('');
+    }
   };
 
   const renderToolsTipsSection = () => (
@@ -117,16 +149,50 @@ export const Community: React.FC = () => {
 
         {/* Filters */}
         <div className="flex flex-wrap items-center gap-3">
+          {/* Category Filter */}
           <select
             value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value as 'tool' | 'tip' | '')}
+            onChange={(e) => handleCategoryChange(e.target.value as 'tool' | 'tip' | '')}
             className="form-input text-sm py-1.5"
           >
             <option value="">All Categories</option>
             <option value="tool">🛠️ Tools</option>
             <option value="tip">💡 Tips</option>
           </select>
+
+          {/* Tool Filter (only show when category is 'tool' or 'all') */}
+          {(selectedCategory === 'tool' || selectedCategory === '') && (
+            <select
+              value={selectedTool}
+              onChange={(e) => setSelectedTool(e.target.value)}
+              className="form-input text-sm py-1.5"
+            >
+              <option value="">All Tools</option>
+              {TOOL_OPTIONS.map((tool) => (
+                <option key={tool.value} value={tool.value}>
+                  {tool.label}
+                </option>
+              ))}
+            </select>
+          )}
+
+          {/* Tip Category Filter (only show when category is 'tip' or 'all') */}
+          {(selectedCategory === 'tip' || selectedCategory === '') && (
+            <select
+              value={selectedTipCategory}
+              onChange={(e) => setSelectedTipCategory(e.target.value)}
+              className="form-input text-sm py-1.5"
+            >
+              <option value="">All Tip Categories</option>
+              {TIP_CATEGORY_OPTIONS.map((category) => (
+                <option key={category.value} value={category.value}>
+                  {category.label}
+                </option>
+              ))}
+            </select>
+          )}
           
+          {/* Sort Filter */}
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as any)}
@@ -137,6 +203,7 @@ export const Community: React.FC = () => {
             <option value="popular">⭐ Most Popular</option>
           </select>
 
+          {/* Active Tag Filter */}
           {selectedTag && (
             <div className="flex items-center space-x-1.5 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-xs font-medium">
               <TagIcon className="w-3 h-3" />
@@ -180,7 +247,7 @@ export const Community: React.FC = () => {
             <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No posts found</h3>
             <p className="text-gray-500 mb-4">
-              {searchTerm || selectedCategory || selectedTag
+              {searchTerm || selectedCategory || selectedTool || selectedTipCategory || selectedTag
                 ? 'Try adjusting your filters or search terms.'
                 : 'Be the first to share a tool or tip with the community!'}
             </p>

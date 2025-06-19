@@ -11,6 +11,8 @@ interface CreatePostRequest {
   title: string
   content: string
   category: 'tool' | 'tip'
+  tool?: string
+  tip_category?: string
   tags: string[]
   image_url?: string
 }
@@ -74,6 +76,52 @@ serve(async (req) => {
       )
     }
 
+    // Validate tool selection for tool posts
+    if (body.category === 'tool' && !body.tool) {
+      return new Response(
+        JSON.stringify({ error: 'Tool selection is required for tool posts' }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      )
+    }
+
+    // Validate tip category for tip posts
+    if (body.category === 'tip' && !body.tip_category) {
+      return new Response(
+        JSON.stringify({ error: 'Tip category is required for tip posts' }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      )
+    }
+
+    // Validate tool values
+    const validTools = ['bolt', 'loveable', 'replit', 'v0', 'other'];
+    if (body.tool && !validTools.includes(body.tool)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid tool selection' }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      )
+    }
+
+    // Validate tip category values
+    const validTipCategories = ['prompt_tricks', 'integrations', 'authentication', 'payment', 'other'];
+    if (body.tip_category && !validTipCategories.includes(body.tip_category)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid tip category selection' }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      )
+    }
+
     // Create the post
     const { data: post, error: postError } = await supabaseClient
       .from('community_posts')
@@ -81,6 +129,8 @@ serve(async (req) => {
         title: body.title,
         content: body.content,
         category: body.category,
+        tool: body.category === 'tool' ? body.tool : null,
+        tip_category: body.category === 'tip' ? body.tip_category : null,
         author_id: user.id,
         image_url: body.image_url,
       })
