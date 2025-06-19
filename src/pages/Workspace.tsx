@@ -408,10 +408,9 @@ export const Workspace: React.FC = () => {
         const inProgressTasks = workspaceData.tasks.filter(task => task.status === 'in_progress').length;
         return `${workspaceData.tasks.length} tasks total, ${todoTasks} to do, ${inProgressTasks} in progress.`;
       case 'scratchpad':
-        const latestNote = workspaceData.scratchpadNotes[0];
-        return latestNote ? `Latest note: "${latestNote.content.substring(0, 50)}..."` : 'No scratchpad notes yet.';
+        return `${workspaceData.scratchpadNotes.length} notes.`;
       case 'prompts':
-        return `${workspaceData.prompts.length} AI prompts available.`;
+        return `${workspaceData.prompts.length} prompts.`;
       case 'secrets':
         const activeSecrets = workspaceData.secrets.filter(secret => secret.is_active).length;
         return `${workspaceData.secrets.length} secrets, ${activeSecrets} active.`;
@@ -512,32 +511,17 @@ export const Workspace: React.FC = () => {
           {currentProject?.description && (
             <p className="text-gray-600">{currentProject.description}</p>
           )}
-          <p className="text-xs text-gray-500 mt-1">Project ID: {projectId}</p>
         </div>
         
         <div className="flex items-center space-x-3">
-          <button 
+          {/* <button 
             onClick={handleAddMissingModules}
             disabled={!currentProject}
             className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <Plus className="w-4 h-4 mr-2" />
             Add Missing Modules
-          </button>
-          <button 
-            disabled={!currentProject}
-            className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            <Grid3X3 className="w-4 h-4 mr-2" />
-            Layout
-          </button>
-          <button 
-            disabled={!currentProject}
-            className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            <Settings className="w-4 h-4 mr-2" />
-            Settings
-          </button>
+          </button> */}
           <button 
             onClick={() => {
               setShowDeleteConfirm(true);
@@ -624,34 +608,6 @@ export const Workspace: React.FC = () => {
             />
           );
         })}
-      </div>
-
-      {/* Data Summary */}
-      <div className="mt-6 grid grid-cols-2 md:grid-cols-6 gap-4">
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
-          <p className="text-sm font-medium text-blue-900">PRDs</p>
-          <p className="text-lg font-bold text-blue-700">{workspaceData.prds.length}</p>
-        </div>
-        <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
-          <p className="text-sm font-medium text-green-900">Roadmap</p>
-          <p className="text-lg font-bold text-green-700">{workspaceData.roadmapItems.length}</p>
-        </div>
-        <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 text-center">
-          <p className="text-sm font-medium text-orange-900">Tasks</p>
-          <p className="text-lg font-bold text-orange-700">{workspaceData.tasks.length}</p>
-        </div>
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-center">
-          <p className="text-sm font-medium text-yellow-900">Notes</p>
-          <p className="text-lg font-bold text-yellow-700">{workspaceData.scratchpadNotes.length}</p>
-        </div>
-        <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 text-center">
-          <p className="text-sm font-medium text-purple-900">Prompts</p>
-          <p className="text-lg font-bold text-purple-700">{workspaceData.prompts.length}</p>
-        </div>
-        <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-center">
-          <p className="text-sm font-medium text-red-900">Secrets</p>
-          <p className="text-lg font-bold text-red-700">{workspaceData.secrets.length}</p>
-        </div>
       </div>
     </div>
   );

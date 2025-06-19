@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, TrendingUp, MessageSquare, Users, Award, Filter, ChevronDown, Tag as TagIcon, Loader2 } from 'lucide-react';
+import { Search, Plus, TrendingUp, MessageSquare, Users, Award, Tag as TagIcon, Loader2, AlertCircle } from 'lucide-react';
 import { PostSubmissionForm } from '../components/Community/PostSubmissionForm';
 import { PostCard } from '../components/Community/PostCard';
 import { PostDetailView } from '../components/Community/PostDetailView';
@@ -16,7 +16,7 @@ export const Community: React.FC = () => {
   
   // Filters
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<'tool' | 'tip' | ''>('');
   const [selectedTag, setSelectedTag] = useState<string>('');
   const [sortBy, setSortBy] = useState<'newest' | 'popular' | 'trending'>('trending');
   
@@ -78,14 +78,14 @@ export const Community: React.FC = () => {
   const renderToolsTipsSection = () => (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Tools & Tips</h2>
           <p className="text-gray-600 mt-1">Discover and share practical AI tools and usage tips</p>
         </div>
         <button
           onClick={() => setShowSubmissionForm(true)}
-          className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+          className="btn-primary inline-flex items-center px-4 py-2.5 text-sm"
         >
           <Plus className="w-4 h-4 mr-2" />
           Share Tool/Tip
@@ -93,34 +93,34 @@ export const Community: React.FC = () => {
       </div>
 
       {/* Search and Filters */}
-      <div className="bg-gray-50 rounded-lg p-4 space-y-4">
+      <div className="border border-border rounded-lg p-4 space-y-4">
         {/* Search Bar */}
-        <div className="flex space-x-3">
+        <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <Search className="search-icon" />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
               placeholder="Search tools and tips..."
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="search-input"
             />
           </div>
           <button
             onClick={handleSearch}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="btn-primary px-5 py-2.5 text-sm whitespace-nowrap"
           >
             Search
           </button>
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="flex flex-wrap items-center gap-3">
           <select
             value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            onChange={(e) => setSelectedCategory(e.target.value as 'tool' | 'tip' | '')}
+            className="form-input text-sm py-1.5"
           >
             <option value="">All Categories</option>
             <option value="tool">🛠️ Tools</option>
@@ -130,7 +130,7 @@ export const Community: React.FC = () => {
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as any)}
-            className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="form-input text-sm py-1.5"
           >
             <option value="trending">🔥 Trending</option>
             <option value="newest">🆕 Newest</option>
@@ -138,12 +138,13 @@ export const Community: React.FC = () => {
           </select>
 
           {selectedTag && (
-            <div className="flex items-center space-x-2 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+            <div className="flex items-center space-x-1.5 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-xs font-medium">
               <TagIcon className="w-3 h-3" />
               <span>{selectedTag}</span>
               <button
                 onClick={() => setSelectedTag('')}
-                className="text-blue-600 hover:text-blue-800"
+                className="ml-0.5 text-primary/70 hover:text-primary transition-colors"
+                aria-label="Remove tag"
               >
                 ×
               </button>
@@ -155,20 +156,23 @@ export const Community: React.FC = () => {
       {/* Posts List */}
       <div className="space-y-6">
         {loading ? (
-          <div className="text-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
+          <div className="text-center py-16">
+            <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
             <p className="text-gray-600">Loading posts...</p>
           </div>
         ) : error ? (
-          <div className="text-center py-12">
-            <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
-              <p className="text-red-600">{error}</p>
-              <button
-                onClick={fetchPosts}
-                className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-              >
-                Try Again
-              </button>
+          <div className="text-center py-16">
+            <div className="bg-background border border-border rounded-lg p-6 max-w-md mx-auto">
+              <div className="flex flex-col items-center">
+                <AlertCircle className="w-6 h-6 text-destructive mb-3" />
+                <p className="text-destructive mb-4">{error}</p>
+                <button
+                  onClick={fetchPosts}
+                  className="btn-primary px-4 py-2 text-sm"
+                >
+                  Try Again
+                </button>
+              </div>
             </div>
           </div>
         ) : posts.length === 0 ? (
@@ -182,7 +186,7 @@ export const Community: React.FC = () => {
             </p>
             <button
               onClick={() => setShowSubmissionForm(true)}
-              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="btn-primary inline-flex items-center px-4 py-2.5 text-sm"
             >
               <Plus className="w-4 h-4 mr-2" />
               Share Tool/Tip
@@ -207,17 +211,17 @@ export const Community: React.FC = () => {
                 <button
                   onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                   disabled={currentPage === 1}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="btn-outline"
                 >
                   Previous
                 </button>
-                <span className="px-4 py-2 text-gray-700">
+                <span className="px-4 py-2 text-foreground-dim flex items-center">
                   Page {currentPage}
                 </span>
                 <button
                   onClick={() => setCurrentPage(prev => prev + 1)}
                   disabled={!hasNextPage}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="btn-outline"
                 >
                   Next
                 </button>
@@ -233,7 +237,7 @@ export const Community: React.FC = () => {
     <div className="max-w-7xl mx-auto p-6">
       {/* Main Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">AI Community Hub</h1>
+        <h1 className="text-gray-900 mb-2">AI Community Hub</h1>
         <p className="text-gray-600">
           Connect, share, and learn with fellow AI tool enthusiasts
         </p>
@@ -245,7 +249,7 @@ export const Community: React.FC = () => {
           onClick={() => setActiveSection('tools-tips')}
           className={`flex-1 flex items-center justify-center px-4 py-3 rounded-md font-medium transition-colors ${
             activeSection === 'tools-tips'
-              ? 'bg-white text-blue-600 shadow-sm'
+              ? 'bg-white text-gray-600 shadow-sm'
               : 'text-gray-600 hover:text-gray-900'
           }`}
         >
@@ -254,7 +258,7 @@ export const Community: React.FC = () => {
         </button>
         <button
           onClick={() => setActiveSection('profile')}
-          className={`flex-1 flex items-center justify-center px-4 py-3 rounded-md font-medium transition-colors ${
+          className={`flex-1 flex items-center justify-center px-4 py-3 rounded-md font-medium transition-colors text-sm ${
             activeSection === 'profile'
               ? 'bg-white text-purple-600 shadow-sm'
               : 'text-gray-600 hover:text-gray-900'
@@ -272,43 +276,24 @@ export const Community: React.FC = () => {
       )}
 
       {/* Community Stats */}
-      <div className="mt-12 grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-blue-100">Total Posts</p>
-              <p className="text-2xl font-bold">{totalPosts}</p>
+      <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Stats Card Component */}
+        {[
+          { label: 'Total Posts', value: totalPosts, icon: TrendingUp, color: 'bg-blue-500' },
+          { label: 'Active Members', value: '1,247', icon: Users, color: 'bg-green-500' },
+          { label: 'Tools Shared', value: '856', icon: MessageSquare, color: 'bg-purple-500' },
+          { label: 'Tips Shared', value: '391', icon: Award, color: 'bg-amber-500' }
+        ].map((stat, index) => (
+          <div key={index} className={`${stat.color} text-background p-5 rounded-lg`}>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-background/90 text-sm">{stat.label}</p>
+                <p className="text-2xl font-bold">{stat.value}</p>
+              </div>
+              <stat.icon className="w-8 h-8 text-background/80" />
             </div>
-            <TrendingUp className="w-8 h-8 text-blue-200" />
           </div>
-        </div>
-        <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-green-100">Active Members</p>
-              <p className="text-2xl font-bold">1,247</p>
-            </div>
-            <Users className="w-8 h-8 text-green-200" />
-          </div>
-        </div>
-        <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-6 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-purple-100">Tools Shared</p>
-              <p className="text-2xl font-bold">856</p>
-            </div>
-            <MessageSquare className="w-8 h-8 text-purple-200" />
-          </div>
-        </div>
-        <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-6 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-orange-100">Tips Shared</p>
-              <p className="text-2xl font-bold">391</p>
-            </div>
-            <Award className="w-8 h-8 text-orange-200" />
-          </div>
-        </div>
+        ))}
       </div>
 
       {/* Modals */}

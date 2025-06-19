@@ -48,6 +48,15 @@
     font: inherit;
   }
   
+  button:focus,
+  button:focus-visible,
+  button:focus-within,
+  button:active:focus {
+    outline: none !important;
+    box-shadow: none !important;
+    border-color: transparent !important;
+  }
+  
   p,
   h1,
   h2,
@@ -70,19 +79,19 @@
   }
   
   h1 {
-    @apply text-4xl tracking-tight;
-  }
-  
-  h2 {
     @apply text-3xl tracking-tight;
   }
   
+  h2 {
+    @apply text-2xl tracking-tight;
+  }
+  
   h3 {
-    @apply text-2xl;
+    @apply text-xl;
   }
   
   h4 {
-    @apply text-xl font-semibold leading-tight text-gray-900;
+    @apply text-lg font-semibold leading-tight text-gray-900;
   }
   
   /* Body Text */
@@ -103,6 +112,23 @@
 
 /* Component Layer - Reusable Components */
 @layer components {
+  /* Form Components */
+  .form-field {
+    @apply space-y-1.5;
+  }
+  
+  .form-label {
+    @apply block text-sm font-medium text-gray-700;
+  }
+  
+  .form-input,
+  .form-textarea {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm;
+  }
+  
+  .form-textarea {
+    @apply min-h-[80px];
+  }
   /* Button Components */
   .btn {
     @apply inline-flex items-center justify-center px-3 py-1 text-sm font-medium rounded-md transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
@@ -112,8 +138,6 @@
   }
   .btn-primary:hover {
     @apply bg-foreground-dark text-background;
-    text-shadow: 0 0 4px #00ff9f;
-    box-shadow: 0 0 6px #00ff9f66;
   }
   .btn-ghost {
     @apply btn bg-transparent text-foreground-dim border border-foreground-dim;
@@ -148,6 +172,15 @@
 
   .new-form {
     @apply bg-white border rounded-md p-6 shadow-lg mb-6;
+  }
+  
+  /* Modal Buttons */
+  .modal-actions {
+    @apply flex space-x-3 pt-4 border-t border-gray-200 mt-6;
+  }
+  
+  .modal-actions .btn {
+    @apply flex-1 justify-center;
   }
 }
 

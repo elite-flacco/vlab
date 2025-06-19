@@ -664,7 +664,7 @@ export const RoadmapDetailView: React.FC = () => {
                   color: '#3b82f6',
                   dependencies: [],
                 })}
-                className="inline-flex items-center btn-primary"
+                className="btn-primary"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Add Phase
@@ -715,7 +715,7 @@ export const RoadmapDetailView: React.FC = () => {
                 color: '#3b82f6',
                 dependencies: [],
               })}
-              className="inline-flex items-center px-3 py-1 btn-primary"
+              className="btn-primary"
             >
               <Plus className="w-3 h-3 mr-1" />
               Add New Phase

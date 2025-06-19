@@ -95,18 +95,19 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
             </div>
           </div>
 
-          <div className="flex space-x-3 pt-4">
+          <div className="modal-actions">
             <button
               type="button"
               onClick={handleClose}
-              className="btn btn-outline flex-1"
+              className="btn btn-outline"
+              disabled={loading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              disabled={loading || !formData.name.trim()}
-              className="btn btn-primary flex-1"
+              disabled={!formData.name.trim() || loading}
+              className="btn btn-primary space-x-2"
             >
               {loading ? (
                 <>
@@ -115,8 +116,8 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
                 </>
               ) : (
                 <>
-                  <Sparkles className="btn-icon" />
-                  <span>Create & Start Kick-off</span>
+                  <Sparkles className="btn-icon size-4" />
+                  <span>Let's Go!</span>
                 </>
               )}
             </button>

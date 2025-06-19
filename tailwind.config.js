@@ -25,16 +25,6 @@ export default {
         success: { DEFAULT: '#22c55e' },
         warning: { DEFAULT: '#facc15' },
         error: { DEFAULT: '#ff4b4b' },
-        // Module-specific Colors
-        module: {
-          DEFAULT: '#00ff9f',
-          prd: 'rgba(0, 255, 159, 1.0)',
-          roadmap: 'rgba(0, 255, 159, 0.85)',
-          tasks: 'rgba(0, 255, 159, 0.7)',
-          scratchpad: 'rgba(0, 255, 159, 0.55)',
-          prompts: 'rgba(0, 255, 159, 0.4)',
-          secrets: 'rgba(0, 255, 159, 0.25)',
-        },
       },
 
       // Font Families
