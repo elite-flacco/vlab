@@ -14,7 +14,7 @@ export const BackButton: React.FC<BackButtonProps> = ({
     <div className="mb-6">
       <button
         type="button"
-        className={`inline-flex items-center btn btn-primary ${className}`}
+        className={`inline-flex items-center btn-ghost ${className}`}
         {...props}
       >
         <ArrowLeft className="w-4 h-4 mr-2" />

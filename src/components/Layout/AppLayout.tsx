@@ -31,12 +31,14 @@ export const AppLayout: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background grid-bg">
       <Header onNewProjectClick={openNewProjectModal} />
       <div className="flex">
         <Sidebar onNewProjectClick={openNewProjectModal} />
         <main className="flex-1 p-6">
-          <Outlet context={{ onNewProjectClick: openNewProjectModal }} />
+          <div className="fade-in">
+            <Outlet context={{ onNewProjectClick: openNewProjectModal }} />
+          </div>
         </main>
       </div>
       

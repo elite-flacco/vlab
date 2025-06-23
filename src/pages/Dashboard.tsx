@@ -64,7 +64,7 @@ export const Dashboard: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="loading-spinner"></div>
+        <div className="loading-spinner w-8 h-8 border-primary"></div>
       </div>
     );
   }
@@ -79,59 +79,59 @@ export const Dashboard: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <h1 className="text-3xl font-bold text-foreground mb-2 glow">
           Welcome back, {user?.name}!
         </h1>
-        <p className="text-gray-600">
+        <p className="text-foreground-dim">
           Manage your projects and continue building amazing things.
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-lg border border-gray-200">
+        <div className="terminal-window p-6">
           <div className="flex items-center">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Users className="w-6 h-6 text-blue-600" />
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <Users className="w-6 h-6 text-primary" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Projects</p>
-              <p className="text-2xl font-bold text-gray-900">{totalProjects}</p>
+              <p className="text-sm font-medium text-foreground-dim">Total Projects</p>
+              <p className="text-2xl font-bold text-foreground">{totalProjects}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg border border-gray-200">
+        <div className="terminal-window p-6">
           <div className="flex items-center">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <Calendar className="w-6 h-6 text-green-600" />
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <Calendar className="w-6 h-6 text-primary" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Active This Week</p>
-              <p className="text-2xl font-bold text-gray-900">{recentlyActive}</p>
+              <p className="text-sm font-medium text-foreground-dim">Active This Week</p>
+              <p className="text-2xl font-bold text-foreground">{recentlyActive}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg border border-gray-200">
+        <div className="terminal-window p-6">
           <div className="flex items-center">
-            <div className="p-2 bg-orange-100 rounded-lg">
-              <Archive className="w-6 h-6 text-orange-600" />
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <Archive className="w-6 h-6 text-primary" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Archived</p>
-              <p className="text-2xl font-bold text-gray-900">{archivedProjects.length}</p>
+              <p className="text-sm font-medium text-foreground-dim">Archived</p>
+              <p className="text-2xl font-bold text-foreground">{archivedProjects.length}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg border border-gray-200">
+        <div className="terminal-window p-6">
           <div className="flex items-center">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <Star className="w-6 h-6 text-purple-600" />
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <Star className="w-6 h-6 text-primary" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Templates Used</p>
-              <p className="text-2xl font-bold text-gray-900">0</p>
+              <p className="text-sm font-medium text-foreground-dim">Templates Used</p>
+              <p className="text-2xl font-bold text-foreground">0</p>
             </div>
           </div>
         </div>
@@ -139,30 +139,30 @@ export const Dashboard: React.FC = () => {
 
       {/* Active Projects */}
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-gray-900">Your Projects</h2>
+        <h2 className="text-xl font-semibold text-foreground font-mono">Your Projects</h2>
         <button
           onClick={onNewProjectClick}
-          className="btn btn-primary"
+          className="btn-primary"
         >
-          <Plus className="btn-icon" />
+          <Plus className="w-4 h-4 mr-2" />
           New Project
         </button>
       </div>
 
       {activeProjects.length === 0 ? (
-        <div className="text-center py-12 mb-8">
-          <div className="mx-auto h-24 w-24 text-gray-400">
+        <div className="text-center py-12 mb-8 terminal-window">
+          <div className="mx-auto h-24 w-24 text-foreground-dim">
             <Plus className="w-full h-full" />
           </div>
-          <h3 className="mt-4 text-lg font-medium text-gray-900">No active projects yet</h3>
-          <p className="mt-2 text-gray-500">
+          <h3 className="mt-4 text-lg font-medium text-foreground">No active projects yet</h3>
+          <p className="mt-2 text-foreground-dim">
             Get started by creating your first project.
           </p>
           <button
             onClick={onNewProjectClick}
-            className="btn btn-primary mt-4"
+            className="btn-primary mt-4"
           >
-            <Plus className="btn-icon" />
+            <Plus className="w-4 h-4 mr-2" />
             Create Project
           </button>
         </div>
@@ -171,16 +171,16 @@ export const Dashboard: React.FC = () => {
           {activeProjects.map((project) => (
             <div
               key={project.id}
-              className="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-md transition-shadow cursor-pointer group"
+              className="terminal-window p-6 hover:shadow-lg hover:shadow-primary/10 transition-shadow cursor-pointer group"
               onClick={() => handleOpenProject(project.id)}
             >
               <div className="flex items-start justify-between mb-4">
-                <h3 className="text-lg font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                <h3 className="text-lg font-medium text-foreground group-hover:text-primary transition-colors font-mono">
                   {project.name}
                 </h3>
                 <button
                   onClick={(e) => handleArchiveProject(project.id, e)}
-                  className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-orange-600 transition-all"
+                  className="opacity-0 group-hover:opacity-100 p-1 text-foreground-dim hover:text-primary transition-all"
                   title="Archive project"
                 >
                   <Archive className="w-4 h-4" />
@@ -188,12 +188,12 @@ export const Dashboard: React.FC = () => {
               </div>
               
               {project.description && (
-                <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                <p className="text-foreground-dim text-sm mb-4 line-clamp-2">
                   {project.description}
                 </p>
               )}
               
-              <div className="flex items-center justify-between text-sm text-gray-500">
+              <div className="flex items-center justify-between text-sm text-foreground-dim">
                 <span>
                   Updated {new Date(project.updated_at).toLocaleDateString()}
                 </span>
@@ -208,17 +208,17 @@ export const Dashboard: React.FC = () => {
 
       {/* Archived Projects */}
       {archivedProjects.length > 0 && (
-        <div className="border-t border-gray-200 pt-8">
+        <div className="border-t border-foreground-dim/20 pt-8">
           <button
             onClick={() => setShowArchived(!showArchived)}
-            className="flex items-center space-x-2 text-lg font-semibold text-gray-900 hover:text-gray-700 transition-colors mb-6"
+            className="flex items-center space-x-2 text-lg font-semibold text-foreground hover:text-foreground-dim transition-colors mb-6 font-mono"
           >
             {showArchived ? (
               <ChevronDown className="w-5 h-5" />
             ) : (
               <ChevronRight className="w-5 h-5" />
             )}
-            <Archive className="w-5 h-5 text-orange-600" />
+            <Archive className="w-5 h-5 text-primary/70" />
             <span>Archived Projects ({archivedProjects.length})</span>
           </button>
 
@@ -227,17 +227,17 @@ export const Dashboard: React.FC = () => {
               {archivedProjects.map((project) => (
                 <div
                   key={project.id}
-                  className="bg-gray-50 p-6 rounded-lg border border-gray-200 hover:shadow-md transition-shadow cursor-pointer group opacity-75"
+                  className="terminal-window p-6 hover:shadow-md transition-shadow cursor-pointer group opacity-75"
                   onClick={() => handleOpenProject(project.id)}
                 >
                   <div className="flex items-start justify-between mb-4">
-                    <h3 className="text-lg font-medium text-gray-700 group-hover:text-blue-600 transition-colors">
+                    <h3 className="text-lg font-medium text-foreground-dim group-hover:text-primary transition-colors font-mono">
                       {project.name}
                     </h3>
                     <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button
                         onClick={(e) => handleRestoreProject(project.id, e)}
-                        className="p-1 text-gray-400 hover:text-green-600 transition-colors"
+                        className="p-1 text-foreground-dim hover:text-primary transition-colors"
                         title="Restore project"
                       >
                         <RotateCcw className="w-4 h-4" />
@@ -247,7 +247,7 @@ export const Dashboard: React.FC = () => {
                           e.stopPropagation();
                           setDeleteConfirm(project.id);
                         }}
-                        className="p-1 text-gray-400 hover:text-red-600 transition-colors"
+                        className="p-1 text-foreground-dim hover:text-red-400 transition-colors"
                         title="Delete permanently"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -256,12 +256,12 @@ export const Dashboard: React.FC = () => {
                   </div>
                   
                   {project.description && (
-                    <p className="text-gray-500 text-sm mb-4 line-clamp-2">
+                    <p className="text-foreground-dim/70 text-sm mb-4 line-clamp-2">
                       {project.description}
                     </p>
                   )}
                   
-                  <div className="flex items-center justify-between text-sm text-gray-400">
+                  <div className="flex items-center justify-between text-sm text-foreground-dim/70">
                     <span>
                       Archived {new Date(project.updated_at).toLocaleDateString()}
                     </span>
@@ -278,22 +278,22 @@ export const Dashboard: React.FC = () => {
 
       {/* Delete Confirmation Modal */}
       {deleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md transform transition-all">
+        <div className="modal-overlay">
+          <div className="modal-content max-w-md">
             <div className="p-6">
               <div className="flex items-center space-x-3 mb-4">
-                <div className="p-2 bg-red-100 rounded-lg">
-                  <Trash2 className="w-6 h-6 text-red-600" />
+                <div className="p-2 bg-red-500/10 rounded-lg">
+                  <Trash2 className="w-6 h-6 text-red-400" />
                 </div>
-                <h2 className="text-xl font-semibold text-gray-900">Permanently Delete Project</h2>
+                <h2 className="modal-title">Permanently Delete Project</h2>
               </div>
               
               <div className="mb-6">
-                <p className="text-gray-600 mb-3">
+                <p className="text-foreground-dim mb-3">
                   Are you sure you want to permanently delete this project?
                 </p>
-                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                  <p className="text-sm text-red-800">
+                <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
+                  <p className="text-sm text-red-400">
                     <strong>Warning:</strong> This action cannot be undone. All project data including PRDs, tasks, roadmaps, notes, prompts, and secrets will be permanently deleted from the database.
                   </p>
                 </div>
@@ -302,15 +302,15 @@ export const Dashboard: React.FC = () => {
               <div className="flex space-x-3">
                 <button
                   onClick={() => setDeleteConfirm(null)}
-                  className="btn btn-outline flex-1"
+                  className="btn-ghost flex-1"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={() => handleDeleteProject(deleteConfirm)}
-                  className="btn btn-error flex-1"
+                  className="btn-primary bg-red-500 hover:bg-red-600 border-red-500 hover:border-red-600 flex-1"
                 >
-                  <Trash2 className="btn-icon" />
+                  <Trash2 className="w-4 h-4 mr-2" />
                   <span>Delete Forever</span>
                 </button>
               </div>

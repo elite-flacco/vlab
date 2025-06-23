@@ -425,8 +425,8 @@ export const Workspace: React.FC = () => {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-foreground-dim font-mono">
             {isRetrying ? 'Retrying connection...' : 
              projectsLoading ? 'Loading projects...' : 
              isProjectLoading ? 'Loading project...' :
@@ -441,17 +441,17 @@ export const Workspace: React.FC = () => {
     const displayError = error || projectsError;
     console.log('❌ Workspace: Rendering error state:', displayError);
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+      <div className="terminal-window p-6">
         <div className="flex items-start space-x-3">
-          <AlertCircle className="w-6 h-6 text-red-600 mt-0.5 flex-shrink-0" />
+          <AlertCircle className="w-6 h-6 text-red-400 mt-0.5 flex-shrink-0" />
           <div className="flex-1">
-            <h3 className="text-lg font-semibold text-red-900 mb-2">Error Loading Workspace</h3>
-            <p className="text-red-700 mb-4">{displayError}</p>
+            <h3 className="text-lg font-semibold text-red-400 mb-2 font-mono">Error Loading Workspace</h3>
+            <p className="text-red-400 mb-4">{displayError}</p>
             
             {displayError?.includes('connect') && (
-              <div className="bg-red-100 border border-red-300 rounded-lg p-4 mb-4">
-                <h4 className="font-medium text-red-900 mb-2">Connection Troubleshooting:</h4>
-                <ul className="text-sm text-red-800 space-y-1">
+              <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 mb-4">
+                <h4 className="font-medium text-red-400 mb-2 font-mono">Connection Troubleshooting:</h4>
+                <ul className="text-sm text-red-400 space-y-1">
                   <li>• Check your internet connection</li>
                   <li>• Verify your Supabase project is running</li>
                   <li>• Ensure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are correctly set in your .env file</li>
@@ -464,7 +464,7 @@ export const Workspace: React.FC = () => {
               <button
                 onClick={handleRetry}
                 disabled={isRetrying}
-                className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="btn-primary bg-red-500 hover:bg-red-600 border-red-500 hover:border-red-600"
               >
                 {isRetrying ? (
                   <>
@@ -481,7 +481,7 @@ export const Workspace: React.FC = () => {
               
               <button
                 onClick={() => navigate('/')}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                className="btn-ghost"
               >
                 Back to Dashboard
               </button>
@@ -505,29 +505,21 @@ export const Workspace: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+          <h1 className="text-2xl font-bold text-foreground mb-2 glow font-mono">
             {currentProject?.name || 'Loading Project...'}
           </h1>
           {currentProject?.description && (
-            <p className="text-gray-600">{currentProject.description}</p>
+            <p className="text-foreground-dim">{currentProject.description}</p>
           )}
         </div>
         
         <div className="flex items-center space-x-3">
-          {/* <button 
-            onClick={handleAddMissingModules}
-            disabled={!currentProject}
-            className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Add Missing Modules
-          </button> */}
           <button 
             onClick={() => {
               setShowDeleteConfirm(true);
             }}
             disabled={!currentProject}
-            className="inline-flex items-center px-3 py-2 border border-red-300 text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="btn-ghost text-red-400 hover:text-red-500 hover:border-red-500/30"
           >
             <Trash2 className="w-4 h-4 mr-2" />
             Delete Project
@@ -537,22 +529,22 @@ export const Workspace: React.FC = () => {
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && currentProject && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md transform transition-all">
+        <div className="modal-overlay">
+          <div className="modal-content max-w-md scale-in">
             <div className="p-6">
               <div className="flex items-center space-x-3 mb-4">
-                <div className="p-2 bg-red-100 rounded-lg">
-                  <Trash2 className="w-6 h-6 text-red-600" />
+                <div className="p-2 bg-red-500/10 rounded-lg">
+                  <Trash2 className="w-6 h-6 text-red-400" />
                 </div>
-                <h2 className="text-xl font-semibold text-gray-900">Delete Project</h2>
+                <h2 className="modal-title">Delete Project</h2>
               </div>
               
               <div className="mb-6">
-                <p className="text-gray-600 mb-3">
-                  Are you sure you want to delete <strong>"{currentProject.name}"</strong>?
+                <p className="text-foreground-dim mb-3">
+                  Are you sure you want to delete <strong className="text-foreground">"{currentProject.name}"</strong>?
                 </p>
-                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                  <p className="text-sm text-red-800">
+                <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
+                  <p className="text-sm text-red-400">
                     <strong>Warning:</strong> This action cannot be undone. All project data including PRDs, tasks, roadmaps, notes, prompts, and secrets will be permanently deleted.
                   </p>
                 </div>
@@ -564,23 +556,23 @@ export const Workspace: React.FC = () => {
                     setShowDeleteConfirm(false);
                   }}
                   disabled={isDeleting}
-                  className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium disabled:opacity-50"
+                  className="btn-ghost flex-1"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleDeleteProject}
                   disabled={isDeleting}
-                  className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center justify-center space-x-2"
+                  className="btn-primary bg-red-500 hover:bg-red-600 border-red-500 hover:border-red-600 flex-1"
                 >
                   {isDeleting ? (
                     <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                       <span>Deleting...</span>
                     </>
                   ) : (
                     <>
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-4 h-4 mr-2" />
                       <span>Delete Project</span>
                     </>
                   )}
@@ -592,7 +584,7 @@ export const Workspace: React.FC = () => {
       )}
 
       {/* Module Cards Grid */}
-      <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="workspace-grid">
         {ALL_MODULE_TYPES.map((type) => {
           console.log('🎯 Workspace: Rendering module card for:', type);
           return (

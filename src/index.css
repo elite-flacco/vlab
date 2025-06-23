@@ -69,13 +69,13 @@
   
   /* Typography Styles */
   html {
-    @apply font-sans text-base text-gray-900 antialiased;
+    @apply font-sans text-base text-foreground antialiased;
   }
   
   /* Heading Styles */
   h1, h2, h3 {
     font-family: var(--font-heading);
-    @apply font-bold text-gray-900 leading-tight;
+    @apply font-bold text-foreground leading-tight;
   }
   
   h1 {
@@ -91,17 +91,17 @@
   }
   
   h4 {
-    @apply text-lg font-semibold leading-tight text-gray-900;
+    @apply text-lg font-semibold leading-tight text-foreground;
   }
   
   /* Body Text */
   p {
-    @apply text-base leading-relaxed text-gray-700;
+    @apply text-base leading-relaxed text-foreground-dim;
   }
   
   /* Link Styles */
   a {
-    @apply text-primary hover:text-primary-dark transition-colors duration-200;
+    @apply text-primary hover:text-primary-light transition-colors duration-200;
     text-decoration: none;
   }
   
@@ -112,71 +112,172 @@
 
 /* Component Layer - Reusable Components */
 @layer components {
+  /* Terminal-inspired elements */
+  .terminal-window {
+    @apply bg-secondary/50 border border-foreground-dim/20 rounded-lg backdrop-blur-sm;
+  }
+  
+  .terminal-header {
+    @apply flex items-center space-x-2 text-xs text-foreground-dim p-3 border-b border-foreground-dim/20;
+  }
+  
+  .terminal-dots::before {
+    content: '';
+    @apply w-3 h-3 rounded-full bg-red-500 inline-block mr-2;
+  }
+  
+  .terminal-dots::after {
+    content: '';
+    @apply w-3 h-3 rounded-full bg-yellow-500 inline-block mr-2;
+  }
+  
+  .terminal-green::after {
+    content: '';
+    @apply w-3 h-3 rounded-full bg-green-500 inline-block;
+  }
+
   /* Form Components */
   .form-field {
     @apply space-y-1.5;
   }
   
   .form-label {
-    @apply block text-sm font-medium text-gray-700;
+    @apply block text-sm font-medium text-foreground-dim font-mono;
   }
   
   .form-input,
   .form-textarea {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm;
+    @apply w-full px-3 py-2 bg-background border border-foreground-dim/30 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm font-mono transition-all;
   }
   
   .form-textarea {
     @apply min-h-[80px];
   }
+
   /* Button Components */
   .btn {
-    @apply inline-flex items-center justify-center px-3 py-1 text-sm font-medium rounded-md transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+    @apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary/20 font-mono;
   }
+  
   .btn-primary {
-    @apply btn bg-foreground text-background border border-foreground;
+    @apply btn bg-primary text-background border border-primary hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/25;
   }
-  .btn-primary:hover {
-    @apply bg-foreground-dark text-background;
+  
+  .btn-secondary {
+    @apply btn bg-secondary text-foreground border border-foreground-dim/30 hover:bg-secondary/80 hover:border-foreground-dim/50;
   }
+  
   .btn-ghost {
-    @apply btn bg-transparent text-foreground-dim border border-foreground-dim;
+    @apply btn bg-transparent text-foreground-dim border border-foreground-dim/30 hover:text-foreground hover:border-foreground-dim/50 hover:bg-secondary/30;
   }
-  .btn-ghost:hover {
-    @apply text-foreground border-foreground;
-  }
-  .btn-add {
-    @apply btn bg-transparent border-2 border-dashed border-gray-300 rounded-lg p-4 text-gray-500 transition-colors;
-  }
-  .btn-add:hover {
-    @apply text-gray-600 border-gray-400;
-  }
+  
   .btn-outline {
-    @apply btn border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors text-sm
+    @apply btn border border-foreground-dim/30 text-foreground-dim rounded-md hover:bg-secondary/30 disabled:opacity-50 transition-colors text-sm;
   }
+  
+  .btn-add {
+    @apply btn bg-transparent border-2 border-dashed border-foreground-dim/30 rounded-lg p-4 text-foreground-dim transition-colors hover:text-foreground hover:border-foreground-dim/50 hover:bg-secondary/20;
+  }
+  
+  .btn-full {
+    @apply w-full justify-center;
+  }
+
+  /* Loading spinner */
   .loading-spinner {
     @apply animate-spin rounded-full border-b-2 border-current;
   }
 
+  /* Search components */
   .search-icon {
-    @apply w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400;
+    @apply w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-foreground-dim;
   }
 
   .search-input {
-    @apply w-full pl-10 pr-4 py-2 text-xs border border-gray-300 rounded-lg;
+    @apply w-full pl-10 pr-4 py-2 text-xs bg-background border border-foreground-dim/30 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary font-mono;
   }
 
-  .search-input:focus {
-    @apply ring-2 ring-orange-500 border-orange-500;
-  }
-
-  .new-form {
-    @apply bg-white border rounded-md p-6 shadow-lg mb-6;
+  /* Card components */
+  .card {
+    @apply bg-secondary/30 border border-foreground-dim/20 rounded-lg p-6 hover:shadow-lg hover:shadow-primary/10 transition-all duration-200 hover:border-primary/30;
   }
   
-  /* Modal Buttons */
+  .card-header {
+    @apply flex items-center justify-between mb-4;
+  }
+  
+  .card-title {
+    @apply text-lg font-semibold text-foreground font-mono;
+  }
+  
+  .card-content {
+    @apply text-foreground-dim text-sm leading-relaxed;
+  }
+
+  /* Navigation components */
+  .nav-link {
+    @apply px-3 py-2 text-sm font-medium rounded-md transition-colors font-mono hover:bg-secondary/50 hover:text-foreground;
+  }
+  
+  .nav-link-active {
+    @apply nav-link bg-primary/10 text-primary border border-primary/20;
+  }
+
+  /* Modal components */
+  .modal-overlay {
+    @apply fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50 p-4;
+  }
+  
+  .modal-content {
+    @apply bg-secondary/90 border border-foreground-dim/20 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden backdrop-blur-sm;
+  }
+  
+  .modal-header {
+    @apply flex items-center justify-between p-6 border-b border-foreground-dim/20;
+  }
+  
+  .modal-title {
+    @apply text-xl font-semibold text-foreground font-mono;
+  }
+
+  /* Alert components */
+  .alert {
+    @apply border rounded-lg p-4;
+  }
+  
+  .alert-error {
+    @apply alert bg-red-500/10 border-red-500/20 text-red-400;
+  }
+  
+  .alert-success {
+    @apply alert bg-green-500/10 border-green-500/20 text-green-400;
+  }
+  
+  .alert-warning {
+    @apply alert bg-yellow-500/10 border-yellow-500/20 text-yellow-400;
+  }
+
+  /* Badge components */
+  .badge {
+    @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-medium font-mono;
+  }
+  
+  .badge-primary {
+    @apply badge bg-primary/10 text-primary border border-primary/20;
+  }
+  
+  .badge-secondary {
+    @apply badge bg-secondary text-foreground-dim border border-foreground-dim/20;
+  }
+
+  /* Form styling */
+  .new-form {
+    @apply terminal-window p-6 shadow-lg mb-6;
+  }
+  
+  /* Modal Actions */
   .modal-actions {
-    @apply flex space-x-3 pt-4 border-t border-gray-200 mt-6;
+    @apply flex space-x-3 pt-4 border-t border-foreground-dim/20 mt-6;
   }
   
   .modal-actions .btn {
@@ -186,6 +287,143 @@
   /* Glow effect for primary text */
   .glow {
     text-shadow: 0 0 10px rgba(0, 255, 159, 0.3);
+  }
+
+  /* Grid pattern background */
+  .grid-bg {
+    background-image: 
+      linear-gradient(rgba(0, 255, 159, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 255, 159, 0.05) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  /* Sidebar styling */
+  .sidebar {
+    @apply w-64 bg-secondary/50 border-r border-foreground-dim/20 backdrop-blur-sm;
+  }
+  
+  .sidebar-section {
+    @apply space-y-1;
+  }
+  
+  .sidebar-title {
+    @apply text-sm font-semibold text-foreground font-mono mb-3;
+  }
+  
+  .sidebar-item {
+    @apply w-full flex items-center space-x-2 px-3 py-2 text-sm rounded-md transition-colors font-mono text-foreground-dim hover:bg-secondary/50 hover:text-foreground;
+  }
+  
+  .sidebar-item-active {
+    @apply sidebar-item bg-primary/10 text-primary border border-primary/20;
+  }
+
+  /* Header styling */
+  .app-header {
+    @apply bg-secondary/50 border-b border-foreground-dim/20 backdrop-blur-sm;
+  }
+  
+  .header-content {
+    @apply flex items-center justify-between px-6 py-4;
+  }
+  
+  .header-title {
+    @apply text-xl font-bold text-foreground font-mono;
+  }
+  
+  .header-nav {
+    @apply flex items-center space-x-4;
+  }
+
+  /* Workspace styling */
+  .workspace-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+  }
+  
+  .module-card {
+    @apply card cursor-pointer group;
+  }
+  
+  .module-card:hover {
+    @apply border-primary/50 shadow-lg shadow-primary/20;
+  }
+  
+  .module-icon {
+    @apply w-6 h-6 text-primary group-hover:text-primary-light transition-colors;
+  }
+  
+  .module-title {
+    @apply text-xl font-semibold text-foreground mb-2 font-mono;
+  }
+  
+  .module-summary {
+    @apply text-foreground-dim text-sm flex-1;
+  }
+
+  /* Status indicators */
+  .status-dot {
+    @apply w-2 h-2 rounded-full;
+  }
+  
+  .status-active {
+    @apply status-dot bg-green-500;
+  }
+  
+  .status-inactive {
+    @apply status-dot bg-foreground-dim/30;
+  }
+  
+  .status-error {
+    @apply status-dot bg-red-500;
+  }
+
+  /* Code block styling */
+  .code-block {
+    @apply bg-background border border-foreground-dim/20 rounded-lg p-4 font-mono text-sm;
+  }
+  
+  .code-inline {
+    @apply bg-secondary/50 px-2 py-1 rounded text-sm font-mono text-primary;
+  }
+
+  /* Animation classes */
+  .fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  .slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+  
+  .scale-in {
+    animation: scaleIn 0.2s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes slideUp {
+    from { 
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to { 
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes scaleIn {
+    from { 
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to { 
+      opacity: 1;
+      transform: scale(1);
+    }
   }
 }
 

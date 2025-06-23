@@ -35,18 +35,18 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md transform transition-all">
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+    <div className="modal-overlay">
+      <div className="modal-content scale-in">
+        <div className="modal-header">
           <div className="flex items-center space-x-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Folder className="w-5 h-5 text-blue-600" />
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <Folder className="w-5 h-5 text-primary" />
             </div>
-            <h2 className="text-xl font-semibold text-gray-900">Create New Project</h2>
+            <h2 className="modal-title">Create New Project</h2>
           </div>
           <button
             onClick={handleClose}
-            className="p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-lg hover:bg-gray-100"
+            className="p-2 text-foreground-dim hover:text-foreground transition-colors rounded-lg hover:bg-secondary/50"
           >
             <X className="w-5 h-5" />
           </button>
@@ -83,12 +83,12 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
             />
           </div>
 
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="terminal-window p-4">
             <div className="flex items-start space-x-3">
-              <Sparkles className="w-5 h-5 text-blue-600 mt-0.5" />
+              <Sparkles className="w-5 h-5 text-primary mt-0.5" />
               <div>
-                <h3 className="text-sm font-medium text-blue-900">AI-Powered Kick-off</h3>
-                <p className="text-sm text-blue-700 mt-1">
+                <h3 className="text-sm font-medium text-foreground mb-1">AI-Powered Kick-off</h3>
+                <p className="text-sm text-foreground-dim">
                   After creating your project, we'll guide you through an AI-powered setup to transform your idea into a structured workspace with PRDs, roadmaps, and tasks.
                 </p>
               </div>
@@ -99,7 +99,7 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
             <button
               type="button"
               onClick={handleClose}
-              className="btn btn-outline"
+              className="btn-ghost"
               disabled={loading}
             >
               Cancel
@@ -107,16 +107,16 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
             <button
               type="submit"
               disabled={!formData.name.trim() || loading}
-              className="btn btn-primary space-x-2"
+              className="btn-primary space-x-2"
             >
               {loading ? (
                 <>
-                  <div className="loading-spinner"></div>
+                  <div className="loading-spinner w-4 h-4"></div>
                   <span>Creating...</span>
                 </>
               ) : (
                 <>
-                  <Sparkles className="btn-icon size-4" />
+                  <Sparkles className="w-4 h-4" />
                   <span>Let's Go!</span>
                 </>
               )}

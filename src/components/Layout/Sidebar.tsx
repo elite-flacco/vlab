@@ -29,19 +29,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
   };
 
   return (
-    <aside className="w-64 bg-white border-r border-gray-200 p-4">
+    <aside className="sidebar p-4">
       <div className="space-y-6">
         {/* Navigation */}
         <div>
-          <h2 className="text-sm font-semibold text-gray-900 mb-3">Navigation</h2>
-          <div className="space-y-1">
+          <h2 className="sidebar-title">Navigation</h2>
+          <div className="sidebar-section">
             <button
               onClick={() => navigate('/community')}
-              className={`w-full flex items-center space-x-2 px-3 py-2 text-sm rounded-md transition-colors ${
-                isOnCommunity
-                  ? 'bg-blue-50 text-blue-700'
-                  : 'text-gray-600 hover:bg-gray-50'
-              }`}
+              className={isOnCommunity ? 'sidebar-item-active' : 'sidebar-item'}
             >
               <Users className="w-4 h-4" />
               <span>Community Hub</span>
@@ -52,25 +48,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
         {/* Active Projects */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold text-gray-900">Projects</h2>
+            <h2 className="sidebar-title">Projects</h2>
             <button 
               onClick={onNewProjectClick}
-              className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+              className="p-1 text-foreground-dim hover:text-foreground transition-colors"
             >
               <Plus className="w-4 h-4" />
             </button>
           </div>
           
-          <div className="space-y-1">
+          <div className="sidebar-section">
             {activeProjects.map((project) => (
               <button
                 key={project.id}
                 onClick={() => handleProjectClick(project)}
-                className={`w-full flex items-center space-x-2 px-3 py-2 text-sm rounded-md transition-colors ${
-                  currentProject?.id === project.id && !isOnCommunity
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-gray-600 hover:bg-gray-50'
-                }`}
+                className={currentProject?.id === project.id && !isOnCommunity ? 'sidebar-item-active' : 'sidebar-item'}
               >
                 <Folder className="w-4 h-4" />
                 <span className="truncate">{project.name}</span>
@@ -84,23 +76,23 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
           <div>
             <button
               onClick={() => setShowArchived(!showArchived)}
-              className="flex items-center space-x-2 text-sm font-semibold text-gray-700 hover:text-gray-900 transition-colors mb-3"
+              className="flex items-center space-x-2 text-sm font-semibold text-foreground-dim hover:text-foreground transition-colors mb-3"
             >
               {showArchived ? (
                 <ChevronDown className="w-4 h-4" />
               ) : (
                 <ChevronRight className="w-4 h-4" />
               )}
-              <Archive className="w-4 h-4 text-orange-600" />
+              <Archive className="w-4 h-4 text-primary/70" />
               <span>Archived ({archivedProjects.length})</span>
             </button>
 
             {showArchived && (
-              <div className="space-y-1">
+              <div className="sidebar-section">
                 {archivedProjects.map((project) => (
                   <div
                     key={project.id}
-                    className="group flex items-center space-x-2 px-3 py-2 text-sm rounded-md text-gray-500 hover:bg-gray-50 transition-colors"
+                    className="group flex items-center space-x-2 px-3 py-2 text-sm rounded-md text-foreground-dim/70 hover:bg-secondary/50 transition-colors"
                   >
                     <button
                       onClick={() => handleProjectClick(project)}
@@ -111,7 +103,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
                     </button>
                     <button
                       onClick={(e) => handleRestoreProject(project.id, e)}
-                      className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-green-600 transition-all"
+                      className="opacity-0 group-hover:opacity-100 p-1 text-foreground-dim hover:text-primary transition-all"
                       title="Restore project"
                     >
                       <RotateCcw className="w-3 h-3" />
@@ -123,8 +115,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
           </div>
         )}
         
-        <div className="pt-4 border-t border-gray-200">
-          <button className="w-full flex items-center space-x-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-md transition-colors">
+        <div className="pt-4 border-t border-foreground-dim/20">
+          <button className="sidebar-item">
             <Settings className="w-4 h-4" />
             <span>Settings</span>
           </button>

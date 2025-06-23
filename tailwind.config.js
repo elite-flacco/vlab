@@ -15,9 +15,9 @@ export default {
           DEFAULT: '#0f0f0f',
         },
         foreground: {
-          DEFAULT: '#00ff9f',
-          dim: '#00cc7a',
-          dark: '#00b36a',
+          DEFAULT: '#ffffff',
+          dim: '#a0a0a0',
+          dark: '#707070',
         },
         secondary: {
           DEFAULT: '#1f1f1f',
@@ -25,6 +25,8 @@ export default {
         success: { DEFAULT: '#22c55e' },
         warning: { DEFAULT: '#facc15' },
         error: { DEFAULT: '#ff4b4b' },
+        destructive: { DEFAULT: '#ff4b4b' },
+        border: { DEFAULT: '#2a2a2a' },
       },
 
       // Font Families
@@ -43,6 +45,27 @@ export default {
         '2xl': '1536px',
       },
 
+      // Box Shadows
+      boxShadow: {
+        'glow': '0 0 20px rgba(0, 255, 159, 0.2)',
+      },
+
+      // Transitions
+      transitionProperty: {
+        'height': 'height',
+        'spacing': 'margin, padding',
+      },
+
+      // Animations
+      keyframes: {
+        'pulse-glow': {
+          '0%, 100%': { boxShadow: '0 0 10px rgba(0, 255, 159, 0.2)' },
+          '50%': { boxShadow: '0 0 20px rgba(0, 255, 159, 0.4)' },
+        },
+      },
+      animation: {
+        'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
+      },
     },
   },
   plugins: [

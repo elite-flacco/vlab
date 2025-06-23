@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAuthStore } from '../../stores/authStore';
 import { useProjectStore } from '../../stores/projectStore';
-import { LogOut, Settings, User, Plus, Users } from 'lucide-react';
+import { LogOut, Settings, User, Plus, Users, Terminal } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 interface HeaderProps {
@@ -17,30 +17,27 @@ export const Header: React.FC<HeaderProps> = ({ onNewProjectClick }) => {
   const isOnCommunity = location.pathname === '/community';
 
   return (
-    <header className="bg-white border-b border-gray-200 px-6 py-4">
-      <div className="flex items-center justify-between">
+    <header className="app-header">
+      <div className="header-content">
         <div className="flex items-center space-x-4">
           <button
             onClick={() => navigate('/')}
-            className="text-2xl font-bold text-gray-900 hover:text-blue-600 transition-colors"
+            className="flex items-center space-x-2 hover:text-primary transition-colors"
           >
-            VibeLab
+            <Terminal className="w-6 h-6 text-primary" />
+            <span className="header-title">VibeLab</span>
           </button>
           {currentProject && !isOnCommunity && (
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-foreground-dim font-mono">
               / {currentProject.name}
             </div>
           )}
         </div>
         
-        <div className="flex items-center space-x-4">
+        <div className="header-nav">
           <button
             onClick={() => navigate('/community')}
-            className={`inline-flex items-center px-3 py-2 border text-sm font-medium rounded-md transition-colors ${
-              isOnCommunity
-                ? 'border-blue-300 text-blue-700 bg-blue-50'
-                : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
-            }`}
+            className={`nav-link ${isOnCommunity ? 'nav-link-active' : ''}`}
           >
             <Users className="w-4 h-4 mr-2" />
             Community
@@ -48,26 +45,26 @@ export const Header: React.FC<HeaderProps> = ({ onNewProjectClick }) => {
           
           <button
             onClick={onNewProjectClick}
-            className="btn btn-primary"
+            className="btn-primary"
           >
-            <Plus className="btn-icon" />
+            <Plus className="w-4 h-4 mr-2" />
             New Project
           </button>
           
-          <div className="flex items-center space-x-2 text-sm text-gray-600">
+          <div className="flex items-center space-x-2 text-sm text-foreground-dim font-mono">
             <User className="w-4 h-4" />
             <span>{user?.name || user?.email}</span>
           </div>
           
-          <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+          <button className="p-2 text-foreground-dim hover:text-foreground transition-colors">
             <Settings className="w-5 h-5" />
           </button>
           
           <button
             onClick={signOut}
-            className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+            className="p-2 text-foreground-dim hover:text-foreground transition-colors"
           >
-            <LogOut className="w-5 h-5" />
+            <LogOut className="w-5 h-5"  />
           </button>
         </div>
       </div>

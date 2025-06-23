@@ -27,15 +27,15 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({ title, type, summary, on
   return (
     <button
       onClick={onClick}
-      className={`w-full h-full flex flex-col items-start p-6 bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer text-left group`}
+      className="module-card"
     >
-      <div className={`rounded-full mb-4 transition-colors duration-200`}>
-        <IconComponent className="w-6 h-6" />
+      <div className="card-header">
+        <IconComponent className="module-icon" />
       </div>
-      <h3 className="text-xl font-semibold text-gray-900 mb-2">
+      <h3 className="module-title">
         {type === 'prd' ? title.toUpperCase() : title}
       </h3>
-      <p className="text-gray-600 text-sm flex-1">{summary}</p>
+      <p className="module-summary">{summary}</p>
     </button>
   );
 };

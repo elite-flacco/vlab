@@ -34,19 +34,19 @@ export const ModuleContainer: React.FC<ModuleContainerProps> = ({
   isMaximized = false,
 }) => {
   return (
-    <div className={`h-full border-2 rounded-lg shadow-sm hover:shadow-md transition-shadow`}>
+    <div className="h-full terminal-window shadow-lg hover:shadow-primary/10 transition-shadow">
       {/* Header */}
-      <div className="flex items-center justify-between p-3 border-b border-gray-200 bg-white rounded-t-lg">
+      <div className="terminal-header">
         <div className="flex items-center space-x-2">
           <span className="text-lg">{getModuleIcon(type)}</span>
-          <h3 className="font-semibold text-gray-900 text-sm">{title}</h3>
+          <h3 className="font-semibold text-foreground text-sm font-mono">{title}</h3>
         </div>
         
         <div className="flex items-center space-x-1">
           {onMaximize && (
             <button
               onClick={onMaximize}
-              className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
+              className="p-1 text-foreground-dim hover:text-foreground hover:bg-secondary/50 rounded transition-colors"
               title={isMaximized ? 'Minimize' : 'Maximize'}
             >
               {isMaximized ? (
@@ -59,7 +59,7 @@ export const ModuleContainer: React.FC<ModuleContainerProps> = ({
           {onSettings && (
             <button
               onClick={onSettings}
-              className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
+              className="p-1 text-foreground-dim hover:text-foreground hover:bg-secondary/50 rounded transition-colors"
               title="Module Settings"
             >
               <Settings className="w-4 h-4" />
@@ -68,7 +68,7 @@ export const ModuleContainer: React.FC<ModuleContainerProps> = ({
           {onClose && (
             <button
               onClick={onClose}
-              className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+              className="p-1 text-foreground-dim hover:text-red-400 hover:bg-red-500/10 rounded transition-colors"
               title="Close Module"
             >
               <X className="w-4 h-4" />
