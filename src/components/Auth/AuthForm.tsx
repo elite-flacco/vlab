@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuthStore } from '../../stores/authStore';
+import { ErrorMessage } from './ErrorMessage';
 import { Eye, EyeOff } from 'lucide-react';
 
 export const AuthForm: React.FC = () => {
@@ -31,6 +32,22 @@ export const AuthForm: React.FC = () => {
     }));
   };
 
+  const handleSwitchToLogin = () => {
+    setIsSignUp(false);
+    clearError();
+    setFormData({ email: formData.email, password: '', name: '' });
+  };
+
+  const handleRetry = () => {
+    clearError();
+  };
+
+  const handleModeSwitch = () => {
+    setIsSignUp(!isSignUp);
+    clearError();
+    setFormData({ email: '', password: '', name: '' });
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
@@ -59,6 +76,7 @@ export const AuthForm: React.FC = () => {
                   onChange={handleInputChange}
                   className="form-input"
                   placeholder="Enter your full name"
+                  aria-label="Full name"
                 />
               </div>
             )}
@@ -76,6 +94,7 @@ export const AuthForm: React.FC = () => {
                 onChange={handleInputChange}
                 className="form-input"
                 placeholder="Enter your email"
+                aria-label="Email address"
               />
             </div>
             
@@ -93,11 +112,13 @@ export const AuthForm: React.FC = () => {
                   onChange={handleInputChange}
                   className="form-input pr-10"
                   placeholder="Enter your password"
+                  aria-label="Password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
                     <EyeOff className="h-4 w-4 text-gray-400" />
@@ -109,10 +130,13 @@ export const AuthForm: React.FC = () => {
             </div>
           </div>
 
+          {/* Enhanced Error Display */}
           {error && (
-            <div className="alert alert-error">
-              {error}
-            </div>
+            <ErrorMessage
+              error={error}
+              onRetry={handleRetry}
+              onSwitchToLogin={isSignUp ? handleSwitchToLogin : undefined}
+            />
           )}
 
           <div>
@@ -120,6 +144,7 @@ export const AuthForm: React.FC = () => {
               type="submit"
               disabled={loading}
               className="btn btn-primary btn-full"
+              aria-label={isSignUp ? 'Create account' : 'Sign in'}
             >
               {loading ? 'Loading...' : (isSignUp ? 'Sign up' : 'Sign in')}
             </button>
@@ -128,11 +153,9 @@ export const AuthForm: React.FC = () => {
           <div className="text-center">
             <button
               type="button"
-              onClick={() => {
-                setIsSignUp(!isSignUp);
-                clearError();
-              }}
+              onClick={handleModeSwitch}
               className="text-blue-600 hover:text-blue-500 text-sm"
+              aria-label={isSignUp ? 'Switch to login' : 'Switch to sign up'}
             >
               {isSignUp 
                 ? 'Already have an account? Sign in' 

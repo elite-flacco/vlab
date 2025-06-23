@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
+import { ErrorMessage } from '../components/Auth/ErrorMessage';
 import { Terminal, Code, Zap, Shield, ArrowRight, Eye, EyeOff } from 'lucide-react';
 
 export const Landing: React.FC = () => {
@@ -62,6 +63,22 @@ export const Landing: React.FC = () => {
       ...prev,
       [e.target.name]: e.target.value,
     }));
+  };
+
+  const handleSwitchToLogin = () => {
+    setIsSignUp(false);
+    clearError();
+    setFormData({ email: formData.email, password: '', name: '' });
+  };
+
+  const handleRetry = () => {
+    clearError();
+  };
+
+  const handleModeSwitch = () => {
+    setIsSignUp(!isSignUp);
+    clearError();
+    setFormData({ email: '', password: '', name: '' });
   };
 
   const features = [
@@ -208,6 +225,7 @@ export const Landing: React.FC = () => {
                       className="w-full px-4 py-3 bg-background border border-foreground-dim/30 rounded-lg focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-mono"
                       placeholder="Enter your name"
                       required={isSignUp}
+                      aria-label="Full name"
                     />
                   </div>
                 )}
@@ -224,6 +242,7 @@ export const Landing: React.FC = () => {
                     className="w-full px-4 py-3 bg-background border border-foreground-dim/30 rounded-lg focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-mono"
                     placeholder="user@domain.com"
                     required
+                    aria-label="Email address"
                   />
                 </div>
 
@@ -240,29 +259,34 @@ export const Landing: React.FC = () => {
                       className="w-full px-4 py-3 pr-12 bg-background border border-foreground-dim/30 rounded-lg focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-mono"
                       placeholder="••••••••"
                       required
+                      aria-label="Password"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 transform -translate-y-1/2 text-foreground-dim hover:text-foreground transition-colors"
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
                     >
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
                   </div>
                 </div>
 
+                {/* Enhanced Error Display */}
                 {error && (
-                  <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
-                    <p className="text-red-400 text-sm font-mono">
-                      Error: {error}
-                    </p>
-                  </div>
+                  <ErrorMessage
+                    error={error}
+                    onRetry={handleRetry}
+                    onSwitchToLogin={isSignUp ? handleSwitchToLogin : undefined}
+                    className="mt-4"
+                  />
                 )}
 
                 <button
                   type="submit"
                   disabled={loading}
                   className="w-full py-3 bg-primary text-background font-semibold rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:shadow-lg hover:shadow-primary/25"
+                  aria-label={isSignUp ? 'Create account' : 'Sign in'}
                 >
                   {loading ? (
                     <span className="flex items-center justify-center">
@@ -277,12 +301,9 @@ export const Landing: React.FC = () => {
 
               <div className="mt-6 text-center">
                 <button
-                  onClick={() => {
-                    setIsSignUp(!isSignUp);
-                    clearError();
-                    setFormData({ email: '', password: '', name: '' });
-                  }}
+                  onClick={handleModeSwitch}
                   className="text-foreground-dim hover:text-primary transition-colors text-sm"
+                  aria-label={isSignUp ? 'Switch to login' : 'Switch to sign up'}
                 >
                   {isSignUp 
                     ? '// Already have an account? Login' 
