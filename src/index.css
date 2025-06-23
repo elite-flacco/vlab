@@ -341,7 +341,7 @@
   }
   
   .module-card {
-    @apply card cursor-pointer group;
+    @apply card cursor-pointer;
   }
   
   .module-card:hover {
