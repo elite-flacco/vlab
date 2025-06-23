@@ -182,6 +182,11 @@
   .modal-actions .btn {
     @apply flex-1 justify-center;
   }
+
+  /* Glow effect for primary text */
+  .glow {
+    text-shadow: 0 0 10px rgba(0, 255, 159, 0.3);
+  }
 }
 
 /* Optional scanline effect */

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
-import { AuthForm } from './components/Auth/AuthForm';
+import { Landing } from './pages/Landing';
 import { AppLayout } from './components/Layout/AppLayout';
 import { Dashboard } from './pages/Dashboard';
 import { Workspace } from './pages/Workspace';
@@ -23,35 +23,39 @@ function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading VibeLab...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-foreground-dim font-mono">Loading VibeLab...</p>
         </div>
       </div>
     );
   }
 
-  if (!user) {
-    return <AuthForm />;
-  }
-
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<AppLayout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="community" element={<Community />} />
-          <Route path="kickoff/:projectId" element={<KickoffFlow />} />
-          <Route path="workspace/:projectId" element={<Workspace />} />
-          <Route path="workspace/:projectId/prd" element={<PRDDetailView />} />
-          <Route path="workspace/:projectId/roadmap" element={<RoadmapDetailView />} />
-          <Route path="workspace/:projectId/tasks" element={<TasksDetailView />} />
-          <Route path="workspace/:projectId/scratchpad" element={<ScratchpadDetailView />} />
-          <Route path="workspace/:projectId/prompts" element={<PromptsDetailView />} />
-          <Route path="workspace/:projectId/secrets" element={<SecretsDetailView />} />
-        </Route>
-        <Route path="*" element={<Navigate to="/" replace />} />
+        {/* Landing page for unauthenticated users */}
+        {!user ? (
+          <Route path="*" element={<Landing />} />
+        ) : (
+          <>
+            {/* Authenticated routes */}
+            <Route path="/" element={<AppLayout />}>
+              <Route index element={<Dashboard />} />
+              <Route path="community" element={<Community />} />
+              <Route path="kickoff/:projectId" element={<KickoffFlow />} />
+              <Route path="workspace/:projectId" element={<Workspace />} />
+              <Route path="workspace/:projectId/prd" element={<PRDDetailView />} />
+              <Route path="workspace/:projectId/roadmap" element={<RoadmapDetailView />} />
+              <Route path="workspace/:projectId/tasks" element={<TasksDetailView />} />
+              <Route path="workspace/:projectId/scratchpad" element={<ScratchpadDetailView />} />
+              <Route path="workspace/:projectId/prompts" element={<PromptsDetailView />} />
+              <Route path="workspace/:projectId/secrets" element={<SecretsDetailView />} />
+            </Route>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </>
+        )}
       </Routes>
     </Router>
   );
