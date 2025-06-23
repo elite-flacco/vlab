@@ -88,6 +88,58 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
     }
   };
 
+  const getCategoryBadge = (category: string, tool?: string, tipCategory?: string) => {
+    const badges = [];
+    
+    // Main category badge
+    if (category === 'tool') {
+      badges.push(
+        <span key="category" className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 border border-blue-200">
+          🛠️ Tool
+        </span>
+      );
+    } else {
+      badges.push(
+        <span key="category" className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 border border-green-200">
+          💡 Tip
+        </span>
+      );
+    }
+    
+    // Subcategory badge
+    if (category === 'tool' && tool) {
+      const toolLabels: Record<string, string> = {
+        'bolt': 'Bolt',
+        'loveable': 'Loveable',
+        'replit': 'Replit',
+        'v0': 'V0',
+        'other': 'Other'
+      };
+      badges.push(
+        <span key="tool" className="inline-flex items-center px-2 py-1 bg-purple-100 text-purple-800 border border-purple-200 rounded-full text-xs font-medium">
+          {toolLabels[tool] || tool}
+        </span>
+      );
+    }
+    
+    if (category === 'tip' && tipCategory) {
+      const categoryLabels: Record<string, string> = {
+        'prompt_tricks': 'Prompt Tricks',
+        'integrations': 'Integrations',
+        'authentication': 'Authentication',
+        'payment': 'Payment',
+        'other': 'Other'
+      };
+      badges.push(
+        <span key="tip-category" className="inline-flex items-center px-2 py-1 bg-orange-100 text-orange-800 border border-orange-200 rounded-full text-xs font-medium">
+          {categoryLabels[tipCategory] || tipCategory}
+        </span>
+      );
+    }
+    
+    return badges;
+  };
+
   const renderComment = (comment: Comment, depth = 0) => {
     const isReplying = replyingTo === comment.id;
     
@@ -211,7 +263,12 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">Post Details</h2>
+          <div className="flex items-center space-x-3">
+            <h2 className="text-xl font-semibold text-gray-900">Post Details</h2>
+            <div className="flex items-center space-x-2">
+              {getCategoryBadge(post.category, post.tool, post.tip_category)}
+            </div>
+          </div>
           <button
             onClick={onClose}
             className="p-2 text-gray-400 hover:text-gray-600 transition-colors"

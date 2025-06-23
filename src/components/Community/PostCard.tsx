@@ -119,59 +119,63 @@ export const PostCard: React.FC<PostCardProps> = ({
     return content;
   };
 
-  const getCategoryColor = (category: string) => {
-    return category === 'tool' 
-      ? 'bg-blue-100 text-blue-800 border-blue-200'
-      : 'bg-green-100 text-green-800 border-green-200';
+  const getCategoryBadge = () => {
+    if (post.category === 'tool') {
+      return (
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 border border-blue-200">
+          🛠️ Tool
+        </span>
+      );
+    } else {
+      return (
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 border border-green-200">
+          💡 Tip
+        </span>
+      );
+    }
   };
 
-  const getCategoryIcon = (category: string) => {
-    return category === 'tool' ? '🛠️' : '💡';
-  };
-
-  const getToolLabel = (tool: string) => {
-    const toolLabels: Record<string, string> = {
-      'bolt': 'Bolt',
-      'loveable': 'Loveable',
-      'replit': 'Replit',
-      'v0': 'V0',
-      'other': 'Other'
-    };
-    return toolLabels[tool] || tool;
-  };
-
-  const getTipCategoryLabel = (tipCategory: string) => {
-    const categoryLabels: Record<string, string> = {
-      'prompt_tricks': 'Prompt Tricks',
-      'integrations': 'Integrations',
-      'authentication': 'Authentication',
-      'payment': 'Payment',
-      'other': 'Other'
-    };
-    return categoryLabels[tipCategory] || tipCategory;
+  const getSubcategoryBadge = () => {
+    if (post.category === 'tool' && post.tool) {
+      const toolLabels: Record<string, string> = {
+        'bolt': 'Bolt',
+        'loveable': 'Loveable',
+        'replit': 'Replit',
+        'v0': 'V0',
+        'other': 'Other'
+      };
+      return (
+        <span className="inline-flex items-center px-2 py-1 bg-purple-100 text-purple-800 border border-purple-200 rounded-full text-xs font-medium">
+          {toolLabels[post.tool] || post.tool}
+        </span>
+      );
+    }
+    
+    if (post.category === 'tip' && post.tip_category) {
+      const categoryLabels: Record<string, string> = {
+        'prompt_tricks': 'Prompt Tricks',
+        'integrations': 'Integrations',
+        'authentication': 'Authentication',
+        'payment': 'Payment',
+        'other': 'Other'
+      };
+      return (
+        <span className="inline-flex items-center px-2 py-1 bg-orange-100 text-orange-800 border border-orange-200 rounded-full text-xs font-medium">
+          {categoryLabels[post.tip_category] || post.tip_category}
+        </span>
+      );
+    }
+    
+    return null;
   };
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-      {/* Header */}
+      {/* Header with Category Badges */}
       <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center space-x-3 flex-wrap">
-          <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getCategoryColor(post.category)}`}>
-            {getCategoryIcon(post.category)} {post.category}
-          </span>
-          
-          {/* Tool/Category specific badge */}
-          {post.category === 'tool' && post.tool && (
-            <span className="px-2 py-1 bg-purple-100 text-purple-800 border border-purple-200 rounded-full text-xs font-medium">
-              {getToolLabel(post.tool)}
-            </span>
-          )}
-          
-          {post.category === 'tip' && post.tip_category && (
-            <span className="px-2 py-1 bg-orange-100 text-orange-800 border border-orange-200 rounded-full text-xs font-medium">
-              {getTipCategoryLabel(post.tip_category)}
-            </span>
-          )}
+        <div className="flex items-center space-x-3 flex-wrap gap-2">
+          {getCategoryBadge()}
+          {getSubcategoryBadge()}
           
           {post.tags && post.tags.length > 0 && (
             <div className="flex items-center space-x-1">
