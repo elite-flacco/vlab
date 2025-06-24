@@ -28,6 +28,21 @@ const TAG_OPTIONS = [
   'AI Discussion'
 ];
 
+const getTagBadgeClass = (tag: string) => {
+  switch (tag.toLowerCase()) {
+    case 'project notes':
+      return 'badge-primary'; // Greenish
+    case 'ideas':
+      return 'badge-info'; // Bluish
+    case 'links & resources':
+      return 'badge-purple'; // Purplish
+    case 'ai discussion':
+      return 'badge-secondary'; // Dark gray/light gray
+    default:
+      return 'badge-secondary'; // Fallback for any other tags
+  }
+};
+
 export const ScratchpadDetailView: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
@@ -142,16 +157,6 @@ export const ScratchpadDetailView: React.FC = () => {
     return matchesSearch && matchesTag;
   });
 
-  const colorOptions = [
-    { value: '#fef3c7', label: 'Yellow', class: 'bg-yellow-200' },
-    { value: '#fecaca', label: 'Red', class: 'bg-red-200' },
-    { value: '#bbf7d0', label: 'Green', class: 'bg-green-200' },
-    { value: '#bfdbfe', label: 'Blue', class: 'bg-blue-200' },
-    { value: '#e9d5ff', label: 'Purple', class: 'bg-purple-200' },
-    { value: '#fed7aa', label: 'Orange', class: 'bg-orange-200' },
-    { value: '#f3f4f6', label: 'Gray', class: 'bg-gray-200' },
-  ];
-
   if (loading) {
     return (
       <div className="max-w-6xl mx-auto">
@@ -159,7 +164,7 @@ export const ScratchpadDetailView: React.FC = () => {
         <ModuleContainer title="Scratchpad" type="scratchpad">
           <div className="h-full flex items-center justify-center">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 mx-auto"></div>
+              <div className="loading-spinner"></div>
               <p className="mt-4 text-gray-600">Loading notes...</p>
             </div>
           </div>
@@ -173,8 +178,8 @@ export const ScratchpadDetailView: React.FC = () => {
       <div className="max-w-6xl mx-auto">
         <BackButton onClick={handleReturnToWorkspace} />
         <ModuleContainer title="Scratchpad" type="scratchpad">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="text-sm text-red-600">{error}</p>
+          <div className="card bg-red-50 border-red-200">
+            <p className="card-content text-red-600">{error}</p>
           </div>
         </ModuleContainer>
       </div>
@@ -189,9 +194,9 @@ export const ScratchpadDetailView: React.FC = () => {
         <ModuleContainer title="Scratchpad" type="scratchpad">
           <div className="h-full flex items-center justify-center py-12">
             <div className="text-center">
-              <StickyNote className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No Notes Yet</h3>
-              <p className="text-gray-600 mb-4 text-sm">
+              <StickyNote className="w-12 h-12 text-foreground-dim/50 mx-auto mb-4" />
+              <h3 className="card-title mb-2">No Notes Yet</h3>
+              <p className="card-content">
                 Create notes to capture ideas and important information.
               </p>
             </div>
@@ -218,16 +223,16 @@ export const ScratchpadDetailView: React.FC = () => {
               })}
               className="btn-add transition-colors mb-6"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-4 h-4 mr-2" />
               <span>Add New Note</span>
             </button>
           )}
 
           {/* New Note Form - Immediately displayed when New Note is clicked */}
           {newNote && (
-            <div className="new-form">
+            <div className="card p-4 mb-6">
               <div className="flex items-center justify-between mb-4">
-                <h4 className="flex items-center">
+                <h4 className="card-title flex items-center">
                   <Plus className="w-5 h-5 mr-2" />
                   Add New Note
                 </h4>
@@ -238,7 +243,7 @@ export const ScratchpadDetailView: React.FC = () => {
                   <textarea
                     value={newNote.content || ''}
                     onChange={(e) => setNewNote(prev => ({ ...prev, content: e.target.value }))}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-1text-sm resize-none"
+                    className="form-textarea"
                     rows={6}
                     placeholder="Start writing your note here..."
                     autoFocus
@@ -247,11 +252,11 @@ export const ScratchpadDetailView: React.FC = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Tag</label>
+                    <label className="block text-sm font-medium text-foreground mb-2">Tag</label>
                     <select
                       value={newNote.tags?.[0] || TAG_OPTIONS[0]}
                       onChange={(e) => setNewNote(prev => ({ ...prev, tags: [e.target.value] }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 text-sm"
+                      className="form-select"
                     >
                       {TAG_OPTIONS.map((tag) => (
                         <option key={tag} value={tag}>
@@ -261,15 +266,15 @@ export const ScratchpadDetailView: React.FC = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Options</label>
+                    <label className="block text-sm font-medium text-foreground mb-2">Options</label>
                     <label className="flex items-center space-x-2 text-sm">
                       <input
                         type="checkbox"
                         checked={newNote.is_pinned || false}
                         onChange={(e) => setNewNote(prev => ({ ...prev, is_pinned: e.target.checked }))}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        className="rounded border-foreground-dim/20 text-primary focus:ring-1"
                       />
-                      <span className="text-gray-700">Pin this note</span>
+                      <span>Pin this note</span>
                     </label>
                   </div>
                 </div>
@@ -295,7 +300,7 @@ export const ScratchpadDetailView: React.FC = () => {
                   <button
                     onClick={() => setNewNote(null)}
                     disabled={saving}
-                    className="inline-flex items-center px-3 py-1 btn-outline"
+                    className="btn-outline"
                   >
                     <X className="w-4 h-4 mr-2" />
                     Cancel
@@ -305,34 +310,8 @@ export const ScratchpadDetailView: React.FC = () => {
             </div>
           )}
           <div className="flex items-center space-x-3 mb-6">
-            {/* Tags Filter */}
-            {allTags.length > 0 && (
-              <div className="flex items-center space-x-2 overflow-x-auto">
-                <button
-                  onClick={() => setSelectedTag(null)}
-                  className={`px-3 py-1 text-xs rounded-md whitespace-nowrap transition-colors ${!selectedTag
-                    ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-300'
-                    }`}
-                >
-                  All Notes
-                </button>
-                {allTags.map((tag) => (
-                  <button
-                    key={tag}
-                    onClick={() => setSelectedTag(tag)}
-                    className={`px-3 py-1 text-xs rounded-md whitespace-nowrap transition-colors ${selectedTag === tag
-                      ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-300'
-                      }`}
-                  >
-                    {tag}
-                  </button>
-                ))}
-              </div>
-            )}
             {/* Search and Filter Controls */}
-            <div className="relative flex-1">
+            <div className="relative">
               <Search className="search-icon" />
               <input
                 type="text"
@@ -342,6 +321,32 @@ export const ScratchpadDetailView: React.FC = () => {
                 className="search-input"
               />
             </div>
+            {/* Tags Filter */}
+            {allTags.length > 0 && (
+              <div className="flex items-center space-x-2 overflow-x-auto">
+                <button
+                  onClick={() => setSelectedTag(null)}
+                  className={`${!selectedTag
+                    ? 'filter-button-active'
+                    : 'filter-button'
+                    }`}
+                >
+                  All Notes
+                </button>
+                {allTags.map((tag) => (
+                  <button
+                    key={tag}
+                    onClick={() => setSelectedTag(tag)}
+                    className={`${selectedTag === tag
+                      ? 'filter-button-active'
+                      : 'filter-button'
+                      }`}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
           {/* Notes List */}
           <div className="flex-1 overflow-y-auto">
@@ -352,12 +357,12 @@ export const ScratchpadDetailView: React.FC = () => {
               {filteredNotes.map((note) => (
                 <div
                   key={note.id}
-                  className="relative bg-white border rounded-md shadow-lg hover:shadow-md transition-all duration-200 group"
+                  className="card"
                 >
                   {editingNoteId === note.id ? (
                     // Edit Form
                     <div className="p-4">
-                      <div className="space-y-4">
+                      <div className="space-y-3">
                         <div>
                           <textarea
                             value={note.content}
@@ -367,7 +372,7 @@ export const ScratchpadDetailView: React.FC = () => {
                               );
                               setNotes(updatedNotes);
                             }}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-1 text-sm resize-none"
+                            className="form-textarea"
                             rows={6}
                             placeholder="Note content..."
                             autoFocus
@@ -376,7 +381,7 @@ export const ScratchpadDetailView: React.FC = () => {
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Tag</label>
+                            <label className="block text-xs font-medium text-foreground mb-2">Tag</label>
                             <select
                               value={note.tags?.[0] || TAG_OPTIONS[0]}
                               onChange={(e) => {
@@ -385,7 +390,7 @@ export const ScratchpadDetailView: React.FC = () => {
                                 );
                                 setNotes(updatedNotes);
                               }}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 text-sm"
+                              className="form-select"
                             >
                               {TAG_OPTIONS.map((tag) => (
                                 <option key={tag} value={tag}>
@@ -396,8 +401,8 @@ export const ScratchpadDetailView: React.FC = () => {
                           </div>
 
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Options</label>
-                            <label className="flex items-center space-x-2 text-sm">
+                            <label className="block text-xs font-medium text-foreground mb-2">Options</label>
+                            <label className="flex items-center space-x-2 text-xs">
                               <input
                                 type="checkbox"
                                 checked={note.is_pinned}
@@ -407,9 +412,9 @@ export const ScratchpadDetailView: React.FC = () => {
                                   );
                                   setNotes(updatedNotes);
                                 }}
-                                className="rounded border-gray-300 text-yellow-600 focus:ring-yellow-500"
+                                className="rounded border-foreground-dim/20 text-yellow-600 focus:ring-yellow-500"
                               />
-                              <span className="text-gray-700">Pin this note</span>
+                              <span className="text-foreground">Pin this note</span>
                             </label>
                           </div>
                         </div>
@@ -445,7 +450,7 @@ export const ScratchpadDetailView: React.FC = () => {
                     </div>
                   ) : (
                     // Display Mode with Direct Edit/Delete Icons
-                    <div className="p-4">
+                    <div>
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center space-x-2">
                           {note.is_pinned && (
@@ -454,9 +459,7 @@ export const ScratchpadDetailView: React.FC = () => {
                           {note.tags && note.tags.length > 0 && (
                             <div className="flex items-center space-x-1">
                               <Tag className="w-3 h-3 text-gray-500" />
-                              <span className="text-xs bg-yellow-200 text-yellow-800 px-2 py-1 rounded-full font-medium">
-                                {note.tags[0]}
-                              </span>
+                              <span className={`${getTagBadgeClass(note.tags[0])}`}>{note.tags[0]}</span>
                             </div>
                           )}
                         </div>
@@ -465,31 +468,31 @@ export const ScratchpadDetailView: React.FC = () => {
                         <div className="flex items-center space-x-1">
                           <button
                             onClick={() => setEditingNoteId(note.id)}
-                            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-white hover:bg-opacity-50 rounded-lg transition-all"
+                            className="p-1.5 text-foreground-dim hover:text-primary hover:bg-foreground-dim/10 rounded-lg transition-colors"
                             title="Edit note"
                           >
-                            <Edit3 className="w-4 h-4" />
+                            <Edit3 className="w-3 h-3" />
                           </button>
                           <button
                             onClick={() => handleDeleteNote(note.id)}
                             disabled={saving}
-                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-white hover:bg-opacity-50 rounded-lg transition-all disabled:opacity-50"
+                            className="p-1.5 text-foreground-dim hover:text-red-600 hover:bg-foreground-dim/10 rounded-lg transition-colors disabled:opacity-50"
                             title="Delete note"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-3 h-3" />
                           </button>
                         </div>
                       </div>
 
                       <div className="pr-2">
                         <p
-                          className="text-gray-800 leading-relaxed whitespace-pre-wrap mb-3"
+                          className="card-content leading-relaxed whitespace-pre-wrap mb-3"
                           style={{ fontSize: `${note.font_size}px` }}
                         >
                           {note.content}
                         </p>
 
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-foreground-dim">
                           {format(new Date(note.created_at), 'MMM d, h:mm a')}
                         </div>
                       </div>
@@ -501,9 +504,9 @@ export const ScratchpadDetailView: React.FC = () => {
               {/* Empty state when filtered */}
               {filteredNotes.length === 0 && notes.length > 0 && (
                 <div className="text-center py-12">
-                  <Search className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No notes found</h3>
-                  <p className="text-gray-500">
+                  <Search className="w-12 h-12 text-foreground-dim/50 mx-auto mb-4" />
+                  <h3 className="card-title mb-2">No notes found</h3>
+                  <p className="card-content">
                     {searchTerm ? `No notes match "${searchTerm}"` : `No notes with tag "${selectedTag}"`}
                   </p>
                 </div>
@@ -512,12 +515,12 @@ export const ScratchpadDetailView: React.FC = () => {
           </div>
 
           {/* Footer */}
-          <div className="mt-6 flex items-center justify-between pt-4 border-t border-gray-200">
-            <div className="text-sm text-gray-500">
+          <div className="mt-6 flex items-center justify-between pt-4 border-t border-foreground-dim/20">
+            <div className="text-sm text-foreground-dim">
               {filteredNotes.length} of {notes.length} notes
               {selectedTag && (
                 <span className="ml-2">
-                  • Filtered by: <span className="font-medium">{selectedTag}</span>
+                  • Filtered by: <span className="font-medium text-foreground">{selectedTag}</span>
                 </span>
               )}
             </div>

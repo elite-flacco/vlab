@@ -175,24 +175,24 @@ export const PRDDetailView: React.FC = () => {
       .split('\n')
       .map((line, index) => {
         if (line.startsWith('# ')) {
-          return <h1 key={index} className="text-xl font-bold text-gray-900 mb-3">{line.slice(2)}</h1>;
+          return <h1 key={index} className="h1">{line.slice(2)}</h1>;
         }
         if (line.startsWith('## ')) {
-          return <h2 key={index} className="text-lg font-semibold text-gray-900 mb-2 mt-4">{line.slice(3)}</h2>;
+          return <h2 key={index} className="h2">{line.slice(3)}</h2>;
         }
         if (line.startsWith('### ')) {
-          return <h3 key={index} className="text-base font-medium text-gray-900 mb-2 mt-3">{line.slice(4)}</h3>;
+          return <h3 key={index} className="h3">{line.slice(4)}</h3>;
         }
         if (line.startsWith('- ')) {
-          return <li key={index} className="text-gray-700 mb-1 ml-4">{line.slice(2)}</li>;
+          return <li key={index} className="text-foreground-dim mb-1 ml-4">{line.slice(2)}</li>;
         }
         if (line.startsWith('**') && line.endsWith('**')) {
-          return <p key={index} className="font-semibold text-gray-900 mb-2">{line.slice(2, -2)}</p>;
+          return <p key={index} className="font-semibold text-foreground mb-2">{line.slice(2, -2)}</p>;
         }
         if (line.trim() === '') {
           return <br key={index} />;
         }
-        return <p key={index} className="text-gray-700 mb-2 text-sm leading-relaxed">{line}</p>;
+        return <p key={index} className="text-foreground-dim mb-2 text-sm leading-relaxed">{line}</p>;
       });
   };
 
@@ -205,7 +205,7 @@ export const PRDDetailView: React.FC = () => {
         <ModuleContainer title="PRD" type="prd">
           <div className="h-full flex items-center justify-center">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+              <div className="loading-spinner"></div>
               <p className="mt-4 text-gray-600">Loading PRDs...</p>
             </div>
           </div>
@@ -266,7 +266,7 @@ export const PRDDetailView: React.FC = () => {
                     value={selectedVersionData?.version_number || ''}
                     onChange={(e) => handleVersionSelect(Number(e.target.value))}
                     disabled={isEditing}
-                    className="text-sm border border-gray-300 rounded-md px-2 py-1 pr-8 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 appearance-none"
+                    className="form-select"
                   >
                     {allPRDVersions.map((version) => (
                       <option key={version.version_number} value={version.version_number}>
@@ -274,18 +274,17 @@ export const PRDDetailView: React.FC = () => {
                       </option>
                     ))}
                   </select>
-                  <ChevronDown className="w-4 h-4 absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
                 </div>
               )}
 
               {selectedPRD?.ai_generated && (
-                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                <span className="filter-button-active">
                   AI Generated
                 </span>
               )}
 
               {!isCurrentVersion && (
-                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                <span className="filter-button">
                   Historical Version
                 </span>
               )}
@@ -296,7 +295,7 @@ export const PRDDetailView: React.FC = () => {
               {selectedPRD && (
                 <button
                   onClick={() => setShowVersionHistory(true)}
-                  className="inline-flex items-center px-3 py-1 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors text-sm"
+                  className="btn-secondary"
                 >
                   <History className="w-3 h-3 mr-1" />
                   History
@@ -308,7 +307,7 @@ export const PRDDetailView: React.FC = () => {
                   <button
                     onClick={handleSavePRD}
                     disabled={saving}
-                    className="inline-flex items-center px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
+                    className="btn-primary"
                   >
                     {saving ? (
                       <>
@@ -325,7 +324,7 @@ export const PRDDetailView: React.FC = () => {
                   <button
                     onClick={handleCancelEdit}
                     disabled={saving}
-                    className="inline-flex items-center px-3 py-1 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors text-sm"
+                    className="btn-outline"
                   >
                     <X className="w-3 h-3 mr-1" />
                     Cancel
@@ -335,7 +334,7 @@ export const PRDDetailView: React.FC = () => {
                 <button
                   onClick={() => setIsEditing(true)}
                   disabled={!isCurrentVersion}
-                  className="inline-flex items-center px-3 py-1 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
+                  className="btn-secondary"
                   title={!isCurrentVersion ? 'Can only edit the current version' : 'Edit PRD'}
                 >
                   <Edit3 className="w-3 h-3 mr-1" />
@@ -350,15 +349,15 @@ export const PRDDetailView: React.FC = () => {
             {selectedVersionData && (
               <div className="space-y-4">
                 {/* PRD Meta Info with Version Details */}
-                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <div className="card">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
                     <div className="flex items-center space-x-2">
                       <GitBranch className="w-4 h-4 text-blue-600" />
                       <div>
-                        <p className="text-sm font-medium text-gray-900">
+                        <p className="text-sm font-medium text-foreground">
                           Version {selectedVersionData.version_number}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-foreground-dim">
                           {isCurrentVersion ? 'Current' : 'Historical'}
                         </p>
                       </div>
@@ -366,8 +365,8 @@ export const PRDDetailView: React.FC = () => {
                     <div className="flex items-center space-x-2">
                       <Clock className="w-4 h-4 text-gray-500" />
                       <div>
-                        <p className="text-sm font-medium text-gray-900">Last Modified</p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-sm font-medium text-foreground">Last Modified</p>
+                        <p className="text-xs text-foreground-dim">
                           {format(new Date(selectedVersionData.updated_at || selectedVersionData.created_at), 'MMM d, yyyy h:mm a')}
                         </p>
                       </div>
@@ -375,10 +374,10 @@ export const PRDDetailView: React.FC = () => {
                     <div className="flex items-center space-x-2">
                       <User className="w-4 h-4 text-gray-500" />
                       <div>
-                        <p className="text-sm font-medium text-gray-900">
+                        <p className="text-sm font-medium text-foreground">
                           {isCurrentVersion ? 'Updated By' : 'Created By'}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-foreground-dim">
                           {(selectedVersionData.updated_by_profile?.name || selectedVersionData.created_by_profile?.name) || 'Unknown'}
                         </p>
                       </div>
@@ -386,11 +385,11 @@ export const PRDDetailView: React.FC = () => {
                   </div>
                   
                   {selectedVersionData.change_description && (
-                    <div className="mt-3 pt-3 border-t border-gray-200">
-                      <p className="text-xs font-medium text-gray-700 mb-1">
+                    <div className="mt-3 pt-3 border-t border-foreground-dim/20">
+                      <p className="text-xs font-medium text-foreground mb-1">
                         {isCurrentVersion ? 'Latest Changes:' : 'Changes in this version:'}
                       </p>
-                      <p className="text-xs text-gray-600">{selectedVersionData.change_description}</p>
+                      <p className="text-xs text-foreground-dim">{selectedVersionData.change_description}</p>
                     </div>
                   )}
                 </div>
@@ -398,59 +397,59 @@ export const PRDDetailView: React.FC = () => {
                 {/* PRD Title */}
                 {isEditing ? (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
+                    <label className="block text-sm font-medium text-foreground mb-2">Title</label>
                     <input
                       type="text"
                       value={editedPRD?.title || ''}
                       onChange={(e) => setEditedPRD(prev => ({ ...prev, title: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-semibold"
+                      className="form-input"
                       placeholder="PRD Title"
                     />
                   </div>
                 ) : (
-                  <h1 className="text-2xl font-bold text-gray-900">{selectedVersionData.title}</h1>
+                  <h1 className="h1">{selectedVersionData.title}</h1>
                 )}
 
                 {/* Change Description (only when editing) */}
                 {isEditing && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-foreground mb-2">
                       Change Description (Optional)
                     </label>
                     <input
                       type="text"
                       value={editedPRD?.change_description || ''}
                       onChange={(e) => setEditedPRD(prev => ({ ...prev, change_description: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                      className="form-input"
                       placeholder="Briefly describe what changed in this version..."
                     />
                   </div>
                 )}
 
                 {/* PRD Content */}
-                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                <div className="card">
                   {isEditing ? (
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Content</label>
+                      <label className="block text-sm font-medium text-foreground mb-2">Content</label>
                       <textarea
                         value={editedPRD?.content || ''}
                         onChange={(e) => setEditedPRD(prev => ({ ...prev, content: e.target.value }))}
-                        className="w-full h-96 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm resize-none"
+                        className="form-textarea"
                         placeholder="Edit your PRD content here..."
                       />
-                      <p className="text-xs text-gray-500 mt-2">
+                      <p className="text-xs text-foreground-dim mt-2">
                         Tip: Use markdown formatting (# for headings, - for bullets, **bold**)
                       </p>
                     </div>
                   ) : isPreviewMode ? (
-                    <div className="prose prose-sm max-w-none">
+                    <div className="card-content">
                       {renderMarkdown(selectedVersionData.content)}
                     </div>
                   ) : (
                     <textarea
                       value={selectedVersionData.content}
                       readOnly
-                      className="w-full h-64 p-3 border border-gray-300 rounded-md font-mono text-sm resize-none bg-gray-50"
+                      className="card-content"
                     />
                   )}
                 </div>

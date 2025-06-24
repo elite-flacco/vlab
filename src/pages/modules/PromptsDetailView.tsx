@@ -172,7 +172,7 @@ export const PromptsDetailView: React.FC = () => {
         <ModuleContainer title="Prompts" type="prompts">
           <div className="h-full flex items-center justify-center">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 mx-auto"></div>
+              <div className="loading-spinner"></div>
               <p className="mt-4 text-gray-600">Loading prompts...</p>
             </div>
           </div>
@@ -255,9 +255,9 @@ export const PromptsDetailView: React.FC = () => {
           )}
           {/* New Prompt Form */}
           {newPrompt && (
-            <div className="new-form">
+            <div className="card p-4 mb-6">
               <div className="flex items-center justify-between mb-4">
-                <h4 className="flex items-center">
+                <h4 className="card-title flex items-center">
                   <Plus className="w-5 h-5 mr-2" />
                   Add New Prompt
                 </h4>
@@ -265,23 +265,23 @@ export const PromptsDetailView: React.FC = () => {
               <div className="space-y-3">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Name</label>
+                    <label className="block text-xs font-medium text-foreground mb-1">Name</label>
                     <input
                       type="text"
                       value={newPrompt.name || ''}
                       onChange={(e) => setNewPrompt(prev => ({ ...prev, name: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 text-sm font-medium"
+                      className="form-input"
                       placeholder="Prompt name"
                       autoFocus
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Category</label>
+                    <label className="block text-xs font-medium text-foreground mb-1">Category</label>
                     <select
                       value={newPrompt.category || 'general'}
                       onChange={(e) => setNewPrompt(prev => ({ ...prev, category: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 text-sm"
+                      className="form-select"
                     >
                       {categoryOptions.map((cat) => (
                         <option key={cat} value={cat}>
@@ -293,34 +293,34 @@ export const PromptsDetailView: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Description</label>
+                  <label className="block text-xs font-medium text-foreground mb-1">Description</label>
                   <input
                     type="text"
                     value={newPrompt.description || ''}
                     onChange={(e) => setNewPrompt(prev => ({ ...prev, description: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 text-sm"
+                    className="form-input"
                     placeholder="Brief description of the prompt"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Content</label>
+                  <label className="block text-xs font-medium text-foreground mb-1">Content</label>
                   <textarea
                     value={newPrompt.content || ''}
                     onChange={(e) => setNewPrompt(prev => ({ ...prev, content: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 text-sm font-mono resize-none"
+                    className="form-textarea"
                     rows={6}
                     placeholder="Enter your prompt content here..."
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Tags (comma-separated)</label>
+                  <label className="block text-xs font-medium text-foreground mb-1">Tags (comma-separated)</label>
                   <input
                     type="text"
                     value={formatTagsInput(newPrompt.tags || [])}
                     onChange={(e) => setNewPrompt(prev => ({ ...prev, tags: parseTagsInput(e.target.value) }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 text-sm"
+                    className="form-input"
                     placeholder="ai, coding, documentation"
                   />
                 </div>
@@ -331,9 +331,9 @@ export const PromptsDetailView: React.FC = () => {
                       type="checkbox"
                       checked={newPrompt.is_template || false}
                       onChange={(e) => setNewPrompt(prev => ({ ...prev, is_template: e.target.checked }))}
-                      className="rounded border-gray-300"
+                      className="rounded border-foreground-dim/20"
                     />
-                    <span className="text-gray-700">Mark as template</span>
+                    <span className="text-foreground">Mark as template</span>
                   </label>
                 </div>
 
@@ -370,32 +370,6 @@ export const PromptsDetailView: React.FC = () => {
 
           {!newPrompt && (
             <div className="flex items-center space-x-3 mb-6">
-              {/* Category Filter */}
-              {categories.length > 0 && (
-                <div className="flex items-center space-x-2 overflow-x-auto">
-                  <button
-                    onClick={() => setSelectedCategory(null)}
-                    className={`px-2 py-1 text-xs rounded-md whitespace-nowrap transition-colors ${!selectedCategory
-                      ? 'bg-purple-100 text-purple-800'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                      }`}
-                  >
-                    All
-                  </button>
-                  {categories.map((category) => (
-                    <button
-                      key={category}
-                      onClick={() => setSelectedCategory(category)}
-                      className={`px-2 py-1 text-xs rounded-md whitespace-nowrap transition-colors ${selectedCategory === category
-                        ? 'bg-purple-100 text-purple-800'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                        }`}
-                    >
-                      {category}
-                    </button>
-                  ))}
-                </div>
-              )}
               <div className="relative">
                 <Search className="search-icon" />
                 <input
@@ -406,6 +380,32 @@ export const PromptsDetailView: React.FC = () => {
                   className="search-input"
                 />
               </div>
+              {/* Category Filter */}
+              {categories.length > 0 && (
+                <div className="flex items-center space-x-2 overflow-x-auto">
+                  <button
+                    onClick={() => setSelectedCategory(null)}
+                    className={`${!selectedCategory
+                      ? 'filter-button-active'
+                      : 'filter-button'
+                      }`}
+                  >
+                    All
+                  </button>
+                  {categories.map((category) => (
+                    <button
+                      key={category}
+                      onClick={() => setSelectedCategory(category)}
+                      className={`${selectedCategory === category
+                        ? 'filter-button-active'
+                        : 'filter-button'
+                        }`}
+                    >
+                      {category}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
           {/* Prompts List */}
@@ -414,14 +414,14 @@ export const PromptsDetailView: React.FC = () => {
             {filteredPrompts.map((prompt) => (
               <div
                 key={prompt.id}
-                className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-sm transition-shadow"
+                className="card"
               >
                 {editingPromptId === prompt.id ? (
                   // Edit Form
                   <div className="space-y-3">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">Name</label>
+                        <label className="block text-xs font-medium text-foreground mb-1">Name</label>
                         <input
                           type="text"
                           value={prompt.name}
@@ -431,14 +431,14 @@ export const PromptsDetailView: React.FC = () => {
                             );
                             setPrompts(updatedPrompts);
                           }}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm font-medium"
+                          className="form-input"
                           placeholder="Prompt name"
                           autoFocus
                         />
                       </div>
 
                       <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">Category</label>
+                        <label className="block text-xs font-medium text-foreground mb-1">Category</label>
                         <select
                           value={prompt.category}
                           onChange={(e) => {
@@ -447,7 +447,7 @@ export const PromptsDetailView: React.FC = () => {
                             );
                             setPrompts(updatedPrompts);
                           }}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
+                          className="form-select"
                         >
                           {categoryOptions.map((cat) => (
                             <option key={cat} value={cat}>
@@ -459,7 +459,7 @@ export const PromptsDetailView: React.FC = () => {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">Description</label>
+                      <label className="block text-xs font-medium text-foreground mb-1">Description</label>
                       <input
                         type="text"
                         value={prompt.description}
@@ -469,13 +469,13 @@ export const PromptsDetailView: React.FC = () => {
                           );
                           setPrompts(updatedPrompts);
                         }}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
+                        className="form-input"
                         placeholder="Brief description of the prompt"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">Content</label>
+                      <label className="block text-xs font-medium text-foreground mb-1">Content</label>
                       <textarea
                         value={prompt.content}
                         onChange={(e) => {
@@ -484,14 +484,14 @@ export const PromptsDetailView: React.FC = () => {
                           );
                           setPrompts(updatedPrompts);
                         }}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm font-mono resize-none"
+                        className="form-textarea"
                         rows={6}
                         placeholder="Enter your prompt content here..."
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">Tags (comma-separated)</label>
+                      <label className="block text-xs font-medium text-foreground mb-1">Tags (comma-separated)</label>
                       <input
                         type="text"
                         value={formatTagsInput(prompt.tags)}
@@ -501,7 +501,7 @@ export const PromptsDetailView: React.FC = () => {
                           );
                           setPrompts(updatedPrompts);
                         }}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
+                        className="form-input"
                         placeholder="ai, coding, documentation"
                       />
                     </div>
@@ -517,9 +517,9 @@ export const PromptsDetailView: React.FC = () => {
                             );
                             setPrompts(updatedPrompts);
                           }}
-                          className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                          className="rounded border-foreground-dim/20 text-primary focus:ring-1"
                         />
-                        <span className="text-gray-700">Mark as template</span>
+                        <span className="text-foreground">Mark as template</span>
                       </label>
                     </div>
 
@@ -527,7 +527,7 @@ export const PromptsDetailView: React.FC = () => {
                       <button
                         onClick={() => handleUpdatePrompt(prompt.id, prompt)}
                         disabled={saving}
-                        className="inline-flex items-center px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
+                        className="btn-primary"
                       >
                         {saving ? (
                           <>
@@ -544,7 +544,7 @@ export const PromptsDetailView: React.FC = () => {
                       <button
                         onClick={() => setEditingPromptId(null)}
                         disabled={saving}
-                        className="inline-flex items-center px-3 py-1 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors text-sm"
+                        className="btn-outline"
                       >
                         <X className="w-3 h-3 mr-1" />
                         Cancel
@@ -556,22 +556,22 @@ export const PromptsDetailView: React.FC = () => {
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center space-x-2">
-                        <h4 className="font-medium text-sm text-gray-900 truncate">{prompt.name}</h4>
+                        <h4 className="font-medium text-sm text-foreground truncate">{prompt.name}</h4>
                         {prompt.is_template && (
                           <Star className="w-3 h-3 text-yellow-500 flex-shrink-0" />
                         )}
                       </div>
 
                       {prompt.description && (
-                        <p className="text-xs text-gray-600 mt-1 truncate">{prompt.description}</p>
+                        <p className="text-xs text-foreground-dim mt-1 truncate">{prompt.description}</p>
                       )}
 
                       <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
                           {prompt.category}
                         </span>
                         {prompt.tags && prompt.tags.length > 0 && (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-foreground-dim/10 text-foreground-dim">
                             {prompt.tags[0]}{prompt.tags.length > 1 ? ` +${prompt.tags.length - 1}` : ''}
                           </span>
                         )}
@@ -581,25 +581,25 @@ export const PromptsDetailView: React.FC = () => {
                     <div className="ml-2 flex items-center space-x-1">
                       <button
                         onClick={() => handleCopyPrompt(prompt.content)}
-                        className="p-1.5 text-gray-400 hover:text-gray-600 transition-colors"
+                        className="p-1.5 text-foreground-dim hover:text-foreground hover:bg-foreground-dim/10 rounded-lg transition-colors"
                         title="Copy prompt"
                       >
-                        <Copy className="w-3.5 h-3.5" />
+                        <Copy className="w-3 h-3" />
                       </button>
                       <button
                         onClick={() => setEditingPromptId(prompt.id)}
-                        className="p-1.5 text-gray-400 hover:text-blue-600 transition-colors"
+                        className="p-1 text-foreground-dim hover:text-primary hover:bg-foreground-dim/10 rounded-lg transition-colors"
                         title="Edit prompt"
                       >
-                        <Edit3 className="w-3.5 h-3.5" />
+                        <Edit3 className="w-3 h-3" />
                       </button>
                       <button
                         onClick={() => handleDeletePrompt(prompt.id)}
                         disabled={saving}
-                        className="p-1.5 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50"
+                        className="p-1.5 text-foreground-dim hover:text-red-600 hover:bg-foreground-dim/10 rounded-lg transition-colors disabled:opacity-50"
                         title="Delete prompt"
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 className="w-3 h-3" />
                       </button>
                     </div>
                   </div>

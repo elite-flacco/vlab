@@ -35,6 +35,11 @@ export default {
         mono: ['Share Tech Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
       },
 
+      fontSize: {
+        '2xs': '0.625rem', // 10px
+        '3xs': '0.5rem',   // 8px
+      },
+
       // Breakpoints (Mobile-first)
       screens: {
         'xs': '475px',

@@ -79,7 +79,7 @@ export const SecretsDetailView: React.FC = () => {
         <ModuleContainer title="Secrets" type="secrets">
           <div className="h-full flex items-center justify-center">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto"></div>
+              <div className="loading-spinner"></div>
               <p className="mt-4 text-gray-600">Loading secrets...</p>
             </div>
           </div>
@@ -108,9 +108,9 @@ export const SecretsDetailView: React.FC = () => {
         <ModuleContainer title="Secrets" type="secrets">
           <div className="h-full flex items-center justify-center">
             <div className="text-center">
-              <Lock className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No Secrets Yet</h3>
-              <p className="text-gray-600 mb-4 text-sm">
+              <Lock className="w-12 h-12 text-gray-300 mx-auto mb-4 mt-4" />
+              <h3 className="text-lg font-semibold text-foreground mb-2">No Secrets Yet</h3>
+              <p className="text-foreground-dim mb-4 text-sm">
                 Securely store API keys, passwords, and other sensitive data.
               </p>
               <button className="btn-add mb-4">
@@ -158,12 +158,12 @@ export const SecretsDetailView: React.FC = () => {
             {filteredSecrets.map((secret) => (
               <div
                 key={secret.id}
-                className="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-sm transition-shadow"
+                className="card p-3 hover:shadow-sm transition-shadow"
               >
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex items-center space-x-2">
                     {getCategoryIcon(secret.category)}
-                    <h4 className="font-medium text-sm text-gray-900">{secret.name}</h4>
+                    <h4 className="font-medium text-sm text-foreground">{secret.name}</h4>
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(secret.category)}`}>
                       {secret.category.replace('_', ' ')}
                     </span>

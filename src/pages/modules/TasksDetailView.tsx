@@ -168,10 +168,10 @@ export const TasksDetailView: React.FC = () => {
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'urgent': return 'text-red-600 bg-red-50 border-red-200';
-      case 'high': return 'text-orange-600 bg-orange-50 border-orange-200';
-      case 'medium': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
-      default: return 'text-gray-600 bg-gray-50 border-gray-200';
+      case 'urgent': return 'bg-error/10 text-error border border-error/20';
+      case 'high': return 'bg-warning/10 text-warning border border-warning/20';
+      case 'medium': return 'bg-secondary text-foreground-dim border border-foreground-dim/30';
+      default: return 'bg-secondary/50 text-foreground-dim/70 border border-foreground-dim/20'; // low
     }
   };
 
@@ -193,7 +193,7 @@ export const TasksDetailView: React.FC = () => {
         <ModuleContainer title="Tasks" type="tasks">
           <div className="h-full flex items-center justify-center">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 mx-auto"></div>
+              <div className="loading-spinner"></div>
               <p className="mt-4 text-gray-600">Loading tasks...</p>
             </div>
           </div>
@@ -207,8 +207,8 @@ export const TasksDetailView: React.FC = () => {
       <div className="max-w-6xl mx-auto">
         <BackButton onClick={handleReturnToWorkspace} />
         <ModuleContainer title="Tasks" type="tasks">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="text-sm text-red-600">{error}</p>
+          <div className="card bg-red-50 border-red-200 p-4">
+            <p className="card-content text-red-600">{error}</p>
           </div>
         </ModuleContainer>
       </div>
@@ -222,9 +222,9 @@ export const TasksDetailView: React.FC = () => {
         <ModuleContainer title="Tasks" type="tasks">
           <div className="h-full flex items-center justify-center">
             <div className="text-center">
-              <CheckSquare className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No Tasks Yet</h3>
-              <p className="text-gray-600 mb-4 text-sm">
+              <CheckSquare className="w-12 h-12 text-foreground-dim/50 mx-auto mb-4" />
+              <h3 className="card-title mb-2">No Tasks Yet</h3>
+              <p className="card-content mb-4">
                 Create tasks to track your development progress.
               </p>
               <button
@@ -274,8 +274,8 @@ export const TasksDetailView: React.FC = () => {
           )}
           {/* New Task Form - Shows when newTask is set */}
           {newTask && (
-            <div className="new-form">
-              <div className="flex items-center justify-between mb-4">
+            <div className="card p-6 mb-6">
+              <div className="card-header">
                 <h4 className="flex items-center">
                   <Plus className="w-5 h-5 mr-2" />
                   Add New Task
@@ -283,23 +283,23 @@ export const TasksDetailView: React.FC = () => {
               </div>
               <div className="space-y-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Task Title</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">Task Title</label>
                   <input
                     type="text"
                     value={newTask.title}
                     onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-1 text-sm"
+                    className="form-input"
                     placeholder="Enter task title"
                     autoFocus
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">Description</label>
                   <textarea
                     value={newTask.description}
                     onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-1 text-sm"
+                    className="form-textarea"
                     rows={3}
                     placeholder="Enter task description"
                   />
@@ -307,11 +307,11 @@ export const TasksDetailView: React.FC = () => {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+                    <label className="block text-sm font-medium text-foreground mb-1">Priority</label>
                     <select
                       value={newTask.priority}
                       onChange={(e) => setNewTask({ ...newTask, priority: e.target.value as any })}
-                      className="w-full px-2 py-1 border border-gray-200 rounded-md focus:ring-1 text-sm"
+                      className="form-select"
                     >
                       <option value="low">Low</option>
                       <option value="medium">Medium</option>
@@ -320,12 +320,12 @@ export const TasksDetailView: React.FC = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Tags (comma-separated)</label>
+                    <label className="block text-sm font-medium text-foreground mb-1">Tags (comma-separated)</label>
                     <input
                       type="text"
                       value={newTask.tags ? newTask.tags.join(', ') : ''}
                       onChange={(e) => setNewTask({ ...newTask, tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag) })}
-                      className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-1 text-sm"
+                      className="form-input"
                       placeholder="frontend, backend, design"
                     />
                   </div>
@@ -361,27 +361,8 @@ export const TasksDetailView: React.FC = () => {
               </div>
             </div>
           )}
-          <div className="flex items-center justify-between mb-6">
+          <div className="card p-4 mb-6">
             <div className="flex items-center space-x-2">
-              <select
-                value={filter}
-                onChange={(e) => setFilter(e.target.value as any)}
-                className="text-sm border border-gray-200 rounded-md px-2 py-1 focus:ring-1"
-              >
-                <option value="all">All Tasks</option>
-                <option value="todo">To Do</option>
-                <option value="in_progress">In Progress</option>
-                <option value="done">Completed</option>
-              </select>
-              <button
-                onClick={() => setShowCompleted(!showCompleted)}
-                className={`text-xs px-2 py-1 rounded-md transition-colors ${showCompleted
-                  ? 'bg-orange-100 text-orange-800'
-                  : 'text-gray-600 hover:bg-gray-100'
-                  }`}
-              >
-                {showCompleted ? 'Hide' : 'Show'} Completed
-              </button>
               {/* Search Bar */}
               <div className="relative">
                 <Search className="search-icon" />
@@ -393,25 +374,43 @@ export const TasksDetailView: React.FC = () => {
                   className="search-input"
                 />
               </div>
+              <select
+                value={filter}
+                onChange={(e) => setFilter(e.target.value as any)}
+                className="form-select"
+              >
+                <option value="all">All Tasks</option>
+                <option value="todo">To Do</option>
+                <option value="in_progress">In Progress</option>
+                <option value="done">Completed</option>
+              </select>
+              <button
+                onClick={() => setShowCompleted(!showCompleted)}
+                className={`${showCompleted
+                  ? 'filter-button-active'
+                  : 'filter-button'
+                  }`}
+              >
+                {showCompleted ? 'Hide' : 'Show'} Completed
+              </button>
             </div>
 
           </div>
 
           {/* Tasks List */}
-          <div className="flex-1 overflow-y-auto space-y-2">
+          <div className="flex-1 space-y-3">
 
             {/* Existing Tasks */}
             {filteredTasks.map((task) => (
               <div
                 key={task.id}
-                className={`bg-white border border-gray-200 rounded-lg p-3 hover:shadow-sm transition-all ${task.status === 'done' ? 'opacity-75' : ''
-                  }`}
+                className={`card ${task.status === 'done' ? 'opacity-75' : ''}`}
               >
                 {editingTaskId === task.id ? (
                   // Edit Form
                   <div className="space-y-3">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                      <label className="block text-xs font-medium text-foreground mb-1">Title</label>
                       <input
                         type="text"
                         value={task.title}
@@ -421,13 +420,13 @@ export const TasksDetailView: React.FC = () => {
                           );
                           setTasks(updatedTasks);
                         }}
-                        className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-1 text-sm"
+                        className="form-input"
                         placeholder="Task title"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                      <label className="block text-xs font-medium text-foreground mb-1">Description</label>
                       <textarea
                         value={task.description}
                         onChange={(e) => {
@@ -436,7 +435,7 @@ export const TasksDetailView: React.FC = () => {
                           );
                           setTasks(updatedTasks);
                         }}
-                        className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-1 text-sm resize-none"
+                        className="form-textarea"
                         rows={2}
                         placeholder="Task description..."
                       />
@@ -444,7 +443,7 @@ export const TasksDetailView: React.FC = () => {
 
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                        <label className="block text-xs font-medium text-foreground mb-1">Status</label>
                         <select
                           value={task.status}
                           onChange={(e) => {
@@ -453,7 +452,7 @@ export const TasksDetailView: React.FC = () => {
                             );
                             setTasks(updatedTasks);
                           }}
-                          className="w-full px-2 py-1 border border-gray-200 rounded-md focus:ring-1 text-xs"
+                          className="form-select"
                         >
                           <option value="todo">To Do</option>
                           <option value="in_progress">In Progress</option>
@@ -463,7 +462,7 @@ export const TasksDetailView: React.FC = () => {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+                        <label className="block text-xs font-medium text-foreground mb-1">Priority</label>
                         <select
                           value={task.priority}
                           onChange={(e) => {
@@ -472,7 +471,7 @@ export const TasksDetailView: React.FC = () => {
                             );
                             setTasks(updatedTasks);
                           }}
-                          className="w-full px-2 py-1 border border-gray-200 rounded-md focus:ring-1 text-xs"
+                          className="form-select"
                         >
                           <option value="low">Low</option>
                           <option value="medium">Medium</option>
@@ -483,7 +482,7 @@ export const TasksDetailView: React.FC = () => {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Tags (comma-separated)</label>
+                      <label className="block text-xs font-medium text-foreground mb-1">Tags (comma-separated)</label>
                       <input
                         type="text"
                         value={formatTagsInput(task.tags)}
@@ -493,7 +492,7 @@ export const TasksDetailView: React.FC = () => {
                           );
                           setTasks(updatedTasks);
                         }}
-                        className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-1 text-sm"
+                        className="form-input"
                         placeholder="frontend, backend, design"
                       />
                     </div>
@@ -502,7 +501,7 @@ export const TasksDetailView: React.FC = () => {
                       <button
                         onClick={() => handleUpdateTask(task.id, task)}
                         disabled={saving}
-                        className="inline-flex items-center px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
+                        className="btn-primary"
                       >
                         {saving ? (
                           <>
@@ -519,7 +518,7 @@ export const TasksDetailView: React.FC = () => {
                       <button
                         onClick={() => setEditingTaskId(null)}
                         disabled={saving}
-                        className="inline-flex items-center px-3 py-1 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors text-sm"
+                        className="btn-outline"
                       >
                         <X className="w-3 h-3 mr-1" />
                         Cancel
@@ -528,9 +527,9 @@ export const TasksDetailView: React.FC = () => {
                   </div>
                 ) : (
                   // Display Mode
-                  <div className="flex items-start space-x-3">
+                  <div className="flex items-start space-x-3 group">
                     <button
-                      className="mt-0.5 flex-shrink-0"
+                      className="mt-0.5 flex-shrink-0 opacity-80 group-hover:opacity-100 transition-opacity"
                       onClick={() => handleToggleTaskCompletion(task.id, task.status)}
                       disabled={saving}
                     >
@@ -539,8 +538,7 @@ export const TasksDetailView: React.FC = () => {
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between">
-                        <h4 className={`font-medium text-sm ${task.status === 'done' ? 'line-through text-gray-500' : 'text-gray-900'
-                          }`}>
+                        <h4 className={`text-sm ${task.status === 'done' ? 'line-through text-foreground-dim' : 'text-foreground'}`}>
                           {task.title}
                         </h4>
                         <div className="flex items-center space-x-2 ml-2">
@@ -549,17 +547,17 @@ export const TasksDetailView: React.FC = () => {
                             value={task.priority}
                             onChange={(e) => handlePriorityChange(task.id, e.target.value)}
                             disabled={saving}
-                            className={`appearance-none cursor-pointer px-2 py-1 rounded-full text-xs font-medium border flex-shrink-0 ${getPriorityColor(task.priority)} disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-1`}
+                            className={`appearance-none cursor-pointer px-2 py-1 rounded-full text-2xs font-medium border flex-shrink-0 ${getPriorityColor(task.priority)} disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-1`}
                           >
                             <option value="low">Low</option>
                             <option value="medium">Medium</option>
                             <option value="high">High</option>
                             <option value="urgent">Urgent</option>
                           </select>
-                          <div className="flex items-center space-x-1">
+                          <div className="flex items-center space-x-1 opacity-80 group-hover:opacity-100 transition-opacity">
                             <button
                               onClick={() => setEditingTaskId(task.id)}
-                              className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                              className="p-1.5 text-foreground-dim hover:text-primary hover:bg-foreground-dim/10 rounded-lg transition-colorss"
                               title="Edit task"
                             >
                               <Edit3 className="w-3 h-3" />
@@ -567,7 +565,7 @@ export const TasksDetailView: React.FC = () => {
                             <button
                               onClick={() => handleDeleteTask(task.id)}
                               disabled={saving}
-                              className="p-1 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50"
+                              className="p-1 text-foreground-dim hover:text-red-600 transition-colors disabled:opacity-50"
                               title="Delete task"
                             >
                               <Trash2 className="w-3 h-3" />
@@ -577,20 +575,20 @@ export const TasksDetailView: React.FC = () => {
                       </div>
 
                       {task.description && (
-                        <p className="text-xs text-gray-600 mt-1 leading-relaxed">{task.description}</p>
+                        <p className="card-content mt-1 text-sm">{task.description}</p>
                       )}
 
                       <div className="flex items-center flex-wrap gap-2 mt-2">
                         {task.due_date && (
-                          <span className="text-xs text-gray-500">
+                          <span className="text-xs text-foreground-dim">
                             Due {format(new Date(task.due_date), 'MMM d')}
                           </span>
                         )}
 
                         {task.tags && task.tags.length > 0 && (
                           <div className="flex items-center space-x-1">
-                            <Tag className="w-3 h-3 text-gray-400" />
-                            <span className="text-xs text-gray-500">
+                            <Tag className="w-3 h-3 text-foreground-dim" />
+                            <span className="text-xs text-foreground-dim">
                               {task.tags.slice(0, 2).join(', ')}
                               {task.tags.length > 2 && ` +${task.tags.length - 2}`}
                             </span>

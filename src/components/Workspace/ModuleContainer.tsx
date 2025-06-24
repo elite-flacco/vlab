@@ -1,5 +1,5 @@
+import { FileText, ListTodo, Lock, Map, Maximize2, MessageSquare, Minimize2, Settings, StickyNote, X } from 'lucide-react';
 import React from 'react';
-import { X, Settings, Maximize2, Minimize2 } from 'lucide-react';
 import { ModuleType } from '../../types';
 
 interface ModuleContainerProps {
@@ -14,13 +14,13 @@ interface ModuleContainerProps {
 
 const getModuleIcon = (type: ModuleType) => {
   switch (type) {
-    case 'prd': return '📝';
-    case 'roadmap': return '🗺️';
-    case 'tasks': return '✅';
-    case 'scratchpad': return '✍️';
-    case 'prompts': return '💬';
-    case 'secrets': return '🔐';
-    default: return '📄';
+    case 'prd': return FileText;
+    case 'roadmap': return Map;
+    case 'tasks': return ListTodo;
+    case 'scratchpad': return StickyNote;
+    case 'prompts': return MessageSquare;
+    case 'secrets': return Lock;
+    default: return FileText; // Fallback icon
   }
 };
 
@@ -33,12 +33,14 @@ export const ModuleContainer: React.FC<ModuleContainerProps> = ({
   onMaximize,
   isMaximized = false,
 }) => {
+  const IconComponent = getModuleIcon(type); // Get the icon component
+
   return (
     <div className="h-full terminal-window shadow-lg hover:shadow-primary/10 transition-shadow">
       {/* Header */}
       <div className="terminal-header">
-        <div className="flex items-center space-x-2">
-          <span className="text-lg">{getModuleIcon(type)}</span>
+      <div className="flex items-center space-x-2">
+          <IconComponent className="w-5 h-5 text-primary" /> {/* Render the icon component */}
           <h3 className="font-semibold text-foreground text-sm font-mono">{title}</h3>
         </div>
         
