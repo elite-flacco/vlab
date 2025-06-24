@@ -29,8 +29,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
   };
 
   return (
-    <aside className="sidebar p-4">
-      <div className="space-y-6">
+    <aside className="w-64 h-full flex flex-col bg-background border-r border-foreground-dim/20">
+      <div className="p-4 space-y-6 flex-1 overflow-y-auto">
         {/* Navigation */}
         <div>
           <h2 className="sidebar-title">Navigation</h2>
@@ -115,12 +115,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
           </div>
         )}
         
-        <div className="pt-4 border-t border-foreground-dim/20">
-          <button className="sidebar-item">
-            <Settings className="w-4 h-4" />
-            <span>Settings</span>
-          </button>
-        </div>
+      </div>
+      <div className="p-4 border-t border-foreground-dim/20">
+        <button className="sidebar-item">
+          <Settings className="w-4 h-4" />
+          <span>Settings</span>
+        </button>
       </div>
     </aside>
   );
