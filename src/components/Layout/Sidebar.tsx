@@ -122,23 +122,39 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
         )}
       </div>
 
-      {/* Settings and Collapse Button at bottom */}
-      <div className="p-4 border-t border-foreground-dim/20 flex items-center justify-between">
-        <button 
-          className="flex items-center space-x-2 px-3 py-2 text-sm rounded-md transition-colors font-mono text-foreground-dim hover:bg-secondary/50 hover:text-foreground"
-          title="Settings"
-        >
-          <Settings className="w-4 h-4" />
-          {!isCollapsed && <span>Settings</span>}
-        </button>
-        
-        <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-2 text-foreground-dim hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors"
-          title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        >
-          {isCollapsed ? <Menu className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-        </button>
+      {/* Footer with conditional settings button and collapse button */}
+      <div className="p-4 border-t border-foreground-dim/20">
+        {isCollapsed ? (
+          // When collapsed, only show the expand button centered
+          <div className="flex justify-center">
+            <button
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="p-2 text-foreground-dim hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors"
+              title="Expand sidebar"
+            >
+              <Menu className="w-4 h-4" />
+            </button>
+          </div>
+        ) : (
+          // When expanded, show both settings and collapse buttons
+          <div className="flex items-center justify-between">
+            <button 
+              className="flex items-center space-x-2 px-3 py-2 text-sm rounded-md transition-colors font-mono text-foreground-dim hover:bg-secondary/50 hover:text-foreground"
+              title="Settings"
+            >
+              <Settings className="w-4 h-4" />
+              <span>Settings</span>
+            </button>
+            
+            <button
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="p-2 text-foreground-dim hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors"
+              title="Collapse sidebar"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+          </div>
+        )}
       </div>
     </aside>
   );
