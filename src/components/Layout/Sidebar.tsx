@@ -33,34 +33,38 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
     <aside className={`h-full flex flex-col bg-background border-r border-foreground-dim/20 transition-all duration-300 ${
       isCollapsed ? 'w-16' : 'w-64'
     }`}>
-      <div className="p-4 space-y-6 flex-1 overflow-y-auto">
+      <div className={`p-4 space-y-2 flex-1 overflow-y-auto ${isCollapsed ? 'flex flex-col items-center' : ''}`}>
         {/* Community Hub - Direct placement at same level as Projects */}
         <button
           onClick={() => navigate('/community')}
-          className={isOnCommunity ? 'sidebar-item-active' : 'sidebar-item'}
+          className={`${isOnCommunity ? 'sidebar-item-active' : 'sidebar-item'} ${
+            isCollapsed ? 'w-8 h-8 p-2 flex items-center justify-center' : ''
+          }`}
           title="Community Hub"
         >
-          <Users className="w-4 h-4" />
+          <Users className="w-4 h-4 flex-shrink-0" />
           {!isCollapsed && <span>Community Hub</span>}
         </button>
 
         {/* Active Projects */}
-        <div>
+        <div className={isCollapsed ? 'flex flex-col items-center space-y-2' : ''}>
           {!isCollapsed && (
             <div className="flex items-center justify-between mb-3">
               <h2 className="sidebar-title">Projects</h2>
             </div>
           )}
           
-          <div className="sidebar-section">
+          <div className={`sidebar-section ${isCollapsed ? 'space-y-2' : ''}`}>
             {activeProjects.map((project) => (
               <button
                 key={project.id}
                 onClick={() => handleProjectClick(project)}
-                className={currentProject?.id === project.id && !isOnCommunity ? 'sidebar-item-active' : 'sidebar-item'}
+                className={`${currentProject?.id === project.id && !isOnCommunity ? 'sidebar-item-active' : 'sidebar-item'} ${
+                  isCollapsed ? 'w-8 h-8 p-2 flex items-center justify-center' : ''
+                }`}
                 title={project.name}
               >
-                <Folder className="w-4 h-4" />
+                <Folder className="w-4 h-4 flex-shrink-0" />
                 {!isCollapsed && <span className="truncate">{project.name}</span>}
               </button>
             ))}
@@ -69,10 +73,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
 
         {/* Archived Projects */}
         {archivedProjects.length > 0 && (
-          <div>
+          <div className={isCollapsed ? 'flex flex-col items-center' : ''}>
             <button
               onClick={() => setShowArchived(!showArchived)}
-              className="flex items-center space-x-2 text-sm font-semibold text-foreground-dim hover:text-foreground transition-colors mb-3"
+              className={`flex items-center space-x-2 text-sm font-semibold text-foreground-dim hover:text-foreground transition-colors mb-3 ${
+                isCollapsed ? 'w-8 h-8 p-2 justify-center' : ''
+              }`}
               title={`Archived Projects (${archivedProjects.length})`}
             >
               {!isCollapsed ? (
@@ -86,11 +92,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
                   <span>Archived ({archivedProjects.length})</span>
                 </>
               ) : (
-                <Archive className="w-4 h-4 text-primary/70" />
+                <Archive className="w-4 h-4 text-primary/70 flex-shrink-0" />
               )}
             </button>
 
-            {showArchived && (
+            {showArchived && !isCollapsed && (
               <div className="sidebar-section">
                 {archivedProjects.map((project) => (
                   <div
@@ -103,17 +109,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
                       title={project.name}
                     >
                       <Folder className="w-4 h-4" />
-                      {!isCollapsed && <span className="truncate">{project.name}</span>}
+                      <span className="truncate">{project.name}</span>
                     </button>
-                    {!isCollapsed && (
-                      <button
-                        onClick={(e) => handleRestoreProject(project.id, e)}
-                        className="opacity-0 group-hover:opacity-100 p-1 text-foreground-dim hover:text-primary transition-all"
-                        title="Restore project"
-                      >
-                        <RotateCcw className="w-3 h-3" />
-                      </button>
-                    )}
+                    <button
+                      onClick={(e) => handleRestoreProject(project.id, e)}
+                      className="opacity-0 group-hover:opacity-100 p-1 text-foreground-dim hover:text-primary transition-all"
+                      title="Restore project"
+                    >
+                      <RotateCcw className="w-3 h-3" />
+                    </button>
                   </div>
                 ))}
               </div>
@@ -129,7 +133,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
           <div className="flex justify-center">
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="p-2 text-foreground-dim hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors"
+              className="w-8 h-8 p-2 flex items-center justify-center text-foreground-dim hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors"
               title="Expand sidebar"
             >
               <Menu className="w-4 h-4" />
