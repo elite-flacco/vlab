@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, MessageSquare, AlertCircle, Tag as TagIcon, Users, X } from 'lucide-react';
+import { Search, Plus, MessageSquare, AlertCircle, Tag as TagIcon, X } from 'lucide-react';
 import { PostSubmissionForm } from '../components/Community/PostSubmissionForm';
 import { PostCard } from '../components/Community/PostCard';
 import { PostDetailView } from '../components/Community/PostDetailView';
-import { UserProfile } from '../components/Community/UserProfile';
 import { communityApi } from '../lib/communityApi';
 
 // Tool and category options for filtering
@@ -24,7 +23,6 @@ const TIP_CATEGORY_OPTIONS = [
 ];
 
 export const Community: React.FC = () => {
-  const [activeSection, setActiveSection] = useState<'tools-tips' | 'profile'>('tools-tips');
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -122,17 +120,19 @@ export const Community: React.FC = () => {
     setSelectedPostId(postId);
   };
 
-  const renderToolsTipsSection = () => (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-6">
+  return (
+    <div className="max-w-6xl mx-auto px-4 py-8">
+      {/* Main Header with Share Button */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-10">
         <div>
-          <h2 className="text-2xl font-bold text-foreground font-mono">Tools & Tips</h2>
-          <p className="text-foreground-dim mt-1.5">Discover and share practical AI tools and usage tips</p>
+          <h1 className="mb-3">Community Hub</h1>
+          <p className="text-lg">
+            Connect, share, and learn with fellow vibe coders
+          </p>
         </div>
         <button
           onClick={() => setShowSubmissionForm(true)}
-          className="btn-primary"
+          className="btn-primary mt-4 sm:mt-0"
         >
           <Plus className="w-4 h-4 mr-2" />
           Share Tool/Tip
@@ -305,52 +305,6 @@ export const Community: React.FC = () => {
           </>
         )}
       </div>
-    </div>
-  );
-
-  return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
-      {/* Main Header */}
-      <div className="mb-10">
-        <h1 className="mb-3">Community Hub</h1>
-        <p className="text-lg">
-          Connect, share, and learn with fellow vibe coders
-        </p>
-      </div>
-
-      {/* Navigation Tabs */}
-      <div className="flex space-x-1 p-1 bg-secondary/30 rounded-lg mb-8 max-w-fit">
-        <button
-          onClick={() => setActiveSection('tools-tips')}
-          className={`${activeSection === 'tools-tips'
-              ? 'filter-button-active'
-              : 'filter-button'
-            }`}
-        >
-          <div className="flex items-center">
-            <MessageSquare className="mr-2 h-4 w-4" />
-            Tools & Tips
-          </div>
-        </button>
-        <button
-          onClick={() => setActiveSection('profile')}
-          className={`${activeSection === 'profile'
-              ? 'filter-button-active'
-              : 'filter-button'
-            }`}
-        >
-          <div className="flex items-center">
-            <Users className="mr-2 h-4 w-4" />
-            My Profile
-          </div>
-        </button>
-      </div>
-
-      {/* Section Content */}
-      {activeSection === 'tools-tips' && renderToolsTipsSection()}
-      {activeSection === 'profile' && (
-        <UserProfile onPostClick={handlePostClick} />
-      )}
 
       {/* Modals */}
       <PostSubmissionForm

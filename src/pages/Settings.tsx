@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { db } from '../lib/supabase';
@@ -13,6 +13,8 @@ import {
   AlertCircle,
   Loader2
 } from 'lucide-react';
+import { UserProfileSection } from '../components/Settings/UserProfileSection';
+import { PostDetailView } from '../components/Community/PostDetailView';
 
 export const Settings: React.FC = () => {
   const navigate = useNavigate();
@@ -42,8 +44,11 @@ export const Settings: React.FC = () => {
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [passwordSuccess, setPasswordSuccess] = useState(false);
 
+  // Community post state
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+
   // Load user profile data on mount
-  React.useEffect(() => {
+  useEffect(() => {
     if (user) {
       loadUserProfile();
     }
@@ -126,6 +131,10 @@ export const Settings: React.FC = () => {
       ...prev,
       [field]: !prev[field]
     }));
+  };
+
+  const handlePostClick = (postId: string) => {
+    setSelectedPostId(postId);
   };
 
   return (
@@ -400,7 +409,18 @@ export const Settings: React.FC = () => {
             </div>
           </form>
         </div>
+
+        {/* Community Profile Section */}
+        <UserProfileSection onPostClick={handlePostClick} />
       </div>
+
+      {/* Post Detail Modal */}
+      {selectedPostId && (
+        <PostDetailView
+          postId={selectedPostId}
+          onClose={() => setSelectedPostId(null)}
+        />
+      )}
     </div>
   );
 };
