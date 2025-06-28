@@ -39,7 +39,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
       isCollapsed ? 'w-16' : 'w-64'
     }`}>
       <div className={`p-4 space-y-2 flex-1 overflow-y-auto ${isCollapsed ? 'flex flex-col items-center' : ''}`}>
-        {/* Community Hub - Direct placement at same level as Projects */}
+        {/* Community Hub */}
         <button
           onClick={() => navigate('/community')}
           className={`${isOnCommunity ? 'sidebar-item-active' : 'sidebar-item'} ${
@@ -50,6 +50,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
           <Users className="w-4 h-4 flex-shrink-0" />
           {!isCollapsed && <span>Community Hub</span>}
         </button>
+
+        {/* Divider under Community Hub - only visible when expanded */}
+        {!isCollapsed && (
+          <div className="border-b border-foreground-dim/20 my-4"></div>
+        )}
 
         {/* Active Projects */}
         <div className={isCollapsed ? 'flex flex-col items-center space-y-2' : ''}>
@@ -107,7 +112,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
                   <span>Archived ({archivedProjects.length})</span>
                 </>
               ) : (
-                <Archive className="w-4 h-4 text-primary/70 flex-shrink-0" />
+                // When collapsed, only show chevron icon (hide Archive icon)
+                showArchived ? (
+                  <ChevronDown className="w-4 h-4 text-foreground-dim flex-shrink-0" />
+                ) : (
+                  <ChevronRight className="w-4 h-4 text-foreground-dim flex-shrink-0" />
+                )
               )}
             </button>
 
