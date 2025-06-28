@@ -15,6 +15,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const isOnCommunity = location.pathname === '/community';
+  const isOnSettings = location.pathname === '/settings';
 
   const handleProjectClick = (project: any) => {
     navigate(`/workspace/${project.id}`);
@@ -69,7 +70,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
               <button
                 key={project.id}
                 onClick={() => handleProjectClick(project)}
-                className={`${currentProject?.id === project.id && !isOnCommunity ? 'sidebar-item-active' : 'sidebar-item'} ${
+                className={`${currentProject?.id === project.id && !isOnCommunity && !isOnSettings ? 'sidebar-item-active' : 'sidebar-item'} ${
                   isCollapsed ? 'w-8 h-8 p-2 flex items-center justify-center' : ''
                 }`}
                 title={project.name}
@@ -168,7 +169,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
           // When expanded, show both settings and collapse buttons
           <div className="flex items-center justify-between">
             <button 
-              className="flex items-center space-x-2 px-3 py-2 text-sm rounded-md transition-colors font-mono text-foreground-dim hover:bg-secondary/50 hover:text-foreground"
+              onClick={() => navigate('/settings')}
+              className={`flex items-center space-x-2 px-3 py-2 text-sm rounded-md transition-colors font-mono ${
+                isOnSettings ? 'sidebar-item-active' : 'text-foreground-dim hover:bg-secondary/50 hover:text-foreground'
+              }`}
               title="Settings"
             >
               <Settings className="w-4 h-4" />

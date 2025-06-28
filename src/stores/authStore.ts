@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { User } from '../types';
-import { auth } from '../lib/supabase';
+import { auth, supabase } from '../lib/supabase';
 
 interface AuthState {
   user: User | null;
@@ -9,6 +9,7 @@ interface AuthState {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, name: string) => Promise<void>;
   signOut: () => Promise<void>;
+  updatePassword: (newPassword: string) => Promise<void>;
   initialize: () => Promise<void>;
   clearError: () => void;
 }
@@ -98,6 +99,25 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch (error: any) {
       console.error('❌ AuthStore: Sign out error:', error);
       set({ error: error.message, loading: false });
+    }
+  },
+
+  updatePassword: async (newPassword: string) => {
+    console.log('🔐 AuthStore: Starting password update');
+    set({ loading: true, error: null });
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+      
+      if (error) throw error;
+      
+      console.log('✅ AuthStore: Password updated successfully');
+      set({ loading: false });
+    } catch (error: any) {
+      console.error('❌ AuthStore: Password update error:', error);
+      set({ error: error.message, loading: false });
+      throw error; // Re-throw so the component can handle it
     }
   },
 
