@@ -155,12 +155,12 @@
   }
 
   .form-select {
-    @apply form-input appearance-none cursor-pointer w-auto text-foreground;
+    @apply form-input appearance-none cursor-pointer w-auto text-foreground text-xs pl-3 pr-10;
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23a0a0a0' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
     background-repeat: no-repeat;
     background-position: right 0.75rem center;
     background-size: 1rem 1rem;
-    padding-right: 2.5rem;
+    min-height: 2.5rem;
   }
   
   /* Style for the dropdown options */
@@ -201,6 +201,10 @@
   .btn-full {
     @apply w-full justify-center;
   }
+
+  .btn-danger {
+    @apply btn bg-transparent text-destructive border border-destructive/30 hover:bg-destructive/10 hover:text-destructive hover:border-destructive;
+  }  
 
   /* Filter Button Components */
   .filter-button {

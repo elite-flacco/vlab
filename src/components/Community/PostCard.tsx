@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { format } from 'date-fns';
-import { 
-  ThumbsUp, 
-  ThumbsDown, 
-  MessageSquare, 
-  Bookmark, 
-  BookmarkCheck, 
-  Eye, 
+import {
+  ThumbsUp,
+  ThumbsDown,
+  MessageSquare,
+  Bookmark,
+  BookmarkCheck,
+  Eye,
   Tag,
   ExternalLink,
   User,
@@ -40,10 +40,10 @@ interface PostCardProps {
   showFullContent?: boolean;
 }
 
-export const PostCard: React.FC<PostCardProps> = ({ 
-  post, 
+export const PostCard: React.FC<PostCardProps> = ({
+  post,
   onPostClick,
-  showFullContent = false 
+  showFullContent = false
 }) => {
   const [userVote, setUserVote] = useState<string | null>(
     post.user_vote?.[0]?.vote_type || null
@@ -70,7 +70,7 @@ export const PostCard: React.FC<PostCardProps> = ({
       } else {
         // Add or change vote
         await communityApi.votePost(post.id, { vote_type: voteType });
-        
+
         // Update counts
         if (userVote === 'upvote' && voteType === 'downvote') {
           setUpvotes(prev => prev - 1);
@@ -83,7 +83,7 @@ export const PostCard: React.FC<PostCardProps> = ({
         } else {
           setDownvotes(prev => prev + 1);
         }
-        
+
         setUserVote(voteType);
       }
     } catch (error) {
@@ -122,13 +122,13 @@ export const PostCard: React.FC<PostCardProps> = ({
   const getCategoryBadge = () => {
     if (post.category === 'tool') {
       return (
-        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 border border-blue-200">
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-900/30 text-blue-300 border border-blue-700/50">
           🛠️ Tool
         </span>
       );
     } else {
       return (
-        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 border border-green-200">
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-900/30 text-green-300 border border-green-700/50">
           💡 Tip
         </span>
       );
@@ -144,13 +144,25 @@ export const PostCard: React.FC<PostCardProps> = ({
         'v0': 'V0',
         'other': 'Other'
       };
+
+      // Define colors for each tool type
+      const toolColors: Record<string, { bg: string; text: string; border: string }> = {
+        'bolt': { bg: 'bg-blue-900/30', text: 'text-blue-300', border: 'border-blue-700/50' },
+        'loveable': { bg: 'bg-pink-900/30', text: 'text-pink-300', border: 'border-pink-700/50' },
+        'replit': { bg: 'bg-orange-900/30', text: 'text-orange-300', border: 'border-orange-700/50' },
+        'v0': { bg: 'bg-purple-900/30', text: 'text-purple-300', border: 'border-purple-700/50' },
+        'other': { bg: 'bg-gray-700/30', text: 'text-gray-300', border: 'border-gray-600/50' }
+      };
+
+      const colors = toolColors[post.tool] || toolColors['other'];
+      
       return (
-        <span className="inline-flex items-center px-2 py-1 bg-purple-100 text-purple-800 border border-purple-200 rounded-full text-xs font-medium">
+        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium ${colors.bg} ${colors.text} border ${colors.border}`}>
           {toolLabels[post.tool] || post.tool}
         </span>
       );
     }
-    
+
     if (post.category === 'tip' && post.tip_category) {
       const categoryLabels: Record<string, string> = {
         'prompt_tricks': 'Prompt Tricks',
@@ -159,55 +171,50 @@ export const PostCard: React.FC<PostCardProps> = ({
         'payment': 'Payment',
         'other': 'Other'
       };
+      
+      // Define colors for each tip category
+      const tipColors: Record<string, { bg: string; text: string; border: string }> = {
+        'prompt_tricks': { bg: 'bg-purple-900/30', text: 'text-purple-300', border: 'border-purple-700/50' },
+        'integrations': { bg: 'bg-indigo-900/30', text: 'text-indigo-300', border: 'border-indigo-700/50' },
+        'authentication': { bg: 'bg-cyan-900/30', text: 'text-cyan-300', border: 'border-cyan-700/50' },
+        'payment': { bg: 'bg-emerald-900/30', text: 'text-emerald-300', border: 'border-emerald-700/50' },
+        'other': { bg: 'bg-slate-900/30', text: 'text-slate-300', border: 'border-slate-700/50' }
+      };
+      
+      const colors = tipColors[post.tip_category] || tipColors['other'];
+      
       return (
-        <span className="inline-flex items-center px-2 py-1 bg-orange-100 text-orange-800 border border-orange-200 rounded-full text-xs font-medium">
+        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium ${colors.bg} ${colors.text} border ${colors.border}`}>
           {categoryLabels[post.tip_category] || post.tip_category}
         </span>
       );
     }
-    
+
     return null;
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-      {/* Header with Category Badges */}
+    <div className="card bg-secondary/80">
+      {/* Title */}
       <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center space-x-3 flex-wrap gap-2">
-          {getCategoryBadge()}
-          {getSubcategoryBadge()}
-          
-          {post.tags && post.tags.length > 0 && (
-            <div className="flex items-center space-x-1">
-              <Tag className="w-3 h-3 text-gray-400" />
-              <span className="text-xs text-gray-500">
-                {post.tags.slice(0, 2).map(t => t.tag).join(', ')}
-                {post.tags.length > 2 && ` +${post.tags.length - 2}`}
-              </span>
-            </div>
-          )}
-        </div>
-        
+        <h3
+          className="mb-3 cursor-pointer hover:text-green-600 transition-colors"
+          onClick={() => onPostClick?.(post.id)}
+        >
+          {post.title}
+        </h3>
         <button
           onClick={handleSave}
           disabled={loading}
           className="p-1 text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50"
         >
           {isSaved ? (
-            <BookmarkCheck className="w-4 h-4 text-blue-600" />
+            <BookmarkCheck className="w-4 h-4 text-primary" />
           ) : (
             <Bookmark className="w-4 h-4" />
           )}
         </button>
       </div>
-
-      {/* Title */}
-      <h3 
-        className="text-lg font-semibold text-gray-900 mb-3 cursor-pointer hover:text-blue-600 transition-colors"
-        onClick={() => onPostClick?.(post.id)}
-      >
-        {post.title}
-      </h3>
 
       {/* Image */}
       {post.image_url && (
@@ -224,12 +231,12 @@ export const PostCard: React.FC<PostCardProps> = ({
       )}
 
       {/* Content */}
-      <div className="text-gray-700 text-sm leading-relaxed mb-4 whitespace-pre-wrap">
+      <div className="text-foreground-dim text-sm leading-relaxed mb-4 whitespace-pre-wrap">
         {renderContent(post.content)}
         {!showFullContent && post.content.length > 200 && (
           <button
             onClick={() => onPostClick?.(post.id)}
-            className="text-blue-600 hover:text-blue-800 ml-1"
+            className="text-green-600 hover:text-green-800 ml-1"
           >
             Read more
           </button>
@@ -237,7 +244,7 @@ export const PostCard: React.FC<PostCardProps> = ({
       </div>
 
       {/* Author and Date */}
-      <div className="flex items-center space-x-4 mb-4 text-xs text-gray-500">
+      <div className="flex items-center space-x-4 mb-4 text-xs text-foreground-dim">
         <div className="flex items-center space-x-1">
           <User className="w-3 h-3" />
           <span>{post.author.name}</span>
@@ -252,18 +259,34 @@ export const PostCard: React.FC<PostCardProps> = ({
         </div>
       </div>
 
+      {/* Header with Category Badges */}
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-center space-x-3 flex-wrap gap-2">
+          {getSubcategoryBadge()}
+
+          {post.tags && post.tags.length > 0 && (
+            <div className="flex items-center space-x-1">
+              <Tag className="w-3 h-3 text-gray-400" />
+              <span className="text-xs text-gray-500">
+                {post.tags.slice(0, 2).map(t => t.tag).join(', ')}
+                {post.tags.length > 2 && ` +${post.tags.length - 2}`}
+              </span>
+            </div>
+          )}
+        </div>
+
+      </div>
       {/* Actions */}
-      <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-        <div className="flex items-center space-x-4">
+      <div className="flex items-center justify-between pt-4 border-t border-foreground-dim/10">
+        <div className="flex items-center space-x-2">
           {/* Upvote */}
           <button
             onClick={() => handleVote('upvote')}
             disabled={loading}
-            className={`flex items-center space-x-1 px-3 py-1 rounded-md transition-colors disabled:opacity-50 ${
-              userVote === 'upvote'
-                ? 'bg-green-100 text-green-700'
-                : 'text-gray-600 hover:bg-gray-100'
-            }`}
+            className={`flex items-center space-x-1 px-1 py-1 rounded-md transition-colors disabled:opacity-50 ${userVote === 'upvote'
+              ? 'bg-green-100 text-green-700'
+              : 'text-gray-600 hover:bg-gray-100'
+              }`}
           >
             <ThumbsUp className="w-4 h-4" />
             <span className="text-sm font-medium">{upvotes}</span>
@@ -273,11 +296,10 @@ export const PostCard: React.FC<PostCardProps> = ({
           <button
             onClick={() => handleVote('downvote')}
             disabled={loading}
-            className={`flex items-center space-x-1 px-3 py-1 rounded-md transition-colors disabled:opacity-50 ${
-              userVote === 'downvote'
-                ? 'bg-red-100 text-red-700'
-                : 'text-gray-600 hover:bg-gray-100'
-            }`}
+            className={`flex items-center space-x-1 px-1 py-1 rounded-md transition-colors disabled:opacity-50 ${userVote === 'downvote'
+              ? 'bg-red-100 text-red-700'
+              : 'text-gray-600 hover:bg-gray-100'
+              }`}
           >
             <ThumbsDown className="w-4 h-4" />
             <span className="text-sm font-medium">{downvotes}</span>
@@ -286,7 +308,7 @@ export const PostCard: React.FC<PostCardProps> = ({
           {/* Comments */}
           <button
             onClick={() => onPostClick?.(post.id)}
-            className="flex items-center space-x-1 px-3 py-1 rounded-md text-gray-600 hover:bg-gray-100 transition-colors"
+            className="flex items-center space-x-1 px-1 py-1 rounded-md text-gray-600 hover:bg-gray-100 transition-colors"
           >
             <MessageSquare className="w-4 h-4" />
             <span className="text-sm font-medium">{post.comment_count}</span>
@@ -297,7 +319,7 @@ export const PostCard: React.FC<PostCardProps> = ({
         {!showFullContent && (
           <button
             onClick={() => onPostClick?.(post.id)}
-            className="flex items-center space-x-1 text-blue-600 hover:text-blue-800 transition-colors text-sm"
+            className="flex items-center space-x-1 text-foreground-dim hover:text-foreground transition-colors text-xs"
           >
             <span>View</span>
             <ExternalLink className="w-3 h-3" />

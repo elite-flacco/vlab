@@ -140,13 +140,6 @@ export const Dashboard: React.FC = () => {
       {/* Active Projects */}
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold text-foreground font-mono">Your Projects</h2>
-        <button
-          onClick={onNewProjectClick}
-          className="btn-primary"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          New Project
-        </button>
       </div>
 
       {activeProjects.length === 0 ? (

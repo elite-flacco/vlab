@@ -4,7 +4,7 @@ import { useProjectStore } from '../stores/projectStore';
 import { useAuthStore } from '../stores/authStore';
 import { db } from '../lib/supabase';
 import { withTimeout, withTiming } from '../lib/utils';
-import { Plus, Grid3X3, Settings, Trash2, AlertCircle, RefreshCw } from 'lucide-react';
+import { Trash2, AlertCircle, RefreshCw } from 'lucide-react';
 import { ModuleCard } from '../components/Workspace/ModuleCard';
 import { ModuleType } from '../types';
 
@@ -427,10 +427,7 @@ export const Workspace: React.FC = () => {
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
           <p className="mt-4 text-foreground-dim font-mono">
-            {isRetrying ? 'Retrying connection...' : 
-             projectsLoading ? 'Loading projects...' : 
-             isProjectLoading ? 'Loading project...' :
-             'Loading workspace...'}
+            {currentProject ? `Loading ${currentProject.name}...` : 'Loading workspace...'}
           </p>
         </div>
       </div>
@@ -441,30 +438,30 @@ export const Workspace: React.FC = () => {
     const displayError = error || projectsError;
     console.log('❌ Workspace: Rendering error state:', displayError);
     return (
-      <div className="terminal-window p-6">
+      <div className="bg-secondary/50 border border-border rounded-lg p-6">
         <div className="flex items-start space-x-3">
-          <AlertCircle className="w-6 h-6 text-red-400 mt-0.5 flex-shrink-0" />
+          <AlertCircle className="w-6 h-6 text-error mt-0.5 flex-shrink-0" />
           <div className="flex-1">
-            <h3 className="text-lg font-semibold text-red-400 mb-2 font-mono">Error Loading Workspace</h3>
-            <p className="text-red-400 mb-4">{displayError}</p>
+            <h3 className="text-lg font-semibold text-error mb-2 font-mono">Error Loading Workspace</h3>
+            <p className="text-error/90 mb-4">{displayError}</p>
             
-            {displayError?.includes('connect') && (
-              <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 mb-4">
-                <h4 className="font-medium text-red-400 mb-2 font-mono">Connection Troubleshooting:</h4>
-                <ul className="text-sm text-red-400 space-y-1">
+            {displayError?.includes('connection') && (
+              <div className="bg-error/10 border border-error/20 rounded-lg p-4 mb-4">
+                <h4 className="font-medium text-error/90 mb-2 font-mono">Connection Troubleshooting:</h4>
+                <ul className="text-sm text-foreground-dim space-y-1">
                   <li>• Check your internet connection</li>
-                  <li>• Verify your Supabase project is running</li>
-                  <li>• Ensure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are correctly set in your .env file</li>
-                  <li>• If using local Supabase, run `supabase start`</li>
+                  <li>• Verify you're logged in</li>
+                  <li>• Try refreshing the page</li>
+                  <li>• Contact support if the issue persists</li>
                 </ul>
               </div>
             )}
             
-            <div className="flex space-x-3">
+            <div className="flex flex-wrap gap-3">
               <button
                 onClick={handleRetry}
                 disabled={isRetrying}
-                className="btn-primary bg-red-500 hover:bg-red-600 border-red-500 hover:border-red-600"
+                className="px-4 py-2 bg-error/90 hover:bg-error text-white rounded-lg flex items-center justify-center transition-colors disabled:opacity-50"
               >
                 {isRetrying ? (
                   <>
@@ -474,11 +471,10 @@ export const Workspace: React.FC = () => {
                 ) : (
                   <>
                     <RefreshCw className="w-4 h-4 mr-2" />
-                    Retry ({retryCount}/{maxRetries})
+                    Retry
                   </>
                 )}
               </button>
-              
               <button
                 onClick={() => navigate('/')}
                 className="btn-ghost"
@@ -503,23 +499,20 @@ export const Workspace: React.FC = () => {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground mb-2 glow font-mono">
-            {currentProject?.name || 'Loading Project...'}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold text-foreground font-mono">
+            {currentProject?.name || 'Workspace'}
           </h1>
           {currentProject?.description && (
-            <p className="text-foreground-dim">{currentProject.description}</p>
+            <p className="text-foreground-dim text-sm">{currentProject.description}</p>
           )}
         </div>
         
-        <div className="flex items-center space-x-3">
-          <button 
-            onClick={() => {
-              setShowDeleteConfirm(true);
-            }}
-            disabled={!currentProject}
-            className="btn-ghost text-red-400 hover:text-red-500 hover:border-red-500/30"
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setShowDeleteConfirm(true)}
+            className="btn-danger"
           >
             <Trash2 className="w-4 h-4 mr-2" />
             Delete Project
@@ -563,7 +556,7 @@ export const Workspace: React.FC = () => {
                 <button
                   onClick={handleDeleteProject}
                   disabled={isDeleting}
-                  className="btn-primary bg-red-500 hover:bg-red-600 border-red-500 hover:border-red-600 flex-1"
+                  className="btn-danger flex-1"
                 >
                   {isDeleting ? (
                     <>

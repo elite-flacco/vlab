@@ -45,7 +45,7 @@ export const Header: React.FC<HeaderProps> = ({ onNewProjectClick }) => {
           
           <button
             onClick={onNewProjectClick}
-            className="btn-primary"
+            className="btn-primary py-2"
           >
             <Plus className="w-4 h-4 mr-2" />
             New Project
@@ -53,7 +53,7 @@ export const Header: React.FC<HeaderProps> = ({ onNewProjectClick }) => {
           
           <div className="flex items-center space-x-2 text-sm text-foreground-dim font-mono">
             <User className="w-4 h-4" />
-            <span>{user?.name || user?.email}</span>
+            {/* <span>{user?.name || user?.email}</span> */}
           </div>
           
           <button className="p-2 text-foreground-dim hover:text-foreground transition-colors">

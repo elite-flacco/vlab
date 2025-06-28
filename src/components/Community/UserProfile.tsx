@@ -55,55 +55,55 @@ export const UserProfile: React.FC<UserProfileProps> = ({ userId, onPostClick })
   return (
     <div className="max-w-4xl mx-auto p-6">
       {/* Profile Header */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+      <div className="card bg-secondary/80 p-6 mb-6">
         <div className="flex items-center space-x-4">
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-            <User className="w-8 h-8 text-white" />
+          <div className="w-16 h-16 bg-background border border-primary/50 rounded-full flex items-center justify-center">
+            <User className="w-8 h-8 text-foreground" />
           </div>
           <div className="flex-1">
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold text-foreground">
               {isOwnProfile ? currentUser?.name : 'User Profile'}
             </h1>
-            <p className="text-gray-600">Community Member</p>
-            <div className="flex items-center space-x-1 text-sm text-gray-500 mt-1">
+            <p className="text-foreground-dim">Community Member</p>
+            <div className="flex items-center space-x-1 text-sm text-foreground-dim mt-1">
               <Calendar className="w-4 h-4" />
               <span>Joined {new Date().toLocaleDateString()}</span>
             </div>
           </div>
           {isOwnProfile && (
-            <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+            <button className="p-2 text-foreground-dim hover:text-foreground transition-colors">
               <Settings className="w-5 h-5" />
             </button>
           )}
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-6 mt-6 pt-6 border-t border-gray-200">
+        <div className="grid grid-cols-3 gap-6 mt-6 pt-6 border-t border-foreground-dim/10">
           <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900">{stats.totalPosts}</div>
-            <div className="text-sm text-gray-600">Posts</div>
+            <div className="text-2xl font-bold text-foreground">{stats.totalPosts}</div>
+            <div className="text-sm text-foreground-dim">Posts</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900">{stats.totalUpvotes}</div>
-            <div className="text-sm text-gray-600">Upvotes</div>
+            <div className="text-2xl font-bold text-foreground">{stats.totalUpvotes}</div>
+            <div className="text-sm text-foreground-dim">Upvotes</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900">{stats.totalViews}</div>
-            <div className="text-sm text-gray-600">Views</div>
+            <div className="text-2xl font-bold text-foreground">{stats.totalViews}</div>
+            <div className="text-sm text-foreground-dim">Views</div>
           </div>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        <div className="border-b border-gray-200">
+      <div className="card bg-secondary/80 overflow-hidden">
+        <div className="border-b border-foreground-dim/10">
           <nav className="flex">
             <button
               onClick={() => setActiveTab('posts')}
               className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
                 activeTab === 'posts'
-                  ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'text-primary border-b-2 border-primary bg-primary/10'
+                  : 'text-foreground-dim hover:text-foreground'
               }`}
             >
               <div className="flex items-center justify-center space-x-2">
@@ -116,8 +116,8 @@ export const UserProfile: React.FC<UserProfileProps> = ({ userId, onPostClick })
                 onClick={() => setActiveTab('saved')}
                 className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
                   activeTab === 'saved'
-                    ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'text-primary border-b-2 border-primary bg-primary/10'
+                    : 'text-foreground-dim hover:text-foreground'
                 }`}
               >
                 <div className="flex items-center justify-center space-x-2">
@@ -130,15 +130,15 @@ export const UserProfile: React.FC<UserProfileProps> = ({ userId, onPostClick })
         </div>
 
         {/* Content */}
-        <div className="p-6">
+        <div className="p-0 mt-4">
           {loading ? (
             <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="mt-4 text-gray-600">Loading...</p>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+              <p className="mt-4 text-foreground-dim">Loading...</p>
             </div>
           ) : error ? (
             <div className="text-center py-8">
-              <p className="text-red-600">{error}</p>
+              <p className="text-red-500">{error}</p>
             </div>
           ) : (
             <div className="space-y-6">
@@ -154,10 +154,10 @@ export const UserProfile: React.FC<UserProfileProps> = ({ userId, onPostClick })
                     ))
                   ) : (
                     <div className="text-center py-8">
-                      <TrendingUp className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">No posts yet</h3>
-                      <p className="text-gray-500">
-                        {isOwnProfile 
+                      <TrendingUp className="w-12 h-12 text-foreground-dim/30 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-foreground mb-2">No posts yet</h3>
+                      <p className="text-foreground-dim">
+                        {isOwnProfile
                           ? "You haven't shared any tools or tips yet."
                           : "This user hasn't shared any tools or tips yet."
                         }
@@ -179,9 +179,9 @@ export const UserProfile: React.FC<UserProfileProps> = ({ userId, onPostClick })
                     ))
                   ) : (
                     <div className="text-center py-8">
-                      <Bookmark className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">No saved posts</h3>
-                      <p className="text-gray-500">
+                      <Bookmark className="w-12 h-12 text-foreground-dim/30 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-foreground mb-2">No saved posts</h3>
+                      <p className="text-foreground-dim">
                         Posts you save will appear here for easy access later.
                       </p>
                     </div>

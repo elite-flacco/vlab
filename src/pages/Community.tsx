@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, TrendingUp, MessageSquare, Users, Award, Tag as TagIcon, Loader2, AlertCircle } from 'lucide-react';
+import { Search, Plus, MessageSquare, AlertCircle, Tag as TagIcon, Users, X } from 'lucide-react';
 import { PostSubmissionForm } from '../components/Community/PostSubmissionForm';
 import { PostCard } from '../components/Community/PostCard';
 import { PostDetailView } from '../components/Community/PostDetailView';
@@ -30,7 +30,7 @@ export const Community: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showSubmissionForm, setShowSubmissionForm] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
-  
+
   // Enhanced filters with URL state management
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<'tool' | 'tip' | ''>('');
@@ -38,7 +38,7 @@ export const Community: React.FC = () => {
   const [selectedTipCategory, setSelectedTipCategory] = useState<string>('');
   const [selectedTag, setSelectedTag] = useState<string>('');
   const [sortBy, setSortBy] = useState<'newest' | 'popular' | 'trending'>('trending');
-  
+
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [hasNextPage, setHasNextPage] = useState(false);
@@ -143,14 +143,14 @@ export const Community: React.FC = () => {
   const renderToolsTipsSection = () => (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Tools & Tips</h2>
-          <p className="text-gray-600 mt-1">Discover and share practical AI tools and usage tips</p>
+          <h2 className="text-2xl font-bold text-foreground font-mono">Tools & Tips</h2>
+          <p className="text-foreground-dim mt-1.5">Discover and share practical AI tools and usage tips</p>
         </div>
         <button
           onClick={() => setShowSubmissionForm(true)}
-          className="btn-primary inline-flex items-center px-4 py-2.5 text-sm"
+          className="btn-primary"
         >
           <Plus className="w-4 h-4 mr-2" />
           Share Tool/Tip
@@ -158,10 +158,11 @@ export const Community: React.FC = () => {
       </div>
 
       {/* Enhanced Search and Filters */}
-      <div className="border border-gray-200 rounded-lg p-4 space-y-4 bg-white shadow-sm">
+      <div className="terminal-window p-6 space-y-4 mb-8">
+        <div className="flex flex-col sm:flex-row gap-6">
         {/* Search Bar */}
         <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
+          <div className="relative">
             <Search className="search-icon" />
             <input
               type="text"
@@ -172,119 +173,69 @@ export const Community: React.FC = () => {
               className="search-input"
             />
           </div>
-          <button
-            onClick={handleSearch}
-            className="btn-primary px-5 py-2.5 text-sm whitespace-nowrap"
-          >
-            Search
-          </button>
         </div>
 
         {/* Primary Category Filter */}
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center space-x-2">
-            <span className="text-sm font-medium text-gray-700">Category:</span>
-            <div className="flex space-x-1">
-              <button
-                onClick={() => handleCategoryChange('')}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                  selectedCategory === ''
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                All
-              </button>
-              <button
-                onClick={() => handleCategoryChange('tool')}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                  selectedCategory === 'tool'
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                🛠️ Tools
-              </button>
-              <button
-                onClick={() => handleCategoryChange('tip')}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                  selectedCategory === 'tip'
-                    ? 'bg-green-600 text-white shadow-md'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                💡 Tips
-              </button>
+            <span className="text-sm font-medium text-foreground-dim">Filter by:</span>
+            <div className="flex flex-wrap items-center gap-3">
+              {/* Tool Filter (only show when category is 'tool' or 'all') */}
+              {(selectedCategory === 'tool' || selectedCategory === '') && (
+                <select
+                  value={selectedTool}
+                  onChange={(e) => setSelectedTool(e.target.value)}
+                  className="form-select"
+                >
+                  <option value="">All Tools</option>
+                  {TOOL_OPTIONS.map((tool) => (
+                    <option key={tool.value} value={tool.value}>
+                      {tool.label}
+                    </option>
+                  ))}
+                </select>
+              )}
+
+              {/* Tip Category Filter (only show when category is 'tip' or 'all') */}
+              {(selectedCategory === 'tip' || selectedCategory === '') && (
+                <select
+                  value={selectedTipCategory}
+                  onChange={(e) => setSelectedTipCategory(e.target.value)}
+                  className="form-select"
+                >
+                  <option value="">All Tip Categories</option>
+                  {TIP_CATEGORY_OPTIONS.map((category) => (
+                    <option key={category.value} value={category.value}>
+                      {category.label}
+                    </option>
+                  ))}
+                </select>
+              )}
+
+              {/* Active Tag Filter */}
+              {selectedTag && (
+                <div className="flex items-center space-x-1.5 bg-primary/10 text-primary px-3 py-1.5 rounded-md text-xs font-medium">
+                  <TagIcon className="w-3 h-3 flex-shrink-0" />
+                  <span className="truncate max-w-[120px]">{selectedTag}</span>
+                  <button
+                    onClick={() => setSelectedTag('')}
+                    className="ml-0.5 text-primary/70 hover:text-primary transition-colors"
+                    aria-label="Remove tag"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
-
-        {/* Secondary Filters */}
-        <div className="flex flex-wrap items-center gap-3">
-          {/* Tool Filter (only show when category is 'tool' or 'all') */}
-          {(selectedCategory === 'tool' || selectedCategory === '') && (
-            <select
-              value={selectedTool}
-              onChange={(e) => setSelectedTool(e.target.value)}
-              className="form-input text-sm py-1.5 min-w-[140px]"
-            >
-              <option value="">All Tools</option>
-              {TOOL_OPTIONS.map((tool) => (
-                <option key={tool.value} value={tool.value}>
-                  {tool.label}
-                </option>
-              ))}
-            </select>
-          )}
-
-          {/* Tip Category Filter (only show when category is 'tip' or 'all') */}
-          {(selectedCategory === 'tip' || selectedCategory === '') && (
-            <select
-              value={selectedTipCategory}
-              onChange={(e) => setSelectedTipCategory(e.target.value)}
-              className="form-input text-sm py-1.5 min-w-[160px]"
-            >
-              <option value="">All Tip Categories</option>
-              {TIP_CATEGORY_OPTIONS.map((category) => (
-                <option key={category.value} value={category.value}>
-                  {category.label}
-                </option>
-              ))}
-            </select>
-          )}
-          
-          {/* Sort Filter */}
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as any)}
-            className="form-input text-sm py-1.5 min-w-[120px]"
-          >
-            <option value="trending">🔥 Trending</option>
-            <option value="newest">🆕 Newest</option>
-            <option value="popular">⭐ Most Popular</option>
-          </select>
-
-          {/* Active Tag Filter */}
-          {selectedTag && (
-            <div className="flex items-center space-x-1.5 bg-blue-100 text-blue-800 px-3 py-1.5 rounded-full text-xs font-medium">
-              <TagIcon className="w-3 h-3" />
-              <span>{selectedTag}</span>
-              <button
-                onClick={() => setSelectedTag('')}
-                className="ml-0.5 text-blue-600 hover:text-blue-800 transition-colors"
-                aria-label="Remove tag"
-              >
-                ×
-              </button>
-            </div>
-          )}
         </div>
 
         {/* Active Filters Summary */}
         {(selectedCategory || selectedTool || selectedTipCategory || searchTerm) && (
           <div className="pt-2 border-t border-gray-100">
             <div className="flex items-center justify-between">
-              <div className="text-xs text-gray-600">
+              <div className="text-xs text-foreground-dim">
                 Showing {posts.length} of {totalPosts} posts
                 {selectedCategory && ` in ${selectedCategory}s`}
                 {selectedTool && ` for ${TOOL_OPTIONS.find(t => t.value === selectedTool)?.label}`}
@@ -299,7 +250,7 @@ export const Community: React.FC = () => {
                   setSearchTerm('');
                   setSelectedTag('');
                 }}
-                className="text-xs text-blue-600 hover:text-blue-800 transition-colors"
+                className="text-xs text-foreground-dim hover:text-foreground-dim/70 transition-colors"
               >
                 Clear all filters
               </button>
@@ -309,11 +260,11 @@ export const Community: React.FC = () => {
       </div>
 
       {/* Posts List */}
-      <div className="space-y-6">
+      <div className="space-y-6 mt-6">
         {loading ? (
           <div className="text-center py-16">
-            <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
-            <p className="text-gray-600">Loading posts...</p>
+            <div className="loading-spinner mx-auto mb-4"></div>
+            <p className="text-foreground-dim">Loading posts...</p>
           </div>
         ) : error ? (
           <div className="text-center py-16">
@@ -332,20 +283,13 @@ export const Community: React.FC = () => {
           </div>
         ) : posts.length === 0 ? (
           <div className="text-center py-12">
-            <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No posts found</h3>
-            <p className="text-gray-500 mb-4">
+            <MessageSquare className="w-12 h-12 text-foreground-dim/30 mx-auto mb-4" />
+            <h3 className="mb-2">No posts found</h3>
+            <p className="mb-4">
               {searchTerm || selectedCategory || selectedTool || selectedTipCategory || selectedTag
                 ? 'Try adjusting your filters or search terms.'
                 : 'Be the first to share a tool or tip with the community!'}
             </p>
-            <button
-              onClick={() => setShowSubmissionForm(true)}
-              className="btn-primary inline-flex items-center px-4 py-2.5 text-sm"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Share Tool/Tip
-            </button>
           </div>
         ) : (
           <>
@@ -359,7 +303,7 @@ export const Community: React.FC = () => {
 
             {/* Pagination */}
             <div className="flex items-center justify-between pt-6">
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-foreground-dim">
                 Showing {posts.length} of {totalPosts} posts
               </div>
               <div className="flex space-x-2">
@@ -370,7 +314,7 @@ export const Community: React.FC = () => {
                 >
                   Previous
                 </button>
-                <span className="px-4 py-2 text-gray-600 flex items-center">
+                <span className="px-4 py-2 text-foreground-dim flex items-center text-sm">
                   Page {currentPage}
                 </span>
                 <button
@@ -389,38 +333,40 @@ export const Community: React.FC = () => {
   );
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
+    <div className="max-w-6xl mx-auto px-4 py-8">
       {/* Main Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">AI Community Hub</h1>
-        <p className="text-gray-600">
-          Connect, share, and learn with fellow AI tool enthusiasts
+      <div className="mb-10">
+        <h1 className="mb-3">Community Hub</h1>
+        <p className="text-lg">
+          Connect, share, and learn with fellow vibe coders
         </p>
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex items-center space-x-1 mb-8 bg-gray-100 p-1 rounded-lg">
+      <div className="flex space-x-1 p-1 bg-secondary/30 rounded-lg mb-8 max-w-fit">
         <button
           onClick={() => setActiveSection('tools-tips')}
-          className={`flex-1 flex items-center justify-center px-4 py-3 rounded-md font-medium transition-colors ${
-            activeSection === 'tools-tips'
-              ? 'bg-white text-gray-900 shadow-sm'
-              : 'text-gray-600 hover:text-gray-900'
-          }`}
+          className={`${activeSection === 'tools-tips'
+              ? 'filter-button-active'
+              : 'filter-button'
+            }`}
         >
-          <TrendingUp className="w-4 h-4 mr-2" />
-          Tools & Tips
+          <div className="flex items-center">
+            <MessageSquare className="mr-2 h-4 w-4" />
+            Tools & Tips
+          </div>
         </button>
         <button
           onClick={() => setActiveSection('profile')}
-          className={`flex-1 flex items-center justify-center px-4 py-3 rounded-md font-medium transition-colors text-sm ${
-            activeSection === 'profile'
-              ? 'bg-white text-purple-600 shadow-sm'
-              : 'text-gray-600 hover:text-gray-900'
-          }`}
+          className={`${activeSection === 'profile'
+              ? 'filter-button-active'
+              : 'filter-button'
+            }`}
         >
-          <Users className="w-4 h-4 mr-2" />
-          My Profile
+          <div className="flex items-center">
+            <Users className="mr-2 h-4 w-4" />
+            My Profile
+          </div>
         </button>
       </div>
 
@@ -431,25 +377,26 @@ export const Community: React.FC = () => {
       )}
 
       {/* Community Stats */}
-      <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Stats Card Component */}
+      {/* <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Total Posts', value: totalPosts, icon: TrendingUp, color: 'bg-blue-500' },
-          { label: 'Active Members', value: '1,247', icon: Users, color: 'bg-green-500' },
-          { label: 'Tools Shared', value: '856', icon: MessageSquare, color: 'bg-purple-500' },
-          { label: 'Tips Shared', value: '391', icon: Award, color: 'bg-amber-500' }
+          { label: 'Total Posts', value: totalPosts, color: 'bg-gradient-to-br from-blue-500 to-blue-600' },
+          { label: 'Active Members', value: '1,247', color: 'bg-gradient-to-br from-green-500 to-green-600' },
+          { label: 'Tools Shared', value: '856', color: 'bg-gradient-to-br from-purple-500 to-purple-600' },
+          { label: 'Tips Shared', value: '391', color: 'bg-gradient-to-br from-amber-500 to-amber-600' }
         ].map((stat, index) => (
-          <div key={index} className={`${stat.color} text-white p-5 rounded-lg`}>
+          <div key={index} className={`${stat.color} text-white p-5 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-200`}>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-white/90 text-sm">{stat.label}</p>
-                <p className="text-2xl font-bold">{stat.value}</p>
+                <p className="text-white/90 text-sm font-medium">{stat.label}</p>
+                <p className="text-2xl font-bold mt-1">{stat.value}</p>
               </div>
-              <stat.icon className="w-8 h-8 text-white/80" />
+              <div className="p-2 bg-white/20 rounded-lg">
+                <MessageSquare className="w-5 h-5 text-white" />
+              </div>
             </div>
           </div>
         ))}
-      </div>
+      </div> */}
 
       {/* Modals */}
       <PostSubmissionForm

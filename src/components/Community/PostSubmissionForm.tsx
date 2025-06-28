@@ -123,14 +123,17 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300">
+      <div className="bg-secondary border border-foreground-dim/20 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl transform transition-all duration-200">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">Share a Tool or Tip</h2>
+        <div className="flex items-center justify-between p-6 border-b border-foreground-dim/10">
+          <h2 className="text-xl font-medium text-foreground">
+            Share a Tool or Tip
+          </h2>
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+            className="p-1.5 rounded-full text-foreground-dim hover:bg-foreground-dim/10 hover:text-foreground transition-colors"
+            aria-label="Close form"
           >
             <X className="w-5 h-5" />
           </button>
@@ -140,43 +143,47 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
         <form onSubmit={handleSubmit} className="p-6 space-y-6 overflow-y-auto max-h-[calc(90vh-120px)]">
           {/* Error Display */}
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start space-x-3">
-              <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
-              <p className="text-sm text-red-600">{error}</p>
+            <div className="bg-red-900/20 border border-red-800/50 rounded-lg p-4 flex items-start space-x-3">
+              <AlertCircle className="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" />
+              <p className="text-sm text-red-300">{error}</p>
             </div>
           )}
 
           {/* Category Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
+            <label className="block text-sm font-medium text-foreground-dim mb-3">
               What are you sharing?
             </label>
             <div className="grid grid-cols-2 gap-4">
               <button
                 type="button"
                 onClick={() => handleCategoryChange('tool')}
-                className={`p-4 border-2 rounded-lg text-left transition-all ${
+                className={`p-4 border rounded-lg text-left transition-all ${
                   formData.category === 'tool'
-                    ? 'border-blue-500 bg-blue-50 text-blue-900'
-                    : 'border-gray-200 hover:border-gray-300'
+                    ? 'border-primary bg-primary/10 text-foreground'
+                    : 'border-foreground-dim/20 hover:border-foreground-dim/40 bg-secondary'
                 }`}
               >
-                <h3 className="font-semibold mb-1">🛠️ Tool</h3>
-                <p className="text-sm text-gray-600">
+                <h3 className="font-medium mb-1 flex items-center">
+                  <span className="mr-2">🛠️</span> Tool
+                </h3>
+                <p className="text-sm text-foreground-dim">
                   Share an AI tool, software, or service
                 </p>
               </button>
               <button
                 type="button"
                 onClick={() => handleCategoryChange('tip')}
-                className={`p-4 border-2 rounded-lg text-left transition-all ${
+                className={`p-4 border rounded-lg text-left transition-all ${
                   formData.category === 'tip'
-                    ? 'border-green-500 bg-green-50 text-green-900'
-                    : 'border-gray-200 hover:border-gray-300'
+                    ? 'border-primary bg-primary/10 text-foreground'
+                    : 'border-foreground-dim/20 hover:border-foreground-dim/40 bg-secondary'
                 }`}
               >
-                <h3 className="font-semibold mb-1">💡 Tip</h3>
-                <p className="text-sm text-gray-600">
+                <h3 className="font-medium mb-1 flex items-center">
+                  <span className="mr-2">💡</span> Tip
+                </h3>
+                <p className="text-sm text-foreground-dim">
                   Share a helpful tip or best practice
                 </p>
               </button>
@@ -186,14 +193,14 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
           {/* Tool Selection (only for tools) */}
           {formData.category === 'tool' && (
             <div>
-              <label htmlFor="tool" className="block text-sm font-medium text-gray-700 mb-2">
-                Select Tool *
+              <label htmlFor="tool" className="block text-sm font-medium text-foreground-dim mb-2">
+                Select Tool <span className="text-red-400">*</span>
               </label>
               <select
                 id="tool"
                 value={formData.tool}
                 onChange={(e) => setFormData(prev => ({ ...prev, tool: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2.5 bg-secondary border border-foreground-dim/20 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-foreground placeholder-foreground-dim/50 text-sm transition-colors"
                 required
                 aria-label="Select the relevant tool"
               >
@@ -213,14 +220,14 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
           {/* Tip Category Selection (only for tips) */}
           {formData.category === 'tip' && (
             <div>
-              <label htmlFor="tip_category" className="block text-sm font-medium text-gray-700 mb-2">
-                Select Category *
+              <label htmlFor="tip_category" className="block text-sm font-medium text-foreground-dim mb-2">
+                Select Category <span className="text-red-400">*</span>
               </label>
               <select
                 id="tip_category"
                 value={formData.tip_category}
                 onChange={(e) => setFormData(prev => ({ ...prev, tip_category: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                className="w-full px-3 py-2.5 bg-secondary border border-foreground-dim/20 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-foreground placeholder-foreground-dim/50 text-sm transition-colors"
                 required
                 aria-label="Choose the tip category"
               >
@@ -239,15 +246,15 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
 
           {/* Title */}
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
-              Title *
+            <label htmlFor="title" className="block text-sm font-medium text-foreground-dim mb-2">
+              Title <span className="text-red-400">*</span>
             </label>
             <input
               type="text"
               id="title"
               value={formData.title}
               onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2.5 bg-secondary border border-foreground-dim/20 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-foreground placeholder-foreground-dim/50 text-sm transition-colors"
               placeholder={`Enter a descriptive title for your ${formData.category}...`}
               required
             />
@@ -255,26 +262,26 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
 
           {/* Content */}
           <div>
-            <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
-              Content *
+            <label htmlFor="content" className="block text-sm font-medium text-foreground-dim mb-2">
+              Content <span className="text-red-400">*</span>
             </label>
             <textarea
               id="content"
               value={formData.content}
               onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
               rows={8}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+              className="w-full px-3 py-2.5 bg-secondary border border-foreground-dim/20 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-foreground placeholder-foreground-dim/50 resize-none text-sm transition-colors"
               placeholder={`Describe your ${formData.category} in detail. Include:\n\n• What it does and how it helps\n• Key features or benefits\n• How to use it\n• Any tips or best practices\n\nMarkdown formatting is supported!`}
               required
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-foreground-dim mt-1">
               Supports Markdown formatting (links, bold, lists, etc.)
             </p>
           </div>
 
           {/* Image URL */}
           <div>
-            <label htmlFor="image_url" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="image_url" className="block text-sm font-medium text-foreground-dim mb-2">
               Image URL (Optional)
             </label>
             <div className="flex space-x-2">
@@ -283,12 +290,12 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
                 id="image_url"
                 value={formData.image_url}
                 onChange={(e) => setFormData(prev => ({ ...prev, image_url: e.target.value }))}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="flex-1 px-3 py-2.5 bg-secondary border border-foreground-dim/20 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-foreground placeholder-foreground-dim/50 text-sm transition-colors"
                 placeholder="https://example.com/image.jpg"
               />
               <button
                 type="button"
-                className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                className="px-3 py-2.5 bg-secondary border border-foreground-dim/20 rounded-lg hover:bg-foreground-dim/10 transition-colors text-foreground-dim hover:text-foreground"
                 title="Upload image"
               >
                 <Upload className="w-4 h-4" />
@@ -298,21 +305,21 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
 
           {/* Tags */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-foreground-dim mb-2">
               Tags
             </label>
             <div className="flex flex-wrap gap-2 mb-3">
               {formData.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+                  className="inline-flex items-center px-3 py-1 bg-foreground-dim/5 border border-foreground-dim/20 text-foreground rounded-full text-xs font-medium"
                 >
-                  <Tag className="w-3 h-3 mr-1" />
+                  <Tag className="w-3 h-3 mr-1.5 text-foreground-dim" />
                   {tag}
                   <button
                     type="button"
                     onClick={() => handleRemoveTag(tag)}
-                    className="ml-2 text-blue-600 hover:text-blue-800"
+                    className="ml-1.5 text-foreground-dim hover:text-foreground transition-colors"
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -325,35 +332,36 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
                 value={newTag}
                 onChange={(e) => setNewTag(e.target.value)}
                 onKeyPress={handleKeyPress}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="flex-1 px-3 py-2.5 bg-secondary border border-foreground-dim/20 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-foreground placeholder-foreground-dim/50 text-sm transition-colors"
                 placeholder="Add a tag..."
               />
               <button
                 type="button"
                 onClick={handleAddTag}
-                className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="px-3 py-2.5 bg-primary/90 hover:bg-primary text-secondary rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={!newTag.trim()}
               >
                 <Plus className="w-4 h-4" />
               </button>
             </div>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-foreground-dim mt-1">
               Add relevant tags to help others discover your {formData.category}
             </p>
           </div>
 
           {/* Submit Button */}
-          <div className="flex space-x-3 pt-4">
+          <div className="flex items-center justify-end space-x-3 pt-4 border-t border-foreground-dim/10">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+              className="btn-secondary"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading || !formData.title.trim() || !formData.content.trim()}
-              className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center justify-center space-x-2"
+              className="btn-primary"
             >
               {loading ? (
                 <>

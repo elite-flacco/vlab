@@ -131,27 +131,27 @@ export const IdeaBouncer: React.FC<IdeaBouncerProps> = ({ projectId, onIdeaSelec
   const canSaveIdea = messages.length > 2; // At least one user message and one AI response
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col space-y-4 bg-background p-4 rounded-lg">
       {/* Chat Header */}
-      <div className="flex items-center space-x-3 mb-6">
-        <div className="p-2 bg-purple-100 rounded-lg">
-          <MessageCircle className="w-6 h-6 text-purple-600" />
+      <div className="flex items-center space-x-4">
+        <div className="p-2 bg-primary/10 rounded-lg">
+          <MessageCircle className="w-6 h-6 text-primary" />
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">AI Idea Bouncer</h3>
-          <p className="text-sm text-gray-600">Let's explore and refine your project concept together</p>
+          <h3 className="text-lg font-semibold text-foreground">AI Idea Bouncer</h3>
+          <p className="text-sm text-foreground-dim">Let's explore and refine your project concept together</p>
         </div>
       </div>
 
       {/* Error Display */}
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-sm text-red-600">{error}</p>
+        <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20">
+          <p className="text-sm text-destructive">{error}</p>
         </div>
       )}
 
       {/* Chat Messages */}
-      <div className="flex-1 bg-gray-50 rounded-lg p-4 mb-4 overflow-y-auto max-h-96">
+      <div className="flex-1 overflow-y-auto rounded-lg border bg-background p-4 max-h-[400px]">
         <div className="space-y-4">
           {messages.map((message, index) => (
             <div
@@ -159,17 +159,19 @@ export const IdeaBouncer: React.FC<IdeaBouncerProps> = ({ projectId, onIdeaSelec
               className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                className={`max-w-[80%] rounded-xl px-4 py-3 ${
                   message.role === 'user'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-900 border border-gray-200'
+                    ? 'bg-foreground-dark text-background'
+                    : 'bg-muted/30'
                 }`}
               >
-                <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                <p className={`text-xs mt-1 ${
-                  message.role === 'user' ? 'text-blue-100' : 'text-gray-500'
+                <p className={`text-sm leading-relaxed whitespace-pre-wrap ${
+                  message.role === 'user' ? 'text-background' : 'text-muted-foreground'
+                }`}>{message.content}</p>
+                <p className={`text-xs mt-1.5 ${
+                  message.role === 'user' ? 'text-background' : 'text-muted-foreground'
                 }`}>
-                  {message.timestamp.toLocaleTimeString()}
+                  {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </p>
               </div>
             </div>
@@ -177,9 +179,9 @@ export const IdeaBouncer: React.FC<IdeaBouncerProps> = ({ projectId, onIdeaSelec
           
           {isLoading && (
             <div className="flex justify-start">
-              <div className="bg-white text-gray-900 border border-gray-200 px-4 py-2 rounded-lg">
-                <div className="flex items-center space-x-2">
-                  <Loader2 className="w-4 h-4 animate-spin" />
+              <div className="rounded-xl bg-muted/50 px-4 py-3">
+                <div className="flex items-center space-x-2 text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" />
                   <span className="text-sm">AI is thinking...</span>
                 </div>
               </div>
@@ -191,32 +193,34 @@ export const IdeaBouncer: React.FC<IdeaBouncerProps> = ({ projectId, onIdeaSelec
 
       {/* Message Input */}
       <div className="space-y-4">
-        <div className="flex space-x-2">
-          <textarea
-            ref={inputRef}
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Describe your idea, ask questions, or share your thoughts..."
-            className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 resize-none"
-            rows={2}
-            disabled={isLoading}
-          />
+        <div className="flex gap-2">
+          <div className="relative flex-1 bg-background">
+            <textarea
+              ref={inputRef}
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Describe your idea, ask questions, or share your thoughts..."
+              className="flex min-h-[60px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+              rows={2}
+              disabled={isLoading}
+            />
+          </div>
           <button
             onClick={handleSendMessage}
             disabled={!inputValue.trim() || isLoading}
-            className="px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+            className="btn-secondary"
           >
-            <Send className="w-5 h-5" />
+            <Send className="h-5 w-5" />
           </button>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-          <div className="text-sm text-gray-600">
+        <div className="flex items-center justify-between border-t border-border pt-4">
+          <div className="text-sm text-muted-foreground">
             {canSaveIdea ? (
-              <span className="flex items-center space-x-1">
-                <Sparkles className="w-4 h-4" />
+              <span className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-primary" />
                 <span>Ready to save your idea and continue?</span>
               </span>
             ) : (
@@ -227,17 +231,17 @@ export const IdeaBouncer: React.FC<IdeaBouncerProps> = ({ projectId, onIdeaSelec
           <button
             onClick={handleSaveIdea}
             disabled={!canSaveIdea || isSaving}
-            className="inline-flex items-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+            className="btn-primary"
           >
             {isSaving ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Saving...
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>Saving...</span>
               </>
             ) : (
               <>
-                <Save className="w-4 h-4 mr-2" />
-                Save Idea & Continue
+                <Save className="h-4 w-4 mr-2" />
+                <span>Save Idea & Continue</span>
               </>
             )}
           </button>
