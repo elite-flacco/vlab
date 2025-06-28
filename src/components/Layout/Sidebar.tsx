@@ -34,27 +34,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
     return projectName.charAt(0).toUpperCase();
   };
 
-  // Helper function to generate a consistent color for each project
-  const getProjectColor = (projectName: string) => {
-    const colors = [
-      'bg-blue-500',
-      'bg-green-500', 
-      'bg-purple-500',
-      'bg-pink-500',
-      'bg-yellow-500',
-      'bg-indigo-500',
-      'bg-red-500',
-      'bg-teal-500'
-    ];
-    
-    // Simple hash function to get consistent color for project name
-    let hash = 0;
-    for (let i = 0; i < projectName.length; i++) {
-      hash = projectName.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    return colors[Math.abs(hash) % colors.length];
-  };
-
   return (
     <aside className={`h-full flex flex-col bg-background border-r border-foreground-dim/20 transition-all duration-300 ${
       isCollapsed ? 'w-16' : 'w-64'
@@ -91,8 +70,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
                 title={project.name}
               >
                 {isCollapsed ? (
-                  // Show project initial when collapsed
-                  <div className={`w-4 h-4 rounded-sm ${getProjectColor(project.name)} flex items-center justify-center text-white text-xs font-bold`}>
+                  // Show project initial with unified styling when collapsed
+                  <div className="w-4 h-4 rounded-sm bg-secondary/50 flex items-center justify-center text-primary text-xs font-bold">
                     {getProjectInitial(project.name)}
                   </div>
                 ) : (
