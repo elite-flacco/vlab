@@ -224,8 +224,8 @@ Markdown formatting is supported!"
           </div>
 
           {/* Category Requirement Note */}
-          <div className="bg-primary/10 border border-primary/20 rounded-lg p-3">
-            <p className="text-sm text-primary">
+          <div className="bg-warning/10 border border-warning/20 rounded-lg p-3">
+            <p className="text-sm text-warning">
               <strong>Note:</strong> Please select at least one category (tool or tip) to help others discover your post.
             </p>
           </div>

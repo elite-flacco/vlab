@@ -200,10 +200,10 @@ export const PromptsDetailView: React.FC = () => {
         <BackButton onClick={handleReturnToWorkspace} />
         <ModuleContainer title="Prompts" type="prompts">
           <div className="h-full flex items-center justify-center">
-            <div className="text-center">
+            <div className="text-center pt-4">
               <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No Prompts Yet</h3>
-              <p className="text-gray-600 mb-4 text-sm">
+              <h3 className="mb-2">No Prompts Yet</h3>
+              <p className="mb-4 text-sm">
                 Create AI prompts to streamline your development workflow.
               </p>
               <button

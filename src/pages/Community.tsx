@@ -126,7 +126,7 @@ export const Community: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-10">
         <div>
           <h1 className="mb-3">Community Hub</h1>
-          <p className="text-lg">
+          <p>
             Connect, share, and learn with fellow vibe coders
           </p>
         </div>
@@ -143,9 +143,9 @@ export const Community: React.FC = () => {
       <div className="terminal-window p-6 space-y-4 mb-8">
         <div className="flex flex-col sm:flex-row gap-6">
           {/* Search Bar */}
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex-1 max-w-md">
             <div className="relative">
-              <Search className="search-icon" />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground-dim" />
               <input
                 type="text"
                 value={searchTerm}

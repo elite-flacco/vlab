@@ -165,7 +165,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
             <button 
               onClick={() => navigate('/settings')}
               className={`flex items-center space-x-2 px-3 py-2 text-sm rounded-md transition-colors font-mono ${
-                isOnSettings ? 'sidebar-item-active' : 'text-foreground hover:bg-secondary/50 hover:text-foreground'
+                isOnSettings ? 'bg-primary/10 text-primary border-primary/50'  : 'text-foreground hover:bg-secondary/50 hover:text-foreground'
               }`}
               title="Settings"
             >

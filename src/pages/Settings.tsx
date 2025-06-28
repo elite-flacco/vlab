@@ -150,7 +150,7 @@ export const Settings: React.FC = () => {
       <div className="mb-8">
         <button
           onClick={() => navigate('/')}
-          className="inline-flex items-center text-foreground-dim hover:text-foreground transition-colors mb-4"
+          className="btn-ghost mb-4"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Dashboard

@@ -48,49 +48,60 @@ export const UserProfileSection: React.FC<UserProfileSectionProps> = ({ onPostCl
     totalViews: userPosts.reduce((sum, post) => sum + post.view_count, 0),
   };
 
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center space-x-3 mb-6">
-        <div className="p-2 bg-primary/10 rounded-lg">
-          <Star className="w-5 h-5 text-primary" />
-        </div>
-        <div>
-          <h2 className="text-xl font-semibold text-foreground font-mono">Community Profile</h2>
-          <p className="text-sm text-foreground-dim">Manage your community posts and saved content.</p>
-        </div>
-      </div>
+  // Store the scroll position when tab changes
+  useEffect(() => {
+    // Save the current scroll position
+    const scrollY = window.scrollY;
+    
+    // After the component updates, restore the scroll position
+    const timer = setTimeout(() => {
+      window.scrollTo(0, scrollY);
+    }, 0);
+    
+    return () => clearTimeout(timer);
+  }, [activeTab]);
 
-      {/* Profile Stats */}
-      <div className="card bg-secondary/80 p-6 mb-6">
-        <div className="flex items-center space-x-4">
-          <div className="w-16 h-16 bg-background border border-primary/50 rounded-full flex items-center justify-center">
-            <User className="w-8 h-8 text-foreground" />
-          </div>
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold text-foreground">
-              {user?.name || 'User Profile'}
-            </h1>
-            <p className="text-foreground-dim">Community Member</p>
-            <div className="flex items-center space-x-1 text-sm text-foreground-dim mt-1">
-              <Calendar className="w-4 h-4" />
-              <span>Joined {new Date(user?.created_at || Date.now()).toLocaleDateString()}</span>
+  const handleTabClick = (tab: 'posts' | 'saved', e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setActiveTab(tab);
+  };
+
+  return (
+    <div className="space-y-4">
+
+      {/* Compact Profile Stats */}
+      <div className="card bg-secondary/80 p-3 mb-4">
+        <div className="flex items-start justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-background border border-primary/50 rounded-full flex-shrink-0 flex items-center justify-center">
+              <User className="w-5 h-5 text-foreground" />
+            </div>
+            <div className="min-w-0">
+              <h1 className="text-base font-semibold text-foreground truncate">
+                {user?.name || 'User Profile'}
+              </h1>
+              <div className="flex items-center space-x-2 text-xs text-foreground-dim">
+                <Calendar className="w-3 h-3 flex-shrink-0" />
+                <span>Joined {new Date(user?.created_at || Date.now()).toLocaleDateString()}</span>
+              </div>
             </div>
           </div>
-        </div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-6 mt-6 pt-6 border-t border-foreground-dim/10">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-foreground">{stats.totalPosts}</div>
-            <div className="text-sm text-foreground-dim">Posts</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-foreground">{stats.totalUpvotes}</div>
-            <div className="text-sm text-foreground-dim">Upvotes</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-foreground">{stats.totalViews}</div>
-            <div className="text-sm text-foreground-dim">Views</div>
+          
+          {/* Inline Stats */}
+          <div className="flex items-center divide-x divide-foreground-dim/20 text-xs">
+            <div className="px-2 text-center">
+              <div className="font-semibold text-foreground">{stats.totalPosts}</div>
+              <div className="text-foreground-dim">Posts</div>
+            </div>
+            <div className="px-2 text-center">
+              <div className="font-semibold text-foreground">{stats.totalUpvotes}</div>
+              <div className="text-foreground-dim">Upvotes</div>
+            </div>
+            <div className="px-2 text-center">
+              <div className="font-semibold text-foreground">{stats.totalViews}</div>
+              <div className="text-foreground-dim">Views</div>
+            </div>
           </div>
         </div>
       </div>
@@ -98,32 +109,30 @@ export const UserProfileSection: React.FC<UserProfileSectionProps> = ({ onPostCl
       {/* Tabs */}
       <div className="card bg-secondary/80 overflow-hidden">
         <div className="border-b border-foreground-dim/10">
-          <nav className="flex">
+          <nav className="flex text-sm">
             <button
-              onClick={() => setActiveTab('posts')}
-              className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
+              type="button"
+              onClick={(e) => handleTabClick('posts', e)}
+              className={`flex-1 px-4 py-3 text-sm font-medium transition-colors flex items-center justify-center space-x-2 focus:outline-none ${
                 activeTab === 'posts'
-                  ? 'text-primary border-b-2 border-primary bg-primary/10'
-                  : 'text-foreground-dim hover:text-foreground'
+                  ? 'text-primary border-b-2 border-primary bg-transparent'
+                  : 'text-foreground-dim hover:text-foreground hover:bg-background/20'
               }`}
             >
-              <div className="flex items-center justify-center space-x-2">
-                <TrendingUp className="w-4 h-4" />
-                <span>My Posts</span>
-              </div>
+              <TrendingUp className="w-4 h-4" />
+              <span>My Posts</span>
             </button>
             <button
-              onClick={() => setActiveTab('saved')}
-              className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
+              type="button"
+              onClick={(e) => handleTabClick('saved', e)}
+              className={`flex-1 px-4 py-3 text-sm font-medium transition-colors flex items-center justify-center space-x-2 focus:outline-none ${
                 activeTab === 'saved'
-                  ? 'text-primary border-b-2 border-primary bg-primary/10'
-                  : 'text-foreground-dim hover:text-foreground'
+                  ? 'text-primary border-b-2 border-primary bg-transparent'
+                  : 'text-foreground-dim hover:text-foreground hover:bg-background/20'
               }`}
             >
-              <div className="flex items-center justify-center space-x-2">
-                <Bookmark className="w-4 h-4" />
-                <span>Saved</span>
-              </div>
+              <Bookmark className="w-4 h-4" />
+              <span>Saved</span>
             </button>
           </nav>
         </div>

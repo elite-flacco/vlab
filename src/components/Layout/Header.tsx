@@ -38,7 +38,8 @@ export const Header: React.FC<HeaderProps> = ({ onNewProjectClick }) => {
         <div className="header-nav">
           <button
             onClick={() => navigate('/community')}
-            className={`nav-link ${isOnCommunity ? 'nav-link-active' : ''}`}
+            className={`inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary/20 font-mono border ${isOnCommunity ? 'bg-primary/10 text-primary border-primary/50' : 'bg-transparent text-foreground border-foreground-dim/30 hover:bg-secondary/50 hover:text-foreground hover:border-foreground-dim/50'}`}
+            style={{ height: '36px' }}
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -50,16 +51,8 @@ export const Header: React.FC<HeaderProps> = ({ onNewProjectClick }) => {
           </button>
           
           <button
-            onClick={() => navigate('/settings')}
-            className={`nav-link ${isOnSettings ? 'nav-link-active' : ''}`}
-          >
-            <Settings className="w-4 h-4 mr-2" />
-            Settings
-          </button>
-          
-          <button
             onClick={onNewProjectClick}
-            className="btn-primary py-2"
+            className="btn-primary"
           >
             <Plus className="w-4 h-4 mr-2" />
             New Project
