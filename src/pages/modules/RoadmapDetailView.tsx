@@ -139,89 +139,108 @@ export const RoadmapDetailView: React.FC = () => {
     }
   };
 
-  // Drag and Drop Handler
+  // Drag and Drop Handler - Completely refactored
   const handleDragEnd = async (result: DropResult) => {
     setIsDragging(false);
 
     const { destination, source, draggableId } = result;
 
-    // If dropped outside a droppable area, do nothing
-    if (!destination) {
+    // If dropped outside a droppable area or in the same position, do nothing
+    if (!destination || 
+        (destination.droppableId === source.droppableId && 
+         destination.index === source.index)) {
       return;
     }
 
-    // If dropped in the same position, do nothing
-    if (
-      destination.droppableId === source.droppableId &&
-      destination.index === source.index
-    ) {
-      return;
-    }
-
+    // Get the source and destination phases
     const sourcePhase = source.droppableId as RoadmapItem['phase'];
     const destinationPhase = destination.droppableId as RoadmapItem['phase'];
 
-    // Get the item being moved
+    // Find the item being moved
     const movedItem = roadmapItems.find(item => item.id === draggableId);
     if (!movedItem) return;
 
-    // Create new roadmap items array with updated positions and phases
+    // Create a copy of the current roadmap items
     let updatedItems = [...roadmapItems];
 
-    // Remove the item from its current position
+    // Remove the moved item from the array
     updatedItems = updatedItems.filter(item => item.id !== draggableId);
 
-    // Get items in the destination phase (excluding the moved item)
-    const destinationItems = updatedItems.filter(item => item.phase === destinationPhase);
-
-    // Insert the moved item at the new position
+    // Create a copy of the moved item with updated phase
     const updatedMovedItem = {
       ...movedItem,
-      phase: destinationPhase,
+      phase: destinationPhase
     };
 
-    destinationItems.splice(destination.index, 0, updatedMovedItem);
+    // Insert the moved item at the new position
+    updatedItems.splice(
+      updatedItems.findIndex(item => item.phase === destinationPhase && item.position >= destination.index),
+      0,
+      updatedMovedItem
+    );
 
-    // Update positions for items in the destination phase
-    const destinationItemsWithPositions = destinationItems.map((item, index) => ({
-      ...item,
-      position: index,
-    }));
+    // If the item wasn't found at the right position (e.g., it's the last item), append it
+    if (!updatedItems.includes(updatedMovedItem)) {
+      // Get all items in the destination phase
+      const destinationItems = updatedItems.filter(item => item.phase === destinationPhase);
+      // Add the moved item at the end
+      updatedItems.push(updatedMovedItem);
+    }
 
-    // Combine all items
-    const otherPhaseItems = updatedItems.filter(item => item.phase !== destinationPhase);
-    const finalItems = [...otherPhaseItems, ...destinationItemsWithPositions];
+    // Update positions for all items in each phase
+    const finalItems = [];
+    
+    // Process each phase separately
+    for (const phase of ['mvp', 'phase_2', 'backlog'] as const) {
+      const phaseItems = updatedItems
+        .filter(item => item.phase === phase)
+        .sort((a, b) => {
+          // Special case for the moved item in the destination phase
+          if (phase === destinationPhase) {
+            if (a.id === draggableId) return destination.index - 0.5; // Place it at the destination index
+            if (b.id === draggableId) return 0.5 - destination.index;
+          }
+          return a.position - b.position;
+        });
+      
+      // Update positions within this phase
+      const updatedPhaseItems = phaseItems.map((item, index) => ({
+        ...item,
+        position: index
+      }));
+      
+      finalItems.push(...updatedPhaseItems);
+    }
 
     // Update local state immediately for better UX
     setRoadmapItems(finalItems);
 
-    // Update the database for all affected items
+    // Update the database
     try {
       setSaving(true);
 
-      // Update the moved item's phase
-      if (sourcePhase !== destinationPhase) {
-        await handleUpdateRoadmapItem(draggableId, {
-          phase: destinationPhase,
-          position: destination.index
+      // First update the moved item with its new phase and position
+      const destinationItems = finalItems.filter(item => item.phase === destinationPhase);
+      const movedItemIndex = destinationItems.findIndex(item => item.id === draggableId);
+      
+      await handleUpdateRoadmapItem(draggableId, {
+        phase: destinationPhase,
+        position: movedItemIndex
+      });
+
+      // Then update positions for all other affected items
+      const updatePromises = finalItems
+        .filter(item => item.id !== draggableId && 
+                       (item.phase === sourcePhase || item.phase === destinationPhase))
+        .map(item => {
+          const phaseItems = finalItems.filter(i => i.phase === item.phase);
+          const position = phaseItems.findIndex(i => i.id === item.id);
+          return handleUpdateRoadmapItem(item.id, { position });
         });
-      } else {
-        await handleUpdateRoadmapItem(draggableId, {
-          position: destination.index
-        });
-      }
 
-      // Update positions for other items in the destination phase if needed
-      const positionUpdates = destinationItemsWithPositions
-        .filter(item => item.id !== draggableId)
-        .map(item => handleUpdateRoadmapItem(item.id, { position: item.position }));
-
-      await Promise.all(positionUpdates);
-
+      await Promise.all(updatePromises);
     } catch (err: any) {
-      // Revert local state on error
-      setRoadmapItems(roadmapItems);
-      setError(err.message || 'Failed to update item positions');
+      // Error handling is done in handleUpdateRoadmapItem
     } finally {
       setSaving(false);
     }
