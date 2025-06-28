@@ -125,38 +125,43 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'bg-green-100 text-green-800 border-green-200';
-      case 'in_progress': return 'bg-blue-100 text-blue-800 border-blue-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'completed': return 'bg-success/10 text-success border-success/20';
+      case 'in_progress': return 'bg-primary/10 text-primary border-primary/20';
+      default: return 'bg-muted text-foreground/80 border-border';
     }
   };
 
   const getPhaseLabel = (index: number) => {
     if (index === 0) return 'MVP';
     if (index === 1) return 'Phase 2';
-    if (index === 2) return 'Phase 3';
+    if (index === 2) return 'Backlog';
     return `Phase ${index + 1}`;
+  };
+
+  const getPhaseColor = (index: number) => {
+    const phase = index === 0 ? 'mvp' : index === 1 ? 'phase_2' : 'backlog';
+    switch (phase) {
+      case 'mvp': return 'bg-red-500/10 text-red-400 border-red-500/20';
+      case 'phase_2': return 'bg-purple-500/10 text-purple-400 border-purple-500/20';
+      case 'backlog': return 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20';
+      default: return 'bg-gray-500/10 text-gray-400 border-gray-500/20';
+    }
   };
 
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-3">
-          <div className="p-2 bg-green-100 rounded-lg">
-            <Map className="w-6 h-6 text-green-600" />
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900">Project Roadmap</h3>
-            <p className="text-sm text-gray-600">AI-generated roadmap based on your PRD</p>
-          </div>
-        </div>
+      <div className="flex items-center justify-between mb-8">
+        {/* <div>
+          <h3>Project Roadmap</h3>
+          <p className="text-sm text-foreground-dim">AI-generated roadmap based on your PRD</p>
+        </div> */}
 
         <div className="flex items-center space-x-2">
           {hasGenerated && (
             <button
               onClick={() => setIsEditing(!isEditing)}
-              className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+              className="btn-secondary"
             >
               <Edit3 className="w-4 h-4 mr-2" />
               {isEditing ? 'Done Editing' : 'Edit Items'}
@@ -167,7 +172,7 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
             <button
               onClick={handleGenerateRoadmap}
               disabled={isGenerating}
-              className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+              className="btn-secondary"
             >
               <RefreshCw className={`w-4 h-4 mr-2 ${isGenerating ? 'animate-spin' : ''}`} />
               Regenerate
@@ -178,18 +183,18 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
 
       {/* Error Display */}
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-sm text-red-600">{error}</p>
+        <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 mb-6">
+          <p className="text-sm text-destructive">{error}</p>
         </div>
       )}
 
       {/* Loading State */}
       {isGenerating && (
-        <div className="flex-1 bg-gray-50 rounded-lg p-8 flex items-center justify-center">
+        <div className="bg-card border border-border rounded-lg flex-1 p-8 flex items-center justify-center">
           <div className="text-center">
-            <Loader2 className="w-8 h-8 text-green-600 animate-spin mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Generating Your Roadmap</h3>
-            <p className="text-gray-600">
+            <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-4" />
+            <h3 className="mb-2">Generating Your Roadmap</h3>
+            <p className="text-foreground-dim">
               AI is analyzing your PRD and creating a phased development roadmap...
             </p>
           </div>
@@ -198,107 +203,91 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
 
       {/* Roadmap Items */}
       {hasGenerated && !isGenerating && (
-        <div className="flex-1 flex flex-col">
-          <div className="bg-white border border-gray-200 rounded-lg p-6 flex-1 overflow-y-auto">
+        <div className="flex-1 flex flex-col bg-background">
+          <div className="bg-card border border-border rounded-lg p-6 flex-1 overflow-y-auto">
             <div className="space-y-6">
               {roadmapItems.map((item, index) => (
                 <div key={index} className="relative">
                   {/* Phase Label */}
-                  <div className="flex items-center mb-3">
-                    <div className="bg-gradient-to-r from-green-500 to-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className={`px-3 py-1 rounded-md text-xs font-medium ${getPhaseColor(index)}`}>
                       {getPhaseLabel(index)}
                     </div>
-                    {item.milestone && (
-                      <div className="ml-2 bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium flex items-center">
-                        <Target className="w-3 h-3 mr-1" />
-                        Milestone
-                      </div>
-                    )}
                   </div>
 
-                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <div className="card bg-muted/20 border border-border rounded-lg p-4">
                     {editingIndex === index ? (
                       <div className="space-y-4">
                         <input
                           type="text"
                           value={item.title}
                           onChange={(e) => handleUpdateItem(index, { title: e.target.value })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                          className="form-input"
                           placeholder="Roadmap item title"
                         />
                         <textarea
                           value={item.description}
                           onChange={(e) => handleUpdateItem(index, { description: e.target.value })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none"
-                          rows={3}
+                          className="form-textarea min-h-[100px]"
                           placeholder="Description of this phase..."
                         />
-                        <div className="flex items-center space-x-4">
+                        <div className="flex flex-wrap gap-4">
                           <select
                             value={item.status}
                             onChange={(e) => handleUpdateItem(index, { status: e.target.value as any })}
-                            className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                            className="form-select flex-1 min-w-[150px]"
                           >
                             <option value="planned">Planned</option>
                             <option value="in_progress">In Progress</option>
                             <option value="completed">Completed</option>
                           </select>
-                          <label className="flex items-center space-x-2">
-                            <input
-                              type="checkbox"
-                              checked={item.milestone}
-                              onChange={(e) => handleUpdateItem(index, { milestone: e.target.checked })}
-                              className="rounded border-gray-300 text-green-600 focus:ring-green-500"
-                            />
-                            <span className="text-sm text-gray-700">Milestone</span>
-                          </label>
                         </div>
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center gap-2 pt-2">
                           <button
                             onClick={() => setEditingIndex(null)}
-                            className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm"
+                            className="btn-secondary"
                           >
-                            Save
+                            Save Changes
                           </button>
                           <button
                             onClick={() => handleDeleteItem(index)}
-                            className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm flex items-center"
+                            className="btn-danger"
                           >
-                            <Trash2 className="w-3 h-3 mr-1" />
+                            <Trash2 className="w-4 h-4 mr-1" />
                             Delete
                           </button>
                         </div>
                       </div>
                     ) : (
                       <div>
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="text-lg font-semibold text-gray-900">{item.title}</h4>
-                          <div className="flex items-center space-x-2">
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(item.status)}`}>
+                        <div className="flex items-start justify-between gap-4 mb-2">
+                          <h5>{item.title}</h5>
+                          <div className="flex items-center gap-2">
+                            <span className={`px-2.5 py-1 rounded-full text-2xs border ${getStatusColor(item.status)}`}>
                               {item.status.replace('_', ' ')}
                             </span>
                             {isEditing && (
                               <button
                                 onClick={() => setEditingIndex(index)}
-                                className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                                className="p-1 text-muted-foreground hover:text-foreground transition-colors"
                               >
                                 <Edit3 className="w-4 h-4" />
                               </button>
                             )}
                           </div>
                         </div>
-                        <p className="text-gray-700 text-sm leading-relaxed">{item.description}</p>
+                        <p className="text-foreground-dim text-sm leading-relaxed">{item.description}</p>
                         {(item.start_date || item.end_date) && (
-                          <div className="flex items-center space-x-4 mt-3 text-xs text-gray-500">
+                          <div className="flex flex-wrap gap-4 mt-3 text-xs text-muted-foreground">
                             {item.start_date && (
-                              <div className="flex items-center space-x-1">
-                                <Calendar className="w-3 h-3" />
+                              <div className="flex items-center gap-1">
+                                <Calendar className="w-3.5 h-3.5" />
                                 <span>Start: {new Date(item.start_date).toLocaleDateString()}</span>
                               </div>
                             )}
                             {item.end_date && (
-                              <div className="flex items-center space-x-1">
-                                <Calendar className="w-3 h-3" />
+                              <div className="flex items-center gap-1">
+                                <Calendar className="w-3.5 h-3.5" />
                                 <span>End: {new Date(item.end_date).toLocaleDateString()}</span>
                               </div>
                             )}
@@ -311,7 +300,7 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
                   {/* Connection Line */}
                   {index < roadmapItems.length - 1 && (
                     <div className="flex justify-center my-4">
-                      <div className="w-0.5 h-6 bg-gray-300"></div>
+                      <div className="w-0.5 h-6 bg-border"></div>
                     </div>
                   )}
                 </div>
@@ -321,10 +310,10 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
               {isEditing && (
                 <button
                   onClick={handleAddItem}
-                  className="w-full border-2 border-dashed border-gray-300 rounded-lg p-6 text-gray-500 hover:border-gray-400 hover:text-gray-600 transition-colors flex items-center justify-center space-x-2"
+                  className="btn-add w-full"
                 >
                   <Plus className="w-5 h-5" />
-                  <span>Add Roadmap Item</span>
+                  <span className="font-medium">Add Roadmap Item</span>
                 </button>
               )}
             </div>
@@ -334,10 +323,10 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
 
       {/* Action Buttons */}
       {hasGenerated && !isGenerating && (
-        <div className="flex items-center justify-between pt-6 border-t border-gray-200 mt-6">
-          <div className="text-sm text-gray-600">
-            <span className="flex items-center space-x-1">
-              <Sparkles className="w-4 h-4" />
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-6 border-t border-border mt-8">
+          <div className="text-sm text-muted-foreground">
+            <span className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary" />
               <span>Review your roadmap phases, then save to continue</span>
             </span>
           </div>
@@ -345,7 +334,7 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
           <button
             onClick={handleSaveRoadmap}
             disabled={roadmapItems.length === 0 || isSaving}
-            className="inline-flex items-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+            className="btn-primary w-full sm:w-auto"
           >
             {isSaving ? (
               <>
@@ -364,16 +353,16 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
 
       {/* Initial Generate Button */}
       {!hasGenerated && !isGenerating && (
-        <div className="flex-1 bg-gray-50 rounded-lg p-8 flex items-center justify-center">
-          <div className="text-center">
-            <Map className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Ready to Generate Your Roadmap</h3>
-            <p className="text-gray-600 mb-6">
+        <div className="bg-card border border-border rounded-lg flex-1 p-8 flex items-center justify-center">
+          <div className="text-center max-w-md">
+            <Map className="w-12 h-12 text-primary/50 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-foreground mb-2">Ready to Generate Your Roadmap</h3>
+            <p className="text-foreground-dim mb-6">
               I'll create a phased development roadmap based on your PRD, breaking down the work into manageable phases.
             </p>
             <button
               onClick={handleGenerateRoadmap}
-              className="inline-flex items-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+              className="btn-primary w-full sm:w-auto"
             >
               <Sparkles className="w-4 h-4 mr-2" />
               Generate Roadmap

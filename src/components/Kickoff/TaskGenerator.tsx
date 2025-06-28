@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { ListTodo, Sparkles, Save, Edit3, Plus, Trash2, Loader2, RefreshCw, Clock, Tag, Calendar } from 'lucide-react';
+import { format } from 'date-fns';
+import { Calendar, Clock, Edit3, ListTodo, Loader2, Plus, RefreshCw, Save, Sparkles, Tag, Trash2 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { generateTasks } from '../../lib/openai';
 import { db } from '../../lib/supabase';
-import { format } from 'date-fns';
 
 interface TaskItem {
   title: string;
@@ -34,11 +34,11 @@ interface TaskGeneratorProps {
   onTasksGenerated: (tasksData: { tasks: TaskItem[]; count: number }) => void;
 }
 
-export const TaskGenerator: React.FC<TaskGeneratorProps> = ({ 
-  projectId, 
-  prdContent, 
-  roadmapItems, 
-  onTasksGenerated 
+export const TaskGenerator: React.FC<TaskGeneratorProps> = ({
+  projectId,
+  prdContent,
+  roadmapItems,
+  onTasksGenerated
 }) => {
   const [tasks, setTasks] = useState<TaskItem[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -65,7 +65,7 @@ export const TaskGenerator: React.FC<TaskGeneratorProps> = ({
     console.log('  - roadmapItems.length:', roadmapItems?.length || 0);
     console.log('  - hasGenerated:', hasGenerated);
     console.log('  - Condition met:', prdContent && roadmapItems.length > 0 && !hasGenerated);
-    
+
     if (prdContent && roadmapItems.length > 0 && !hasGenerated) {
       console.log('🔍 TaskGenerator Debug - Triggering handleGenerateTasks');
       handleGenerateTasks();
@@ -138,7 +138,7 @@ export const TaskGenerator: React.FC<TaskGeneratorProps> = ({
       status: 'todo',
       priority: 'medium',
       estimated_hours: 4,
-      due_date: null,
+      // Don't include due_date at all when it's not set to match the interface
       tags: [],
       dependencies: [],
       position: tasks.length,
@@ -148,7 +148,7 @@ export const TaskGenerator: React.FC<TaskGeneratorProps> = ({
   };
 
   const handleUpdateTask = (index: number, updates: Partial<TaskItem>) => {
-    const updatedTasks = tasks.map((task, i) => 
+    const updatedTasks = tasks.map((task, i) =>
       i === index ? { ...task, ...updates } : task
     );
     setTasks(updatedTasks);
@@ -164,58 +164,56 @@ export const TaskGenerator: React.FC<TaskGeneratorProps> = ({
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'done': return 'bg-green-100 text-green-800 border-green-200';
-      case 'in_progress': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'blocked': return 'bg-red-100 text-red-800 border-red-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'done': return 'bg-success/10 text-success border-success/20';
+      case 'in_progress': return 'bg-primary/10 text-primary border-primary/20';
+      case 'blocked': return 'bg-destructive/10 text-destructive border-destructive/20';
+      default: return 'bg-muted text-foreground/80 border-border';
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'urgent': return 'bg-red-100 text-red-800 border-red-200';
-      case 'high': return 'bg-orange-100 text-orange-800 border-orange-200';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'urgent': return 'bg-red-500/10 text-red-400 border-red-500/20';
+      case 'high': return 'bg-orange-500/10 text-orange-400 border-orange-500/20';
+      case 'medium': return 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20';
+      case 'low': return 'bg-green-500/10 text-green-400 border-green-500/20';
+      default: return 'bg-muted text-foreground/80 border-border';
     }
   };
 
   const formatTagsInput = (tags: string[]) => tags.join(', ');
-  const parseTagsInput = (input: string) => 
+  const parseTagsInput = (input: string) =>
     input.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
 
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-3">
-          <div className="p-2 bg-orange-100 rounded-lg">
-            <ListTodo className="w-6 h-6 text-orange-600" />
-          </div>
+        {/* <div className="flex items-center space-x-4">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">Task Breakdown</h3>
-            <p className="text-sm text-gray-600">AI-generated tasks based on your PRD and roadmap</p>
+            <h3>Task Breakdown</h3>
+            <p className="text-sm text-foreground-dim">AI-generated tasks based on your PRD and roadmap</p>
           </div>
-        </div>
+        </div> */}
 
         <div className="flex items-center space-x-2">
           {hasGenerated && (
             <button
               onClick={() => setIsEditing(!isEditing)}
-              className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+              className="btn-secondary"
             >
-              <Edit3 className="w-4 h-4 mr-2" />
+              <Edit3 className="w-3 h-3 mr-2" />
               {isEditing ? 'Done Editing' : 'Edit Tasks'}
             </button>
           )}
-          
+
           {hasGenerated && (
             <button
               onClick={handleGenerateTasks}
               disabled={isGenerating}
-              className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+              className="btn-secondary"
             >
-              <RefreshCw className={`w-4 h-4 mr-2 ${isGenerating ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-3 h-3 mr-2 ${isGenerating ? 'animate-spin' : ''}`} />
               Regenerate
             </button>
           )}
@@ -223,28 +221,28 @@ export const TaskGenerator: React.FC<TaskGeneratorProps> = ({
       </div>
 
       {/* Context Info */}
-      <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
-        <h4 className="font-medium text-orange-900 mb-2">Based on your project:</h4>
-        <div className="text-sm text-orange-800 space-y-1">
-          <p>• PRD with {prdContent.split('\n').length} sections</p>
-          <p>• {roadmapItems.length} roadmap phases: {roadmapItems.map(item => item.title).join(', ')}</p>
+      {/* <div className="bg-warning/5 border border-warning/20 rounded-lg p-4 mb-6">
+        <h5 className="mb-2">Based on your project:</h5>
+        <div className="text-sm text-foreground/70 space-y-1">
+          <p className="text-sm">• PRD with {prdContent.split('\n').length} sections</p>
+          <p className="text-sm">• {roadmapItems.length} roadmap phases: {roadmapItems.map(item => item.title).join(', ')}</p>
         </div>
-      </div>
+      </div> */}
 
       {/* Error Display */}
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-sm text-red-600">{error}</p>
+        <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 mb-4">
+          <p className="text-sm text-destructive">{error}</p>
         </div>
       )}
 
       {/* Loading State */}
       {isGenerating && (
-        <div className="flex-1 bg-gray-50 rounded-lg p-8 flex items-center justify-center">
+        <div className="bg-card border border-border rounded-lg flex-1 p-8 flex items-center justify-center">
           <div className="text-center">
-            <Loader2 className="w-8 h-8 text-orange-600 animate-spin mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Generating Your Tasks</h3>
-            <p className="text-gray-600">
+            <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-foreground mb-2">Generating Your Tasks</h3>
+            <p className="text-foreground-dim">
               AI is analyzing your PRD and roadmap to create actionable development tasks...
             </p>
           </div>
@@ -254,46 +252,36 @@ export const TaskGenerator: React.FC<TaskGeneratorProps> = ({
       {/* Tasks List */}
       {hasGenerated && !isGenerating && (
         <div className="flex-1 flex flex-col">
-          <div className="bg-white border border-gray-200 rounded-lg p-6 flex-1 overflow-y-auto">
+          <div className="bg-card border border-border rounded-lg p-6 flex-1 overflow-y-auto">
             <div className="space-y-4">
               {tasks.map((task, index) => (
-                <div key={index} className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
+                <div key={index} className="border border-border rounded-lg p-4 hover:shadow-sm transition-shadow">
                   {editingIndex === index ? (
-                    <div className="space-y-4">
-                      <input
-                        type="text"
-                        value={task.title}
-                        onChange={(e) => handleUpdateTask(index, { title: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-medium"
-                        placeholder="Task title"
-                      />
-                      <textarea
-                        value={task.description}
-                        onChange={(e) => handleUpdateTask(index, { description: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500 resize-none"
-                        rows={3}
-                        placeholder="Task description..."
-                      />
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="space-y-4 p-2">
+                      <div>
+                        <input
+                          type="text"
+                          value={task.title}
+                          onChange={(e) => handleUpdateTask(index, { title: e.target.value })}
+                          className="form-input w-full"
+                          placeholder="Task title"
+                        />
+                      </div>
+                      <div>
+                        <textarea
+                          value={task.description}
+                          onChange={(e) => handleUpdateTask(index, { description: e.target.value })}
+                          className="form-textarea w-full"
+                          placeholder="Task description..."
+                        />
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">Status</label>
-                          <select
-                            value={task.status}
-                            onChange={(e) => handleUpdateTask(index, { status: e.target.value as any })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm"
-                          >
-                            <option value="todo">To Do</option>
-                            <option value="in_progress">In Progress</option>
-                            <option value="done">Done</option>
-                            <option value="blocked">Blocked</option>
-                          </select>
-                        </div>
-                        <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">Priority</label>
+                          <label className="block text-xs font-medium text-foreground/80 mb-1.5">Priority</label>
                           <select
                             value={task.priority}
                             onChange={(e) => handleUpdateTask(index, { priority: e.target.value as any })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm"
+                            className="form-select w-full"
                           >
                             <option value="low">Low</option>
                             <option value="medium">Medium</option>
@@ -302,83 +290,74 @@ export const TaskGenerator: React.FC<TaskGeneratorProps> = ({
                           </select>
                         </div>
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">Hours</label>
-                          <input
-                            type="number"
-                            value={task.estimated_hours || ''}
-                            onChange={(e) => handleUpdateTask(index, { estimated_hours: e.target.value ? Number(e.target.value) : undefined })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm"
-                            placeholder="Hours"
-                            min="0"
-                            step="0.5"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-medium text-gray-700 mb-1">Due Date</label>
-                          <input
-                            type="date"
-                            value={task.due_date || ''}
-                            onChange={(e) => handleUpdateTask(index, { due_date: e.target.value || null })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm"
-                          />
+                          <label className="block text-xs font-medium text-foreground/80 mb-1.5">Due Date</label>
+                          <div className="relative w-full">
+                            <input
+                              type="date"
+                              value={task.due_date || ''}
+                              onChange={(e) => handleUpdateTask(index, { due_date: e.target.value || undefined })}
+                              className="form-input w-full text-foreground bg-background border border-foreground-dim/30 rounded-md shadow-sm text-sm font-mono px-3 py-2 pr-10"
+                              style={{
+                                WebkitAppearance: 'none',
+                                MozAppearance: 'none',
+                                appearance: 'none',
+                              }}
+                            />
+                            <Calendar className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-foreground/60 pointer-events-none" />
+                          </div>
                         </div>
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-gray-700 mb-1">Tags (comma-separated)</label>
+                        <label className="block text-xs font-medium text-foreground/80 mb-1.5">Tags</label>
                         <input
                           type="text"
                           value={formatTagsInput(task.tags)}
                           onChange={(e) => handleUpdateTask(index, { tags: parseTagsInput(e.target.value) })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm"
+                          className="form-input w-full"
                           placeholder="frontend, backend, design"
                         />
+                        <p className="mt-2 text-xs text-foreground/60">Separate tags with commas</p>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center justify-end space-x-2 pt-2 border-t border-border/20">
                         <button
+                          type="button"
                           onClick={() => setEditingIndex(null)}
-                          className="px-3 py-1 bg-orange-600 text-white rounded-md hover:bg-orange-700 text-sm"
+                          className="btn-secondary"
                         >
-                          Save
+                          Save Changes
                         </button>
                         <button
+                          type="button"
                           onClick={() => handleDeleteTask(index)}
-                          className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm flex items-center"
+                          className="btn-danger"
                         >
-                          <Trash2 className="w-3 h-3 mr-1" />
+                          <Trash2 className="w-3.5 h-3.5 mr-1.5" />
                           Delete
                         </button>
+
                       </div>
                     </div>
                   ) : (
                     <div>
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex-1">
-                          <h4 className="text-lg font-semibold text-gray-900 mb-1">{task.title}</h4>
-                          <p className="text-gray-700 text-sm leading-relaxed">{task.description}</p>
+                          <h5 className="mb-1">{task.title}</h5>
+                          <p className="text-foreground-dim text-sm leading-relaxed">{task.description}</p>
                         </div>
                         {isEditing && (
                           <button
                             onClick={() => setEditingIndex(index)}
-                            className="ml-4 p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                            className="ml-4 p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
                           >
-                            <Edit3 className="w-4 h-4" />
+                            <Edit3 className="w-3 h-3" />
                           </button>
                         )}
                       </div>
-                      
+
                       <div className="flex items-center flex-wrap gap-2">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(task.status)}`}>
-                          {task.status.replace('_', ' ')}
-                        </span>
                         <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getPriorityColor(task.priority)}`}>
                           {task.priority}
                         </span>
-                        {task.estimated_hours && (
-                          <span className="flex items-center space-x-1 text-xs text-gray-500">
-                            <Clock className="w-3 h-3" />
-                            <span>{task.estimated_hours}h</span>
-                          </span>
-                        )}
                         {task.due_date && (
                           <span className="flex items-center space-x-1 text-xs text-gray-500">
                             <Calendar className="w-3 h-3" />
@@ -388,7 +367,7 @@ export const TaskGenerator: React.FC<TaskGeneratorProps> = ({
                         {task.tags.length > 0 && (
                           <div className="flex items-center space-x-1">
                             <Tag className="w-3 h-3 text-gray-400" />
-                            <span className="text-xs text-gray-500">
+                            <span className="text-xs text-muted-foreground">
                               {task.tags.join(', ')}
                             </span>
                           </div>
@@ -403,7 +382,7 @@ export const TaskGenerator: React.FC<TaskGeneratorProps> = ({
               {isEditing && (
                 <button
                   onClick={handleAddTask}
-                  className="w-full border-2 border-dashed border-gray-300 rounded-lg p-6 text-gray-500 hover:border-gray-400 hover:text-gray-600 transition-colors flex items-center justify-center space-x-2"
+                  className="w-full btn-add"
                 >
                   <Plus className="w-5 h-5" />
                   <span>Add Task</span>
@@ -416,18 +395,18 @@ export const TaskGenerator: React.FC<TaskGeneratorProps> = ({
 
       {/* Action Buttons */}
       {hasGenerated && !isGenerating && (
-        <div className="flex items-center justify-between pt-6 border-t border-gray-200 mt-6">
-          <div className="text-sm text-gray-600">
-            <span className="flex items-center space-x-1">
-              <Sparkles className="w-4 h-4" />
+        <div className="flex items-center justify-between pt-6 border-t border-border mt-6">
+          <div className="text-sm text-muted-foreground">
+            <span className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary" />
               <span>Review your tasks, then save to continue</span>
             </span>
           </div>
-          
+
           <button
             onClick={handleSaveTasks}
             disabled={tasks.length === 0 || isSaving}
-            className="inline-flex items-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+            className="btn-primary"
           >
             {isSaving ? (
               <>
@@ -446,16 +425,16 @@ export const TaskGenerator: React.FC<TaskGeneratorProps> = ({
 
       {/* Initial Generate Button */}
       {!hasGenerated && !isGenerating && (
-        <div className="flex-1 bg-gray-50 rounded-lg p-8 flex items-center justify-center">
+        <div className="bg-card border border-border rounded-lg flex-1 p-8 flex items-center justify-center">
           <div className="text-center">
-            <ListTodo className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Ready to Generate Your Tasks</h3>
-            <p className="text-gray-600 mb-6">
+            <ListTodo className="w-12 h-12 text-warning/50 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-foreground mb-2">Ready to Generate Your Tasks</h3>
+            <p className="text-foreground/90 mb-6">
               I'll create actionable development tasks based on your PRD and roadmap, breaking down the work into manageable pieces.
             </p>
             <button
               onClick={handleGenerateTasks}
-              className="inline-flex items-center px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium"
+              className="btn-primary"
             >
               <Sparkles className="w-4 h-4 mr-2" />
               Generate Tasks

@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Send, Sparkles, Save, MessageCircle, Loader2 } from 'lucide-react';
+import { Loader2, MessageCircle, Save, Send, Sparkles } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 import { generateIdeaResponse, generateIdeaSummary } from '../../lib/openai';
 import { db } from '../../lib/supabase';
 
@@ -58,7 +58,7 @@ export const IdeaBouncer: React.FC<IdeaBouncerProps> = ({ projectId, onIdeaSelec
       }));
 
       const aiResponse = await generateIdeaResponse(chatHistory);
-      
+
       const assistantMessage: ChatMessage = {
         role: 'assistant',
         content: aiResponse,
@@ -69,7 +69,7 @@ export const IdeaBouncer: React.FC<IdeaBouncerProps> = ({ projectId, onIdeaSelec
     } catch (error) {
       console.error('Error getting AI response:', error);
       setError(error instanceof Error ? error.message : 'Failed to get AI response');
-      
+
       // Add error message to chat
       const errorMessage: ChatMessage = {
         role: 'assistant',
@@ -133,15 +133,15 @@ export const IdeaBouncer: React.FC<IdeaBouncerProps> = ({ projectId, onIdeaSelec
   return (
     <div className="h-full flex flex-col space-y-4 bg-background p-4 rounded-lg">
       {/* Chat Header */}
-      <div className="flex items-center space-x-4">
+      {/* <div className="flex items-center space-x-4">
         <div className="p-2 bg-primary/10 rounded-lg">
           <MessageCircle className="w-6 h-6 text-primary" />
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-foreground">AI Idea Bouncer</h3>
+          <h3>AI Idea Bouncer</h3>
           <p className="text-sm text-foreground-dim">Let's explore and refine your project concept together</p>
         </div>
-      </div>
+      </div> */}
 
       {/* Error Display */}
       {error && (
@@ -159,24 +159,21 @@ export const IdeaBouncer: React.FC<IdeaBouncerProps> = ({ projectId, onIdeaSelec
               className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[80%] rounded-xl px-4 py-3 ${
-                  message.role === 'user'
-                    ? 'bg-foreground-dark text-background'
+                className={`max-w-[80%] rounded-xl px-4 py-3 ${message.role === 'user'
+                    ? 'bg-foreground-dark/30 text-foreground'
                     : 'bg-muted/30'
-                }`}
+                  }`}
               >
-                <p className={`text-sm leading-relaxed whitespace-pre-wrap ${
-                  message.role === 'user' ? 'text-background' : 'text-muted-foreground'
-                }`}>{message.content}</p>
-                <p className={`text-xs mt-1.5 ${
-                  message.role === 'user' ? 'text-background' : 'text-muted-foreground'
-                }`}>
+                <p className={`text-sm leading-relaxed whitespace-pre-wrap ${message.role === 'user' ? 'text-foreground/60' : 'text-muted-foreground'
+                  }`}>{message.content}</p>
+                <p className={`text-xs mt-1.5 ${message.role === 'user' ? 'text-foreground/60' : 'text-muted-foreground'
+                  }`}>
                   {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </p>
               </div>
             </div>
           ))}
-          
+
           {isLoading && (
             <div className="flex justify-start">
               <div className="rounded-xl bg-muted/50 px-4 py-3">
@@ -201,7 +198,7 @@ export const IdeaBouncer: React.FC<IdeaBouncerProps> = ({ projectId, onIdeaSelec
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Describe your idea, ask questions, or share your thoughts..."
-              className="flex min-h-[60px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+              className="form-textarea"
               rows={2}
               disabled={isLoading}
             />
@@ -227,7 +224,7 @@ export const IdeaBouncer: React.FC<IdeaBouncerProps> = ({ projectId, onIdeaSelec
               <span>Chat a bit more to develop your idea, then save and continue</span>
             )}
           </div>
-          
+
           <button
             onClick={handleSaveIdea}
             disabled={!canSaveIdea || isSaving}
@@ -235,7 +232,7 @@ export const IdeaBouncer: React.FC<IdeaBouncerProps> = ({ projectId, onIdeaSelec
           >
             {isSaving ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 <span>Saving...</span>
               </>
             ) : (

@@ -186,12 +186,9 @@ export const Dashboard: React.FC = () => {
                 </p>
               )}
               
-              <div className="flex items-center justify-between text-sm text-foreground-dim">
+              <div className="flex items-center justify-between text-xs text-foreground-dim/70">
                 <span>
                   Updated {new Date(project.updated_at).toLocaleDateString()}
-                </span>
-                <span>
-                  {project.workspace_layout.modules.length} modules
                 </span>
               </div>
             </div>
@@ -257,9 +254,6 @@ export const Dashboard: React.FC = () => {
                   <div className="flex items-center justify-between text-sm text-foreground-dim/70">
                     <span>
                       Archived {new Date(project.updated_at).toLocaleDateString()}
-                    </span>
-                    <span>
-                      {project.workspace_layout.modules.length} modules
                     </span>
                   </div>
                 </div>

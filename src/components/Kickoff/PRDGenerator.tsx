@@ -86,24 +86,27 @@ export const PRDGenerator: React.FC<PRDGeneratorProps> = ({
       .split('\n')
       .map((line, index) => {
         if (line.startsWith('# ')) {
-          return <h1 key={index} className="text-2xl font-bold text-gray-900 mb-4">{line.slice(2)}</h1>;
+          return <h1 key={index} className="mb-4">{line.slice(2)}</h1>;
         }
         if (line.startsWith('## ')) {
-          return <h2 key={index} className="text-xl font-semibold text-gray-900 mb-3 mt-6">{line.slice(3)}</h2>;
+          return <h2 key={index} className="mb-3 mt-6">{line.slice(3)}</h2>;
         }
         if (line.startsWith('### ')) {
-          return <h3 key={index} className="text-lg font-medium text-gray-900 mb-2 mt-4">{line.slice(4)}</h3>;
+          return <h3 key={index} className="mb-2 mt-4">{line.slice(4)}</h3>;
         }
         if (line.startsWith('- ')) {
-          return <li key={index} className="text-gray-700 mb-1">{line.slice(2)}</li>;
+          return <li key={index} className="mb-1">{line.slice(2)}</li>;
         }
         if (line.startsWith('**') && line.endsWith('**')) {
-          return <p key={index} className="font-semibold text-gray-900 mb-2">{line.slice(2, -2)}</p>;
+          return <p key={index} className="font-semibold text-foreground/90 mb-2">{line.slice(2, -2)}</p>;
+        }
+        if (line.includes('**')) {
+          return <p key={index} className="text-foreground text-sm mb-2">{line}</p>;
         }
         if (line.trim() === '') {
           return <br key={index} />;
         }
-        return <p key={index} className="text-gray-700 mb-2">{line}</p>;
+        return <p key={index} className="text-foreground-dim text-sm mb-2">{line}</p>;
       });
   };
 
@@ -111,21 +114,18 @@ export const PRDGenerator: React.FC<PRDGeneratorProps> = ({
     <div className="h-full flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-3">
-          <div className="p-2 bg-blue-100 rounded-lg">
-            <FileText className="w-6 h-6 text-blue-600" />
-          </div>
+        {/* <div className="flex items-center space-x-4">
           <div>
-            <h3 className="card-title">Product Requirements Document</h3>
+            <h3>Product Requirements Document</h3>
             <p className="text-sm text-foreground-dim">AI-generated PRD based on your idea</p>
           </div>
-        </div>
+        </div> */}
 
         <div className="flex items-center space-x-2">
           {hasGenerated && (
             <button
               onClick={() => setIsEditing(!isEditing)}
-              className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+              className="btn-secondary"
             >
               {isEditing ? (
                 <>
@@ -145,7 +145,7 @@ export const PRDGenerator: React.FC<PRDGeneratorProps> = ({
             <button
               onClick={handleGeneratePRD}
               disabled={isGenerating}
-              className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+              className="btn-secondary"
             >
               <RefreshCw className={`w-4 h-4 mr-2 ${isGenerating ? 'animate-spin' : ''}`} />
               Regenerate
@@ -155,25 +155,25 @@ export const PRDGenerator: React.FC<PRDGeneratorProps> = ({
       </div>
 
       {/* Idea Summary Reference */}
-      <div className="card p-4 bg-blue-50 border-blue-200 mb-6">
-        <h4 className="font-medium text-blue-900 mb-2">Based on your idea:</h4>
-        <p className="card-content text-blue-800">{ideaSummary}</p>
+      <div className="bg-warning/5 border border-warning/20 rounded-lg p-4 mb-6">
+        <h5 className="mb-2">Based on your idea:</h5>
+        <p className="text-foreground/70 text-sm">{ideaSummary}</p>
       </div>
 
       {/* Error Display */}
       {error && (
-        <div className="card mb-4 p-3 bg-red-50 border-red-200">
-          <p className="card-content text-red-600">{error}</p>
+        <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 mb-4">
+          <p className="text-sm text-destructive">{error}</p>
         </div>
       )}
 
       {/* Loading State */}
       {isGenerating && (
-        <div className="card flex-1 p-8 flex items-center justify-center">
+        <div className="bg-card border border-border rounded-lg flex-1 p-8 flex items-center justify-center">
           <div className="text-center">
-            <Loader2 className="w-8 h-8 text-blue-600 animate-spin mx-auto mb-4" />
-            <h3 className="card-title mb-2">Generating Your PRD</h3>
-            <p className="card-content">
+            <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-4" />
+            <h3 className="mb-2">Generating Your PRD</h3>
+            <p className="text-foreground-dim">
               AI is analyzing your idea and creating a comprehensive Product Requirements Document...
             </p>
           </div>
@@ -188,10 +188,10 @@ export const PRDGenerator: React.FC<PRDGeneratorProps> = ({
               <textarea
                 value={prdContent}
                 onChange={(e) => setPrdContent(e.target.value)}
-                className="flex-1 w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm resize-none"
+                className="form-textarea"
                 placeholder="Edit your PRD content here..."
               />
-              <p className="text-xs text-gray-500 mt-2">
+              <p className="text-xs text-muted-foreground mt-2">
                 Tip: Use markdown formatting (# for headings, - for bullets, **bold**)
               </p>
             </div>
@@ -207,10 +207,10 @@ export const PRDGenerator: React.FC<PRDGeneratorProps> = ({
 
       {/* Action Buttons */}
       {hasGenerated && !isGenerating && (
-        <div className="flex items-center justify-between pt-6 border-t border-gray-200 mt-6">
-          <div className="text-sm text-gray-600">
-            <span className="flex items-center space-x-1">
-              <Sparkles className="w-4 h-4" />
+        <div className="flex items-center justify-between pt-6 border-t border-border mt-6">
+          <div className="text-sm text-muted-foreground">
+            <span className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary" />
               <span>Review and edit your PRD, then save to continue</span>
             </span>
           </div>
@@ -218,7 +218,7 @@ export const PRDGenerator: React.FC<PRDGeneratorProps> = ({
           <button
             onClick={handleSavePRD}
             disabled={!prdContent.trim() || isSaving}
-            className="inline-flex items-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+            className="btn-primary"
           >
             {isSaving ? (
               <>
@@ -237,16 +237,16 @@ export const PRDGenerator: React.FC<PRDGeneratorProps> = ({
 
       {/* Initial Generate Button */}
       {!hasGenerated && !isGenerating && (
-        <div className="card flex-1 p-8 flex items-center justify-center">
+        <div className="bg-card border border-border rounded-lg flex-1 p-8 flex items-center justify-center">
           <div className="text-center">
-            <FileText className="w-12 h-12 text-foreground-dim mx-auto mb-4" />
-            <h3 className="card-title mb-2">Ready to Generate Your PRD</h3>
-            <p className="card-content mb-6">
+            <FileText className="w-12 h-12 text-primary/50 mx-auto mb-4" />
+            <h3 className="mb-2">Ready to Generate Your PRD</h3>
+            <p className="text-foreground-dim mb-6">
               I'll create a comprehensive Product Requirements Document based on your idea summary.
             </p>
             <button
               onClick={handleGeneratePRD}
-              className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              className="btn-primary"
             >
               <Sparkles className="w-4 h-4 mr-2" />
               Generate PRD

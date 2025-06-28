@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useProjectStore } from '../stores/projectStore';
-import { Sparkles, ArrowRight, CheckCircle, Circle, Brain, FileText, Map, ListTodo, ClipboardList, Check } from 'lucide-react';
+import { Sparkles, ArrowRight, CheckCircle, Circle, Brain, FileText, Map, ListTodo, Rocket, Check, ClipboardList } from 'lucide-react';
 import { IdeaBouncer } from '../components/Kickoff/IdeaBouncer';
 import { PRDGenerator } from '../components/Kickoff/PRDGenerator';
 import { RoadmapGenerator } from '../components/Kickoff/RoadmapGenerator';
@@ -11,36 +11,36 @@ const KICKOFF_STEPS = [
   {
     id: 'ideas',
     title: 'Bounce Ideas with AI',
-    description: 'What are you building?',
+    description: 'Let\'s explore and refine your project concept together',
     icon: Brain,
-    color: 'purple',
+    color: 'text-primary',
   },
   {
     id: 'summary',
-    title: 'Create Summary & PRD',
-    description: 'Structure your idea',
+    title: 'Create PRD',
+    description: 'Structure your idea into a Product Requirements Document',
     icon: FileText,
     color: 'blue',
   },
   {
     id: 'roadmap',
-    title: 'Auto-Roadmap',
-    description: 'Plan your phases',
+    title: 'Create Roadmap',
+    description: 'Plan your phases - AI-generated roadmap based on your PRD',
     icon: Map,
     color: 'green',
   },
   {
     id: 'tasks',
     title: 'Task Breakdown',
-    description: 'Break down the work',
+    description: 'Break down the work - AI-generated tasks based on your roadmap',
     icon: ListTodo,
     color: 'orange',
   },
   {
     id: 'todos',
-    title: 'Create To-Do List',
+    title: 'Ready to Roll!',
     description: 'Ready to start building',
-    icon: ClipboardList,
+    icon: Rocket,
     color: 'indigo',
   },
 ];
@@ -162,79 +162,81 @@ export const KickoffFlow: React.FC = () => {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl font-bold text-foreground mb-2">
               Project Kick-off
             </h1>
-            <p className="text-gray-600">
-              Let's transform "{currentProject.name}" from idea to structured workspace
+            <p className="text-foreground-dim">
+              Let's get you started with "{currentProject.name}"!
             </p>
           </div>
-          <button
+          {/* <button
             onClick={handleSkipToWorkspace}
-            className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+            className="btn-secondary"
           >
             Skip to workspace →
-          </button>
+          </button> */}
         </div>
       </div>
 
       {/* Progress Steps */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
+      <div className="mb-8 w-full">
+        <div className="flex items-center justify-between relative">
           {KICKOFF_STEPS.map((step, index) => {
             const isCompleted = completedSteps.has(index);
             const isCurrent = index === currentStep;
             const StepIconComponent = step.icon;
+            const isLast = index === KICKOFF_STEPS.length - 1;
             
             return (
-              <div key={step.id} className="flex items-center">
-                <div className="flex flex-col items-center">
-                  <div
-                    className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
-                      isCompleted
-                        ? 'bg-green-100 text-green-600'
-                        : isCurrent
-                        ? `bg-${step.color}-100 text-${step.color}-600`
-                        : 'bg-gray-100 text-gray-400'
-                    }`}
-                  >
-                    {isCompleted ? (
-                      <CheckCircle className="w-6 h-6" />
-                    ) : (
-                      <StepIconComponent className="w-6 h-6" />
-                    )}
-                  </div>
-                  <div className="mt-2 text-center">
-                    <p className={`text-xs font-medium ${isCurrent ? 'text-gray-900' : 'text-gray-500'}`}>
+              <React.Fragment key={step.id}>
+                <div className="flex flex-col items-center z-10 px-4">
+                  <div className={`kickoff-step ${
+                    isCompleted ? 'kickoff-step-completed' : 
+                    isCurrent ? 'kickoff-step-current' : 'kickoff-step-upcoming'
+                  }`}>
+                    <div className="kickoff-step-icon">
+                      {isCompleted ? (
+                        <CheckCircle />
+                      ) : (
+                        <StepIconComponent />
+                      )}
+                    </div>
+                    <p className="kickoff-step-title">
                       {step.title}
                     </p>
                   </div>
                 </div>
-                {index < KICKOFF_STEPS.length - 1 && (
-                  <div className={`w-16 h-0.5 mx-4 ${isCompleted ? 'bg-green-300' : 'bg-gray-200'}`} />
+                
+                {/* Connector line (except for the last step) */}
+                {!isLast && (
+                  <div className={`kickoff-step-connector ${
+                    isCompleted ? 'kickoff-step-connector-completed' : ''
+                  }`} />
                 )}
-              </div>
+              </React.Fragment>
             );
           })}
         </div>
       </div>
 
       {/* Current Step Content */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+      <div className="bg-background rounded-xl border border-border shadow-sm">
         <div className="p-8">
-          <div className="flex items-center space-x-4 mb-6">
-            <div className={`p-3 bg-${currentStepData.color}-100 rounded-lg`}>
-              <StepIcon className={`w-8 h-8 text-${currentStepData.color}-600`} />
+          {currentStep !== 4 && (
+            <div className="flex items-center space-x-4 mb-6">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <StepIcon className="w-8 h-8 text-primary" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-foreground">
+                  {currentStepData.title}
+                </h2>
+                <p className="text-foreground-dim mt-1">
+                  {currentStepData.description}
+                </p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">
-                {currentStepData.title}
-              </h2>
-              <p className="text-gray-600 mt-1">
-                {currentStepData.description}
-              </p>
-            </div>
-          </div>
+          )}
 
           {/* Step Content */}
           <div className="min-h-[500px]">
@@ -272,80 +274,41 @@ export const KickoffFlow: React.FC = () => {
 
             {currentStep === 4 && stepData.tasks?.tasks && (
               <div className="h-full flex flex-col">
-                {/* Header */}
-                <div className="flex items-center space-x-3 mb-6">
-                  <div className="p-2 bg-indigo-100 rounded-lg">
-                    <ClipboardList className="w-6 h-6 text-indigo-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">Your Development To-Do List</h3>
-                    <p className="text-sm text-gray-600">Ready-to-go tasks for your project workspace</p>
-                  </div>
-                </div>
-
-                {/* Summary Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <div className="flex items-center space-x-2">
-                      <FileText className="w-5 h-5 text-blue-600" />
-                      <div>
-                        <p className="font-medium text-blue-900">PRD Created</p>
-                        <p className="text-sm text-blue-700">{stepData.summary?.prd?.title}</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                    <div className="flex items-center space-x-2">
-                      <Map className="w-5 h-5 text-green-600" />
-                      <div>
-                        <p className="font-medium text-green-900">Roadmap Phases</p>
-                        <p className="text-sm text-green-700">{stepData.roadmap?.count || 0} development phases</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                    <div className="flex items-center space-x-2">
-                      <ListTodo className="w-5 h-5 text-orange-600" />
-                      <div>
-                        <p className="font-medium text-orange-900">Tasks Generated</p>
-                        <p className="text-sm text-orange-700">{stepData.tasks?.count || 0} actionable tasks</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
                 {/* Tasks Checklist */}
-                <div className="flex-1 bg-gray-50 rounded-lg p-6 overflow-y-auto">
-                  <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                    <Check className="w-5 h-5 mr-2 text-green-600" />
-                    Your Development Checklist
-                  </h4>
+                {/* <div className="flex-1 bg-muted/20 border border-border rounded-xl p-6 overflow-y-auto mb-8">
+                  <div className="flex items-center justify-between mb-6">
+                    <h4 className="text-lg font-semibold text-foreground flex items-center">
+                      <Check className="w-5 h-5 mr-2 text-green-600" />
+                      Your Development Checklist
+                    </h4>
+                    <span className="badge badge-info">
+                      {stepData.tasks?.count || 0} tasks
+                    </span>
+                  </div>
                   
                   <div className="space-y-3">
                     {stepData.tasks.tasks.map((task: any, index: number) => (
-                      <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
+                      <div key={index} className="group bg-background border border-border rounded-xl p-4 hover:shadow-md transition-all duration-200 hover:border-primary/30">
                         <div className="flex items-start space-x-3">
                           <div className="mt-1">
-                            <Circle className="w-5 h-5 text-gray-400" />
+                            <Circle className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors duration-200" />
                           </div>
                           <div className="flex-1">
-                            <h5 className="font-medium text-gray-900 mb-1">{task.title}</h5>
-                            <p className="text-sm text-gray-600 mb-2">{task.description}</p>
+                            <h5 className="font-medium text-foreground mb-1 group-hover:text-primary transition-colors duration-200">{task.title}</h5>
+                            <p className="text-sm text-muted-foreground mb-3">{task.description}</p>
                             
-                            <div className="flex items-center flex-wrap gap-2">
-                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                task.priority === 'urgent' ? 'bg-red-100 text-red-800' :
-                                task.priority === 'high' ? 'bg-orange-100 text-orange-800' :
-                                task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                                'bg-gray-100 text-gray-800'
+                            <div className="flex items-center flex-wrap gap-2.5">
+                              <span className={`badge ${
+                                task.priority === 'urgent' ? 'badge-priority-urgent' :
+                                task.priority === 'high' ? 'badge-priority-high' :
+                                task.priority === 'medium' ? 'badge-priority-medium' :
+                                'badge-priority-low'
                               }`}>
                                 {task.priority} priority
                               </span>
                               
                               {task.estimated_hours && (
-                                <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                                <span className="badge badge-secondary">
                                   {task.estimated_hours}h estimated
                                 </span>
                               )}
@@ -353,12 +316,12 @@ export const KickoffFlow: React.FC = () => {
                               {task.tags.length > 0 && (
                                 <div className="flex items-center space-x-1">
                                   {task.tags.slice(0, 3).map((tag: string, tagIndex: number) => (
-                                    <span key={tagIndex} className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                                    <span key={tagIndex} className="badge badge-tag">
                                       {tag}
                                     </span>
                                   ))}
                                   {task.tags.length > 3 && (
-                                    <span className="text-xs text-gray-500">+{task.tags.length - 3} more</span>
+                                    <span className="badge badge-secondary">+{task.tags.length - 3} more</span>
                                   )}
                                 </div>
                               )}
@@ -368,15 +331,17 @@ export const KickoffFlow: React.FC = () => {
                       </div>
                     ))}
                   </div>
-                </div>
+                </div> */}
 
                 {/* Completion Message */}
-                <div className="mt-6 bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-lg p-6">
-                  <div className="flex items-center space-x-3">
-                    <Sparkles className="w-6 h-6 text-indigo-600" />
+                <div className="mt-2 bg-gradient-to-r from-warning/5 to-warning/10 border border-warning/20 rounded-2xl p-6 backdrop-blur-sm">
+                  <div className="flex items-start space-x-4">
+                    <div className="p-2 bg-warning/10 rounded-lg mt-0.5">
+                      <Sparkles className="w-6 h-6 text-warning" />
+                    </div>
                     <div>
-                      <h4 className="font-semibold text-indigo-900">🎉 Your Project is Ready!</h4>
-                      <p className="text-sm text-indigo-700 mt-1">
+                      <h4 className="mb-2">🎉 Your Project is Ready!</h4>
+                      <p className="text-foreground-dim text-sm">
                         You now have a complete project setup with PRD, roadmap, and actionable tasks. 
                         These will be available in your workspace for ongoing development.
                       </p>
@@ -385,14 +350,14 @@ export const KickoffFlow: React.FC = () => {
                 </div>
 
                 {/* Final Action Button */}
-                <div className="flex justify-center pt-6">
+                <div className="flex justify-center pt-8">
                   <button
                     onClick={() => navigate(`/workspace/${projectId}`)}
-                    className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all font-medium text-lg shadow-lg"
+                    className="btn-primary text-lg px-8 py-2 group mt-4"
                   >
                     <ClipboardList className="w-5 h-5 mr-2" />
                     Enter Your Workspace
-                    <ArrowRight className="w-5 h-5 ml-2" />
+                    <ArrowRight className="w-5 h-5 ml-2 transition-transform duration-300 group-hover:translate-x-1" />
                   </button>
                 </div>
               </div>
@@ -462,8 +427,8 @@ export const KickoffFlow: React.FC = () => {
       </div>
 
       {/* Project Info */}
-      <div className="mt-6 text-center text-sm text-gray-500">
-        Working on: <span className="font-medium text-gray-700">{currentProject.name}</span>
+      <div className="mt-6 text-center text-sm text-foreground-dim">
+        Working on: <span className="font-medium text-foreground">{currentProject.name}</span>
         {currentProject.description && (
           <span> • {currentProject.description}</span>
         )}
