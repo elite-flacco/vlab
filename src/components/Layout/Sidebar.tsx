@@ -33,17 +33,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
     <aside className={`h-full flex flex-col bg-background border-r border-foreground-dim/20 transition-all duration-300 ${
       isCollapsed ? 'w-16' : 'w-64'
     }`}>
-      {/* Collapse Toggle */}
-      <div className="p-4 border-b border-foreground-dim/20">
-        <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-2 text-foreground-dim hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors"
-          title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        >
-          {isCollapsed ? <Menu className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-        </button>
-      </div>
-
       <div className="p-4 space-y-6 flex-1 overflow-y-auto">
         {/* Community Hub - Direct placement at same level as Projects */}
         <button
@@ -133,14 +122,22 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
         )}
       </div>
 
-      {/* Settings at bottom */}
-      <div className="p-4 border-t border-foreground-dim/20">
+      {/* Settings and Collapse Button at bottom */}
+      <div className="p-4 border-t border-foreground-dim/20 flex items-center justify-between">
         <button 
-          className="sidebar-item"
+          className="flex items-center space-x-2 px-3 py-2 text-sm rounded-md transition-colors font-mono text-foreground-dim hover:bg-secondary/50 hover:text-foreground"
           title="Settings"
         >
           <Settings className="w-4 h-4" />
           {!isCollapsed && <span>Settings</span>}
+        </button>
+        
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="p-2 text-foreground-dim hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors"
+          title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        >
+          {isCollapsed ? <Menu className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
         </button>
       </div>
     </aside>
