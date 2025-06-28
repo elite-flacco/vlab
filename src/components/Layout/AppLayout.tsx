@@ -34,9 +34,7 @@ export const AppLayout: React.FC = () => {
     <div className="h-screen bg-background grid-bg flex flex-col">
       <Header onNewProjectClick={openNewProjectModal} />
       <div className="flex-1 flex overflow-hidden">
-        <div className="h-full">
-          <Sidebar onNewProjectClick={openNewProjectModal} />
-        </div>
+        <Sidebar onNewProjectClick={openNewProjectModal} />
         <main className="flex-1 p-6 overflow-y-auto">
           <div className="fade-in">
             <Outlet context={{ onNewProjectClick: openNewProjectModal }} />

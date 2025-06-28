@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAuthStore } from '../../stores/authStore';
 import { useProjectStore } from '../../stores/projectStore';
-import { LogOut, Settings, User, Plus, Users, Terminal } from 'lucide-react';
+import { LogOut, Plus, User, Terminal } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 interface HeaderProps {
@@ -36,14 +36,6 @@ export const Header: React.FC<HeaderProps> = ({ onNewProjectClick }) => {
         
         <div className="header-nav">
           <button
-            onClick={() => navigate('/community')}
-            className={`nav-link ${isOnCommunity ? 'nav-link-active' : ''}`}
-          >
-            <Users className="w-4 h-4 mr-2" />
-            Community
-          </button>
-          
-          <button
             onClick={onNewProjectClick}
             className="btn-primary py-2"
           >
@@ -53,18 +45,14 @@ export const Header: React.FC<HeaderProps> = ({ onNewProjectClick }) => {
           
           <div className="flex items-center space-x-2 text-sm text-foreground-dim font-mono">
             <User className="w-4 h-4" />
-            {/* <span>{user?.name || user?.email}</span> */}
+            <span>{user?.name || user?.email}</span>
           </div>
-          
-          <button className="p-2 text-foreground-dim hover:text-foreground transition-colors">
-            <Settings className="w-5 h-5" />
-          </button>
           
           <button
             onClick={signOut}
             className="p-2 text-foreground-dim hover:text-foreground transition-colors"
           >
-            <LogOut className="w-5 h-5"  />
+            <LogOut className="w-5 h-5" />
           </button>
         </div>
       </div>
