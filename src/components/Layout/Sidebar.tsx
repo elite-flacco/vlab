@@ -45,19 +45,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
       </div>
 
       <div className="p-4 space-y-6 flex-1 overflow-y-auto">
-        {/* Navigation */}
-        <div>
-          {!isCollapsed && <h2 className="sidebar-title">Navigation</h2>}
-          <div className="sidebar-section">
-            <button
-              onClick={() => navigate('/community')}
-              className={isOnCommunity ? 'sidebar-item-active' : 'sidebar-item'}
-              title="Community Hub"
-            >
-              <Users className="w-4 h-4" />
-              {!isCollapsed && <span>Community Hub</span>}
-            </button>
-          </div>
+        {/* Community Hub - Direct placement without Navigation heading */}
+        <div className="sidebar-section">
+          <button
+            onClick={() => navigate('/community')}
+            className={isOnCommunity ? 'sidebar-item-active' : 'sidebar-item'}
+            title="Community Hub"
+          >
+            <Users className="w-4 h-4" />
+            {!isCollapsed && <span>Community Hub</span>}
+          </button>
         </div>
 
         {/* Active Projects */}
