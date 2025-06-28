@@ -19,7 +19,6 @@ interface PostCardProps {
     id: string;
     title: string;
     content: string;
-    category: 'tool' | 'tip';
     tool?: string;
     tip_category?: string;
     author: {
@@ -119,24 +118,11 @@ export const PostCard: React.FC<PostCardProps> = ({
     return content;
   };
 
-  const getCategoryBadge = () => {
-    if (post.category === 'tool') {
-      return (
-        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-900/30 text-blue-300 border border-blue-700/50">
-          🛠️ Tool
-        </span>
-      );
-    } else {
-      return (
-        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-900/30 text-green-300 border border-green-700/50">
-          💡 Tip
-        </span>
-      );
-    }
-  };
+  const getCategoryBadges = () => {
+    const badges = [];
 
-  const getSubcategoryBadge = () => {
-    if (post.category === 'tool' && post.tool) {
+    // Tool badge
+    if (post.tool) {
       const toolLabels: Record<string, string> = {
         'bolt': 'Bolt',
         'loveable': 'Loveable',
@@ -145,7 +131,6 @@ export const PostCard: React.FC<PostCardProps> = ({
         'other': 'Other'
       };
 
-      // Define colors for each tool type
       const toolColors: Record<string, { bg: string; text: string; border: string }> = {
         'bolt': { bg: 'bg-blue-900/30', text: 'text-blue-300', border: 'border-blue-700/50' },
         'loveable': { bg: 'bg-pink-900/30', text: 'text-pink-300', border: 'border-pink-700/50' },
@@ -156,14 +141,15 @@ export const PostCard: React.FC<PostCardProps> = ({
 
       const colors = toolColors[post.tool] || toolColors['other'];
       
-      return (
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium ${colors.bg} ${colors.text} border ${colors.border}`}>
-          {toolLabels[post.tool] || post.tool}
+      badges.push(
+        <span key="tool" className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium ${colors.bg} ${colors.text} border ${colors.border}`}>
+          🛠️ {toolLabels[post.tool] || post.tool}
         </span>
       );
     }
 
-    if (post.category === 'tip' && post.tip_category) {
+    // Tip category badge
+    if (post.tip_category) {
       const categoryLabels: Record<string, string> = {
         'prompt_tricks': 'Prompt Tricks',
         'integrations': 'Integrations',
@@ -172,7 +158,6 @@ export const PostCard: React.FC<PostCardProps> = ({
         'other': 'Other'
       };
       
-      // Define colors for each tip category
       const tipColors: Record<string, { bg: string; text: string; border: string }> = {
         'prompt_tricks': { bg: 'bg-purple-900/30', text: 'text-purple-300', border: 'border-purple-700/50' },
         'integrations': { bg: 'bg-indigo-900/30', text: 'text-indigo-300', border: 'border-indigo-700/50' },
@@ -183,14 +168,14 @@ export const PostCard: React.FC<PostCardProps> = ({
       
       const colors = tipColors[post.tip_category] || tipColors['other'];
       
-      return (
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium ${colors.bg} ${colors.text} border ${colors.border}`}>
-          {categoryLabels[post.tip_category] || post.tip_category}
+      badges.push(
+        <span key="tip" className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium ${colors.bg} ${colors.text} border ${colors.border}`}>
+          💡 {categoryLabels[post.tip_category] || post.tip_category}
         </span>
       );
     }
 
-    return null;
+    return badges;
   };
 
   return (
@@ -259,10 +244,10 @@ export const PostCard: React.FC<PostCardProps> = ({
         </div>
       </div>
 
-      {/* Header with Category Badges */}
+      {/* Category Badges and Tags */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center space-x-3 flex-wrap gap-2">
-          {getSubcategoryBadge()}
+          {getCategoryBadges()}
 
           {post.tags && post.tags.length > 0 && (
             <div className="flex items-center space-x-1">
@@ -274,8 +259,8 @@ export const PostCard: React.FC<PostCardProps> = ({
             </div>
           )}
         </div>
-
       </div>
+
       {/* Actions */}
       <div className="flex items-center justify-between pt-4 border-t border-foreground-dim/10">
         <div className="flex items-center space-x-2">

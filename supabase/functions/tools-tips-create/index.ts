@@ -10,7 +10,6 @@ const corsHeaders = {
 interface CreatePostRequest {
   title: string
   content: string
-  category: 'tool' | 'tip'
   tool?: string
   tip_category?: string
   tags: string[]
@@ -55,9 +54,9 @@ serve(async (req) => {
     const body: CreatePostRequest = await req.json()
 
     // Validate required fields
-    if (!body.title || !body.content || !body.category) {
+    if (!body.title || !body.content) {
       return new Response(
-        JSON.stringify({ error: 'Missing required fields: title, content, category' }),
+        JSON.stringify({ error: 'Missing required fields: title, content' }),
         {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -65,10 +64,10 @@ serve(async (req) => {
       )
     }
 
-    // Validate category
-    if (!['tool', 'tip'].includes(body.category)) {
+    // Validate that at least one category is provided
+    if (!body.tool && !body.tip_category) {
       return new Response(
-        JSON.stringify({ error: 'Category must be either "tool" or "tip"' }),
+        JSON.stringify({ error: 'At least one category (tool or tip_category) must be provided' }),
         {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -76,29 +75,7 @@ serve(async (req) => {
       )
     }
 
-    // Validate tool selection for tool posts
-    if (body.category === 'tool' && !body.tool) {
-      return new Response(
-        JSON.stringify({ error: 'Tool selection is required for tool posts' }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      )
-    }
-
-    // Validate tip category for tip posts
-    if (body.category === 'tip' && !body.tip_category) {
-      return new Response(
-        JSON.stringify({ error: 'Tip category is required for tip posts' }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      )
-    }
-
-    // Validate tool values
+    // Validate tool values if provided
     const validTools = ['bolt', 'loveable', 'replit', 'v0', 'other'];
     if (body.tool && !validTools.includes(body.tool)) {
       return new Response(
@@ -110,7 +87,7 @@ serve(async (req) => {
       )
     }
 
-    // Validate tip category values
+    // Validate tip category values if provided
     const validTipCategories = ['prompt_tricks', 'integrations', 'authentication', 'payment', 'other'];
     if (body.tip_category && !validTipCategories.includes(body.tip_category)) {
       return new Response(
@@ -128,9 +105,8 @@ serve(async (req) => {
       .insert({
         title: body.title,
         content: body.content,
-        category: body.category,
-        tool: body.category === 'tool' ? body.tool : null,
-        tip_category: body.category === 'tip' ? body.tip_category : null,
+        tool: body.tool || null,
+        tip_category: body.tip_category || null,
         author_id: user.id,
         image_url: body.image_url,
       })

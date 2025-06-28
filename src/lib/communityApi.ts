@@ -5,7 +5,6 @@ const SUPABASE_FUNCTIONS_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v
 interface CreatePostData {
   title: string
   content: string
-  category: 'tool' | 'tip'
   tool?: string
   tip_category?: string
   tags: string[]
@@ -15,7 +14,6 @@ interface CreatePostData {
 interface ListPostsParams {
   page?: number;
   limit?: number;
-  category?: 'tool' | 'tip';
   tool?: string;
   tip_category?: string;
   sort?: 'newest' | 'oldest' | 'popular' | 'trending';
@@ -64,7 +62,6 @@ class CommunityAPI {
     const searchParams = new URLSearchParams();
     if (params.page) searchParams.set('page', params.page.toString());
     if (params.limit) searchParams.set('limit', params.limit.toString());
-    if (params.category) searchParams.set('category', params.category);
     if (params.tool) searchParams.set('tool', params.tool);
     if (params.tip_category) searchParams.set('tip_category', params.tip_category);
     if (params.sort) searchParams.set('sort', params.sort);

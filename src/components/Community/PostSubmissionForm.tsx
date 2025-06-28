@@ -34,7 +34,6 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
   const [formData, setFormData] = useState({
     title: '',
     content: '',
-    category: 'tool' as 'tool' | 'tip',
     tool: '',
     tip_category: '',
     tags: [] as string[],
@@ -51,14 +50,9 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
       return;
     }
 
-    // Validate required fields based on category
-    if (formData.category === 'tool' && !formData.tool) {
-      setError('Please select a tool');
-      return;
-    }
-
-    if (formData.category === 'tip' && !formData.tip_category) {
-      setError('Please select a tip category');
+    // Validate that at least one category is selected
+    if (!formData.tool && !formData.tip_category) {
+      setError('Please select at least one category (tool or tip)');
       return;
     }
 
@@ -73,7 +67,6 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
       setFormData({
         title: '',
         content: '',
-        category: 'tool',
         tool: '',
         tip_category: '',
         tags: [],
@@ -110,16 +103,6 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
     }
   };
 
-  const handleCategoryChange = (category: 'tool' | 'tip') => {
-    setFormData(prev => ({
-      ...prev,
-      category,
-      // Reset the other category field when switching
-      tool: category === 'tool' ? prev.tool : '',
-      tip_category: category === 'tip' ? prev.tip_category : '',
-    }));
-  };
-
   if (!isOpen) return null;
 
   return (
@@ -149,101 +132,6 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
             </div>
           )}
 
-          {/* Category Selection */}
-          <div>
-            <label className="block text-sm font-medium text-foreground-dim mb-3">
-              What are you sharing?
-            </label>
-            <div className="grid grid-cols-2 gap-4">
-              <button
-                type="button"
-                onClick={() => handleCategoryChange('tool')}
-                className={`p-4 border rounded-lg text-left transition-all ${
-                  formData.category === 'tool'
-                    ? 'border-primary bg-primary/10 text-foreground'
-                    : 'border-foreground-dim/20 hover:border-foreground-dim/40 bg-secondary'
-                }`}
-              >
-                <h3 className="font-medium mb-1 flex items-center">
-                  <span className="mr-2">🛠️</span> Tool
-                </h3>
-                <p className="text-sm text-foreground-dim">
-                  Share an AI tool, software, or service
-                </p>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleCategoryChange('tip')}
-                className={`p-4 border rounded-lg text-left transition-all ${
-                  formData.category === 'tip'
-                    ? 'border-primary bg-primary/10 text-foreground'
-                    : 'border-foreground-dim/20 hover:border-foreground-dim/40 bg-secondary'
-                }`}
-              >
-                <h3 className="font-medium mb-1 flex items-center">
-                  <span className="mr-2">💡</span> Tip
-                </h3>
-                <p className="text-sm text-foreground-dim">
-                  Share a helpful tip or best practice
-                </p>
-              </button>
-            </div>
-          </div>
-
-          {/* Tool Selection (only for tools) */}
-          {formData.category === 'tool' && (
-            <div>
-              <label htmlFor="tool" className="block text-sm font-medium text-foreground-dim mb-2">
-                Select Tool <span className="text-red-400">*</span>
-              </label>
-              <select
-                id="tool"
-                value={formData.tool}
-                onChange={(e) => setFormData(prev => ({ ...prev, tool: e.target.value }))}
-                className="w-full px-3 py-2.5 bg-secondary border border-foreground-dim/20 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-foreground placeholder-foreground-dim/50 text-sm transition-colors"
-                required
-                aria-label="Select the relevant tool"
-              >
-                <option value="">Choose the relevant tool</option>
-                {TOOL_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              <p className="text-xs text-gray-500 mt-1">
-                Select the tool this post is about
-              </p>
-            </div>
-          )}
-
-          {/* Tip Category Selection (only for tips) */}
-          {formData.category === 'tip' && (
-            <div>
-              <label htmlFor="tip_category" className="block text-sm font-medium text-foreground-dim mb-2">
-                Select Category <span className="text-red-400">*</span>
-              </label>
-              <select
-                id="tip_category"
-                value={formData.tip_category}
-                onChange={(e) => setFormData(prev => ({ ...prev, tip_category: e.target.value }))}
-                className="w-full px-3 py-2.5 bg-secondary border border-foreground-dim/20 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-foreground placeholder-foreground-dim/50 text-sm transition-colors"
-                required
-                aria-label="Choose the tip category"
-              >
-                <option value="">Choose the tip category</option>
-                {TIP_CATEGORY_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              <p className="text-xs text-gray-500 mt-1">
-                Select the category that best describes your tip
-              </p>
-            </div>
-          )}
-
           {/* Title */}
           <div>
             <label htmlFor="title" className="block text-sm font-medium text-foreground-dim mb-2">
@@ -255,7 +143,7 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
               value={formData.title}
               onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
               className="w-full px-3 py-2.5 bg-secondary border border-foreground-dim/20 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-foreground placeholder-foreground-dim/50 text-sm transition-colors"
-              placeholder={`Enter a descriptive title for your ${formData.category}...`}
+              placeholder="Enter a descriptive title for your post..."
               required
             />
           </div>
@@ -271,11 +159,74 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
               onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
               rows={8}
               className="w-full px-3 py-2.5 bg-secondary border border-foreground-dim/20 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-foreground placeholder-foreground-dim/50 resize-none text-sm transition-colors"
-              placeholder={`Describe your ${formData.category} in detail. Include:\n\n• What it does and how it helps\n• Key features or benefits\n• How to use it\n• Any tips or best practices\n\nMarkdown formatting is supported!`}
+              placeholder="Describe your tool or tip in detail. Include:
+
+• What it does and how it helps
+• Key features or benefits
+• How to use it
+• Any tips or best practices
+
+Markdown formatting is supported!"
               required
             />
             <p className="text-xs text-foreground-dim mt-1">
               Supports Markdown formatting (links, bold, lists, etc.)
+            </p>
+          </div>
+
+          {/* Categories */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Tool Selection */}
+            <div>
+              <label htmlFor="tool" className="block text-sm font-medium text-foreground-dim mb-2">
+                Tool (Optional)
+              </label>
+              <select
+                id="tool"
+                value={formData.tool}
+                onChange={(e) => setFormData(prev => ({ ...prev, tool: e.target.value }))}
+                className="w-full px-3 py-2.5 bg-secondary border border-foreground-dim/20 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-foreground placeholder-foreground-dim/50 text-sm transition-colors"
+              >
+                <option value="">Select a tool (optional)</option>
+                {TOOL_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-500 mt-1">
+                Select if this post is about a specific tool
+              </p>
+            </div>
+
+            {/* Tip Category Selection */}
+            <div>
+              <label htmlFor="tip_category" className="block text-sm font-medium text-foreground-dim mb-2">
+                Tip Category (Optional)
+              </label>
+              <select
+                id="tip_category"
+                value={formData.tip_category}
+                onChange={(e) => setFormData(prev => ({ ...prev, tip_category: e.target.value }))}
+                className="w-full px-3 py-2.5 bg-secondary border border-foreground-dim/20 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-foreground placeholder-foreground-dim/50 text-sm transition-colors"
+              >
+                <option value="">Select a tip category (optional)</option>
+                {TIP_CATEGORY_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-500 mt-1">
+                Select if this post contains tips or best practices
+              </p>
+            </div>
+          </div>
+
+          {/* Category Requirement Note */}
+          <div className="bg-primary/10 border border-primary/20 rounded-lg p-3">
+            <p className="text-sm text-primary">
+              <strong>Note:</strong> Please select at least one category (tool or tip) to help others discover your post.
             </p>
           </div>
 
@@ -345,7 +296,7 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
               </button>
             </div>
             <p className="text-xs text-foreground-dim mt-1">
-              Add relevant tags to help others discover your {formData.category}
+              Add relevant tags to help others discover your post
             </p>
           </div>
 
@@ -369,7 +320,7 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
                   <span>Publishing...</span>
                 </>
               ) : (
-                <span>Publish {formData.category === 'tool' ? 'Tool' : 'Tip'}</span>
+                <span>Publish Post</span>
               )}
             </button>
           </div>

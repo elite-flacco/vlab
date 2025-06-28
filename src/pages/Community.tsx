@@ -33,7 +33,6 @@ export const Community: React.FC = () => {
 
   // Enhanced filters with URL state management
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<'tool' | 'tip' | ''>('');
   const [selectedTool, setSelectedTool] = useState<string>('');
   const [selectedTipCategory, setSelectedTipCategory] = useState<string>('');
   const [selectedTag, setSelectedTag] = useState<string>('');
@@ -47,15 +46,11 @@ export const Community: React.FC = () => {
   // Initialize filters from URL parameters on component mount
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const categoryParam = urlParams.get('category');
     const toolParam = urlParams.get('tool');
     const tipCategoryParam = urlParams.get('tip_category');
     const searchParam = urlParams.get('search');
     const sortParam = urlParams.get('sort');
 
-    if (categoryParam && ['tool', 'tip'].includes(categoryParam)) {
-      setSelectedCategory(categoryParam as 'tool' | 'tip');
-    }
     if (toolParam) setSelectedTool(toolParam);
     if (tipCategoryParam) setSelectedTipCategory(tipCategoryParam);
     if (searchParam) setSearchTerm(searchParam);
@@ -67,7 +62,6 @@ export const Community: React.FC = () => {
   // Update URL when filters change
   useEffect(() => {
     const params = new URLSearchParams();
-    if (selectedCategory) params.set('category', selectedCategory);
     if (selectedTool) params.set('tool', selectedTool);
     if (selectedTipCategory) params.set('tip_category', selectedTipCategory);
     if (searchTerm) params.set('search', searchTerm);
@@ -75,11 +69,11 @@ export const Community: React.FC = () => {
 
     const newUrl = params.toString() ? `${window.location.pathname}?${params.toString()}` : window.location.pathname;
     window.history.replaceState({}, '', newUrl);
-  }, [selectedCategory, selectedTool, selectedTipCategory, searchTerm, sortBy]);
+  }, [selectedTool, selectedTipCategory, searchTerm, sortBy]);
 
   useEffect(() => {
     fetchPosts();
-  }, [currentPage, selectedCategory, selectedTool, selectedTipCategory, sortBy, selectedTag]);
+  }, [currentPage, selectedTool, selectedTipCategory, sortBy, selectedTag]);
 
   useEffect(() => {
     // Reset to first page when filters change
@@ -88,7 +82,7 @@ export const Community: React.FC = () => {
     } else {
       fetchPosts();
     }
-  }, [searchTerm, selectedCategory, selectedTool, selectedTipCategory, sortBy, selectedTag]);
+  }, [searchTerm, selectedTool, selectedTipCategory, sortBy, selectedTag]);
 
   const fetchPosts = async () => {
     setLoading(true);
@@ -97,7 +91,6 @@ export const Community: React.FC = () => {
       const response = await communityApi.listPosts({
         page: currentPage,
         limit: 10,
-        category: selectedCategory || undefined,
         tool: selectedTool || undefined,
         tip_category: selectedTipCategory || undefined,
         sort: sortBy,
@@ -129,17 +122,6 @@ export const Community: React.FC = () => {
     setSelectedPostId(postId);
   };
 
-  const handleCategoryChange = (category: 'tool' | 'tip' | '') => {
-    setSelectedCategory(category);
-    // Reset specific filters when changing category
-    if (category !== 'tool') {
-      setSelectedTool('');
-    }
-    if (category !== 'tip') {
-      setSelectedTipCategory('');
-    }
-  };
-
   const renderToolsTipsSection = () => (
     <div className="space-y-6">
       {/* Header */}
@@ -160,28 +142,27 @@ export const Community: React.FC = () => {
       {/* Enhanced Search and Filters */}
       <div className="terminal-window p-6 space-y-4 mb-8">
         <div className="flex flex-col sm:flex-row gap-6">
-        {/* Search Bar */}
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative">
-            <Search className="search-icon" />
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-              placeholder="Search tools and tips..."
-              className="search-input"
-            />
+          {/* Search Bar */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative">
+              <Search className="search-icon" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                placeholder="Search tools and tips..."
+                className="search-input"
+              />
+            </div>
           </div>
-        </div>
 
-        {/* Primary Category Filter */}
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center space-x-2">
-            <span className="text-sm font-medium text-foreground-dim">Filter by:</span>
-            <div className="flex flex-wrap items-center gap-3">
-              {/* Tool Filter (only show when category is 'tool' or 'all') */}
-              {(selectedCategory === 'tool' || selectedCategory === '') && (
+          {/* Filter Controls */}
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center space-x-2">
+              <span className="text-sm font-medium text-foreground-dim">Filter by:</span>
+              <div className="flex flex-wrap items-center gap-3">
+                {/* Tool Filter */}
                 <select
                   value={selectedTool}
                   onChange={(e) => setSelectedTool(e.target.value)}
@@ -194,10 +175,8 @@ export const Community: React.FC = () => {
                     </option>
                   ))}
                 </select>
-              )}
 
-              {/* Tip Category Filter (only show when category is 'tip' or 'all') */}
-              {(selectedCategory === 'tip' || selectedCategory === '') && (
+                {/* Tip Category Filter */}
                 <select
                   value={selectedTipCategory}
                   onChange={(e) => setSelectedTipCategory(e.target.value)}
@@ -210,41 +189,38 @@ export const Community: React.FC = () => {
                     </option>
                   ))}
                 </select>
-              )}
 
-              {/* Active Tag Filter */}
-              {selectedTag && (
-                <div className="flex items-center space-x-1.5 bg-primary/10 text-primary px-3 py-1.5 rounded-md text-xs font-medium">
-                  <TagIcon className="w-3 h-3 flex-shrink-0" />
-                  <span className="truncate max-w-[120px]">{selectedTag}</span>
-                  <button
-                    onClick={() => setSelectedTag('')}
-                    className="ml-0.5 text-primary/70 hover:text-primary transition-colors"
-                    aria-label="Remove tag"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              )}
+                {/* Active Tag Filter */}
+                {selectedTag && (
+                  <div className="flex items-center space-x-1.5 bg-primary/10 text-primary px-3 py-1.5 rounded-md text-xs font-medium">
+                    <TagIcon className="w-3 h-3 flex-shrink-0" />
+                    <span className="truncate max-w-[120px]">{selectedTag}</span>
+                    <button
+                      onClick={() => setSelectedTag('')}
+                      className="ml-0.5 text-primary/70 hover:text-primary transition-colors"
+                      aria-label="Remove tag"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
-        </div>
 
         {/* Active Filters Summary */}
-        {(selectedCategory || selectedTool || selectedTipCategory || searchTerm) && (
+        {(selectedTool || selectedTipCategory || searchTerm) && (
           <div className="pt-2 border-t border-gray-100">
             <div className="flex items-center justify-between">
               <div className="text-xs text-foreground-dim">
                 Showing {posts.length} of {totalPosts} posts
-                {selectedCategory && ` in ${selectedCategory}s`}
                 {selectedTool && ` for ${TOOL_OPTIONS.find(t => t.value === selectedTool)?.label}`}
                 {selectedTipCategory && ` in ${TIP_CATEGORY_OPTIONS.find(c => c.value === selectedTipCategory)?.label}`}
                 {searchTerm && ` matching "${searchTerm}"`}
               </div>
               <button
                 onClick={() => {
-                  setSelectedCategory('');
                   setSelectedTool('');
                   setSelectedTipCategory('');
                   setSearchTerm('');
@@ -286,7 +262,7 @@ export const Community: React.FC = () => {
             <MessageSquare className="w-12 h-12 text-foreground-dim/30 mx-auto mb-4" />
             <h3 className="mb-2">No posts found</h3>
             <p className="mb-4">
-              {searchTerm || selectedCategory || selectedTool || selectedTipCategory || selectedTag
+              {searchTerm || selectedTool || selectedTipCategory || selectedTag
                 ? 'Try adjusting your filters or search terms.'
                 : 'Be the first to share a tool or tip with the community!'}
             </p>
@@ -375,28 +351,6 @@ export const Community: React.FC = () => {
       {activeSection === 'profile' && (
         <UserProfile onPostClick={handlePostClick} />
       )}
-
-      {/* Community Stats */}
-      {/* <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: 'Total Posts', value: totalPosts, color: 'bg-gradient-to-br from-blue-500 to-blue-600' },
-          { label: 'Active Members', value: '1,247', color: 'bg-gradient-to-br from-green-500 to-green-600' },
-          { label: 'Tools Shared', value: '856', color: 'bg-gradient-to-br from-purple-500 to-purple-600' },
-          { label: 'Tips Shared', value: '391', color: 'bg-gradient-to-br from-amber-500 to-amber-600' }
-        ].map((stat, index) => (
-          <div key={index} className={`${stat.color} text-white p-5 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-200`}>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-white/90 text-sm font-medium">{stat.label}</p>
-                <p className="text-2xl font-bold mt-1">{stat.value}</p>
-              </div>
-              <div className="p-2 bg-white/20 rounded-lg">
-                <MessageSquare className="w-5 h-5 text-white" />
-              </div>
-            </div>
-          </div>
-        ))}
-      </div> */}
 
       {/* Modals */}
       <PostSubmissionForm
