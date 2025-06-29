@@ -5,7 +5,6 @@ import {
   ThumbsDown, 
   MessageSquare, 
   Loader2,
-  Clock,
   User
 } from 'lucide-react';
 import { communityApi } from '../../lib/communityApi';
@@ -244,41 +243,45 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
     const isReplying = replyingTo === comment.id;
     
     return (
-      <div key={comment.id} className={`${depth > 0 ? 'ml-8 border-l-2 border-gray-100 pl-4' : ''}`}>
-        <div className="bg-gray-50 rounded-lg p-4 mb-4">
+      <div key={comment.id} className={`${depth > 0 ? 'ml-8 border-l-2 border-foreground/5 pl-4' : ''}`}>
+        <div className="bg-foreground/5 rounded-xl p-4 mb-4 border border-foreground/10 transition-all hover:bg-foreground/10">
           {/* Comment Header */}
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
-              <User className="w-4 h-4" />
-              <span className="font-medium">{comment.author.name}</span>
-              <span>•</span>
-              <Clock className="w-3 h-3" />
-              <span>{format(new Date(comment.created_at), 'MMM d, h:mm a')}</span>
+          <div className="flex items-start justify-between mb-3">
+            <div className="flex items-center space-x-2.5 text-sm">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center text-primary">
+                <User size={16} />
+              </div>
+              <div>
+                <span className="font-medium text-foreground">{comment.author.name}</span>
+                <div className="flex items-center space-x-2 text-xs text-foreground/50">
+                  <span>{format(new Date(comment.created_at), 'MMM d, h:mm a')}</span>
+                </div>
+              </div>
             </div>
             
             <button
               onClick={() => setReplyingTo(isReplying ? null : comment.id)}
-              className="flex items-center text-blue-600 hover:text-blue-800 text-sm"
+              className="flex items-center text-foreground/60 hover:text-primary text-sm transition-colors duration-200 group"
             >
-              <MessageSquare size={14} className="mr-1" />
+              <MessageSquare size={14} className="mr-1.5 group-hover:scale-110 transition-transform" />
               <span>Reply</span>
             </button>
           </div>
 
           {/* Comment Content */}
-          <div className="text-gray-800 mb-3">
+          <div className="text-foreground/90 mb-4 text-sm leading-relaxed">
             {comment.content}
           </div>
 
           {/* Comment Actions */}
-          <div className="flex items-center space-x-4 text-sm text-gray-500">
-            <button className="flex items-center space-x-1 hover:text-blue-600">
-              <ThumbsUp size={16} />
-              <span>{comment.upvotes}</span>
+          <div className="flex items-center space-x-4 text-sm">
+            <button className="flex items-center space-x-1.5 text-foreground/60 hover:text-primary transition-colors duration-200 group">
+              <ThumbsUp size={16} className="group-hover:scale-110 transition-transform" />
+              <span className="text-xs font-medium">{comment.upvotes}</span>
             </button>
-            <button className="flex items-center space-x-1 hover:text-red-600">
-              <ThumbsDown size={16} />
-              <span>{comment.downvotes}</span>
+            <button className="flex items-center space-x-1.5 text-foreground/60 hover:text-rose-500 transition-colors duration-200 group">
+              <ThumbsDown size={16} className="group-hover:scale-110 transition-transform" />
+              <span className="text-xs font-medium">{comment.downvotes}</span>
             </button>
           </div>
 
@@ -430,41 +433,49 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
 
             {/* Comments Section */}
             <div className="border-t border-foreground/10 pt-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-foreground/80">
-                  Comments ({post.comments?.length || 0})
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-foreground">
+                  Comments • {post.comments?.length || 0}
                 </h3>
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-foreground/10 text-foreground/60">
-                  Coming Soon
-                </span>
               </div>
 
-              {/* Add Comment Form - Disabled */}
-              <div className="mb-6 relative">
-                <div className="absolute inset-0 bg-background/80 backdrop-blur-sm rounded-lg flex items-center justify-center z-10">
-                  <p className="text-foreground/60">Commenting will be available soon</p>
-                </div>
-                <div className="flex space-x-3 opacity-50 pointer-events-none">
-                  <div className="w-10 h-10 rounded-full bg-foreground/10 flex-shrink-0" />
+              {/* Add Comment Form */}
+              <div className="mb-8 bg-foreground/5 p-4 rounded-xl border border-foreground/10">
+                <div className="flex space-x-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex-shrink-0 flex items-center justify-center text-primary">
+                    <User size={18} />
+                  </div>
                   <div className="flex-1">
                     <textarea
-                      disabled
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
                       placeholder="Share your thoughts..."
-                      className="w-full px-4 py-3 bg-background border border-foreground/20 rounded-lg resize-none text-foreground/50"
+                      className="w-full px-4 py-3 bg-background/50 border border-foreground/10 rounded-lg resize-none text-foreground placeholder-foreground/40 focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all duration-200"
                       rows={3}
                     />
-                    <div className="flex justify-end mt-2">
+                    <div className="flex justify-end mt-3 space-x-2">
+                      {newComment.trim() && (
+                        <button
+                          onClick={() => setNewComment('')}
+                          disabled={submittingComment}
+                          className="btn-outline"
+                        >
+                          Cancel
+                        </button>
+                      )}
                       <button
-                        disabled
-                        className="px-3 py-1 text-sm text-foreground/30 mr-2"
+                        onClick={() => handleSubmitComment(newComment)}
+                        disabled={!newComment.trim() || submittingComment}
+                        className="btn-primary"
                       >
-                        Cancel
-                      </button>
-                      <button
-                        disabled
-                        className="px-4 py-1 bg-foreground/10 text-foreground/30 text-sm rounded-md cursor-not-allowed"
-                      >
-                        Post Comment
+                        {submittingComment ? (
+                          <>
+                            <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" />
+                            Posting...
+                          </>
+                        ) : (
+                          'Post Comment'
+                        )}
                       </button>
                     </div>
                   </div>
@@ -472,20 +483,17 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
               </div>
 
               {/* Comments List */}
-              {/* <div className="space-y-4">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-background/80 backdrop-blur-sm rounded-lg flex items-center justify-center z-10">
-                    <p className="text-foreground/60 text-sm">Comments will be visible when the feature launches</p>
+              <div className="space-y-4">
+                {post.comments && post.comments.length > 0 ? (
+                  post.comments.map(comment => renderComment(comment))
+                ) : (
+                  <div className="text-center py-10 bg-foreground/5 rounded-xl border border-dashed border-foreground/10">
+                    <MessageSquare className="w-12 h-12 text-foreground/20 mx-auto mb-4" />
+                    <h4 className="text-lg font-medium text-foreground mb-2">No comments yet</h4>
+                    <p className="text-foreground/50 max-w-md mx-auto">Be the first to share your thoughts on this post!</p>
                   </div>
-                  <div className="opacity-30">
-                    <div className="text-center py-8">
-                      <MessageSquare className="w-12 h-12 text-foreground/20 mx-auto mb-4" />
-                      <h4 className="text-lg font-medium text-foreground mb-2">No comments yet</h4>
-                      <p className="text-foreground/50">Be the first to share your thoughts!</p>
-                    </div>
-                  </div>
-                </div>
-              </div> */}
+                )}
+              </div>
             </div>
           </div>
         </div>
