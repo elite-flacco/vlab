@@ -586,7 +586,11 @@ export const Workspace: React.FC = () => {
           // Special handling for design module
           if (type === 'design') {
             return (
-              <div key={type} className="module-card relative overflow-hidden group">
+              <button 
+                key={type} 
+                onClick={() => navigate(`/workspace/${projectId}/${type}`)}
+                className="module-card relative overflow-hidden group"
+              >
                 <div className="card-header">
                   <Palette className="module-icon" />
                 </div>
@@ -599,7 +603,7 @@ export const Workspace: React.FC = () => {
                     <span className="text-primary font-semibold">Coming Soon</span>
                   </div>
                 </div>
-              </div>
+              </button>
             );
           }
           
