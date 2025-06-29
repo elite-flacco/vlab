@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { ErrorMessage } from '../components/Auth/ErrorMessage';
-import { Terminal, Code, Zap, Shield, ArrowRight, Eye, EyeOff } from 'lucide-react';
+import { Terminal, Code, Zap, Shield, ArrowRight, Eye, EyeOff, X } from 'lucide-react';
+import { createPortal } from 'react-dom';
 
 export const Landing: React.FC = () => {
   const navigate = useNavigate();
@@ -13,9 +14,11 @@ export const Landing: React.FC = () => {
     email: '',
     password: '',
     name: '',
+    message: ''
   });
   const [terminalText, setTerminalText] = useState('');
   const [showCursor, setShowCursor] = useState(true);
+  const [showContactModal, setShowContactModal] = useState(false);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -26,7 +29,7 @@ export const Landing: React.FC = () => {
 
   // Terminal animation effect
   useEffect(() => {
-    const text = '> initializing_vibelab.exe';
+    const text = '> initializing project workspace...';
     let index = 0;
     
     const typeWriter = () => {
@@ -68,7 +71,7 @@ export const Landing: React.FC = () => {
   const handleSwitchToLogin = () => {
     setIsSignUp(false);
     clearError();
-    setFormData({ email: formData.email, password: '', name: '' });
+    setFormData({ ...formData, password: '', name: '', message: '' });
   };
 
   const handleRetry = () => {
@@ -78,15 +81,19 @@ export const Landing: React.FC = () => {
   const handleModeSwitch = () => {
     setIsSignUp(!isSignUp);
     clearError();
-    setFormData({ email: '', password: '', name: '' });
+    setFormData({ email: '', password: '', name: '', message: '' });
   };
 
   const features = [
-    { code: 'prd.generate()', desc: 'AI-powered documentation' },
-    { code: 'roadmap.plan()', desc: 'Smart project planning' },
-    { code: 'tasks.automate()', desc: 'Intelligent task breakdown' },
-    { code: 'workspace.sync()', desc: 'Unified development hub' },
-  ];
+    { code: 'prd.generate()', desc: 'Ideas to PRD in seconds' },
+    { code: 'roadmap.plan()', desc: 'Build smart, phase fast' },
+    { code: 'tasks.automate()', desc: 'Tasks handled, flow unbroken' },
+    { code: 'scratchpad.ideate()', desc: 'Think freely, code later' },
+    { code: 'prompt.save()', desc: 'Prompt once, reuse forever' },
+    { code: 'design.copilot()', desc: 'Design faster, smarter' },
+    { code: 'workspace.sync()', desc: 'Everything in one place' },
+    { code: 'community.join()', desc: 'Ship with your people' },
+  ];  
 
   return (
     <div className="min-h-screen bg-background text-foreground font-mono overflow-hidden">
@@ -108,11 +115,14 @@ export const Landing: React.FC = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Terminal className="w-6 h-6 text-primary" />
-                <span className="text-xl font-bold">VibeLab</span>
+                <span className="text-xl font-bold">VLab</span>
               </div>
               <nav className="hidden md:flex items-center space-x-6 text-sm">
-                <a href="#features" className="hover:text-primary transition-colors">Features</a>
-                <a href="#signup" className="hover:text-primary transition-colors">Get Started</a>
+                <a href="#features" className="hover:text-primary transition-colors">Core Modules</a>
+                <a href="#signup" className="hover:text-primary transition-colors flex items-center space-x-1">
+                  <span>Start Vib'ing</span>
+                  <ArrowRight className="w-4 h-4" />
+                </a>
               </nav>
             </div>
           </div>
@@ -136,7 +146,7 @@ export const Landing: React.FC = () => {
             </div>
 
             {/* Main Headline */}
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 mt-16 leading-tight">
               <span className="text-foreground">Build</span>{' '}
               <span className="text-primary glow">Smarter</span>
               <br />
@@ -146,18 +156,18 @@ export const Landing: React.FC = () => {
 
             {/* Value Proposition */}
             <p className="text-lg md:text-xl text-foreground-dim mb-8 max-w-2xl mx-auto leading-relaxed">
-              The AI-powered workspace that transforms ideas into structured projects.
+              // built_for(vibe_coders)
               <br />
-              From concept to deployment, all in one terminal-inspired environment.
+              A minimalist, AI-powered all-in-one workspace for chaotic builders.
             </p>
 
             {/* CTA Button */}
             <a 
               href="#signup" 
-              className="inline-flex items-center px-8 py-4 bg-primary text-background font-semibold rounded-lg hover:bg-primary/90 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-primary/25"
+              className="inline-flex items-center px-8 py-4 bg-primary text-background font-semibold rounded-lg hover:bg-primary/90 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-primary/25 hover:text-background"
             >
-              <span>Initialize Project</span>
-              <ArrowRight className="w-5 h-5 ml-2" />
+              <span>&gt;_ Start Vibe Coding</span>
+              {/* <ArrowRight className="w-5 h-5 ml-2" /> */}
             </a>
           </div>
         </section>
@@ -167,9 +177,9 @@ export const Landing: React.FC = () => {
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                <span className="text-primary">//</span> Core Functions
+                <span className="text-primary">//</span> Core Modules
               </h2>
-              <p className="text-foreground-dim text-lg">Essential tools for modern development workflows</p>
+              <p className="text-foreground-dim text-md">Essential tools designed to help you level up your vibe coding — from idea spark to shipping in flow.</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -186,7 +196,7 @@ export const Landing: React.FC = () => {
                       <code className="text-primary text-lg font-semibold block mb-2">
                         {feature.code}
                       </code>
-                      <p className="text-foreground-dim">{feature.desc}</p>
+                      <p className="text-foreground-dim text-sm">{feature.desc}</p>
                     </div>
                   </div>
                 </div>
@@ -222,7 +232,7 @@ export const Landing: React.FC = () => {
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 bg-background border border-foreground-dim/30 rounded-lg focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-mono"
+                      className="form-input"
                       placeholder="Enter your name"
                       required={isSignUp}
                       aria-label="Full name"
@@ -239,7 +249,7 @@ export const Landing: React.FC = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 bg-background border border-foreground-dim/30 rounded-lg focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-mono"
+                    className="form-input"
                     placeholder="user@domain.com"
                     required
                     aria-label="Email address"
@@ -256,7 +266,7 @@ export const Landing: React.FC = () => {
                       name="password"
                       value={formData.password}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 pr-12 bg-background border border-foreground-dim/30 rounded-lg focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-mono"
+                      className="form-input"
                       placeholder="••••••••"
                       required
                       aria-label="Password"
@@ -294,7 +304,7 @@ export const Landing: React.FC = () => {
                       Processing...
                     </span>
                   ) : (
-                    `${isSignUp ? 'Execute' : 'Authenticate'}`
+                    `${isSignUp ? 'deploy_user()' : 'authenticate_user()'}`
                   )}
                 </button>
               </form>
@@ -316,14 +326,20 @@ export const Landing: React.FC = () => {
         </section>
 
         {/* Footer */}
-        <footer className="border-t border-foreground-dim/20 bg-background/80 backdrop-blur-sm">
+        <footer className="relative border-t border-foreground-dim/20 bg-background/80 backdrop-blur-sm">
           <div className="max-w-7xl mx-auto px-6 py-8">
             <div className="flex flex-col md:flex-row items-center justify-between">
               <div className="flex items-center space-x-2 mb-4 md:mb-0">
                 <Terminal className="w-5 h-5 text-primary" />
-                <span className="text-foreground-dim">VibeLab © 2025</span>
+                <span className="text-foreground-dim">VLab © 2025</span>
               </div>
               <div className="flex items-center space-x-6 text-sm text-foreground-dim">
+                <button 
+                  onClick={() => setShowContactModal(true)}
+                  className="hover:text-primary transition-colors flex items-center space-x-1"
+                >
+                  <span>Get in touch</span>
+                </button>
                 <span className="flex items-center space-x-1">
                   <Shield className="w-4 h-4" />
                   <span>Secure by design</span>
@@ -335,6 +351,35 @@ export const Landing: React.FC = () => {
               </div>
             </div>
           </div>
+
+          {/* Contact Modal */}
+          {showContactModal && createPortal(
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+              {/* Backdrop */}
+              <div 
+                className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+                onClick={() => setShowContactModal(false)}
+              />
+              
+              {/* Modal Content */}
+              <div className="relative w-full max-w-md bg-background rounded-xl border border-foreground-dim/20 shadow-xl">
+                <button 
+                  onClick={() => setShowContactModal(false)}
+                  className="absolute right-4 top-4 text-foreground-dim hover:text-foreground transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+                
+                <div className="p-6">
+                  <h3 className="mb-2">Get in Touch</h3>
+                  <p className="text-foreground-dim mb-6">
+                    Have questions, feedback or want to learn more? Send us a message at <a href="mailto:vibelab.feedback@gmail.com" className="text-primary hover:underline">vibelab.feedback@gmail.com</a>, let's chat!
+                  </p>
+                </div>
+              </div>
+            </div>,
+            document.body
+          )}
         </footer>
       </div>
     </div>
