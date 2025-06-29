@@ -1,5 +1,5 @@
 /**
- * Utility functions for VibeLab
+ * Utility functions for VLab
  */
 
 /**

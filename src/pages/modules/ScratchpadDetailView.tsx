@@ -361,7 +361,7 @@ export const ScratchpadDetailView: React.FC = () => {
                 >
                   {editingNoteId === note.id ? (
                     // Edit Form
-                    <div className="p-4">
+                    <div>
                       <div className="space-y-3">
                         <div>
                           <textarea

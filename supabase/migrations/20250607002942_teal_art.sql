@@ -1,5 +1,5 @@
 /*
-  # VibeLab Database Functions and Triggers
+  # VLab Database Functions and Triggers
 
   1. Functions
     - `update_updated_at_column()` - Automatically update updated_at timestamps

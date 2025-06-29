@@ -56,7 +56,7 @@ export const AuthForm: React.FC = () => {
             {isSignUp ? 'Create your account' : 'Sign in to your account'}
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Welcome to VibeLab - Your Solo Developer Workspace
+            Welcome to VLab - Your Solo Vibe Coder Workspace
           </p>
         </div>
         

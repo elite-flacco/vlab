@@ -1,5 +1,5 @@
 /*
-  # VibeLab Sample Data
+  # VLab Sample Data
 
   1. Sample Templates
     - Basic workspace template

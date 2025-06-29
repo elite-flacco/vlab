@@ -1,5 +1,5 @@
 /*
-  # VibeLab Core Database Schema
+  # VLab Core Database Schema
 
   1. New Tables
     - `profiles` - User profile information extending Supabase auth

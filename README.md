@@ -1,23 +1,20 @@
-# VibeLab - AI-Powered Solo Developer Workspace
+# VLab - AI-Powered Vibe Coder Workspace
 
-VibeLab is a comprehensive workspace platform designed specifically for solo developers and small teams working on AI-powered projects. It provides an integrated environment for project planning, development tracking, and collaboration.
+VLab is a minimalist workspace platform purpose built for vibe coders. It provides an integrated environment for project ideation, planning, and development tracking.
 
 ## Features
 
 ### Core Modules
 - **PRD (Product Requirements Documents)** - Create and manage detailed product specifications with AI assistance
-- **Roadmap** - Visual project planning with milestone tracking and phase management
-- **Tasks** - Comprehensive task management with dependencies, priorities, and progress tracking
+- **Roadmap** - Visual project planning with phase management
+- **Tasks** - Minimalistic task management with priorities, and progress tracking
 - **Scratchpad** - Flexible note-taking and idea capture with tagging and organization
 - **Prompts** - AI prompt library for consistent and effective AI interactions
-- **Secrets** - Secure storage for API keys, environment variables, and sensitive data
 
 ### Key Features
 - **AI-Powered Kick-off Flow** - Transform ideas into structured workspaces with AI assistance
-- **Version Control for PRDs** - Complete version history, comparison, and restoration capabilities
-- **Flexible Workspace Layouts** - Customizable module arrangements to fit your workflow
-- **Community Hub** - Share tools, prompts, and knowledge with other developers
-- **Template System** - Save and share workspace configurations
+- **Version Control for PRDs** - Complete version history, comparison
+- **Community Hub** - Share tools, prompts, and knowledge with other vibe coders
 
 ## Technology Stack
 
@@ -76,7 +73,7 @@ npm run dev
 
 ### Core Tables
 - `profiles` - User profile information
-- `projects` - Project containers with workspace layouts
+- `projects` - Project containers
 - `prds` - Product Requirements Documents with versioning
 - `prd_versions` - Complete version history for PRDs
 - `tasks` - Task management with dependencies and priorities
@@ -91,7 +88,6 @@ The PRD versioning system provides:
 - **Automatic Version Tracking** - Every PRD update creates a new version
 - **Complete History** - Full content and metadata for each version
 - **Version Comparison** - Side-by-side comparison of any two versions
-- **Version Restoration** - Restore to any previous version with change tracking
 - **Change Descriptions** - Optional descriptions for each version update
 
 #### Database Functions
@@ -129,7 +125,7 @@ src/
 ## API Integration
 
 ### OpenAI Integration
-VibeLab integrates with OpenAI for:
+VLab integrates with OpenAI for:
 - Idea refinement and PRD generation
 - Roadmap creation from PRDs
 - Task breakdown from roadmaps
@@ -189,4 +185,4 @@ For support and questions:
 
 ---
 
-Built with ❤️ for the AI development community.
+Built with ❤️ for the vibe coder community.

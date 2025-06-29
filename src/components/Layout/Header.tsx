@@ -26,7 +26,7 @@ export const Header: React.FC<HeaderProps> = ({ onNewProjectClick }) => {
             className="flex items-center space-x-2 hover:text-primary transition-colors"
           >
             <Terminal className="w-6 h-6 text-primary" />
-            <span className="header-title">VibeLab</span>
+            <span className="header-title">VLab</span>
           </button>
           {currentProject && !isOnCommunity && !isOnSettings && (
             <div className="text-sm text-foreground-dim font-mono">
