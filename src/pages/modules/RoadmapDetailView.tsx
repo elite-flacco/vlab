@@ -66,12 +66,21 @@ export const RoadmapDetailView: React.FC = () => {
     setError(null);
 
     try {
-      const { data, error: updateError } = await db.updateRoadmapItem(itemId, updates);
+      // Format dates to ISO string before saving
+      const formattedUpdates = { ...updates };
+      if ('start_date' in updates) {
+        formattedUpdates.start_date = updates.start_date || null;
+      }
+      if ('end_date' in updates) {
+        formattedUpdates.end_date = updates.end_date || null;
+      }
+
+      const { data, error: updateError } = await db.updateRoadmapItem(itemId, formattedUpdates);
       if (updateError) throw updateError;
 
-      // Update local state
+      // Update local state with the server response if available, or with the updates
       const updatedItems = roadmapItems.map(item =>
-        item.id === itemId ? data : item
+        item.id === itemId ? (data || { ...item, ...formattedUpdates }) : item
       );
       setRoadmapItems(updatedItems);
       setEditingItemId(null);
@@ -89,20 +98,36 @@ export const RoadmapDetailView: React.FC = () => {
     setError(null);
 
     try {
+      // Format dates to ISO string before saving
+      const formattedEndDate = itemData.end_date ? 
+        (typeof itemData.end_date === 'string' ? 
+          itemData.end_date : 
+          new Date(itemData.end_date).toISOString()) : 
+        null;
+
       const newItemData = {
         project_id: projectId,
         title: itemData.title || 'New Phase',
         description: itemData.description || '',
         status: itemData.status || 'planned',
-        phase: itemData.phase || 'backlog',
-        start_date: itemData.start_date || null,
-        end_date: itemData.end_date || null,
-        progress: itemData.progress || 0,
-        dependencies: itemData.dependencies || [],
-        milestone: itemData.milestone || false,
-        color: itemData.color || '#3b82f6',
+        phase: itemData.phase || 'mvp',
+        start_date: null, // Start date is not used in the form
+        end_date: formattedEndDate,
+        progress: 0,
+        dependencies: [],
+        milestone: false,
+        color: '#3b82f6',
         position: roadmapItems.length,
       };
+
+      // Validate dates if both are present
+      if (newItemData.start_date && newItemData.end_date) {
+        const start = new Date(newItemData.start_date);
+        const end = new Date(newItemData.end_date);
+        if (start > end) {
+          throw new Error('End date cannot be before start date');
+        }
+      }
 
       const { data, error: createError } = await db.createRoadmapItem(newItemData);
       if (createError) throw createError;
@@ -277,6 +302,34 @@ export const RoadmapDetailView: React.FC = () => {
     }
   };
 
+  // Helper to show native date picker
+  const showDatePicker = (elementId: string) => {
+    const input = document.getElementById(elementId) as HTMLInputElement;
+    if (input) {
+      try {
+        if (typeof input.showPicker === 'function') {
+          input.showPicker();
+        } else {
+          // Fallback: focus the input to show the date picker on mobile
+          input.focus();
+        }
+      } catch (err) {
+        console.error('Error showing date picker:', err);
+        input.focus(); // Fallback to default behavior
+      }
+    }
+  };
+
+  // Format date for display
+  const formatDisplayDate = (dateString: string | null) => {
+    if (!dateString) return '';
+    try {
+      return format(new Date(dateString), 'MMM d, yyyy');
+    } catch (e) {
+      return dateString;
+    }
+  };
+
   const renderRoadmapItem = (item: RoadmapItem, index: number, showPhaseSelector = false, isDraggable = false) => {
     const itemContent = (
       <div
@@ -320,7 +373,7 @@ export const RoadmapDetailView: React.FC = () => {
               />
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div className="flex space-x-2 items-start">
               <div>
                 <label className="block text-xs font-medium text-foreground mb-1">Status</label>
                 <select
@@ -359,17 +412,46 @@ export const RoadmapDetailView: React.FC = () => {
               </div>
               <div>
                 <label className="block text-xs font-medium text-foreground mb-1">End Date</label>
-                <input
-                  type="date"
-                  value={item.end_date || ''}
-                  onChange={(e) => {
-                    const updatedItems = roadmapItems.map(i =>
-                      i.id === item.id ? { ...i, end_date: e.target.value || null } : i
-                    );
-                    setRoadmapItems(updatedItems);
-                  }}
-                  className="form-input"
-                />
+                <div className="relative w-full">
+                  <input
+                    type="date"
+                    value={item.end_date?.split('T')[0] || ''}
+                    onChange={(e) => {
+                      const updatedItems = roadmapItems.map((i) =>
+                        i.id === item.id ? { ...i, end_date: e.target.value ? `${e.target.value}T00:00:00.000Z` : null } : i
+                      );
+                      setRoadmapItems(updatedItems);
+                    }}
+                    className="form-input w-full pr-8 text-sm"
+                    id={`end-date-${item.id}`}
+                  />
+                  <div className="absolute right-0 top-0 h-full flex items-center pr-2 space-x-1">
+                    {item.end_date && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const updatedItems = roadmapItems.map((i) =>
+                            i.id === item.id ? { ...i, end_date: null } : i
+                          );
+                          setRoadmapItems(updatedItems);
+                        }}
+                        className="text-foreground-dim hover:text-foreground transition-colors"
+                        title="Clear date"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => showDatePicker(`end-date-${item.id}`)}
+                      className="text-foreground-dim hover:text-foreground transition-colors"
+                      title="Pick a date"
+                    >
+                      <Calendar className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -432,13 +514,13 @@ export const RoadmapDetailView: React.FC = () => {
                 {item.start_date && (
                   <div className="flex items-center space-x-1">
                     <Calendar className="w-3 h-3" />
-                    <span>Start: {format(new Date(item.start_date), 'MMM d')}</span>
+                    <span>Start: {formatDisplayDate(item.start_date)}</span>
                   </div>
                 )}
                 {item.end_date && (
                   <div className="flex items-center space-x-1">
                     <Calendar className="w-3 h-3" />
-                    <span>End: {format(new Date(item.end_date), 'MMM d')}</span>
+                    <span>End: {formatDisplayDate(item.end_date)}</span>
                   </div>
                 )}
               </div>
@@ -465,7 +547,7 @@ export const RoadmapDetailView: React.FC = () => {
               </div>
               {/* Phase Dropdown (only show in timeline view) */}
               {/* {showPhaseSelector && (
-                <div>
+                <div className="px-1">
                   <select
                     value={item.phase}
                     onChange={(e) => handleDirectPhaseChange(item.id, e.target.value)}
@@ -691,7 +773,7 @@ export const RoadmapDetailView: React.FC = () => {
                       </h4>
                     </div>
                     <div className="space-y-3">
-                      <div>
+                      <div className="px-1">
                         <label className="block text-xs font-medium text-foreground-dim mb-1">Title</label>
                         <input
                           type="text"
@@ -703,7 +785,7 @@ export const RoadmapDetailView: React.FC = () => {
                         />
                       </div>
 
-                      <div>
+                      <div className="px-1">
                         <label className="block text-xs font-medium text-foreground-dim mb-1">Description</label>
                         <textarea
                           value={newRoadmapItem.description || ''}
@@ -714,8 +796,8 @@ export const RoadmapDetailView: React.FC = () => {
                         />
                       </div>
 
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        <div>
+                      <div className="flex space-x-3 items-start">
+                        <div className="px-1">
                           <label className="block text-xs font-medium text-foreground-dim mb-1">Phase</label>
                           <select
                             value={newRoadmapItem.phase || 'mvp'}
@@ -727,14 +809,43 @@ export const RoadmapDetailView: React.FC = () => {
                             <option value="backlog">Backlog</option>
                           </select>
                         </div>
-                        <div>
+                        <div className="px-1">
                           <label className="block text-xs font-medium text-foreground-dim mb-1">End Date</label>
-                          <input
-                            type="date"
-                            value={newRoadmapItem.end_date || ''}
-                            onChange={(e) => setNewRoadmapItem(prev => ({ ...prev, end_date: e.target.value || null }))}
-                            className="form-input"
-                          />
+                          <div className="relative w-full">
+                            <input
+                              type="date"
+                              value={newRoadmapItem.end_date?.split('T')[0] || ''}
+                              onChange={(e) => setNewRoadmapItem(prev => ({
+                                ...prev,
+                                end_date: e.target.value ? `${e.target.value}T00:00:00.000Z` : null
+                              }))}
+                              className="form-input w-full pr-8 text-sm"
+                              id="new-item-end-date"
+                            />
+                            <div className="absolute right-0 top-0 h-full flex items-center pr-2 space-x-1">
+                              {newRoadmapItem.end_date && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setNewRoadmapItem(prev => ({ ...prev, end_date: null }));
+                                  }}
+                                  className="text-foreground-dim hover:text-foreground transition-colors"
+                                  title="Clear date"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => showDatePicker('new-item-end-date')}
+                                className="text-foreground-dim hover:text-foreground transition-colors"
+                                title="Pick a date"
+                              >
+                                <Calendar className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
                         </div>
                       </div>
 
