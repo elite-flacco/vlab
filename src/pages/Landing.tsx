@@ -166,7 +166,7 @@ export const Landing: React.FC = () => {
               href="#signup" 
               className="inline-flex items-center px-8 py-4 bg-primary text-background font-semibold rounded-lg hover:bg-primary/90 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-primary/25 hover:text-background"
             >
-              <span>&gt;_ Start Vibe Coding</span>
+              <span>>_ Start Vibe Coding</span>
               {/* <ArrowRight className="w-5 h-5 ml-2" /> */}
             </a>
           </div>
@@ -351,6 +351,21 @@ export const Landing: React.FC = () => {
               </div>
             </div>
           </div>
+
+          {/* Bolt.new Badge */}
+          <a 
+            href="https://bolt.new" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="fixed bottom-4 right-4 z-50 transition-transform hover:scale-105"
+            title="Built with Bolt.new"
+          >
+            <img 
+              src="/bolt_badge.png" 
+              alt="Built with Bolt.new" 
+              className="w-16 h-16"
+            />
+          </a>
 
           {/* Contact Modal */}
           {showContactModal && createPortal(
