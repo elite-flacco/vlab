@@ -31,7 +31,7 @@ export const Landing: React.FC = () => {
   useEffect(() => {
     const text = '> initializing project workspace...';
     let index = 0;
-    
+
     const typeWriter = () => {
       if (index < text.length) {
         setTerminalText(text.slice(0, index + 1));
@@ -93,7 +93,7 @@ export const Landing: React.FC = () => {
     { code: 'design.copilot()', desc: 'Design faster, smarter' },
     { code: 'workspace.sync()', desc: 'Everything in one place' },
     { code: 'community.join()', desc: 'Ship with your people' },
-  ];  
+  ];
 
   return (
     <div className="min-h-screen bg-background text-foreground font-mono overflow-hidden">
@@ -162,8 +162,8 @@ export const Landing: React.FC = () => {
             </p>
 
             {/* CTA Button */}
-            <a 
-              href="#signup" 
+            <a
+              href="#signup"
               className="inline-flex items-center px-8 py-4 bg-primary text-background font-semibold rounded-lg hover:bg-primary/90 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-primary/25 hover:text-background"
             >
               <span>&gt;_ Start Vibe Coding</span>
@@ -184,7 +184,7 @@ export const Landing: React.FC = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {features.map((feature, index) => (
-                <div 
+                <div
                   key={index}
                   className="group p-6 bg-background/50 border border-foreground-dim/20 rounded-lg hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10"
                 >
@@ -315,8 +315,8 @@ export const Landing: React.FC = () => {
                   className="text-foreground-dim hover:text-primary transition-colors text-sm"
                   aria-label={isSignUp ? 'Switch to login' : 'Switch to sign up'}
                 >
-                  {isSignUp 
-                    ? '// Already have an account? Login' 
+                  {isSignUp
+                    ? '// Already have an account? Login'
                     : '// Need an account? Sign up'
                   }
                 </button>
@@ -334,7 +334,7 @@ export const Landing: React.FC = () => {
                 <span className="text-foreground-dim">VLab © 2025</span>
               </div>
               <div className="flex items-center space-x-6 text-sm text-foreground-dim">
-                <button 
+                <button
                   onClick={() => setShowContactModal(true)}
                   className="hover:text-primary transition-colors flex items-center space-x-1"
                 >
@@ -348,43 +348,43 @@ export const Landing: React.FC = () => {
                   <Zap className="w-4 h-4" />
                   <span>AI-powered</span>
                 </span>
+                {/* Bolt.new Badge */}
+                <a
+                  href="https://bolt.new"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="z-50 transition-transform hover:scale-105"
+                  title="Built with Bolt.new"
+                >
+                  <img
+                    src="/bolt_badge.png"
+                    alt="Built with Bolt.new"
+                    className="w-12 h-12"
+                  />
+                </a>
               </div>
+
             </div>
           </div>
-
-          {/* Bolt.new Badge */}
-          <a 
-            href="https://bolt.new" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="fixed bottom-4 right-4 z-50 transition-transform hover:scale-105"
-            title="Built with Bolt.new"
-          >
-            <img 
-              src="/bolt_badge.png" 
-              alt="Built with Bolt.new" 
-              className="w-12 h-12"
-            />
-          </a>
 
           {/* Contact Modal */}
           {showContactModal && createPortal(
             <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
               {/* Backdrop */}
-              <div 
+              <div
                 className="fixed inset-0 bg-black/50 backdrop-blur-sm"
                 onClick={() => setShowContactModal(false)}
               />
-              
+
               {/* Modal Content */}
               <div className="relative w-full max-w-md bg-background rounded-xl border border-foreground-dim/20 shadow-xl">
-                <button 
+                <button
                   onClick={() => setShowContactModal(false)}
                   className="absolute right-4 top-4 text-foreground-dim hover:text-foreground transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
-                
+
                 <div className="p-6">
                   <h3 className="mb-2">Get in Touch</h3>
                   <p className="text-foreground-dim mb-6">
