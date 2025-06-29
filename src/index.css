@@ -11,6 +11,42 @@
 
 /* Base Layer - Typography & Reset */
 @layer base {
+  /* Custom Scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--foreground) / 0.2) hsl(var(--background) / 0.1);
+  }
+  
+  /* Webkit (Chrome, Safari, Edge) */
+  *::-webkit-scrollbar {
+    @apply w-2.5 h-2.5;
+  }
+  
+  *::-webkit-scrollbar-track {
+    @apply bg-background/30 rounded-full my-1;
+  }
+  
+  *::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-foreground/20 hover:bg-foreground/30 transition-colors duration-200 border border-background/20;
+  }
+  
+  *::-webkit-scrollbar-thumb:hover {
+    @apply bg-foreground/40;
+  }
+  
+  *::-webkit-scrollbar-thumb:active {
+    @apply bg-foreground/50;
+  }
+  
+  /* Dark mode adjustments */
+  .dark *::-webkit-scrollbar-thumb {
+    @apply bg-foreground/30 hover:bg-foreground/40;
+  }
+  
+  .dark *::-webkit-scrollbar-track {
+    @apply bg-foreground/5;
+  }
+  
   *,
   *::before,
   *::after {

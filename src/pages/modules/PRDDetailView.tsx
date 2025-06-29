@@ -175,13 +175,13 @@ export const PRDDetailView: React.FC = () => {
       .split('\n')
       .map((line, index) => {
         if (line.startsWith('# ')) {
-          return <h1 key={index} className="h1">{line.slice(2)}</h1>;
+          return <h1 key={index} className="text-xl">{line.slice(2)}</h1>;
         }
         if (line.startsWith('## ')) {
-          return <h2 key={index} className="h2">{line.slice(3)}</h2>;
+          return <h2 key={index} className="text-lg">{line.slice(3)}</h2>;
         }
         if (line.startsWith('### ')) {
-          return <h3 key={index} className="h3">{line.slice(4)}</h3>;
+          return <h3 key={index} className="text-md">{line.slice(4)}</h3>;
         }
         if (line.startsWith('- ')) {
           return <li key={index} className="text-foreground-dim mb-1 ml-4">{line.slice(2)}</li>;
@@ -407,7 +407,7 @@ export const PRDDetailView: React.FC = () => {
                     />
                   </div>
                 ) : (
-                  <h1 className="h1">{selectedVersionData.title}</h1>
+                  <h1 className="text-xl">{selectedVersionData.title}</h1>
                 )}
 
                 {/* Change Description (only when editing) */}

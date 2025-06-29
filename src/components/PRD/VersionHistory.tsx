@@ -162,7 +162,35 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
     }
   };
 
-  const renderMarkdownPreview = (content: string) => {
+  const renderMarkdownPreview = (content: string, isComparison = false) => {
+    // When in comparison mode, show all content with proper formatting
+    if (isComparison) {
+      return (
+        <div className="prose prose-sm max-w-none text-foreground/80">
+          {content.split('\n').map((line, index) => {
+            if (line.startsWith('# ')) {
+              return <h3 key={index} className="text-foreground font-semibold text-base mb-2 mt-4">{line.slice(2)}</h3>;
+            }
+            if (line.startsWith('## ')) {
+              return <h4 key={index} className="text-foreground font-medium text-sm mb-2 mt-3">{line.slice(3)}</h4>;
+            }
+            if (line.startsWith('### ')) {
+              return <h5 key={index} className="text-foreground font-medium text-sm mb-1 mt-2">{line.slice(4)}</h5>;
+            }
+            if (line.trim() === '') {
+              return <div key={index} className="h-4" />;
+            }
+            // Handle lists
+            if (line.trim().startsWith('- ')) {
+              return <div key={index} className="flex"><span className="mr-2">•</span><span>{line.slice(2)}</span></div>;
+            }
+            return <p key={index} className="text-foreground/80 text-sm leading-relaxed mb-2">{line}</p>;
+          })}
+        </div>
+      );
+    }
+    
+    // For preview mode (non-comparison), show limited content
     return content
       .split('\n')
       .slice(0, 10) // Show first 10 lines
@@ -208,11 +236,9 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
             </div>
           </div>
         </div>
-        <div className="bg-foreground/5 rounded-lg p-5 max-h-[calc(90vh-220px)] overflow-y-auto">
+        <div className="bg-foreground/5 rounded-lg p-5 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 220px)' }}>
           <h4 className="font-semibold text-foreground mb-3">{versionData.title}</h4>
-          <div className="prose prose-sm max-w-none text-foreground/80">
-            {renderMarkdownPreview(versionData.content)}
-          </div>
+          {renderMarkdownPreview(versionData.content, true)}
         </div>
       </div>
     );
@@ -234,7 +260,7 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
             </button>
           </div>
 
-          <div className="grid grid-cols-2 gap-6 p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
+          <div className="grid grid-cols-2 gap-6 p-6 overflow-hidden">
             <VersionCard 
               versionData={version_a_data} 
               isCurrent={version_a_data.version === currentVersion} 
