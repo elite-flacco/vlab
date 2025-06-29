@@ -138,7 +138,7 @@ export const PostCard: React.FC<PostCardProps> = ({
         'v0': { bg: 'bg-purple-900/30', text: 'text-purple-300', border: 'border-purple-700/50' },
         'other': { bg: 'bg-gray-700/30', text: 'text-gray-300', border: 'border-gray-600/50' }
       };
-
+      
       const colors = toolColors[post.tool] || toolColors['other'];
       
       badges.push(
@@ -313,4 +313,4 @@ export const PostCard: React.FC<PostCardProps> = ({
       </div>
     </div>
   );
-};
+}

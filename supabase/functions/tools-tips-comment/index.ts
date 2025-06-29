@@ -49,7 +49,7 @@ serve(async (req) => {
     // Extract post ID from URL
     const url = new URL(req.url)
     const pathParts = url.pathname.split('/')
-    const postId = pathParts[pathParts.indexOf('tools-tips') + 1]
+    const postId = pathParts[pathParts.length - 1]
 
     if (!postId) {
       return new Response(
