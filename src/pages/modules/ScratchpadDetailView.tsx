@@ -151,11 +151,19 @@ export const ScratchpadDetailView: React.FC = () => {
 
   const allTags = Array.from(new Set(notes.flatMap(note => note.tags || [])));
 
-  const filteredNotes = notes.filter(note => {
-    const matchesSearch = note.content.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesTag = !selectedTag || (note.tags && note.tags.includes(selectedTag));
-    return matchesSearch && matchesTag;
-  });
+  const filteredNotes = notes
+    .filter(note => {
+      const matchesSearch = note.content.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesTag = !selectedTag || (note.tags && note.tags.includes(selectedTag));
+      return matchesSearch && matchesTag;
+    })
+    .sort((a, b) => {
+      // Sort pinned notes first, then by most recently updated
+      if (a.is_pinned === b.is_pinned) {
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      }
+      return a.is_pinned ? -1 : 1;
+    });
 
   if (loading) {
     return (
@@ -250,9 +258,9 @@ export const ScratchpadDetailView: React.FC = () => {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="flex space-x-3 items-start">
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">Tag</label>
+                    <label className="block text-xs font-medium text-foreground mb-2">Tag</label>
                     <select
                       value={newNote.tags?.[0] || TAG_OPTIONS[0]}
                       onChange={(e) => setNewNote(prev => ({ ...prev, tags: [e.target.value] }))}
@@ -266,15 +274,24 @@ export const ScratchpadDetailView: React.FC = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">Options</label>
-                    <label className="flex items-center space-x-2 text-sm">
-                      <input
-                        type="checkbox"
-                        checked={newNote.is_pinned || false}
-                        onChange={(e) => setNewNote(prev => ({ ...prev, is_pinned: e.target.checked }))}
-                        className="rounded border-foreground-dim/20 text-primary focus:ring-1"
-                      />
-                      <span>Pin this note</span>
+                    <label className="block text-xs font-medium text-foreground mb-2">Options</label>
+                    <label className="flex items-center space-x-2 text-xs cursor-pointer group">
+                      <div className="relative">
+                        <input
+                          type="checkbox"
+                          checked={newNote.is_pinned || false}
+                          onChange={(e) => setNewNote(prev => ({ ...prev, is_pinned: e.target.checked }))}
+                          className="sr-only peer"
+                        />
+                        <div className="h-4 w-4 rounded border border-foreground-dim/30 bg-transparent peer-checked:border-foreground peer-focus:ring-1 peer-focus:ring-foreground/30 transition-colors flex items-center justify-center">
+                          {newNote.is_pinned && (
+                            <svg className="h-2.5 w-2.5 text-foreground" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          )}
+                        </div>
+                      </div>
+                      <span className="text-foreground/80 group-hover:text-foreground transition-colors">Pin this note</span>
                     </label>
                   </div>
                 </div>
@@ -309,24 +326,24 @@ export const ScratchpadDetailView: React.FC = () => {
               </div>
             </div>
           )}
-          <div className="flex items-center space-x-3 mb-6">
+          <div className="flex flex-col lg:flex-row lg:items-center gap-4 mb-6">
             {/* Search and Filter Controls */}
-            <div className="relative">
+            <div className="relative w-full lg:w-64 flex-shrink-0">
               <Search className="search-icon" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search notes..."
-                className="search-input"
+                className="search-input w-full"
               />
             </div>
             {/* Tags Filter */}
             {allTags.length > 0 && (
-              <div className="flex items-center space-x-2 overflow-x-auto">
+              <div className="flex flex-wrap items-center gap-2 overflow-x-auto w-full lg:w-auto pb-1">
                 <button
                   onClick={() => setSelectedTag(null)}
-                  className={`${!selectedTag
+                  className={`whitespace-nowrap ${!selectedTag
                     ? 'filter-button-active'
                     : 'filter-button'
                     }`}
@@ -337,7 +354,7 @@ export const ScratchpadDetailView: React.FC = () => {
                   <button
                     key={tag}
                     onClick={() => setSelectedTag(tag)}
-                    className={`${selectedTag === tag
+                    className={`whitespace-nowrap ${selectedTag === tag
                       ? 'filter-button-active'
                       : 'filter-button'
                       }`}
@@ -379,7 +396,7 @@ export const ScratchpadDetailView: React.FC = () => {
                           />
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="flex space-x-3 items-start">
                           <div>
                             <label className="block text-xs font-medium text-foreground mb-2">Tag</label>
                             <select
@@ -403,17 +420,26 @@ export const ScratchpadDetailView: React.FC = () => {
                           <div>
                             <label className="block text-xs font-medium text-foreground mb-2">Options</label>
                             <label className="flex items-center space-x-2 text-xs">
-                              <input
-                                type="checkbox"
-                                checked={note.is_pinned}
-                                onChange={(e) => {
-                                  const updatedNotes = notes.map(n =>
-                                    n.id === note.id ? { ...n, is_pinned: e.target.checked } : n
-                                  );
-                                  setNotes(updatedNotes);
-                                }}
-                                className="rounded border-foreground-dim/20 text-yellow-600 focus:ring-yellow-500"
-                              />
+                              <div className="flex items-center">
+                                <input
+                                  type="checkbox"
+                                  checked={note.is_pinned}
+                                  onChange={(e) => {
+                                    const updatedNotes = notes.map(n =>
+                                      n.id === note.id ? { ...n, is_pinned: e.target.checked } : n
+                                    );
+                                    setNotes(updatedNotes);
+                                  }}
+                                  className="sr-only peer"
+                                />
+                                <div className="h-4 w-4 rounded border border-foreground-dim/30 bg-transparent peer-checked:border-foreground peer-focus:ring-1 peer-focus:ring-foreground/30 transition-colors flex items-center justify-center">
+                                  {note.is_pinned && (
+                                    <svg className="h-2.5 w-2.5 text-foreground" viewBox="0 0 20 20" fill="currentColor">
+                                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                    </svg>
+                                  )}
+                                </div>
+                              </div>
                               <span className="text-foreground">Pin this note</span>
                             </label>
                           </div>

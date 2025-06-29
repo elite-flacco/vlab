@@ -24,8 +24,9 @@ VLab is a minimalist workspace platform purpose built for vibe coders. It provid
 - **Authentication**: Supabase Auth
 - **Icons**: Lucide React
 - **State Management**: Zustand
-- **Date Handling**: date-fns
+- **Form Handling**: React Hook Form
 - **Drag & Drop**: react-beautiful-dnd
+- **Date Handling**: date-fns
 
 ## Getting Started
 
@@ -39,7 +40,7 @@ VLab is a minimalist workspace platform purpose built for vibe coders. It provid
 1. Clone the repository:
 ```bash
 git clone <repository-url>
-cd vibelab
+cd viber
 ```
 
 2. Install dependencies:
@@ -115,7 +116,8 @@ src/
 │   ├── Community.tsx   # Community hub
 │   ├── Dashboard.tsx   # User dashboard
 │   ├── KickoffFlow.tsx # AI-powered project setup
-│   └── Workspace.tsx   # Main workspace view
+│   ├── Workspace.tsx   # Main workspace view
+│   └── Settings.tsx    # User settings
 ├── stores/             # State management
 │   ├── authStore.ts    # Authentication state
 │   └── projectStore.ts # Project management state

@@ -112,7 +112,7 @@ export const IdeaBouncer: React.FC<IdeaBouncerProps> = ({ projectId, onIdeaSelec
       await db.createScratchpadNote({
         project_id: projectId,
         content: noteContent,
-        tags: ['Project Notes', 'Idea Seed', 'AI Discussion'],
+        tags: ['Project Notes', 'Ideas', 'AI Discussion'],
         color: '#fef3c7', // Yellow color for idea notes
         position: { x: 0, y: 0 },
         size: { width: 400, height: 300 },

@@ -210,7 +210,7 @@
     background-repeat: no-repeat;
     background-position: right 0.75rem center;
     background-size: 1rem 1rem;
-    min-height: 2.5rem;
+    min-height: 2.25rem;
   }
   
   /* Style for the dropdown options */
@@ -258,7 +258,7 @@
 
   /* Filter Button Components */
   .filter-button {
-    @apply inline-flex items-center px-3 py-2 text-xs rounded-md whitespace-nowrap transition-colors font-mono;
+    @apply inline-flex items-center px-3 h-9 text-xs rounded-md whitespace-nowrap transition-colors font-mono;
     @apply bg-secondary/30 text-foreground-dim border border-foreground-dim/20 hover:bg-secondary/50 hover:text-foreground;
   }
 
@@ -277,7 +277,7 @@
   }
 
   .search-input {
-    @apply form-input w-full pl-10 pr-10;
+    @apply form-input w-full pl-10 pr-10 h-9;
   }
 
   /* Card components */

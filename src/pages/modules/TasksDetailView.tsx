@@ -283,7 +283,7 @@ export const TasksDetailView: React.FC = () => {
               </div>
               <div className="space-y-3">
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Task Title</label>
+                  <label className="block text-xs font-medium text-foreground mb-1">Task Title</label>
                   <input
                     type="text"
                     value={newTask.title}
@@ -295,7 +295,7 @@ export const TasksDetailView: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Description</label>
+                  <label className="block text-xs font-medium text-foreground mb-1">Description</label>
                   <textarea
                     value={newTask.description}
                     onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
@@ -305,9 +305,9 @@ export const TasksDetailView: React.FC = () => {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="flex space-x-3 items-start">
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-1">Priority</label>
+                    <label className="block text-xs font-medium text-foreground mb-1">Priority</label>
                     <select
                       value={newTask.priority}
                       onChange={(e) => setNewTask({ ...newTask, priority: e.target.value as any })}
@@ -320,7 +320,7 @@ export const TasksDetailView: React.FC = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-1">Tags (comma-separated)</label>
+                    <label className="block text-xs font-medium text-foreground mb-1">Tags (comma-separated)</label>
                     <input
                       type="text"
                       value={newTask.tags ? newTask.tags.join(', ') : ''}
@@ -441,7 +441,7 @@ export const TasksDetailView: React.FC = () => {
                       />
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <div className="flex space-x-3 items-start">
                       <div>
                         <label className="block text-xs font-medium text-foreground mb-1">Status</label>
                         <select
@@ -479,22 +479,21 @@ export const TasksDetailView: React.FC = () => {
                           <option value="urgent">Urgent</option>
                         </select>
                       </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-medium text-foreground mb-1">Tags (comma-separated)</label>
-                      <input
-                        type="text"
-                        value={formatTagsInput(task.tags)}
-                        onChange={(e) => {
-                          const updatedTasks = tasks.map(t =>
-                            t.id === task.id ? { ...t, tags: parseTagsInput(e.target.value) } : t
-                          );
-                          setTasks(updatedTasks);
-                        }}
-                        className="form-input"
-                        placeholder="frontend, backend, design"
-                      />
+                      <div>
+                        <label className="block text-xs font-medium text-foreground mb-1">Tags (comma-separated)</label>
+                        <input
+                          type="text"
+                          value={formatTagsInput(task.tags)}
+                          onChange={(e) => {
+                            const updatedTasks = tasks.map(t =>
+                              t.id === task.id ? { ...t, tags: parseTagsInput(e.target.value) } : t
+                            );
+                            setTasks(updatedTasks);
+                          }}
+                          className="form-input"
+                          placeholder="frontend, backend, design"
+                        />
+                      </div>
                     </div>
 
                     <div className="flex items-center space-x-2">
