@@ -12,6 +12,7 @@ interface RoadmapItem {
   milestone: boolean;
   color: string;
   position: number;
+  phase: 'mvp' | 'phase_2' | 'backlog';
 }
 
 interface RoadmapGeneratorProps {
@@ -76,6 +77,7 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
           milestone: item.milestone,
           color: item.color,
           position: item.position,
+          phase: item.phase, // Include the phase property when saving to database
         });
 
         if (saveError) throw saveError;
@@ -103,6 +105,7 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
       milestone: false,
       color: '#3b82f6',
       position: roadmapItems.length,
+      phase: 'backlog', // Default to backlog for new items
     };
     setRoadmapItems([...roadmapItems, newItem]);
     setEditingIndex(roadmapItems.length);
@@ -240,6 +243,15 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
                             <option value="planned">Planned</option>
                             <option value="in_progress">In Progress</option>
                             <option value="completed">Completed</option>
+                          </select>
+                          <select
+                            value={item.phase}
+                            onChange={(e) => handleUpdateItem(index, { phase: e.target.value as any })}
+                            className="form-select flex-1 min-w-[150px]"
+                          >
+                            <option value="mvp">MVP</option>
+                            <option value="phase_2">Phase 2</option>
+                            <option value="backlog">Backlog</option>
                           </select>
                         </div>
                         <div className="flex items-center gap-2 pt-2">
