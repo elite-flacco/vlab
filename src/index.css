@@ -258,7 +258,7 @@
 
   /* Filter Button Components */
   .filter-button {
-    @apply inline-flex items-center px-3 h-9 text-xs rounded-md whitespace-nowrap transition-colors font-mono;
+    @apply inline-flex items-center px-3 h-8 text-xs rounded-md whitespace-nowrap transition-colors font-mono;
     @apply bg-secondary/30 text-foreground-dim border border-foreground-dim/20 hover:bg-secondary/50 hover:text-foreground;
   }
 

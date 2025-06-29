@@ -31,7 +31,7 @@ export const RoadmapDetailView: React.FC = () => {
   const [roadmapItems, setRoadmapItems] = useState<RoadmapItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'kanban' | 'timeline'>('kanban');
+  const [viewMode, setViewMode] = useState<'kanban' | 'timeline'>('timeline');
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [newRoadmapItem, setNewRoadmapItem] = useState<Partial<RoadmapItem> | null>(null);
   const [saving, setSaving] = useState(false);
@@ -99,10 +99,10 @@ export const RoadmapDetailView: React.FC = () => {
 
     try {
       // Format dates to ISO string before saving
-      const formattedEndDate = itemData.end_date ? 
-        (typeof itemData.end_date === 'string' ? 
-          itemData.end_date : 
-          new Date(itemData.end_date).toISOString()) : 
+      const formattedEndDate = itemData.end_date ?
+        (typeof itemData.end_date === 'string' ?
+          itemData.end_date :
+          new Date(itemData.end_date).toISOString()) :
         null;
 
       const newItemData = {
@@ -333,9 +333,8 @@ export const RoadmapDetailView: React.FC = () => {
   const renderRoadmapItem = (item: RoadmapItem, index: number, showPhaseSelector = false, isDraggable = false) => {
     const itemContent = (
       <div
-        className={`card p-3 transition-all ${
-          isDragging ? 'shadow-lg' : ''
-        } mb-3 ${isDraggable ? 'cursor-grab active:cursor-grabbing' : ''}`}
+        className={`card p-3 transition-all ${isDragging ? 'shadow-lg' : ''
+          } mb-3 ${isDraggable ? 'cursor-grab active:cursor-grabbing' : ''}`}
       >
         {editingItemId === item.id ? (
           // Edit Form
@@ -487,30 +486,32 @@ export const RoadmapDetailView: React.FC = () => {
           <div className="space-y-3">
             <div className="flex items-start">
               <h4 className="font-semibold text-foreground text-sm truncate flex-1 pr-2">{item.title}</h4>
-              <div className="flex-shrink-0 flex items-center space-x-1">
-                <button
-                  onClick={() => setEditingItemId(item.id)}
-                  className="p-1.5 text-foreground-dim hover:text-primary hover:bg-foreground-dim/10 rounded-lg transition-colors"
-                  title="Edit item"
-                >
-                  <Edit3 className="w-3 h-3" />
-                </button>
-                <button
-                  onClick={() => handleDeleteRoadmapItem(item.id)}
-                  disabled={saving}
-                  className="p-1 text-foreground-dim hover:text-red-600 transition-colors disabled:opacity-50 flex-shrink-0"
-                  title="Delete item"
-                >
-                  <Trash2 className="w-3 h-3" />
-                </button>
-              </div>
+              {viewMode !== 'kanban' && (
+                <div className="flex-shrink-0 flex items-center space-x-1">
+                  <button
+                    onClick={() => setEditingItemId(item.id)}
+                    className="p-1.5 text-foreground-dim hover:text-primary hover:bg-foreground-dim/10 rounded-lg transition-colors"
+                    title="Edit item"
+                  >
+                    <Edit3 className="w-3 h-3" />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteRoadmapItem(item.id)}
+                    disabled={saving}
+                    className="p-1 text-foreground-dim hover:text-red-600 transition-colors disabled:opacity-50 flex-shrink-0"
+                    title="Delete item"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
             </div>
 
             <p className="text-foreground-dim text-xs mb-3 leading-relaxed">{item.description}</p>
 
             {/* Dates */}
             {(item.start_date || item.end_date) && (
-              <div className="flex items-center space-x-3 text-xs text-foreground mb-3">
+              <div className="flex items-center space-x-3 text-xs text-foreground-dim mb-3">
                 {item.start_date && (
                   <div className="flex items-center space-x-1">
                     <Calendar className="w-3 h-3" />
@@ -527,7 +528,7 @@ export const RoadmapDetailView: React.FC = () => {
             )}
 
             {/* Status and Milestone Controls */}
-            <div className="flex items-center space-x-3 mt-1 pt-3 border-t border-gray-100">
+            <div className="flex items-center space-x-3 mt-1 pt-3 border-t border-foreground-dim/20">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <select
@@ -604,9 +605,8 @@ export const RoadmapDetailView: React.FC = () => {
             <div
               ref={provided.innerRef}
               {...provided.droppableProps}
-              className={`flex-1 space-y-3 min-h-32 transition-colors ${
-                snapshot.isDraggingOver ? 'bg-blue-50 border-2 border-dashed border-blue-300 rounded-lg p-2' : ''
-              }`}
+              className={`flex-1 space-y-3 min-h-32 transition-colors ${snapshot.isDraggingOver ? 'bg-blue-50 border-2 border-dashed border-blue-300 rounded-lg p-2' : ''
+                }`}
             >
               {items.map((item, index) => renderRoadmapItem(item, index, false, true))}
               {provided.placeholder}
@@ -696,15 +696,6 @@ export const RoadmapDetailView: React.FC = () => {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2">
               <button
-                onClick={() => setViewMode('kanban')}
-                className={`${viewMode === 'kanban'
-                  ? 'filter-button-active'
-                  : 'filter-button'
-                  }`}
-              >
-                Kanban
-              </button>
-              <button
                 onClick={() => setViewMode('timeline')}
                 className={`${viewMode === 'timeline'
                   ? 'filter-button-active'
@@ -713,6 +704,16 @@ export const RoadmapDetailView: React.FC = () => {
               >
                 Timeline
               </button>
+              <button
+                onClick={() => setViewMode('kanban')}
+                className={`${viewMode === 'kanban'
+                  ? 'filter-button-active'
+                  : 'filter-button'
+                  }`}
+              >
+                Kanban
+              </button>
+
             </div>
 
             <button
@@ -759,6 +760,9 @@ export const RoadmapDetailView: React.FC = () => {
                     <Plus className="w-4 h-4 mr-2" />,
                     'bg-yellow-500/5'
                   )}
+                </div>
+                <div className="mt-2 text-center">
+                  <p className="text-xs text-foreground-dim italic">Drag and drop functionality coming soon</p>
                 </div>
               </DragDropContext>
             ) : (
@@ -886,10 +890,10 @@ export const RoadmapDetailView: React.FC = () => {
                   {mvpItems.length > 0 && (
                     <div className="space-y-3">
                       <div className="flex items-center space-x-2">
-                        <div className={`px-3 py-1 rounded-full text-xs font-medium ${getPhaseColor('mvp')}`}>
+                        <div className={`px-3 py-1 rounded-md text-xs font-medium ${getPhaseColor('mvp')}`}>
                           MVP
                         </div>
-                        <div className="flex-1 border-t border-gray-200"></div>
+                        {/* <div className="flex-1 border-t border-gray-200"></div> */}
                       </div>
                       {mvpItems.map((item, index) => renderRoadmapItem(item, index, true, false))}
                     </div>
@@ -899,10 +903,10 @@ export const RoadmapDetailView: React.FC = () => {
                   {phase2Items.length > 0 && (
                     <div className="space-y-3">
                       <div className="flex items-center space-x-2">
-                        <div className={`px-3 py-1 rounded-full text-xs font-medium ${getPhaseColor('phase_2')}`}>
+                        <div className={`px-3 py-1 rounded-md text-xs font-medium ${getPhaseColor('phase_2')}`}>
                           Phase 2
                         </div>
-                        <div className="flex-1 border-t border-gray-200"></div>
+                        {/* <div className="flex-1 border-t border-gray-200"></div> */}
                       </div>
                       {phase2Items.map((item, index) => renderRoadmapItem(item, index, true, false))}
                     </div>
@@ -912,10 +916,10 @@ export const RoadmapDetailView: React.FC = () => {
                   {backlogItems.length > 0 && (
                     <div className="space-y-3">
                       <div className="flex items-center space-x-2">
-                        <div className={`px-3 py-1 rounded-full text-xs font-medium ${getPhaseColor('backlog')}`}>
+                        <div className={`px-3 py-1 rounded-md text-xs font-medium ${getPhaseColor('backlog')}`}>
                           Backlog
                         </div>
-                        <div className="flex-1 border-t border-gray-200"></div>
+                        {/* <div className="flex-1 border-t border-gray-200"></div> */}
                       </div>
                       {backlogItems.map((item, index) => renderRoadmapItem(item, index, true, false))}
                     </div>
@@ -929,9 +933,9 @@ export const RoadmapDetailView: React.FC = () => {
           <div className="mt-4 flex items-center justify-between pt-3 border-t border-gray-200 text-foreground-dim">
             <div className="text-xs text-gray-500">
               {roadmapItems.length} phase{roadmapItems.length !== 1 ? 's' : ''} • {roadmapItems.filter(item => item.status === 'completed').length} completed
-              {viewMode === 'kanban' && (
+              {/* {viewMode === 'kanban' && (
                 <span className="ml-2 text-blue-600">💡 Drag items between columns to change phases</span>
-              )}
+              )} */}
             </div>
           </div>
         </div>
