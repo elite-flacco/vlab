@@ -47,7 +47,7 @@ export interface GridConfig {
   gap: number;
 }
 
-export type ModuleType = 'prd' | 'tasks' | 'prompts' | 'scratchpad' | 'roadmap' | 'secrets';
+export type ModuleType = 'prd' | 'tasks' | 'prompts' | 'scratchpad' | 'roadmap' | 'secrets' | 'design';
 
 export interface PRD {
   id: string;

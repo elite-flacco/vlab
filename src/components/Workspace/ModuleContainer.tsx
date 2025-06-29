@@ -1,4 +1,4 @@
-import { FileText, ListTodo, Lock, Map, Maximize2, MessageSquare, Minimize2, Settings, StickyNote, X } from 'lucide-react';
+import { FileText, ListTodo, Lock, Map, Maximize2, MessageSquare, Minimize2, Settings, StickyNote, X, Palette } from 'lucide-react';
 import React from 'react';
 import { ModuleType } from '../../types';
 
@@ -20,6 +20,7 @@ const getModuleIcon = (type: ModuleType) => {
     case 'scratchpad': return StickyNote;
     case 'prompts': return MessageSquare;
     case 'secrets': return Lock;
+    case 'design': return Palette;
     default: return FileText; // Fallback icon
   }
 };

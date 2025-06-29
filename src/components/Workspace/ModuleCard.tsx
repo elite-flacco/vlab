@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileText, Map, ListTodo, StickyNote, MessageSquare, Lock } from 'lucide-react';
+import { FileText, Map, ListTodo, StickyNote, MessageSquare, Lock, Palette } from 'lucide-react';
 import { ModuleType } from '../../types';
 
 interface ModuleCardProps {
@@ -17,6 +17,7 @@ const getModuleIconComponent = (type: ModuleType) => {
     case 'scratchpad': return StickyNote;
     case 'prompts': return MessageSquare;
     case 'secrets': return Lock;
+    case 'design': return Palette;
     default: return FileText;
   }
 };

@@ -4,7 +4,7 @@ import { useProjectStore } from '../stores/projectStore';
 import { useAuthStore } from '../stores/authStore';
 import { db } from '../lib/supabase';
 import { withTimeout, withTiming } from '../lib/utils';
-import { Trash2, AlertCircle, RefreshCw } from 'lucide-react';
+import { Trash2, AlertCircle, RefreshCw, Palette } from 'lucide-react';
 import { ModuleCard } from '../components/Workspace/ModuleCard';
 import { ModuleType } from '../types';
 
@@ -17,7 +17,7 @@ interface WorkspaceData {
   secrets: any[];
 }
 
-const ALL_MODULE_TYPES: ModuleType[] = ['prd', 'roadmap', 'tasks', 'scratchpad', 'prompts', 'secrets'];
+const ALL_MODULE_TYPES: ModuleType[] = ['prd', 'roadmap', 'tasks', 'scratchpad', 'prompts', 'secrets', 'design'];
 
 export const Workspace: React.FC = () => {
   console.log('🏠 Workspace: Component render started');
@@ -414,6 +414,8 @@ export const Workspace: React.FC = () => {
       case 'secrets':
         const activeSecrets = workspaceData.secrets.filter(secret => secret.is_active).length;
         return `${workspaceData.secrets.length} secrets, ${activeSecrets} active.`;
+      case 'design':
+        return 'AI-powered design assistant. Coming soon!';
       default:
         return 'No data available.';
     }
@@ -580,6 +582,27 @@ export const Workspace: React.FC = () => {
       <div className="workspace-grid">
         {ALL_MODULE_TYPES.map((type) => {
           console.log('🎯 Workspace: Rendering module card for:', type);
+          
+          // Special handling for design module
+          if (type === 'design') {
+            return (
+              <div key={type} className="module-card relative overflow-hidden group">
+                <div className="card-header">
+                  <Palette className="module-icon" />
+                </div>
+                <h3 className="module-title">Design</h3>
+                <p className="module-summary">AI-powered design assistant. Coming soon!</p>
+                
+                {/* Coming Soon Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="bg-background/80 backdrop-blur-sm px-4 py-2 rounded-lg border border-primary/30">
+                    <span className="text-primary font-semibold">Coming Soon</span>
+                  </div>
+                </div>
+              </div>
+            );
+          }
+          
           return (
             <ModuleCard
               key={type}

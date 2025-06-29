@@ -14,6 +14,7 @@ import { TasksDetailView } from './pages/modules/TasksDetailView';
 import { ScratchpadDetailView } from './pages/modules/ScratchpadDetailView';
 import { PromptsDetailView } from './pages/modules/PromptsDetailView';
 import { SecretsDetailView } from './pages/modules/SecretsDetailView';
+import { DesignDetailView } from './pages/modules/DesignDetailView';
 
 function App() {
   const { user, loading, initialize } = useAuthStore();
@@ -54,6 +55,7 @@ function App() {
               <Route path="workspace/:projectId/scratchpad" element={<ScratchpadDetailView />} />
               <Route path="workspace/:projectId/prompts" element={<PromptsDetailView />} />
               <Route path="workspace/:projectId/secrets" element={<SecretsDetailView />} />
+              <Route path="workspace/:projectId/design" element={<DesignDetailView />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </>
