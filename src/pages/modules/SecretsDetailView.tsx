@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { ArrowLeft, Copy, Eye, EyeOff, Key, Lock, Plus, Shield } from 'lucide-react';
+import { ArrowLeft, Copy, Eye, EyeOff, Key, Lock, PenTool, Plus, Shield } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ModuleContainer } from '../../components/Workspace/ModuleContainer';
@@ -108,13 +108,15 @@ export const SecretsDetailView: React.FC = () => {
         <ModuleContainer title="Secrets" type="secrets">
           <div className="h-full flex items-center justify-center">
             <div className="text-center">
-              <Lock className="w-12 h-12 text-gray-300 mx-auto mb-4 mt-4" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">No Secrets Yet</h3>
-              <p className="text-foreground-dim mb-4 text-sm">
+            <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Lock className="w-10 h-10 text-primary" />
+            </div>              <h2 className="mb-2">No Secrets Yet</h2>
+              <p className="text-foreground-dim mb-4 text-sm mb-8">
                 Securely store API keys, passwords, and other sensitive data.
               </p>
-              <div className="inline-flex items-center px-4 py-2 border border-dashed border-gray-300 rounded-lg text-sm font-medium text-foreground-dim bg-gray-50 mb-6">
-                <span className="ml-1">Coming Soon</span>
+              <div className="mb-8 inline-flex items-center px-4 py-2 border border-dashed border-foreground/30 rounded-lg text-sm font-medium text-foreground bg-foreground/5">
+                <PenTool className="w-4 h-4 mr-2" />
+                <span>Coming Soon</span>
               </div>
             </div>
           </div>

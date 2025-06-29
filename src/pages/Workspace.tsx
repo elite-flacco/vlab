@@ -583,29 +583,29 @@ export const Workspace: React.FC = () => {
         {ALL_MODULE_TYPES.map((type) => {
           console.log('🎯 Workspace: Rendering module card for:', type);
           
-          // Special handling for design module
-          if (type === 'design') {
-            return (
-              <button 
-                key={type} 
-                onClick={() => navigate(`/workspace/${projectId}/${type}`)}
-                className="module-card relative overflow-hidden group"
-              >
-                <div className="card-header">
-                  <Palette className="module-icon" />
-                </div>
-                <h3 className="module-title">Design</h3>
-                <p className="module-summary">AI-powered design assistant. Coming soon!</p>
+          // // Special handling for design module
+          // if (type === 'design') {
+          //   return (
+          //     <button 
+          //       key={type} 
+          //       onClick={() => navigate(`/workspace/${projectId}/${type}`)}
+          //       className="module-card relative overflow-hidden group"
+          //     >
+          //       <div className="card-header">
+          //         <Palette className="module-icon" />
+          //       </div>
+          //       <h3 className="module-title">Design</h3>
+          //       <p className="module-summary">AI-powered design assistant. Coming soon!</p>
                 
-                {/* Coming Soon Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div className="bg-background/80 backdrop-blur-sm px-4 py-2 rounded-lg border border-primary/30">
-                    <span className="text-primary font-semibold">Coming Soon</span>
-                  </div>
-                </div>
-              </button>
-            );
-          }
+          //       {/* Coming Soon Overlay */}
+          //       <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          //         <div className="bg-background/80 backdrop-blur-sm px-4 py-2 rounded-lg border border-primary/30">
+          //           <span className="text-primary font-semibold">Coming Soon</span>
+          //         </div>
+          //       </div>
+          //     </button>
+          //   );
+          // }
           
           return (
             <ModuleCard
