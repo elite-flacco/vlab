@@ -121,9 +121,9 @@ export const Community: React.FC = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
+    <div className="max-w-6xl mx-auto px-2 py-2">
       {/* Main Header with Share Button */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-10">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10">
         <div>
           <h1 className="mb-3">Community Hub</h1>
           <p>
@@ -132,7 +132,7 @@ export const Community: React.FC = () => {
         </div>
         <button
           onClick={() => setShowSubmissionForm(true)}
-          className="btn-primary mt-4 sm:mt-0"
+          className="btn-primary sm:mt-0"
         >
           <Plus className="w-4 h-4 mr-2" />
           Share Tool/Tip
@@ -140,7 +140,7 @@ export const Community: React.FC = () => {
       </div>
 
       {/* Enhanced Search and Filters */}
-      <div className="terminal-window p-6 space-y-4 mb-8">
+      <div className="terminal-window p-4 space-y-2 mb-6">
         <div className="flex flex-col sm:flex-row gap-6">
           {/* Search Bar */}
           <div className="flex-1 max-w-md">

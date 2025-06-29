@@ -287,29 +287,38 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
 
           {/* Reply Form */}
           {isReplying && (
-            <div className="mt-3 pl-2 border-l-2 border-gray-100">
-              <div className="flex items-start gap-2">
-                <div className="w-6 h-6 rounded-full bg-gray-200 flex-shrink-0 mt-1" />
+            <div className="mt-4 pl-2 border-l-2 border-foreground/5">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex-shrink-0 flex items-center justify-center text-primary">
+                  <User size={14} />
+                </div>
                 <div className="flex-1">
                   <textarea
                     value={replyContent}
                     onChange={(e) => setReplyContent(e.target.value)}
                     placeholder="Write a reply..."
-                    className="w-full p-2 border rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[60px]"
+                    className="form-textarea bg-background/50"
                   />
-                  <div className="flex justify-end mt-1">
+                  <div className="flex justify-end mt-2 space-x-2">
                     <button
                       onClick={() => setReplyingTo(null)}
-                      className="px-2 py-1 text-xs text-gray-600 hover:text-gray-800 mr-2"
+                      className="btn-outline"
                     >
                       Cancel
                     </button>
                     <button
                       onClick={() => handleSubmitComment(replyContent, comment.id)}
                       disabled={!replyContent.trim() || submittingComment}
-                      className="px-3 py-1 bg-blue-600 text-white text-xs rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="btn-primary"
                     >
-                      {submittingComment ? 'Posting...' : 'Reply'}
+                      {submittingComment ? (
+                        <>
+                          <Loader2 className="w-3 h-3 mr-1.5 animate-spin" />
+                          Posting...
+                        </>
+                      ) : (
+                        'Reply'
+                      )}
                     </button>
                   </div>
                 </div>
@@ -450,7 +459,7 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
                       value={newComment}
                       onChange={(e) => setNewComment(e.target.value)}
                       placeholder="Share your thoughts..."
-                      className="w-full px-4 py-3 bg-background/50 border border-foreground/10 rounded-lg resize-none text-foreground placeholder-foreground/40 focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all duration-200"
+                      className="form-textarea bg-background/50"
                       rows={3}
                     />
                     <div className="flex justify-end mt-3 space-x-2">

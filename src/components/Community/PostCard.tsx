@@ -268,10 +268,7 @@ export const PostCard: React.FC<PostCardProps> = ({
           <button
             onClick={() => handleVote('upvote')}
             disabled={loading}
-            className={`flex items-center space-x-1 px-1 py-1 rounded-md transition-colors disabled:opacity-50 ${userVote === 'upvote'
-              ? 'bg-green-100 text-green-700'
-              : 'text-gray-600 hover:bg-gray-100'
-              }`}
+            className={`flex items-center space-x-1 p-1 rounded-full hover:bg-foreground/5 ${userVote === 'upvote' ? 'text-primary' : 'text-foreground/60 hover:text-primary'}`}
           >
             <ThumbsUp className="w-4 h-4" />
             <span className="text-sm font-medium">{upvotes}</span>
@@ -281,10 +278,7 @@ export const PostCard: React.FC<PostCardProps> = ({
           <button
             onClick={() => handleVote('downvote')}
             disabled={loading}
-            className={`flex items-center space-x-1 px-1 py-1 rounded-md transition-colors disabled:opacity-50 ${userVote === 'downvote'
-              ? 'bg-red-100 text-red-700'
-              : 'text-gray-600 hover:bg-gray-100'
-              }`}
+            className={`flex items-center space-x-1 p-1 rounded-full hover:bg-foreground/5 ${userVote === 'downvote' ? 'text-destructive' : 'text-foreground/60 hover:text-destructive'}`}
           >
             <ThumbsDown className="w-4 h-4" />
             <span className="text-sm font-medium">{downvotes}</span>
@@ -293,7 +287,7 @@ export const PostCard: React.FC<PostCardProps> = ({
           {/* Comments */}
           <button
             onClick={() => onPostClick?.(post.id)}
-            className="flex items-center space-x-1 px-1 py-1 rounded-md text-gray-600 hover:bg-gray-100 transition-colors"
+            className="flex items-center space-x-1 px-1 py-1 rounded-full hover:bg-foreground/5 text-foreground-dim hover:text-foreground transition-colors"
           >
             <MessageSquare className="w-4 h-4" />
             <span className="text-sm font-medium">{post.comment_count}</span>
