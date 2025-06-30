@@ -88,7 +88,7 @@ serve(async (req) => {
     }
 
     // Validate tip category values if provided
-    const validTipCategories = ['prompt_tricks', 'integrations', 'authentication', 'payment', 'other'];
+    const validTipCategories = ['prompt_tricks', 'integrations', 'authentication', 'payment', 'documentation', 'other'];
     if (body.tip_category && !validTipCategories.includes(body.tip_category)) {
       return new Response(
         JSON.stringify({ error: 'Invalid tip category selection' }),

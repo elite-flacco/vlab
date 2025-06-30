@@ -19,6 +19,7 @@ const TIP_CATEGORY_OPTIONS = [
   { value: 'integrations', label: 'Integrations' },
   { value: 'authentication', label: 'Authentication' },
   { value: 'payment', label: 'Payment' },
+  { value: 'documentation', label: 'Documentation' },
   { value: 'other', label: 'Other' },
 ];
 
@@ -135,7 +136,7 @@ export const Community: React.FC = () => {
           className="btn-primary sm:mt-0"
         >
           <Plus className="w-4 h-4 mr-2" />
-          Share Tool/Tip
+          Share a Tip
         </button>
       </div>
 
@@ -151,7 +152,7 @@ export const Community: React.FC = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                placeholder="Search tools and tips..."
+                placeholder="Search for vibes..."
                 className="search-input"
               />
             </div>

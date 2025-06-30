@@ -111,11 +111,86 @@ export const PostCard: React.FC<PostCardProps> = ({
     }
   };
 
-  const renderContent = (content: string) => {
-    if (!showFullContent && content.length > 200) {
-      return content.substring(0, 200) + '...';
+  // Function to parse text and convert URLs to links
+  const parseTextWithLinks = (text: string) => {
+    // This regex matches URLs starting with http://, https://, or www.
+    const urlRegex = /(https?:\/\/[^\s]+)|(www\.[^\s]+)/g;
+    
+    // Find all matches and their positions
+    const matches: {text: string, index: number}[] = [];
+    let match;
+    while ((match = urlRegex.exec(text)) !== null) {
+      matches.push({
+        text: match[0],
+        index: match.index
+      });
     }
-    return content;
+    
+    // If no URLs found, return the text as is
+    if (matches.length === 0) return text;
+    
+    const result: React.ReactNode[] = [];
+    let lastIndex = 0;
+    
+    // Rebuild the content with links
+    matches.forEach((match, i) => {
+      // Add text before the URL
+      if (match.index > lastIndex) {
+        result.push(text.substring(lastIndex, match.index));
+      }
+      
+      // Add the URL as a link
+      const url = match.text.startsWith('www.') ? `https://${match.text}` : match.text;
+      result.push(
+        <a 
+          key={`link-${i}`} 
+          href={url} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-primary/60 hover:underline break-all"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {match.text}
+        </a>
+      );
+      
+      lastIndex = match.index + match.text.length;
+    });
+    
+    // Add any remaining text after the last URL
+    if (lastIndex < text.length) {
+      result.push(text.substring(lastIndex));
+    }
+    
+    return result;
+  };
+
+  const renderMarkdown = (content: string) => {
+    if (!content) return null;
+    
+    // Truncate content if not showing full content
+    const displayContent = !showFullContent && content.length > 200 
+      ? content.substring(0, 200) + '...' 
+      : content;
+    
+    return displayContent.split('\n').map((line, index) => {
+      if (line.startsWith('## ')) {
+        return <h2 key={index} className="text-lg font-semibold mt-4 mb-2">{parseTextWithLinks(line.slice(3))}</h2>;
+      }
+      if (line.startsWith('### ')) {
+        return <h3 key={index} className="text-md font-medium mt-3 mb-1.5">{parseTextWithLinks(line.slice(4))}</h3>;
+      }
+      if (line.startsWith('- ')) {
+        return <li key={index} className="text-foreground-dim mb-1 ml-4">{parseTextWithLinks(line.slice(2))}</li>;
+      }
+      if (line.startsWith('**') && line.endsWith('**')) {
+        return <p key={index} className="font-semibold text-foreground my-1.5">{parseTextWithLinks(line.slice(2, -2))}</p>;
+      }
+      if (line.trim() === '') {
+        return <br key={index} />;
+      }
+      return <p key={index} className="text-foreground-dim mb-2 text-sm leading-relaxed">{parseTextWithLinks(line)}</p>;
+    });
   };
 
   const getCategoryBadges = () => {
@@ -155,6 +230,7 @@ export const PostCard: React.FC<PostCardProps> = ({
         'integrations': 'Integrations',
         'authentication': 'Authentication',
         'payment': 'Payment',
+        'documentation': 'Documentation',
         'other': 'Other'
       };
       
@@ -163,6 +239,7 @@ export const PostCard: React.FC<PostCardProps> = ({
         'integrations': { bg: 'bg-indigo-900/30', text: 'text-indigo-300', border: 'border-indigo-700/50' },
         'authentication': { bg: 'bg-cyan-900/30', text: 'text-cyan-300', border: 'border-cyan-700/50' },
         'payment': { bg: 'bg-emerald-900/30', text: 'text-emerald-300', border: 'border-emerald-700/50' },
+        'documentation': { bg: 'bg-amber-900/30', text: 'text-amber-300', border: 'border-amber-700/50' },
         'other': { bg: 'bg-slate-900/30', text: 'text-slate-300', border: 'border-slate-700/50' }
       };
       
@@ -216,12 +293,12 @@ export const PostCard: React.FC<PostCardProps> = ({
       )}
 
       {/* Content */}
-      <div className="text-foreground-dim text-sm leading-relaxed mb-4 whitespace-pre-wrap">
-        {renderContent(post.content)}
+      <div className="text-foreground-dim text-sm leading-relaxed mb-4">
+        {renderMarkdown(post.content)}
         {!showFullContent && post.content.length > 200 && (
           <button
             onClick={() => onPostClick?.(post.id)}
-            className="text-green-600 hover:text-green-800 ml-1"
+            className="text-primary-light hover:text-primary"
           >
             Read more
           </button>

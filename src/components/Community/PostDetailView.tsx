@@ -227,6 +227,7 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
         'integrations': 'Integrations',
         'authentication': 'Authentication',
         'payment': 'Payment',
+        'documentation': 'Documentation',
         'other': 'Other'
       };
       badges.push(
@@ -237,6 +238,83 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
     }
     
     return badges;
+  };
+
+  // Function to parse text and convert URLs to links
+  const parseTextWithLinks = (text: string) => {
+    // This regex matches URLs starting with http://, https://, or www.
+    const urlRegex = /(https?:\/\/[^\s]+)|(www\.[^\s]+)/g;
+    
+    // Find all matches and their positions
+    const matches: {text: string, index: number}[] = [];
+    let match;
+    while ((match = urlRegex.exec(text)) !== null) {
+      matches.push({
+        text: match[0],
+        index: match.index
+      });
+    }
+    
+    // If no URLs found, return the text as is
+    if (matches.length === 0) return text;
+    
+    const result: React.ReactNode[] = [];
+    let lastIndex = 0;
+    
+    // Rebuild the content with links
+    matches.forEach((match, i) => {
+      // Add text before the URL
+      if (match.index > lastIndex) {
+        result.push(text.substring(lastIndex, match.index));
+      }
+      
+      // Add the URL as a link
+      const url = match.text.startsWith('www.') ? `https://${match.text}` : match.text;
+      result.push(
+        <a 
+          key={`link-${i}`} 
+          href={url} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-primary/60 hover:underline break-all"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {match.text}
+        </a>
+      );
+      
+      lastIndex = match.index + match.text.length;
+    });
+    
+    // Add any remaining text after the last URL
+    if (lastIndex < text.length) {
+      result.push(text.substring(lastIndex));
+    }
+    
+    return result;
+  };
+
+  const renderMarkdown = (content: string) => {
+    if (!content) return null;
+    
+    return content.split('\n').map((line, index) => {
+      if (line.startsWith('## ')) {
+        return <h2 key={index} className="text-lg font-semibold mt-4 mb-2">{parseTextWithLinks(line.slice(3))}</h2>;
+      }
+      if (line.startsWith('### ')) {
+        return <h3 key={index} className="text-md font-medium mt-3 mb-1.5">{parseTextWithLinks(line.slice(4))}</h3>;
+      }
+      if (line.startsWith('- ')) {
+        return <li key={index} className="text-foreground-dim mb-1 ml-4">{parseTextWithLinks(line.slice(2))}</li>;
+      }
+      if (line.startsWith('**') && line.endsWith('**')) {
+        return <p key={index} className="font-semibold text-foreground my-1.5">{parseTextWithLinks(line.slice(2, -2))}</p>;
+      }
+      if (line.trim() === '') {
+        return <br key={index} />;
+      }
+      return <p key={index} className="text-foreground-dim mb-2 text-sm leading-relaxed">{parseTextWithLinks(line)}</p>;
+    });
   };
 
   const renderComment = (comment: Comment, depth = 0) => {
@@ -270,7 +348,7 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
 
           {/* Comment Content */}
           <div className="text-foreground/90 mb-4 text-sm leading-relaxed">
-            {comment.content}
+            {renderMarkdown(comment.content)}
           </div>
 
           {/* Comment Actions */}
@@ -401,7 +479,7 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
               <h1 className="text-2xl font-bold text-foreground mb-4">{post.title}</h1>
               
               <div className="prose prose-invert max-w-none mb-6 text-foreground/90">
-                {post.content}
+                {renderMarkdown(post.content)}
               </div>
               
               <div className="flex items-center pt-4 border-t border-foreground/10">

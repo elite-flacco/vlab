@@ -23,6 +23,7 @@ const TIP_CATEGORY_OPTIONS = [
   { value: 'integrations', label: 'Integrations' },
   { value: 'authentication', label: 'Authentication' },
   { value: 'payment', label: 'Payment' },
+  { value: 'documentation', label: 'Documentation' },
   { value: 'other', label: 'Other' },
 ];
 
@@ -111,7 +112,7 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-foreground-dim/10">
           <h2 className="text-xl font-medium text-foreground">
-            Share a Tool or Tip
+            Share a Tip
           </h2>
           <button
             onClick={onClose}
@@ -159,12 +160,11 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
               onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
               rows={8}
               className="w-full px-3 py-2.5 bg-secondary border border-foreground-dim/20 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-foreground placeholder-foreground-dim/50 resize-none text-sm transition-colors"
-              placeholder="Describe your tool or tip in detail. Include:
+              placeholder="Describe your tip in detail. Include information like:
 
-• What it does and how it helps
-• Key features or benefits
-• How to use it
-• Any tips or best practices
+• How it helps
+• Useful links
+• Best practices
 
 Markdown formatting is supported!"
               required
@@ -257,7 +257,7 @@ Markdown formatting is supported!"
           {/* Tags */}
           <div>
             <label className="block text-sm font-medium text-foreground-dim mb-2">
-              Tags
+              Tags (Optional)
             </label>
             <div className="flex flex-wrap gap-2 mb-3">
               {formData.tags.map((tag) => (
