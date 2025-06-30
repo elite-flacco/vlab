@@ -13,7 +13,7 @@ interface Comment {
   id: string;
   content: string;
   author: {
-    name: string;
+    name?: string;
     avatar_url?: string;
   };
   upvotes: number;
@@ -32,11 +32,10 @@ interface Post {
   id: string;
   title: string;
   content: string;
-  category: 'tool' | 'tip';
   tool?: string;
   tip_category?: string;
   author: {
-    name: string;
+    name?: string;
     avatar_url?: string;
   };
   upvotes: number;
@@ -187,26 +186,11 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
     }
   };
 
-  const getCategoryBadge = (category: string, tool?: string, tipCategory?: string) => {
+  const getCategoryBadge = (tool?: string, tipCategory?: string) => {
     const badges = [];
     
-    // Main category badge
-    if (category === 'tool') {
-      badges.push(
-        <span key="category" className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 border border-blue-200">
-          🛠️ Tool
-        </span>
-      );
-    } else {
-      badges.push(
-        <span key="category" className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 border border-green-200">
-          💡 Tip
-        </span>
-      );
-    }
-    
-    // Subcategory badge
-    if (category === 'tool' && tool) {
+    // Tool badge
+    if (tool) {
       const toolLabels: Record<string, string> = {
         'bolt': 'Bolt',
         'loveable': 'Loveable',
@@ -221,7 +205,8 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
       );
     }
     
-    if (category === 'tip' && tipCategory) {
+    // Tip category badge
+    if (tipCategory) {
       const categoryLabels: Record<string, string> = {
         'prompt_tricks': 'Prompt Tricks',
         'integrations': 'Integrations',
@@ -330,7 +315,7 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
                 <User size={16} />
               </div>
               <div>
-                <span className="font-medium text-foreground">{comment.author.name}</span>
+                <span className="font-medium text-foreground">{comment.author?.name || 'Unknown User'}</span>
                 <div className="flex items-center space-x-2 text-xs text-foreground/50">
                   <span>{format(new Date(comment.created_at), 'MMM d, h:mm a')}</span>
                 </div>
@@ -469,7 +454,7 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
             {/* Post Content */}
             <div className="mb-8">
               <div className="flex items-center text-sm text-foreground/60 mb-4">
-                <span>Posted by {post.author.name}</span>
+                <span>Posted by {post.author?.name || 'Unknown User'}</span>
                 <span className="mx-2 opacity-40">•</span>
                 <span>{format(new Date(post.created_at), 'MMM d, yyyy')}</span>
                 <span className="mx-2 opacity-40">•</span>
