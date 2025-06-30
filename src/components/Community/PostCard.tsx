@@ -22,7 +22,7 @@ interface PostCardProps {
     tool?: string;
     tip_category?: string;
     author: {
-      name: string;
+      name?: string;
       avatar_url?: string;
     };
     upvotes: number;
@@ -309,7 +309,7 @@ export const PostCard: React.FC<PostCardProps> = ({
       <div className="flex items-center space-x-4 mb-4 text-xs text-foreground-dim">
         <div className="flex items-center space-x-1">
           <User className="w-3 h-3" />
-          <span>{post.author.name}</span>
+          <span>{post.author?.name || 'Unknown User'}</span>
         </div>
         <div className="flex items-center space-x-1">
           <Clock className="w-3 h-3" />
