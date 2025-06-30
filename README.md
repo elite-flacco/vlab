@@ -16,6 +16,31 @@ VLab is a minimalist workspace platform purpose built for vibe coders. It provid
 - **Version Control for PRDs** - Complete version history, comparison
 - **Community Hub** - Share tools, prompts, and knowledge with other vibe coders
 
+### Community Features
+
+#### Posts & Discussions
+- **Create and Share** - Share your tips, tricks, and experiences with the community
+- **Rich Text Formatting** - Use Markdown to format your posts with headers, lists, bold/italic text, and links
+- **Image Support** - Include images in your posts to better illustrate your points
+- **Tagging System** - Add tags to make your posts more discoverable
+
+#### Engagement Tools
+- **Voting System** - Upvote/downvote posts and comments to highlight valuable content
+- **Comments & Replies** - Engage in threaded discussions with other community members
+- **Save Posts** - Bookmark posts to easily find them later
+
+#### Discovery & Filtering
+- **Advanced Search** - Find relevant content with powerful search capabilities
+- **Filter by Tools** - Browse content specific to tools like Bolt, Loveable, Replit, and V0
+- **Category Filtering** - Filter by tip categories including Prompt Tricks, Integrations, Authentication, and more
+- **Tag Filtering** - Discover content through topic-specific tags
+- **Sorting Options** - Sort by newest, most popular, or trending content
+
+#### User Profiles
+- **Personalized Feed** - View your contributed and saved posts
+- **Activity Tracking** - Keep track of your interactions and contributions
+- **Profile Customization** - Personalize your community presence
+
 ## Technology Stack
 
 - **Frontend**: React 18 + TypeScript + Vite
