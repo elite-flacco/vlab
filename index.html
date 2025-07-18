@@ -5,6 +5,14 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg?t=1" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>VLab</title>
+    
+    <!-- Security Headers (safe ones that don't interfere with Supabase) -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-Frame-Options" content="DENY" />
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+    <!-- CSP will be implemented via server headers in production -->
+    
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./src/index.css">
