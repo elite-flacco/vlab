@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { ArrowDown, ArrowUp, CheckSquare, Edit3, Loader2, Minus, Plus, Save, Search, Square, Tag, Trash2, X } from 'lucide-react';
+import { ArrowDown, ArrowUp, CheckSquare, ChevronDown, Edit3, Loader2, Minus, Plus, Save, Search, Square, Tag, Trash2, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { BackButton } from '../../components/common/BackButton';
@@ -145,6 +145,12 @@ export const TasksDetailView: React.FC = () => {
     await handleUpdateTask(taskId, { status: newStatus as TaskItem['status'] });
   };
 
+  // Get all unique tags from existing tasks
+  const getAllTags = () => {
+    const allTags = tasks.flatMap(task => task.tags || []);
+    return Array.from(new Set(allTags)).sort();
+  };
+
   const filteredTasks = tasks
     .filter(task => {
       const matchesStatus = filter === 'all'
@@ -227,6 +233,122 @@ export const TasksDetailView: React.FC = () => {
   const formatTagsInput = (tags: string[]) => tags.join(', ');
   const parseTagsInput = (input: string) =>
     input.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+
+  // Multi-select tag component
+  const TagMultiSelect: React.FC<{
+    selectedTags: string[];
+    onChange: (tags: string[]) => void;
+    placeholder?: string;
+  }> = ({ selectedTags, onChange, placeholder = "Select tags..." }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [newTagInput, setNewTagInput] = useState('');
+    const availableTags = getAllTags();
+    
+    const toggleTag = (tag: string) => {
+      if (selectedTags.includes(tag)) {
+        onChange(selectedTags.filter(t => t !== tag));
+      } else {
+        onChange([...selectedTags, tag]);
+      }
+    };
+
+    const addNewTag = () => {
+      const trimmedTag = newTagInput.trim();
+      if (trimmedTag && !availableTags.includes(trimmedTag) && !selectedTags.includes(trimmedTag)) {
+        onChange([...selectedTags, trimmedTag]);
+        setNewTagInput('');
+      }
+    };
+
+    return (
+      <div className="relative">
+        <div 
+          className="form-input cursor-pointer flex items-center justify-between min-h-[2.5rem]"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          <div className="flex flex-wrap gap-1">
+            {selectedTags.length === 0 ? (
+              <span className="text-foreground-dim">{placeholder}</span>
+            ) : (
+              selectedTags.map(tag => (
+                <span key={tag} className="badge-tag flex items-center">
+                  {tag}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleTag(tag);
+                    }}
+                    className="ml-1 hover:text-red-400"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              ))
+            )}
+          </div>
+          <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        </div>
+
+        {isOpen && (
+          <div className="absolute z-10 w-full mt-1 bg-background border border-foreground-dim/30 rounded-md shadow-lg max-h-48 overflow-y-auto">
+            {/* Add new tag input */}
+            <div className="p-2 border-b border-foreground-dim/20">
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={newTagInput}
+                  onChange={(e) => setNewTagInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addNewTag();
+                    }
+                  }}
+                  placeholder="Add new tag..."
+                  className="flex-1 px-2 py-1 text-xs bg-transparent border border-foreground-dim/30 rounded"
+                />
+                <button
+                  type="button"
+                  onClick={addNewTag}
+                  disabled={!newTagInput.trim()}
+                  className="px-2 py-1 text-xs bg-primary text-background rounded disabled:opacity-50"
+                >
+                  Add
+                </button>
+              </div>
+            </div>
+
+            {/* Existing tags */}
+            {availableTags.map(tag => (
+              <div
+                key={tag}
+                className={`px-3 py-2 cursor-pointer hover:bg-secondary/50 flex items-center justify-between ${
+                  selectedTags.includes(tag) ? 'bg-primary/10 text-primary' : ''
+                }`}
+                onClick={() => toggleTag(tag)}
+              >
+                <span className="text-xs">{tag}</span>
+                {selectedTags.includes(tag) && <CheckSquare className="w-4 h-4" />}
+              </div>
+            ))}
+
+            {availableTags.length === 0 && (
+              <div className="p-3 text-xs text-foreground-dim">No existing tags. Add a new one above.</div>
+            )}
+          </div>
+        )}
+
+        {/* Click outside to close */}
+        {isOpen && (
+          <div 
+            className="fixed inset-0 z-0" 
+            onClick={() => setIsOpen(false)}
+          />
+        )}
+      </div>
+    );
+  };
 
   if (loading) {
     return (
@@ -353,13 +475,13 @@ export const TasksDetailView: React.FC = () => {
                   />
                 </div>
 
-                <div className="flex space-x-3 items-start">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-medium text-foreground mb-1">Priority</label>
                     <select
                       value={newTask.priority}
                       onChange={(e) => setNewTask({ ...newTask, priority: e.target.value as any })}
-                      className="form-select"
+                      className="form-select w-full"
                     >
                       <option value="low">Low</option>
                       <option value="medium">Medium</option>
@@ -368,13 +490,11 @@ export const TasksDetailView: React.FC = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-foreground mb-1">Tags (comma-separated)</label>
-                    <input
-                      type="text"
-                      value={newTask.tags ? newTask.tags.join(', ') : ''}
-                      onChange={(e) => setNewTask({ ...newTask, tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag) })}
-                      className="form-input"
-                      placeholder="frontend, backend, design"
+                    <label className="block text-xs font-medium text-foreground mb-1">Tags</label>
+                    <TagMultiSelect
+                      selectedTags={newTask.tags || []}
+                      onChange={(tags) => setNewTask({ ...newTask, tags })}
+                      placeholder="Select or add tags..."
                     />
                   </div>
                 </div>
@@ -500,7 +620,7 @@ export const TasksDetailView: React.FC = () => {
                       />
                     </div>
 
-                    <div className="flex space-x-3 items-start">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                       <div>
                         <label className="block text-xs font-medium text-foreground mb-1">Status</label>
                         <select
@@ -511,7 +631,7 @@ export const TasksDetailView: React.FC = () => {
                             );
                             setTasks(updatedTasks);
                           }}
-                          className="form-select"
+                          className="form-select w-full"
                         >
                           <option value="todo">To Do</option>
                           <option value="in_progress">In Progress</option>
@@ -530,7 +650,7 @@ export const TasksDetailView: React.FC = () => {
                             );
                             setTasks(updatedTasks);
                           }}
-                          className="form-select"
+                          className="form-select w-full"
                         >
                           <option value="low">Low</option>
                           <option value="medium">Medium</option>
@@ -539,18 +659,16 @@ export const TasksDetailView: React.FC = () => {
                         </select>
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-foreground mb-1">Tags (comma-separated)</label>
-                        <input
-                          type="text"
-                          value={formatTagsInput(task.tags)}
-                          onChange={(e) => {
+                        <label className="block text-xs font-medium text-foreground mb-1">Tags</label>
+                        <TagMultiSelect
+                          selectedTags={task.tags || []}
+                          onChange={(tags) => {
                             const updatedTasks = tasks.map(t =>
-                              t.id === task.id ? { ...t, tags: parseTagsInput(e.target.value) } : t
+                              t.id === task.id ? { ...t, tags } : t
                             );
                             setTasks(updatedTasks);
                           }}
-                          className="form-input"
-                          placeholder="frontend, backend, design"
+                          placeholder="Select or add tags..."
                         />
                       </div>
                     </div>
