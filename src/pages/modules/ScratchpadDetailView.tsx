@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
-import { Edit3, Loader2, Pin, Plus, Save, Search, StickyNote, Tag, Trash2, X } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import { Edit3, Loader2, Pin, Plus, Save, Search, StickyNote, Tag, Trash2, X, ChevronDown, ChevronUp } from 'lucide-react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ModuleContainer } from '../../components/Workspace/ModuleContainer';
 import { BackButton } from '../../components/common/BackButton';
@@ -60,6 +60,8 @@ export const ScratchpadDetailView: React.FC = () => {
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [newNote, setNewNote] = useState<Partial<ScratchpadNote> | null>(null);
   const [saving, setSaving] = useState(false);
+  const [expandedNotes, setExpandedNotes] = useState<Record<string, boolean>>({});
+  const contentRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   useEffect(() => {
     if (projectId) {
@@ -104,6 +106,13 @@ export const ScratchpadDetailView: React.FC = () => {
     } finally {
       setSaving(false);
     }
+  };
+
+  const toggleNoteExpansion = (noteId: string) => {
+    setExpandedNotes(prev => ({
+      ...prev,
+      [noteId]: !prev[noteId]
+    }));
   };
 
   const handleCreateNote = async (noteData: Partial<ScratchpadNote>) => {
@@ -518,12 +527,38 @@ export const ScratchpadDetailView: React.FC = () => {
                             </div>
                             {note.title && <div className="h-px bg-foreground/20 w-full"></div>}
                           </div>
-                          <p 
-                            className="whitespace-pre-wrap text-foreground/90 mb-2 mt-4"
-                            style={{ fontSize: `${note.font_size}px` }}
+                          <div 
+                            ref={el => contentRefs.current[note.id] = el}
+                            className={`overflow-hidden transition-all duration-300 ease-in-out ${expandedNotes[note.id] ? '' : 'max-h-32'}`}
                           >
-                            {note.content}
-                          </p>
+                            <p 
+                              className="whitespace-pre-wrap text-foreground/90 mt-4 break-words"
+                              style={{ fontSize: `${note.font_size}px` }}
+                            >
+                              {note.content}
+                            </p>
+                          </div>
+                          {(note.content.length > 100 || expandedNotes[note.id]) && (
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleNoteExpansion(note.id);
+                              }}
+                              className="text-xs text-primary/80 hover:text-primary hover:underline mt-2 mb-2 flex items-center"
+                            >
+                              {expandedNotes[note.id] ? (
+                                <>
+                                  <ChevronUp className="w-3 h-3 mr-1" />
+                                  Show less
+                                </>
+                              ) : (
+                                <>
+                                  <ChevronDown className="w-3 h-3 mr-1" />
+                                  Show more
+                                </>
+                              )}
+                            </button>
+                          )}
                           <div className="text-xs text-foreground-dim">
                             {format(new Date(note.created_at), 'MMM d, h:mm a')}
                           </div>
