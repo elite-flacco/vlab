@@ -330,6 +330,12 @@ export const TasksDetailView: React.FC = () => {
                     type="text"
                     value={newTask.title}
                     onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && newTask.title?.trim()) {
+                        e.preventDefault();
+                        handleAddTask(newTask);
+                      }
+                    }}
                     className="form-input"
                     placeholder="Enter task title"
                     autoFocus
