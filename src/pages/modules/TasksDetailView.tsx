@@ -229,7 +229,7 @@ export const TasksDetailView: React.FC = () => {
       case 'urgent': return 'badge-priority-urgent';   // Red for critical/urgent
       case 'high': return 'badge-priority-high';       // Orange for high
       case 'medium': return 'badge-priority-medium';   // Yellow for medium  
-      default: return 'badge-success';                 // Green for low
+      default: return 'badge-priority-low';            // Gray for low
     }
   };
 
@@ -274,6 +274,75 @@ export const TasksDetailView: React.FC = () => {
   const formatTagsInput = (tags: string[]) => tags.join(', ');
   const parseTagsInput = (input: string) =>
     input.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+
+  // Reusable Status Select Component
+  const StatusSelect: React.FC<{
+    value: string;
+    onChange: (value: string) => void;
+    disabled?: boolean;
+    className?: string;
+    showBadgeStyle?: boolean;
+  }> = ({ value, onChange, disabled = false, className = "", showBadgeStyle = false }) => {
+    const selectClass = showBadgeStyle 
+      ? `appearance-none cursor-pointer ${getStatusColor(value)} disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-none`
+      : "form-select w-full";
+
+    return (
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        disabled={disabled}
+        className={`${selectClass} ${className}`}
+        style={showBadgeStyle ? {} : {}}
+      >
+        <option value="todo" style={showBadgeStyle ? { backgroundColor: '#1a1a1a', color: '#e0e0e0' } : {}}>To Do</option>
+        <option value="in_progress" style={showBadgeStyle ? { backgroundColor: '#1a1a1a', color: '#e0e0e0' } : {}}>In Progress</option>
+        <option value="done" style={showBadgeStyle ? { backgroundColor: '#1a1a1a', color: '#e0e0e0' } : {}}>Done</option>
+        <option value="blocked" style={showBadgeStyle ? { backgroundColor: '#1a1a1a', color: '#e0e0e0' } : {}}>Blocked</option>
+      </select>
+    );
+  };
+
+  // Reusable Priority Select Component
+  const PrioritySelect: React.FC<{
+    value: string;
+    onChange: (value: string) => void;
+    disabled?: boolean;
+    className?: string;
+    showBadgeStyle?: boolean;
+    showIcon?: boolean;
+  }> = ({ value, onChange, disabled = false, className = "", showBadgeStyle = false, showIcon = false }) => {
+    const selectClass = showBadgeStyle 
+      ? `appearance-none cursor-pointer ${getPriorityColor(value)} disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-none ${showIcon ? 'pl-7 pr-4' : ''}`
+      : "form-select w-full";
+
+    const content = (
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        disabled={disabled}
+        className={`${selectClass} ${className}`}
+      >
+        <option value="low" style={showBadgeStyle ? { backgroundColor: '#1a1a1a', color: '#e0e0e0' } : {}}>Low</option>
+        <option value="medium" style={showBadgeStyle ? { backgroundColor: '#1a1a1a', color: '#e0e0e0' } : {}}>Medium</option>
+        <option value="high" style={showBadgeStyle ? { backgroundColor: '#1a1a1a', color: '#e0e0e0' } : {}}>High</option>
+        <option value="urgent" style={showBadgeStyle ? { backgroundColor: '#1a1a1a', color: '#e0e0e0' } : {}}>Urgent</option>
+      </select>
+    );
+
+    if (showIcon) {
+      return (
+        <div className="relative">
+          {content}
+          <div className="absolute left-2 top-1/2 transform -translate-y-1/2 pointer-events-none text-current">
+            {getPriorityIcon(value)}
+          </div>
+        </div>
+      );
+    }
+
+    return content;
+  };
 
   // Multi-select tag component
   const TagMultiSelect: React.FC<{
@@ -519,16 +588,10 @@ export const TasksDetailView: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-medium text-foreground mb-1">Priority</label>
-                    <select
-                      value={newTask.priority}
-                      onChange={(e) => setNewTask({ ...newTask, priority: e.target.value as any })}
-                      className="form-select w-full"
-                    >
-                      <option value="low">Low</option>
-                      <option value="medium">Medium</option>
-                      <option value="high">High</option>
-                      <option value="urgent">Urgent</option>
-                    </select>
+                    <PrioritySelect
+                      value={newTask.priority || 'medium'}
+                      onChange={(priority) => setNewTask({ ...newTask, priority: priority as any })}
+                    />
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-foreground mb-1">Tags</label>
@@ -674,40 +737,28 @@ export const TasksDetailView: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                       <div>
                         <label className="block text-xs font-medium text-foreground mb-1">Status</label>
-                        <select
+                        <StatusSelect
                           value={task.status}
-                          onChange={(e) => {
+                          onChange={(status) => {
                             const updatedTasks = tasks.map(t =>
-                              t.id === task.id ? { ...t, status: e.target.value as any } : t
+                              t.id === task.id ? { ...t, status: status as any } : t
                             );
                             setTasks(updatedTasks);
                           }}
-                          className="form-select w-full"
-                        >
-                          <option value="todo">To Do</option>
-                          <option value="in_progress">In Progress</option>
-                          <option value="done">Done</option>
-                          <option value="blocked">Blocked</option>
-                        </select>
+                        />
                       </div>
 
                       <div>
                         <label className="block text-xs font-medium text-foreground mb-1">Priority</label>
-                        <select
+                        <PrioritySelect
                           value={task.priority}
-                          onChange={(e) => {
+                          onChange={(priority) => {
                             const updatedTasks = tasks.map(t =>
-                              t.id === task.id ? { ...t, priority: e.target.value as any } : t
+                              t.id === task.id ? { ...t, priority: priority as any } : t
                             );
                             setTasks(updatedTasks);
                           }}
-                          className="form-select w-full"
-                        >
-                          <option value="low">Low</option>
-                          <option value="medium">Medium</option>
-                          <option value="high">High</option>
-                          <option value="urgent">Urgent</option>
-                        </select>
+                        />
                       </div>
                       <div>
                         <label className="block text-xs font-medium text-foreground mb-1">Tags</label>
@@ -770,34 +821,20 @@ export const TasksDetailView: React.FC = () => {
                         </h4>
                         <div className="flex items-center space-x-2 ml-2">
                           {/* Interactive Status Dropdown */}
-                          <select
+                          <StatusSelect
                             value={task.status}
-                            onChange={(e) => handleStatusChange(task.id, e.target.value)}
+                            onChange={(status) => handleStatusChange(task.id, status)}
                             disabled={saving}
-                            className={`appearance-none cursor-pointer ${getStatusColor(task.status)} disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-1`}
-                          >
-                            <option value="todo">To Do</option>
-                            <option value="in_progress">In Progress</option>
-                            <option value="done">Done</option>
-                            <option value="blocked">Blocked</option>
-                          </select>
+                            showBadgeStyle={true}
+                          />
                           {/* Interactive Priority Dropdown */}
-                          <div className="relative">
-                            <select
-                              value={task.priority}
-                              onChange={(e) => handlePriorityChange(task.id, e.target.value)}
-                              disabled={saving}
-                              className={`appearance-none cursor-pointer ${getPriorityColor(task.priority)} disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-1 pl-7 pr-4`}
-                            >
-                              <option value="low">Low</option>
-                              <option value="medium">Medium</option>
-                              <option value="high">High</option>
-                              <option value="urgent">Urgent</option>
-                            </select>
-                            <div className="absolute left-2 top-1/2 transform -translate-y-1/2 pointer-events-none text-current">
-                              {getPriorityIcon(task.priority)}
-                            </div>
-                          </div>
+                          <PrioritySelect
+                            value={task.priority}
+                            onChange={(priority) => handlePriorityChange(task.id, priority)}
+                            disabled={saving}
+                            showBadgeStyle={true}
+                            showIcon={true}
+                          />
                           <div className="flex items-center space-x-1 opacity-80 group-hover:opacity-100 transition-opacity">
                             <button
                               onClick={() => setEditingTaskId(task.id)}

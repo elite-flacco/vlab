@@ -415,19 +415,19 @@
   }
 
   .badge-priority-urgent {
-    @apply badge-priority bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500/20 hover:border-red-500/30;
+    @apply badge-priority bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 hover:border-red-500/30;
   }
 
   .badge-priority-high {
-    @apply badge-priority bg-orange-500/10 text-orange-400 border-orange-500/20 hover:bg-orange-500/20 hover:border-orange-500/30;
+    @apply badge-priority bg-orange-500/10 text-orange-400 border border-orange-500/20 hover:bg-orange-500/20 hover:border-orange-500/30;
   }
 
   .badge-priority-medium {
-    @apply badge-priority bg-yellow-500/10 text-yellow-400 border-yellow-500/20 hover:bg-yellow-500/20 hover:border-yellow-500/30;
+    @apply badge-priority bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 hover:bg-yellow-500/20 hover:border-yellow-500/30;
   }
 
   .badge-priority-low {
-    @apply badge-priority bg-gray-500/10 text-gray-400 border-gray-500/20 hover:bg-gray-500/20 hover:border-gray-500/30;
+    @apply badge-priority bg-green-500/10 text-green-400 border border-green-500/20 hover:bg-green-500/20 hover:border-green-500/30;
   }
 
   /* Task tag badges */
