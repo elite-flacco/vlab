@@ -31,6 +31,7 @@ export const TasksDetailView: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'todo' | 'in_progress' | 'done'>('all');
   const [priorityFilter, setPriorityFilter] = useState<'all' | 'urgent' | 'high' | 'medium' | 'low'>('all');
+  const [tagFilter, setTagFilter] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [showCompleted, setShowCompleted] = useState(true);
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
@@ -159,11 +160,13 @@ export const TasksDetailView: React.FC = () => {
 
       const matchesPriority = priorityFilter === 'all' || task.priority === priorityFilter;
 
+      const matchesTag = tagFilter === 'all' || (task.tags && task.tags.includes(tagFilter));
+
       const matchesSearch = searchTerm === '' ||
         task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (task.description && task.description.toLowerCase().includes(searchTerm.toLowerCase()));
 
-      return matchesStatus && matchesPriority && matchesSearch;
+      return matchesStatus && matchesPriority && matchesTag && matchesSearch;
     })
     .sort((a, b) => {
       // First sort by priority (urgent > high > medium > low)
@@ -530,9 +533,9 @@ export const TasksDetailView: React.FC = () => {
             </div>
           )}
           <div className="card p-4 mb-6">
-            <div className="flex items-center space-x-2">
+            <div className="flex flex-wrap items-center gap-2">
               {/* Search Bar */}
-              <div className="relative">
+              <div className="relative flex-shrink-0">
                 <Search className="search-icon" />
                 <input
                   type="text"
@@ -545,7 +548,7 @@ export const TasksDetailView: React.FC = () => {
               <select
                 value={filter}
                 onChange={(e) => setFilter(e.target.value as any)}
-                className="form-select"
+                className="form-select flex-shrink-0"
               >
                 <option value="all">All Tasks</option>
                 <option value="todo">To Do</option>
@@ -555,7 +558,7 @@ export const TasksDetailView: React.FC = () => {
               <select
                 value={priorityFilter}
                 onChange={(e) => setPriorityFilter(e.target.value as any)}
-                className="form-select"
+                className="form-select flex-shrink-0"
               >
                 <option value="all">All Priorities</option>
                 <option value="urgent">Urgent</option>
@@ -563,9 +566,19 @@ export const TasksDetailView: React.FC = () => {
                 <option value="medium">Medium</option>
                 <option value="low">Low</option>
               </select>
+              <select
+                value={tagFilter}
+                onChange={(e) => setTagFilter(e.target.value)}
+                className="form-select flex-shrink-0"
+              >
+                <option value="all">All Tags</option>
+                {getAllTags().map(tag => (
+                  <option key={tag} value={tag}>{tag}</option>
+                ))}
+              </select>
               <button
                 onClick={() => setShowCompleted(!showCompleted)}
-                className={`${showCompleted
+                className={`flex-shrink-0 ${showCompleted
                   ? 'filter-button-active'
                   : 'filter-button'
                   }`}
