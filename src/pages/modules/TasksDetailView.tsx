@@ -30,6 +30,7 @@ export const TasksDetailView: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'todo' | 'in_progress' | 'done'>('all');
+  const [priorityFilter, setPriorityFilter] = useState<'all' | 'urgent' | 'high' | 'medium' | 'low'>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [showCompleted, setShowCompleted] = useState(true);
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
@@ -150,11 +151,13 @@ export const TasksDetailView: React.FC = () => {
         ? (showCompleted || task.status !== 'done')
         : task.status === filter;
 
+      const matchesPriority = priorityFilter === 'all' || task.priority === priorityFilter;
+
       const matchesSearch = searchTerm === '' ||
         task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (task.description && task.description.toLowerCase().includes(searchTerm.toLowerCase()));
 
-      return matchesStatus && matchesSearch;
+      return matchesStatus && matchesPriority && matchesSearch;
     })
     .sort((a, b) => {
       // First sort by priority (urgent > high > medium > low)
@@ -407,6 +410,17 @@ export const TasksDetailView: React.FC = () => {
                 <option value="todo">To Do</option>
                 <option value="in_progress">In Progress</option>
                 <option value="done">Completed</option>
+              </select>
+              <select
+                value={priorityFilter}
+                onChange={(e) => setPriorityFilter(e.target.value as any)}
+                className="form-select"
+              >
+                <option value="all">All Priorities</option>
+                <option value="urgent">Urgent</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
               </select>
               <button
                 onClick={() => setShowCompleted(!showCompleted)}
