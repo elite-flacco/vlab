@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { CheckSquare, Edit3, Loader2, Plus, Save, Search, Square, Tag, Trash2, X } from 'lucide-react';
+import { AlertTriangle, ArrowDown, ArrowUp, CheckSquare, Edit3, Loader2, Minus, Plus, Save, Search, Square, Tag, Trash2, X, Zap } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { BackButton } from '../../components/common/BackButton';
@@ -175,10 +175,19 @@ export const TasksDetailView: React.FC = () => {
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'urgent': return 'badge-danger';
-      case 'high': return 'badge-warning';
-      case 'medium': return 'badge-secondary';
-      default: return 'badge-secondary'; // low
+      case 'urgent': return 'badge-priority-urgent';   // Red for critical/urgent
+      case 'high': return 'badge-priority-high';       // Orange for high
+      case 'medium': return 'badge-priority-medium';   // Yellow for medium  
+      default: return 'badge-success';                 // Green for low
+    }
+  };
+
+  const getPriorityIcon = (priority: string) => {
+    switch (priority) {
+      case 'urgent': return <ArrowUp className="w-3 h-3" />;     // Double up arrow style
+      case 'high': return <ArrowUp className="w-3 h-3" />;       // Up arrow
+      case 'medium': return <Minus className="w-3 h-3" />;       // Dash/minus for medium
+      default: return <ArrowDown className="w-3 h-3" />;         // Down arrow for low
     }
   };
 
@@ -592,17 +601,22 @@ export const TasksDetailView: React.FC = () => {
                             <option value="blocked">Blocked</option>
                           </select>
                           {/* Interactive Priority Dropdown */}
-                          <select
-                            value={task.priority}
-                            onChange={(e) => handlePriorityChange(task.id, e.target.value)}
-                            disabled={saving}
-                            className={`appearance-none cursor-pointer ${getPriorityColor(task.priority)} disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-1`}
-                          >
-                            <option value="low">Low</option>
-                            <option value="medium">Medium</option>
-                            <option value="high">High</option>
-                            <option value="urgent">Urgent</option>
-                          </select>
+                          <div className="relative">
+                            <select
+                              value={task.priority}
+                              onChange={(e) => handlePriorityChange(task.id, e.target.value)}
+                              disabled={saving}
+                              className={`appearance-none cursor-pointer ${getPriorityColor(task.priority)} disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-1 pl-7 pr-4`}
+                            >
+                              <option value="low">Low</option>
+                              <option value="medium">Medium</option>
+                              <option value="high">High</option>
+                              <option value="urgent">Urgent</option>
+                            </select>
+                            <div className="absolute left-2 top-1/2 transform -translate-y-1/2 pointer-events-none text-current">
+                              {getPriorityIcon(task.priority)}
+                            </div>
+                          </div>
                           <div className="flex items-center space-x-1 opacity-80 group-hover:opacity-100 transition-opacity">
                             <button
                               onClick={() => setEditingTaskId(task.id)}
