@@ -29,11 +29,23 @@ export const TasksDetailView: React.FC = () => {
   const [tasks, setTasks] = useState<TaskItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<'all' | 'todo' | 'in_progress' | 'done'>('all');
-  const [priorityFilter, setPriorityFilter] = useState<'all' | 'urgent' | 'high' | 'medium' | 'low'>('all');
-  const [tagFilter, setTagFilter] = useState<string>('all');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [showCompleted, setShowCompleted] = useState(true);
+  // Initialize filters from localStorage or defaults
+  const [filter, setFilter] = useState<'all' | 'todo' | 'in_progress' | 'done'>(() => {
+    return (localStorage.getItem('tasks-status-filter') as any) || 'all';
+  });
+  const [priorityFilter, setPriorityFilter] = useState<'all' | 'urgent' | 'high' | 'medium' | 'low'>(() => {
+    return (localStorage.getItem('tasks-priority-filter') as any) || 'all';
+  });
+  const [tagFilter, setTagFilter] = useState<string>(() => {
+    return localStorage.getItem('tasks-tag-filter') || 'all';
+  });
+  const [searchTerm, setSearchTerm] = useState(() => {
+    return localStorage.getItem('tasks-search-term') || '';
+  });
+  const [showCompleted, setShowCompleted] = useState(() => {
+    const saved = localStorage.getItem('tasks-show-completed');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [newTask, setNewTask] = useState<Partial<TaskItem> | null>(null);
   const [saving, setSaving] = useState(false);
@@ -144,6 +156,32 @@ export const TasksDetailView: React.FC = () => {
 
   const handleStatusChange = async (taskId: string, newStatus: string) => {
     await handleUpdateTask(taskId, { status: newStatus as TaskItem['status'] });
+  };
+
+  // Custom setters that persist to localStorage
+  const updateFilter = (newFilter: typeof filter) => {
+    setFilter(newFilter);
+    localStorage.setItem('tasks-status-filter', newFilter);
+  };
+
+  const updatePriorityFilter = (newPriorityFilter: typeof priorityFilter) => {
+    setPriorityFilter(newPriorityFilter);
+    localStorage.setItem('tasks-priority-filter', newPriorityFilter);
+  };
+
+  const updateTagFilter = (newTagFilter: string) => {
+    setTagFilter(newTagFilter);
+    localStorage.setItem('tasks-tag-filter', newTagFilter);
+  };
+
+  const updateSearchTerm = (newSearchTerm: string) => {
+    setSearchTerm(newSearchTerm);
+    localStorage.setItem('tasks-search-term', newSearchTerm);
+  };
+
+  const updateShowCompleted = (newShowCompleted: boolean) => {
+    setShowCompleted(newShowCompleted);
+    localStorage.setItem('tasks-show-completed', JSON.stringify(newShowCompleted));
   };
 
   // Get all unique tags from existing tasks
@@ -540,14 +578,14 @@ export const TasksDetailView: React.FC = () => {
                 <input
                   type="text"
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => updateSearchTerm(e.target.value)}
                   placeholder="Search tasks..."
                   className="search-input"
                 />
               </div>
               <select
                 value={filter}
-                onChange={(e) => setFilter(e.target.value as any)}
+                onChange={(e) => updateFilter(e.target.value as any)}
                 className="form-select flex-shrink-0"
               >
                 <option value="all">All Tasks</option>
@@ -557,7 +595,7 @@ export const TasksDetailView: React.FC = () => {
               </select>
               <select
                 value={priorityFilter}
-                onChange={(e) => setPriorityFilter(e.target.value as any)}
+                onChange={(e) => updatePriorityFilter(e.target.value as any)}
                 className="form-select flex-shrink-0"
               >
                 <option value="all">All Priorities</option>
@@ -568,7 +606,7 @@ export const TasksDetailView: React.FC = () => {
               </select>
               <select
                 value={tagFilter}
-                onChange={(e) => setTagFilter(e.target.value)}
+                onChange={(e) => updateTagFilter(e.target.value)}
                 className="form-select flex-shrink-0"
               >
                 <option value="all">All Tags</option>
@@ -577,7 +615,7 @@ export const TasksDetailView: React.FC = () => {
                 ))}
               </select>
               <button
-                onClick={() => setShowCompleted(!showCompleted)}
+                onClick={() => updateShowCompleted(!showCompleted)}
                 className={`flex-shrink-0 ${showCompleted
                   ? 'filter-button-active'
                   : 'filter-button'
