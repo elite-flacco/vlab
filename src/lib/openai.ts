@@ -31,8 +31,9 @@ const SUPABASE_FUNCTIONS_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v
 
 // Helper function to get auth headers
 const getAuthHeaders = async () => {
-  // This assumes you're using Supabase Auth in your application
-  const { data: { session } } = await import('./supabase').then(m => m.supabase.auth.getSession());
+  // Import the supabase client
+  const { supabase } = await import('./supabase');
+  const { data: { session } } = await supabase.auth.getSession();
   return {
     'Authorization': `Bearer ${session?.access_token}`,
     'Content-Type': 'application/json',
@@ -166,6 +167,32 @@ export const generateTasks = async (prdContent: string, roadmapItems: RoadmapIte
     return data.result || [];
   } catch (error) {
     console.error('Error in generateTasks:', error);
+    throw error;
+  }
+};
+
+export const generateDesignTasks = async (feedbackText: string): Promise<TaskItem[]> => {
+  try {
+    const headers = await getAuthHeaders();
+    
+    const response = await fetch(`${SUPABASE_FUNCTIONS_URL}/openai-proxy`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        action: 'design_tasks',
+        feedbackText: feedbackText
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.result || [];
+  } catch (error) {
+    console.error('Error in generateDesignTasks:', error);
     throw error;
   }
 };

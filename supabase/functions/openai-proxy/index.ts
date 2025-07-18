@@ -14,11 +14,12 @@ interface ChatMessage {
 }
 
 interface OpenAIRequest {
-  action: 'chat' | 'summary' | 'prd' | 'roadmap' | 'tasks';
+  action: 'chat' | 'summary' | 'prd' | 'roadmap' | 'tasks' | 'design_tasks';
   messages?: ChatMessage[];
   ideaSummary?: string;
   prdContent?: string;
   roadmapItems?: any[];
+  feedbackText?: string;
 }
 
 // Simple rate limiting store (in-memory for demo - use Redis in production)
@@ -109,7 +110,7 @@ serve(async (req) => {
     const { action } = requestData;
     
     // Validate action
-    const validActions = ['chat', 'summary', 'prd', 'roadmap', 'tasks'];
+    const validActions = ['chat', 'summary', 'prd', 'roadmap', 'tasks', 'design_tasks'];
     if (!validActions.includes(action)) {
       return new Response(JSON.stringify({ error: 'Invalid action specified' }), {
         status: 400,
@@ -158,6 +159,14 @@ serve(async (req) => {
           throw new Error("PRD content and roadmap items are required for tasks generation");
         }
         openaiResponse = await generateTasks(apiKey, requestData.prdContent, requestData.roadmapItems);
+        break;
+
+      case 'design_tasks':
+        // Handle design tasks generation
+        if (!requestData.feedbackText) {
+          throw new Error("Feedback text is required for design tasks generation");
+        }
+        openaiResponse = await generateDesignTasks(apiKey, requestData.feedbackText);
         break;
 
       default:
@@ -596,6 +605,120 @@ ${roadmapSummary}`
         tags: ['frontend', 'backend'],
         dependencies: [],
         position: 2,
+      },
+    ];
+  }
+}
+
+// Function to generate design tasks from feedback
+async function generateDesignTasks(apiKey: string, feedbackText: string): Promise<any[]> {
+  const sanitizedFeedback = sanitizeInput(feedbackText);
+  
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content: `You are a UI/UX design expert who analyzes design feedback and generates actionable tasks. 
+          
+          For the given design feedback, generate a list of specific, actionable tasks that a development team can implement. Each task should be:
+          1. Clear and specific
+          2. Focused on a single improvement
+          3. Implementable by developers
+          4. Properly prioritized based on impact and effort
+          
+          Return ONLY a valid JSON array with this exact structure:
+          [
+            {
+              "title": "Task title (max 60 characters)",
+              "description": "Detailed description of what needs to be done",
+              "status": "todo",
+              "priority": "low" | "medium" | "high" | "highest",
+              "estimated_hours": number (optional),
+              "due_date": null,
+              "tags": ["tag1", "tag2"],
+              "dependencies": [],
+              "position": number
+            }
+          ]
+          
+          Prioritize tasks as:
+          - "highest": Critical UX issues, accessibility problems, broken functionality
+          - "high": Important user experience improvements, major visual issues
+          - "medium": Nice-to-have improvements, minor visual tweaks
+          - "low": Polish items, very minor improvements
+          
+          Use relevant tags like: "ui", "ux", "accessibility", "performance", "mobile", "desktop", "component", "layout", "typography", "color", "animation", etc.
+          
+          Generate 3-8 tasks based on the feedback complexity.`
+        },
+        {
+          role: "user",
+          content: `Please analyze this design feedback and generate actionable tasks:\n\n${sanitizedFeedback}`
+        }
+      ],
+      max_tokens: 1500,
+      temperature: 0.3,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error?.message || `OpenAI API error: ${response.status}`);
+  }
+
+  const data = await response.json();
+  const content = data.choices[0]?.message?.content;
+  
+  if (!content) {
+    throw new Error('No content received from OpenAI');
+  }
+
+  try {
+    // Clean the content to remove markdown code blocks
+    const cleanedContent = cleanJsonResponse(content);
+    
+    // Try to parse the JSON response
+    const tasks = JSON.parse(cleanedContent);
+    
+    // Validate the structure
+    if (!Array.isArray(tasks)) {
+      throw new Error('Response is not an array');
+    }
+
+    // Ensure each task has required fields and set defaults
+    return tasks.map((task: any, index: number) => ({
+      title: task.title || `Design Task ${index + 1}`,
+      description: task.description || 'Design task description',
+      status: 'todo',
+      priority: ['low', 'medium', 'high', 'highest'].includes(task.priority) ? task.priority : 'medium',
+      estimated_hours: typeof task.estimated_hours === 'number' ? task.estimated_hours : null,
+      due_date: null,
+      tags: Array.isArray(task.tags) ? task.tags : [],
+      dependencies: [],
+      position: index,
+    }));
+  } catch (parseError) {
+    console.error('Failed to parse design tasks JSON:', content);
+    
+    // Fallback: create basic task structure
+    return [
+      {
+        title: 'Implement design feedback',
+        description: 'Address the design feedback provided',
+        status: 'todo',
+        priority: 'medium',
+        estimated_hours: 4,
+        due_date: null,
+        tags: ['design', 'ui'],
+        dependencies: [],
+        position: 0,
       },
     ];
   }
