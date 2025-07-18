@@ -6,9 +6,15 @@ import { ModuleContainer } from '../../components/Workspace/ModuleContainer';
 import { BackButton } from '../../components/common/BackButton';
 import { db } from '../../lib/supabase';
 
+interface DatabaseResponse<T> {
+  data: T | null;
+  error: Error | null;
+}
+
 interface ScratchpadNote {
   id: string;
   project_id: string;
+  title: string;
   content: string;
   position: { x: number; y: number };
   size: { width: number; height: number };
@@ -65,9 +71,9 @@ export const ScratchpadDetailView: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const { data, error: fetchError } = await db.getScratchpadNotes(id);
-      if (fetchError) throw fetchError;
-      setNotes(data || []);
+      const response = await db.getScratchpadNotes(id) as DatabaseResponse<ScratchpadNote[]>;
+      if (response.error) throw response.error;
+      setNotes(response.data || []);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch notes');
     } finally {
@@ -84,12 +90,12 @@ export const ScratchpadDetailView: React.FC = () => {
     setError(null);
 
     try {
-      const { data, error: updateError } = await db.updateScratchpadNote(noteId, updates);
-      if (updateError) throw updateError;
+      const response = await db.updateScratchpadNote(noteId, updates) as DatabaseResponse<ScratchpadNote>;
+      if (response.error) throw response.error;
 
       // Update local state
       const updatedNotes = notes.map(note =>
-        note.id === noteId ? data : note
+        note.id === noteId ? { ...note, ...updates } : note
       );
       setNotes(updatedNotes);
       setEditingNoteId(null);
@@ -109,6 +115,7 @@ export const ScratchpadDetailView: React.FC = () => {
     try {
       const newNoteData = {
         project_id: projectId,
+        title: noteData.title || '',
         content: noteData.content || 'New note',
         position: noteData.position || { x: 0, y: 0 },
         size: noteData.size || { width: 300, height: 200 },
@@ -118,11 +125,11 @@ export const ScratchpadDetailView: React.FC = () => {
         tags: noteData.tags || [],
       };
 
-      const { data, error: createError } = await db.createScratchpadNote(newNoteData);
-      if (createError) throw createError;
+      const response = await db.createScratchpadNote(newNoteData) as DatabaseResponse<ScratchpadNote>;
+      if (response.error) throw response.error;
 
       // Add to local state
-      setNotes(prev => [data, ...prev]);
+      setNotes(prev => response.data ? [response.data, ...prev] : prev);
       setNewNote(null);
     } catch (err: any) {
       setError(err.message || 'Failed to create note');
@@ -136,8 +143,8 @@ export const ScratchpadDetailView: React.FC = () => {
     setError(null);
 
     try {
-      const { error: deleteError } = await db.deleteScratchpadNote(noteId);
-      if (deleteError) throw deleteError;
+      const response = await db.deleteScratchpadNote(noteId) as DatabaseResponse<void>;
+      if (response.error) throw response.error;
 
       // Remove from local state
       setNotes(prev => prev.filter(note => note.id !== noteId));
@@ -248,13 +255,20 @@ export const ScratchpadDetailView: React.FC = () => {
 
               <div className="space-y-3">
                 <div>
+                  <input
+                    type="text"
+                    value={newNote.title || ''}
+                    onChange={(e) => setNewNote(prev => ({ ...prev, title: e.target.value }))}
+                    className="form-input mb-3 w-full"
+                    placeholder="Note title"
+                    autoFocus
+                  />
                   <textarea
                     value={newNote.content || ''}
                     onChange={(e) => setNewNote(prev => ({ ...prev, content: e.target.value }))}
-                    className="form-textarea"
+                    className="form-textarea w-full"
                     rows={6}
                     placeholder="Start writing your note here..."
-                    autoFocus
                   />
                 </div>
 
@@ -381,6 +395,19 @@ export const ScratchpadDetailView: React.FC = () => {
                     <div>
                       <div className="space-y-3">
                         <div>
+                          <input
+                            type="text"
+                            value={note.title}
+                            onChange={(e) => {
+                              const updatedNotes = notes.map(n =>
+                                n.id === note.id ? { ...n, title: e.target.value } : n
+                              );
+                              setNotes(updatedNotes);
+                            }}
+                            className="form-input mb-3 w-full"
+                            placeholder="Note title"
+                            autoFocus
+                          />
                           <textarea
                             value={note.content}
                             onChange={(e) => {
@@ -389,10 +416,9 @@ export const ScratchpadDetailView: React.FC = () => {
                               );
                               setNotes(updatedNotes);
                             }}
-                            className="form-textarea"
+                            className="form-textarea w-full"
                             rows={6}
                             placeholder="Note content..."
-                            autoFocus
                           />
                         </div>
 
@@ -476,22 +502,35 @@ export const ScratchpadDetailView: React.FC = () => {
                     </div>
                   ) : (
                     // Display Mode with Direct Edit/Delete Icons
-                    <div>
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center space-x-2">
-                          {note.is_pinned && (
-                            <Pin className="w-4 h-4 text-yellow-600" />
-                          )}
-                          {note.tags && note.tags.length > 0 && (
-                            <div className="flex items-center space-x-1">
-                              <Tag className="w-3 h-3 text-gray-500" />
-                              <span className={`${getTagBadgeClass(note.tags[0])}`}>{note.tags[0]}</span>
+                    <div className="flex-1">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex-1">
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              {note.title && (
+                                <h3 className="font-semibold text-foreground">{note.title}</h3>
+                              )}
+                              {note.is_pinned && (
+                                <span className="inline-flex items-center text-xs text-foreground/60">
+                                  <Pin className="w-3 h-3 mr-1" /> Pinned
+                                </span>
+                              )}
                             </div>
-                          )}
+                            {note.title && <div className="h-px bg-foreground/20 w-full"></div>}
+                          </div>
+                          <p 
+                            className="whitespace-pre-wrap text-foreground/90 mb-2 mt-4"
+                            style={{ fontSize: `${note.font_size}px` }}
+                          >
+                            {note.content}
+                          </p>
+                          <div className="text-xs text-foreground-dim">
+                            {format(new Date(note.created_at), 'MMM d, h:mm a')}
+                          </div>
                         </div>
 
                         {/* Direct Edit/Delete Icons - Always visible */}
-                        <div className="flex items-center space-x-1">
+                        <div className="flex items-center space-x-1 ml-2">
                           <button
                             onClick={() => setEditingNoteId(note.id)}
                             className="p-1.5 text-foreground-dim hover:text-primary hover:bg-foreground-dim/10 rounded-lg transition-colors"
@@ -507,19 +546,6 @@ export const ScratchpadDetailView: React.FC = () => {
                           >
                             <Trash2 className="w-3 h-3" />
                           </button>
-                        </div>
-                      </div>
-
-                      <div className="pr-2">
-                        <p
-                          className="card-content leading-relaxed whitespace-pre-wrap mb-3"
-                          style={{ fontSize: `${note.font_size}px` }}
-                        >
-                          {note.content}
-                        </p>
-
-                        <div className="text-xs text-foreground-dim">
-                          {format(new Date(note.created_at), 'MMM d, h:mm a')}
                         </div>
                       </div>
                     </div>
