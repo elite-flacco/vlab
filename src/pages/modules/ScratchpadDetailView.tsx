@@ -1,6 +1,7 @@
 import { format } from 'date-fns';
 import { Edit3, Loader2, Pin, Plus, Save, Search, StickyNote, Tag, Trash2, X, ChevronDown, ChevronUp } from 'lucide-react';
 import React, { useEffect, useState, useRef } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ModuleContainer } from '../../components/Workspace/ModuleContainer';
 import { BackButton } from '../../components/common/BackButton';
@@ -60,6 +61,47 @@ export const ScratchpadDetailView: React.FC = () => {
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [newNote, setNewNote] = useState<Partial<ScratchpadNote> | null>(null);
   const [saving, setSaving] = useState(false);
+  const [isReordering] = useState(false); // Used for drag and drop functionality
+
+  // Helper function to preprocess markdown content
+  const preprocessMarkdown = (content: string): string => {
+    if (!content) return '';
+    
+    console.log('Original content:', content);
+    
+    const processed = content
+      .split('\n')
+      .map(line => {
+        console.log('Original line:', line);
+        
+        // Trim leading whitespace for matching
+        const trimmedLine = line.trimStart();
+        const leadingSpaces = line.length - trimmedLine.length;
+        const leadingWhitespace = ' '.repeat(leadingSpaces);
+        
+        console.log('Trimmed line:', trimmedLine);
+        
+        // Match patterns like "Phase 1", "Step 2", etc.
+        const phaseMatch = trimmedLine.match(/^(Phase\s+\d+)([:.]?\s*)(.*)/i);
+        const stepMatch = trimmedLine.match(/^(Step\s+\d+)([:.]?\s*)(.*)/i);
+        
+        if (phaseMatch) {
+          const result = `${leadingWhitespace}# ${phaseMatch[1]}${phaseMatch[2]}${phaseMatch[3]}`;
+          console.log('Matched phase:', result);
+          return result;
+        } else if (stepMatch) {
+          const result = `${leadingWhitespace}# ${stepMatch[1]}${stepMatch[2]}${stepMatch[3]}`;
+          console.log('Matched step:', result);
+          return result;
+        }
+        return line;
+      })
+      .join('\n');
+      
+    console.log('Processed content:', processed);
+    return processed;
+  };
+
   const [expandedNotes, setExpandedNotes] = useState<Record<string, boolean>>({});
   const contentRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
@@ -531,12 +573,55 @@ export const ScratchpadDetailView: React.FC = () => {
                             ref={el => contentRefs.current[note.id] = el}
                             className={`overflow-hidden transition-all duration-300 ease-in-out ${expandedNotes[note.id] ? '' : 'max-h-32'}`}
                           >
-                            <p 
-                              className="whitespace-pre-wrap text-foreground/90 mt-4 break-words"
-                              style={{ fontSize: `${note.font_size}px` }}
+                            <div 
+                              className="prose prose-sm max-w-none mt-4 break-words"
+                              style={{ 
+                                fontSize: `${Math.max(12, note.font_size - 2)}px`,
+                                color: 'inherit' // Ensure text color is inherited
+                              }}
                             >
-                              {note.content}
-                            </p>
+                              <ReactMarkdown
+                                children={preprocessMarkdown(note.content)}
+                                components={{
+                                  h1: (props) => <h1 className="text-lg font-semibold mt-2 mb-1 text-foreground/90" {...props} />,
+                                  h2: (props) => <h2 className="text-base font-semibold mt-2 mb-1 text-foreground/90" {...props} />,
+                                  h3: (props) => <h3 className="text-sm font-semibold mt-1.5 mb-1 text-foreground/90" {...props} />,
+                                  h4: (props) => <h4 className="text-sm font-semibold mt-1.5 mb-1 text-foreground/90" {...props} />,
+                                  ul: (props) => <ul className="list-disc pl-5 space-y-1 my-1" {...props} />,
+                                  ol: (props) => <ol className="list-decimal pl-5 space-y-1 my-1" {...props} />,
+                                  li: (props) => <li className="pl-1 text-foreground/60" {...props} />,
+                                  p: (props) => <p className="text-xs my-1.5 text-foreground-muted" {...props} />,
+                                  strong: (props) => <strong className="font-semibold text-foreground/80" {...props} />,
+                                  em: (props) => <em className="italic" {...props} />,
+                                  code: ({ node, className, children, ...props }) => {
+                                    const isInline = !className?.includes('language-');
+                                    if (isInline) {
+                                      return (
+                                        <code className="bg-foreground/10 px-1 py-0.5 rounded text-xs font-mono" {...props}>
+                                          {children}
+                                        </code>
+                                      );
+                                    }
+                                    return (
+                                      <pre className="bg-foreground/10 p-2 rounded-md overflow-x-auto my-2">
+                                        <code className="text-xs font-mono" {...props}>
+                                          {children}
+                                        </code>
+                                      </pre>
+                                    );
+                                  },
+                                  a: (props) => (
+                                    <a 
+                                      className="text-primary hover:underline break-all" 
+                                      target="_blank" 
+                                      rel="noopener noreferrer" 
+                                      {...props} 
+                                    />
+                                  ),
+                                }}
+                              >
+                              </ReactMarkdown>
+                            </div>
                           </div>
                           {(note.content.length > 100 || expandedNotes[note.id]) && (
                             <button 
