@@ -19,7 +19,7 @@ interface TaskItem {
   title: string;
   description: string;
   status: 'todo' | 'in_progress' | 'done' | 'blocked';
-  priority: 'low' | 'medium' | 'high' | 'urgent';
+  priority: 'low' | 'medium' | 'high' | 'highest';
   estimated_hours?: number;
   due_date?: string;
   tags: string[];

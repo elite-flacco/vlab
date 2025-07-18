@@ -390,7 +390,7 @@ Guidelines:
 - Create 8-15 tasks that cover the MVP and early phases
 - Include a mix of frontend, backend, design, and testing tasks
 - Use realistic time estimates (1-40 hours per task)
-- Set appropriate priorities: "low", "medium", "high", "urgent"
+- Set appropriate priorities: "low", "medium", "high", "highest"
 - Status should always be "todo" for new tasks
 - Add relevant tags like "frontend", "backend", "design", "testing", "research"
 - Keep dependencies empty for now (can be added later)
@@ -442,7 +442,7 @@ ${roadmapSummary}`
       title: task.title || `Task ${index + 1}`,
       description: task.description || 'Task description',
       status: 'todo',
-      priority: ['low', 'medium', 'high', 'urgent'].includes(task.priority) ? task.priority : 'medium',
+      priority: ['low', 'medium', 'high', 'highest'].includes(task.priority) ? task.priority : 'medium',
       estimated_hours: typeof task.estimated_hours === 'number' ? task.estimated_hours : null,
       due_date: task.due_date || null,
       tags: Array.isArray(task.tags) ? task.tags : [],

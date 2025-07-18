@@ -93,7 +93,7 @@ CREATE TABLE IF NOT EXISTS tasks (
   title text NOT NULL,
   description text DEFAULT '',
   status text DEFAULT 'todo' CHECK (status IN ('todo', 'in_progress', 'done', 'blocked')),
-  priority text DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high', 'urgent')),
+  priority text DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high', 'highest')),
   estimated_hours numeric(5,2),
   actual_hours numeric(5,2),
   due_date timestamptz,

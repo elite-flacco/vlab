@@ -8,7 +8,7 @@ interface TaskItem {
   title: string;
   description: string;
   status: 'todo' | 'in_progress' | 'done' | 'blocked';
-  priority: 'low' | 'medium' | 'high' | 'urgent';
+  priority: 'low' | 'medium' | 'high' | 'highest';
   estimated_hours?: number;
   due_date?: string;
   tags: string[];
@@ -173,7 +173,7 @@ export const TaskGenerator: React.FC<TaskGeneratorProps> = ({
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'urgent': return 'bg-red-500/10 text-red-400 border-red-500/20';
+      case 'highest': return 'bg-red-500/10 text-red-400 border-red-500/20';
       case 'high': return 'bg-orange-500/10 text-orange-400 border-orange-500/20';
       case 'medium': return 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20';
       case 'low': return 'bg-green-500/10 text-green-400 border-green-500/20';
@@ -286,7 +286,7 @@ export const TaskGenerator: React.FC<TaskGeneratorProps> = ({
                             <option value="low">Low</option>
                             <option value="medium">Medium</option>
                             <option value="high">High</option>
-                            <option value="urgent">Urgent</option>
+                            <option value="highest">Highest</option>
                           </select>
                         </div>
                         <div>

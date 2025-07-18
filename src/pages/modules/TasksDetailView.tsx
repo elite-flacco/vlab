@@ -12,7 +12,7 @@ interface TaskItem {
   title: string;
   description: string;
   status: 'todo' | 'in_progress' | 'done' | 'blocked' | 'cancelled';
-  priority: 'low' | 'medium' | 'high' | 'urgent';
+  priority: 'low' | 'medium' | 'high' | 'highest';
   due_date?: string;
   tags: string[];
   dependencies: string[];
@@ -33,7 +33,7 @@ export const TasksDetailView: React.FC = () => {
   const [filter, setFilter] = useState<'all' | 'todo' | 'in_progress' | 'done' | 'blocked' | 'cancelled'>(() => {
     return (localStorage.getItem('tasks-status-filter') as any) || 'all';
   });
-  const [priorityFilter, setPriorityFilter] = useState<'all' | 'urgent' | 'high' | 'medium' | 'low'>(() => {
+  const [priorityFilter, setPriorityFilter] = useState<'all' | 'highest' | 'high' | 'medium' | 'low'>(() => {
     return (localStorage.getItem('tasks-priority-filter') as any) || 'all';
   });
   const [tagFilter, setTagFilter] = useState<string>(() => {
@@ -207,8 +207,8 @@ export const TasksDetailView: React.FC = () => {
       return matchesStatus && matchesPriority && matchesTag && matchesSearch;
     })
     .sort((a, b) => {
-      // First sort by priority (urgent > high > medium > low)
-      const priorityOrder = { urgent: 0, high: 1, medium: 2, low: 3 };
+      // First sort by priority (highest > high > medium > low)
+      const priorityOrder = { highest: 0, high: 1, medium: 2, low: 3 };
       const priorityA = priorityOrder[a.priority as keyof typeof priorityOrder];
       const priorityB = priorityOrder[b.priority as keyof typeof priorityOrder];
 
@@ -226,7 +226,7 @@ export const TasksDetailView: React.FC = () => {
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'urgent': return 'badge-priority-urgent';   // Red for critical/urgent
+      case 'highest': return 'badge-priority-urgent';   // Red for critical/highest
       case 'high': return 'badge-priority-high';       // Orange for high
       case 'medium': return 'badge-priority-medium';   // Yellow for medium  
       default: return 'badge-priority-low';            // Gray for low
@@ -235,7 +235,7 @@ export const TasksDetailView: React.FC = () => {
 
   const getPriorityIcon = (priority: string) => {
     switch (priority) {
-      case 'urgent': return <ArrowUp className="w-3 h-3" />;     // Up arrow for urgent
+      case 'highest': return <ArrowUp className="w-3 h-3" />;     // Up arrow for highest
       case 'high': return <ArrowUp className="w-3 h-3" />;       // Up arrow for high
       case 'medium': return <Minus className="w-3 h-3" />;       // Dash for medium
       default: return <ArrowDown className="w-3 h-3" />;         // Down arrow for low
@@ -329,7 +329,7 @@ export const TasksDetailView: React.FC = () => {
         <option value="low" style={showBadgeStyle ? { backgroundColor: '#1a1a1a', color: '#e0e0e0' } : {}}>Low</option>
         <option value="medium" style={showBadgeStyle ? { backgroundColor: '#1a1a1a', color: '#e0e0e0' } : {}}>Medium</option>
         <option value="high" style={showBadgeStyle ? { backgroundColor: '#1a1a1a', color: '#e0e0e0' } : {}}>High</option>
-        <option value="urgent" style={showBadgeStyle ? { backgroundColor: '#1a1a1a', color: '#e0e0e0' } : {}}>Urgent</option>
+        <option value="highest" style={showBadgeStyle ? { backgroundColor: '#1a1a1a', color: '#e0e0e0' } : {}}>Highest</option>
       </select>
     );
 
@@ -667,7 +667,7 @@ export const TasksDetailView: React.FC = () => {
                 className="form-select flex-shrink-0"
               >
                 <option value="all">All Priorities</option>
-                <option value="urgent">Urgent</option>
+                <option value="highest">Highest</option>
                 <option value="high">High</option>
                 <option value="medium">Medium</option>
                 <option value="low">Low</option>
