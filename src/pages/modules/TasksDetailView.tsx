@@ -162,11 +162,15 @@ export const TasksDetailView: React.FC = () => {
     .sort((a, b) => {
       // First sort by priority (urgent > high > medium > low)
       const priorityOrder = { urgent: 0, high: 1, medium: 2, low: 3 };
-      const priorityA = priorityOrder[a.priority as keyof typeof priorityOrder] || 3;
-      const priorityB = priorityOrder[b.priority as keyof typeof priorityOrder] || 3;
+      const priorityA = priorityOrder[a.priority as keyof typeof priorityOrder];
+      const priorityB = priorityOrder[b.priority as keyof typeof priorityOrder];
 
-      if (priorityA !== priorityB) {
-        return priorityA - priorityB;
+      // Handle undefined priorities (fallback to low)
+      const finalPriorityA = priorityA !== undefined ? priorityA : 3;
+      const finalPriorityB = priorityB !== undefined ? priorityB : 3;
+
+      if (finalPriorityA !== finalPriorityB) {
+        return finalPriorityA - finalPriorityB;
       }
 
       // If priorities are the same, sort by position
