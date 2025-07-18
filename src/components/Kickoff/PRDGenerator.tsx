@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FileText, Sparkles, Save, Edit3, Eye, Loader2, RefreshCw } from 'lucide-react';
 import { generatePRD } from '../../lib/openai';
 import { db } from '../../lib/supabase';
+import { MarkdownRenderer } from '../common/MarkdownRenderer';
 
 interface PRDGeneratorProps {
   projectId: string;
@@ -80,35 +81,6 @@ export const PRDGenerator: React.FC<PRDGeneratorProps> = ({
     }
   };
 
-  const renderMarkdown = (content: string) => {
-    // Simple markdown rendering for preview
-    return content
-      .split('\n')
-      .map((line, index) => {
-        if (line.startsWith('# ')) {
-          return <h1 key={index} className="mb-4">{line.slice(2)}</h1>;
-        }
-        if (line.startsWith('## ')) {
-          return <h2 key={index} className="mb-3 mt-6">{line.slice(3)}</h2>;
-        }
-        if (line.startsWith('### ')) {
-          return <h3 key={index} className="mb-2 mt-4">{line.slice(4)}</h3>;
-        }
-        if (line.startsWith('- ')) {
-          return <li key={index} className="mb-1">{line.slice(2)}</li>;
-        }
-        if (line.startsWith('**') && line.endsWith('**')) {
-          return <p key={index} className="font-semibold text-foreground/90 mb-2">{line.slice(2, -2)}</p>;
-        }
-        if (line.includes('**')) {
-          return <p key={index} className="text-foreground text-sm mb-2">{line}</p>;
-        }
-        if (line.trim() === '') {
-          return <br key={index} />;
-        }
-        return <p key={index} className="text-foreground-dim text-sm mb-2">{line}</p>;
-      });
-  };
 
   return (
     <div className="h-full flex flex-col">
@@ -197,9 +169,11 @@ export const PRDGenerator: React.FC<PRDGeneratorProps> = ({
             </div>
           ) : (
             <div className="card flex-1 p-6 overflow-y-auto">
-              <div className="prose prose-sm max-w-none card-content">
-                {renderMarkdown(prdContent)}
-              </div>
+              <MarkdownRenderer 
+                content={prdContent}
+                variant="default"
+                className="card-content"
+              />
             </div>
           )}
         </div>

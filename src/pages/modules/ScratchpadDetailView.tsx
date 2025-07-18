@@ -1,9 +1,10 @@
 import { format } from 'date-fns';
-import { Edit3, Loader2, Pin, Plus, Save, Search, StickyNote, Tag, Trash2, X, ChevronDown, ChevronUp } from 'lucide-react';
-import React, { useEffect, useState, useRef } from 'react';
+import { ChevronDown, ChevronUp, Edit3, Loader2, Pin, Plus, Save, Search, StickyNote, Trash2, X } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ModuleContainer } from '../../components/Workspace/ModuleContainer';
 import { BackButton } from '../../components/common/BackButton';
+import { MarkdownRenderer, useMarkdownPreprocessing } from '../../components/common/MarkdownRenderer';
 import { db } from '../../lib/supabase';
 
 interface DatabaseResponse<T> {
@@ -60,6 +61,8 @@ export const ScratchpadDetailView: React.FC = () => {
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [newNote, setNewNote] = useState<Partial<ScratchpadNote> | null>(null);
   const [saving, setSaving] = useState(false);
+  const { processContent } = useMarkdownPreprocessing();
+
   const [expandedNotes, setExpandedNotes] = useState<Record<string, boolean>>({});
   const contentRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
@@ -513,11 +516,11 @@ export const ScratchpadDetailView: React.FC = () => {
                     // Display Mode with Direct Edit/Delete Icons
                     <div className="flex-1">
                       <div className="flex items-start justify-between mb-2">
-                        <div className="flex-1">
+                        <div className="flex-1 min-w-0">
                           <div className="space-y-2">
                             <div className="flex items-center justify-between">
                               {note.title && (
-                                <h3 className="font-semibold text-foreground">{note.title}</h3>
+                                <h3 className="font-semibold text-foreground truncate pr-2">{note.title}</h3>
                               )}
                               {note.is_pinned && (
                                 <span className="inline-flex items-center text-xs text-foreground/60">
@@ -527,19 +530,66 @@ export const ScratchpadDetailView: React.FC = () => {
                             </div>
                             {note.title && <div className="h-px bg-foreground/20 w-full"></div>}
                           </div>
-                          <div 
+                          <div
                             ref={el => contentRefs.current[note.id] = el}
                             className={`overflow-hidden transition-all duration-300 ease-in-out ${expandedNotes[note.id] ? '' : 'max-h-32'}`}
                           >
-                            <p 
-                              className="whitespace-pre-wrap text-foreground/90 mt-4 break-words"
-                              style={{ fontSize: `${note.font_size}px` }}
+                            <div
+                              className="prose prose-sm max-w-none mt-4 break-words overflow-hidden"
+                              style={{
+                                fontSize: `${Math.max(12, note.font_size - 2)}px`,
+                                color: 'inherit' // Ensure text color is inherited
+                              }}
                             >
-                              {note.content}
-                            </p>
+                              <MarkdownRenderer
+                                content={processContent(note.content, { convertUrls: true })}
+                                enableAutoLinks={true}
+                              />
+                              {/* <ReactMarkdown
+                                children={preprocessMarkdown(note.content)}
+                                components={{
+                                  h1: (props) => <h1 className="text-lg font-semibold mt-2 mb-1 text-foreground/90" {...props} />,
+                                  h2: (props) => <h2 className="text-base font-semibold mt-2 mb-1 text-foreground/90" {...props} />,
+                                  h3: (props) => <h3 className="text-sm font-semibold mt-1.5 mb-1 text-foreground/90" {...props} />,
+                                  h4: (props) => <h4 className="text-sm font-semibold mt-1.5 mb-1 text-foreground/90" {...props} />,
+                                  ul: (props) => <ul className="list-disc pl-5 space-y-1 my-1" {...props} />,
+                                  ol: (props) => <ol className="list-decimal pl-5 space-y-1 my-1" {...props} />,
+                                  li: (props) => <li className="pl-1 text-foreground/60" {...props} />,
+                                  p: (props) => <p className="text-xs my-1.5 text-foreground-muted" {...props} />,
+                                  strong: (props) => <strong className="font-semibold text-foreground/80" {...props} />,
+                                  em: (props) => <em className="italic" {...props} />,
+                                  code: ({ node, className, children, ...props }) => {
+                                    const isInline = !className?.includes('language-');
+                                    if (isInline) {
+                                      return (
+                                        <code className="bg-foreground/10 px-1 py-0.5 rounded text-xs font-mono" {...props}>
+                                          {children}
+                                        </code>
+                                      );
+                                    }
+                                    return (
+                                      <pre className="bg-foreground/10 p-2 rounded-md overflow-x-auto my-2 max-w-full">
+                                        <code className="text-xs font-mono" {...props}>
+                                          {children}
+                                        </code>
+                                      </pre>
+                                    );
+                                  },
+                                  a: (props) => (
+                                    <a 
+                                      className="text-primary hover:underline break-all" 
+                                      target="_blank" 
+                                      rel="noopener noreferrer" 
+                                      {...props} 
+                                    />
+                                  ),
+                                }}
+                              >
+                              </ReactMarkdown> */}
+                            </div>
                           </div>
                           {(note.content.length > 100 || expandedNotes[note.id]) && (
-                            <button 
+                            <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 toggleNoteExpansion(note.id);
@@ -565,7 +615,7 @@ export const ScratchpadDetailView: React.FC = () => {
                         </div>
 
                         {/* Direct Edit/Delete Icons - Always visible */}
-                        <div className="flex items-center space-x-1 ml-2">
+                        <div className="flex items-center space-x-1 flex-shrink-0 ml-2">
                           <button
                             onClick={() => setEditingNoteId(note.id)}
                             className="p-1.5 text-foreground-dim hover:text-primary hover:bg-foreground-dim/10 rounded-lg transition-colors"
