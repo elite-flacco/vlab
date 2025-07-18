@@ -196,3 +196,46 @@ export const generateDesignTasks = async (feedbackText: string): Promise<TaskIte
     throw error;
   }
 };
+
+export const generateDesignTasksFromImage = async (imageFile: File): Promise<TaskItem[]> => {
+  try {
+    const headers = await getAuthHeaders();
+    
+    // Convert image to base64
+    const base64Image = await fileToBase64(imageFile);
+    
+    const response = await fetch(`${SUPABASE_FUNCTIONS_URL}/openai-proxy`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        action: 'design_tasks_image',
+        imageData: base64Image,
+        mimeType: imageFile.type
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.result || [];
+  } catch (error) {
+    console.error('Error in generateDesignTasksFromImage:', error);
+    throw error;
+  }
+};
+
+// Helper function to convert file to base64
+const fileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      const base64String = (reader.result as string).split(',')[1]; // Remove data:image/png;base64, prefix
+      resolve(base64String);
+    };
+    reader.onerror = error => reject(error);
+  });
+};

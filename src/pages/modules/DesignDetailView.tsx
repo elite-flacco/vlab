@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ModuleContainer } from '../../components/Workspace/ModuleContainer';
 import { BackButton } from '../../components/common/BackButton';
-import { Palette, Sparkles, Zap, Layers, PenTool, Loader2, CheckCircle2, AlertCircle, Plus, Check, Edit2, Save, X } from 'lucide-react';
+import { Palette, Sparkles, Zap, Layers, PenTool, Loader2, CheckCircle2, AlertCircle, Plus, Check, Edit2, Save, X, Upload, Image, FileText, Trash2 } from 'lucide-react';
 import { db, supabase } from '../../lib/supabase';
-import { generateDesignTasks } from '../../lib/openai';
+import { generateDesignTasks, generateDesignTasksFromImage } from '../../lib/openai';
 import { v4 as uuidv4 } from 'uuid';
 
 interface GeneratedTask {
@@ -28,6 +28,9 @@ export const DesignDetailView: React.FC = () => {
   const [selectedTaskIds, setSelectedTaskIds] = useState<Set<number>>(new Set());
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
   const [editingField, setEditingField] = useState<'title' | 'description' | null>(null);
+  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [analysisMode, setAnalysisMode] = useState<'text' | 'image'>('text');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -36,8 +39,13 @@ export const DesignDetailView: React.FC = () => {
   };
 
   const generateTasks = async () => {
-    if (!feedbackText.trim()) {
+    if (analysisMode === 'text' && !feedbackText.trim()) {
       setError('Please enter some design feedback text');
+      return;
+    }
+    
+    if (analysisMode === 'image' && !uploadedImage) {
+      setError('Please upload a screenshot to analyze');
       return;
     }
 
@@ -46,7 +54,14 @@ export const DesignDetailView: React.FC = () => {
     setSuccess(null);
 
     try {
-      const tasks = await generateDesignTasks(feedbackText);
+      let tasks;
+      if (analysisMode === 'text') {
+        tasks = await generateDesignTasks(feedbackText);
+      } else {
+        // TODO: Implement image analysis
+        tasks = await generateDesignTasksFromImage(uploadedImage!);
+      }
+      
       setGeneratedTasks(tasks);
       // Select all tasks by default
       setSelectedTaskIds(new Set(tasks.map((_, index) => index)));
@@ -56,6 +71,82 @@ export const DesignDetailView: React.FC = () => {
       setIsGenerating(false);
     }
   };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setError('Please upload a valid image file');
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      setError('Image size must be less than 10MB');
+      return;
+    }
+
+    try {
+      // Compress image to reduce payload size
+      const compressedFile = await compressImage(file, 0.8, 1200); // 80% quality, max 1200px width
+      setUploadedImage(compressedFile);
+      
+      // Create preview from original file for better quality display
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+      setError(null);
+    } catch (err) {
+      setError('Failed to process image');
+    }
+  };
+
+  // Compress image to reduce API payload size
+  const compressImage = (file: File, quality: number, maxWidth: number): Promise<File> => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d')!;
+      const img = new Image();
+      
+      img.onload = () => {
+        // Calculate new dimensions
+        const ratio = Math.min(maxWidth / img.width, maxWidth / img.height);
+        const newWidth = img.width * ratio;
+        const newHeight = img.height * ratio;
+        
+        // Set canvas size
+        canvas.width = newWidth;
+        canvas.height = newHeight;
+        
+        // Draw and compress
+        ctx.drawImage(img, 0, 0, newWidth, newHeight);
+        
+        canvas.toBlob(
+          (blob) => {
+            const compressedFile = new File([blob!], file.name, {
+              type: file.type,
+              lastModified: Date.now()
+            });
+            resolve(compressedFile);
+          },
+          file.type,
+          quality
+        );
+      };
+      
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+  const removeImage = () => {
+    setUploadedImage(null);
+    setImagePreview(null);
+  };
+
 
   const addTasksToProject = async () => {
     const selectedTasks = generatedTasks.filter((_, index) => selectedTaskIds.has(index));
@@ -171,25 +262,107 @@ export const DesignDetailView: React.FC = () => {
             </p>
           </div>
 
+          {/* Analysis Mode Switcher */}
+          <div className="flex items-center justify-center mb-6">
+            <div className="flex bg-background border border-border rounded-lg p-1">
+              <button
+                onClick={() => setAnalysisMode('text')}
+                className={`flex items-center gap-2 px-4 py-2 text-base rounded-md transition-all ${
+                  analysisMode === 'text'
+                    ? 'filter-button-active'
+                    : 'filter-button'
+                }`}
+              >
+                <FileText className="w-4 h-4" />
+                Text Feedback
+              </button>
+              <button
+                onClick={() => setAnalysisMode('image')}
+                className={`flex items-center gap-2 px-4 py-2 text-base rounded-md transition-all ${
+                  analysisMode === 'image'
+                    ? 'filter-button-active'
+                    : 'filter-button'
+                }`}
+              >
+                <Image className="w-4 h-4" />
+                Screenshot Analysis
+              </button>
+            </div>
+          </div>
+
           {/* Input Section */}
           <div className="space-y-4">
-            <div>
-              <label htmlFor="feedback" className="block text-sm font-medium text-foreground mb-2">
-                Design Feedback
-              </label>
-              <textarea
-                id="feedback"
-                value={feedbackText}
-                onChange={(e) => setFeedbackText(e.target.value)}
-                placeholder="Paste your design feedback here... For example: 'The header feels too cramped on mobile. The call-to-action button needs more contrast. The navigation could be more intuitive.'"
-                className="form-textarea min-h-[8rem]"
-                disabled={isGenerating}
-              />
-            </div>
+            {analysisMode === 'text' ? (
+              <div>
+                <label htmlFor="feedback" className="block text-sm font-medium text-foreground mb-2">
+                  Design Feedback
+                </label>
+                <textarea
+                  id="feedback"
+                  value={feedbackText}
+                  onChange={(e) => setFeedbackText(e.target.value)}
+                  placeholder="Paste your design feedback here... For example: 'The header feels too cramped on mobile. The call-to-action button needs more contrast. The navigation could be more intuitive.'"
+                  className="form-textarea min-h-[8rem]"
+                  disabled={isGenerating}
+                />
+              </div>
+            ) : (
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Upload Screenshot
+                </label>
+                
+                {!imagePreview ? (
+                  <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                      id="image-upload"
+                      disabled={isGenerating}
+                    />
+                    <label htmlFor="image-upload" className="cursor-pointer">
+                      <Upload className="w-10 h-10 text-foreground-dim mx-auto mb-4" />
+                      <p className="text-foreground-dim mb-2">
+                        Click to upload a screenshot or drag and drop
+                      </p>
+                      <p className="text-sm text-foreground-dim/70">
+                        PNG, JPG, or WebP up to 10MB
+                      </p>
+                    </label>
+                  </div>
+                ) : (
+                  <div className="relative">
+                    <img
+                      src={imagePreview}
+                      alt="Uploaded screenshot"
+                      className="w-full max-h-64 object-contain rounded-lg border border-border"
+                    />
+                    <button
+                      onClick={removeImage}
+                      className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                      disabled={isGenerating}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                    {uploadedImage && (
+                      <div className="mt-2 text-sm text-foreground-dim">
+                        Compressed: {(uploadedImage.size / 1024).toFixed(1)}KB
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
 
             <button
               onClick={generateTasks}
-              disabled={isGenerating || !feedbackText.trim()}
+              disabled={
+                isGenerating || 
+                (analysisMode === 'text' && !feedbackText.trim()) ||
+                (analysisMode === 'image' && !uploadedImage)
+              }
               className="btn-primary w-full flex items-center justify-center gap-2"
             >
               {isGenerating ? (
@@ -197,7 +370,12 @@ export const DesignDetailView: React.FC = () => {
               ) : (
                 <Sparkles className="w-4 h-4" />
               )}
-              {isGenerating ? 'Generating Tasks...' : 'Generate Tasks'}
+              {isGenerating 
+                ? 'Analyzing...' 
+                : analysisMode === 'text' 
+                  ? 'Generate Tasks' 
+                  : 'Analyze Screenshot'
+              }
             </button>
           </div>
 

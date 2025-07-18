@@ -14,12 +14,14 @@ interface ChatMessage {
 }
 
 interface OpenAIRequest {
-  action: 'chat' | 'summary' | 'prd' | 'roadmap' | 'tasks' | 'design_tasks';
+  action: 'chat' | 'summary' | 'prd' | 'roadmap' | 'tasks' | 'design_tasks' | 'design_tasks_image';
   messages?: ChatMessage[];
   ideaSummary?: string;
   prdContent?: string;
   roadmapItems?: any[];
   feedbackText?: string;
+  imageData?: string;
+  mimeType?: string;
 }
 
 // Simple rate limiting store (in-memory for demo - use Redis in production)
@@ -89,7 +91,7 @@ serve(async (req) => {
 
     // 6. VALIDATE REQUEST SIZE
     const requestText = await req.text();
-    if (requestText.length > 50000) { // 50KB limit
+    if (requestText.length > 5000000) { // 5MB limit for image requests
       return new Response(JSON.stringify({ error: 'Request too large' }), {
         status: 413,
         headers: { ...corsHeaders, "Content-Type": "application/json" }
@@ -110,7 +112,7 @@ serve(async (req) => {
     const { action } = requestData;
     
     // Validate action
-    const validActions = ['chat', 'summary', 'prd', 'roadmap', 'tasks', 'design_tasks'];
+    const validActions = ['chat', 'summary', 'prd', 'roadmap', 'tasks', 'design_tasks', 'design_tasks_image'];
     if (!validActions.includes(action)) {
       return new Response(JSON.stringify({ error: 'Invalid action specified' }), {
         status: 400,
@@ -167,6 +169,14 @@ serve(async (req) => {
           throw new Error("Feedback text is required for design tasks generation");
         }
         openaiResponse = await generateDesignTasks(apiKey, requestData.feedbackText);
+        break;
+
+      case 'design_tasks_image':
+        // Handle design tasks generation from image
+        if (!requestData.imageData || !requestData.mimeType) {
+          throw new Error("Image data and mime type are required for image analysis");
+        }
+        openaiResponse = await generateDesignTasksFromImage(apiKey, requestData.imageData, requestData.mimeType);
         break;
 
       default:
@@ -717,6 +727,145 @@ async function generateDesignTasks(apiKey: string, feedbackText: string): Promis
         estimated_hours: 4,
         due_date: null,
         tags: ['design', 'ui'],
+        dependencies: [],
+        position: 0,
+      },
+    ];
+  }
+}
+
+// Function to generate design tasks from image analysis
+async function generateDesignTasksFromImage(apiKey: string, imageData: string, mimeType: string): Promise<any[]> {
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are a senior UI/UX designer and expert who analyzes design screenshots to identify issues and improvements. 
+          
+          Analyze the uploaded design screenshot and identify specific, actionable design improvements. Focus on:
+          
+          **Visual Design Issues:**
+          - Typography hierarchy and readability
+          - Color contrast and accessibility
+          - Visual hierarchy and layout
+          - Spacing and alignment issues
+          - Component consistency
+          
+          **User Experience Problems:**
+          - Navigation clarity
+          - Call-to-action effectiveness
+          - Information architecture
+          - Mobile responsiveness indicators
+          - User flow obstacles
+          
+          **Accessibility Concerns:**
+          - Color contrast ratios
+          - Text readability
+          - Touch target sizes
+          - Focus indicators
+          
+          Return ONLY a valid JSON array with this exact structure:
+          [
+            {
+              "title": "Fix color contrast in navigation",
+              "description": "The navigation text has insufficient contrast against the background. Current contrast appears to be below WCAG AA standards. Use darker text or lighter background to improve readability.",
+              "status": "todo",
+              "priority": "high",
+              "estimated_hours": 2,
+              "due_date": null,
+              "tags": ["accessibility", "navigation", "contrast"],
+              "dependencies": [],
+              "position": 0
+            }
+          ]
+          
+          Guidelines:
+          - Be specific about what you observe in the image
+          - Provide actionable solutions, not just problems
+          - Include relevant tags for categorization
+          - Use appropriate priority levels (low, medium, high, highest)
+          - Generate 3-8 tasks based on what you see
+          - Reference specific UI elements you can identify
+          - Focus on implementable improvements`
+        },
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: "Please analyze this design screenshot and generate specific, actionable tasks to improve the design:"
+            },
+            {
+              type: "image_url",
+              image_url: {
+                url: `data:${mimeType};base64,${imageData}`,
+                detail: "high"
+              }
+            }
+          ]
+        }
+      ],
+      max_tokens: 1500,
+      temperature: 0.3,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error?.message || `OpenAI API error: ${response.status}`);
+  }
+
+  const data = await response.json();
+  const content = data.choices[0]?.message?.content;
+  
+  if (!content) {
+    throw new Error('No content received from OpenAI');
+  }
+
+  try {
+    // Clean the content to remove markdown code blocks
+    const cleanedContent = cleanJsonResponse(content);
+    
+    // Try to parse the JSON response
+    const tasks = JSON.parse(cleanedContent);
+    
+    // Validate the structure
+    if (!Array.isArray(tasks)) {
+      throw new Error('Response is not an array');
+    }
+
+    // Ensure each task has required fields and set defaults
+    return tasks.map((task: any, index: number) => ({
+      title: task.title || `Design Task ${index + 1}`,
+      description: task.description || 'Design task description',
+      status: 'todo',
+      priority: ['low', 'medium', 'high', 'highest'].includes(task.priority) ? task.priority : 'medium',
+      estimated_hours: typeof task.estimated_hours === 'number' ? task.estimated_hours : null,
+      due_date: null,
+      tags: Array.isArray(task.tags) ? task.tags : [],
+      dependencies: [],
+      position: index,
+    }));
+  } catch (parseError) {
+    console.error('Failed to parse design tasks JSON:', content);
+    
+    // Fallback: create basic task structure
+    return [
+      {
+        title: 'Analyze uploaded design',
+        description: 'Review the uploaded design screenshot for potential improvements',
+        status: 'todo',
+        priority: 'medium',
+        estimated_hours: 4,
+        due_date: null,
+        tags: ['design', 'analysis'],
         dependencies: [],
         position: 0,
       },
