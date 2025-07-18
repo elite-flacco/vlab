@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ModuleContainer } from '../../components/Workspace/ModuleContainer';
 import { BackButton } from '../../components/common/BackButton';
-import { Palette, Sparkles, Zap, Layers, PenTool, Loader2, CheckCircle2, AlertCircle, Plus, Check } from 'lucide-react';
+import { Palette, Sparkles, Zap, Layers, PenTool, Loader2, CheckCircle2, AlertCircle, Plus, Check, Edit2, Save, X } from 'lucide-react';
 import { db, supabase } from '../../lib/supabase';
 import { generateDesignTasks } from '../../lib/openai';
 import { v4 as uuidv4 } from 'uuid';
@@ -26,6 +26,8 @@ export const DesignDetailView: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedTasks, setGeneratedTasks] = useState<GeneratedTask[]>([]);
   const [selectedTaskIds, setSelectedTaskIds] = useState<Set<number>>(new Set());
+  const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
+  const [editingField, setEditingField] = useState<'title' | 'description' | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -121,6 +123,26 @@ export const DesignDetailView: React.FC = () => {
       // Otherwise, select all
       setSelectedTaskIds(new Set(generatedTasks.map((_, index) => index)));
     }
+  };
+
+  const updateTask = (taskIndex: number, field: keyof GeneratedTask, value: any) => {
+    const updatedTasks = [...generatedTasks];
+    updatedTasks[taskIndex] = { ...updatedTasks[taskIndex], [field]: value };
+    setGeneratedTasks(updatedTasks);
+  };
+
+  const startEditing = (taskIndex: number, field: 'title' | 'description') => {
+    setEditingTaskId(taskIndex);
+    setEditingField(field);
+  };
+
+  const stopEditing = () => {
+    setEditingTaskId(null);
+    setEditingField(null);
+  };
+
+  const isEditing = (taskIndex: number, field: 'title' | 'description') => {
+    return editingTaskId === taskIndex && editingField === field;
   };
 
   const getPriorityBadgeClass = (priority: string) => {
@@ -225,10 +247,10 @@ export const DesignDetailView: React.FC = () => {
                       <div className="flex-shrink-0 pt-1">
                         <button
                           onClick={() => toggleTaskSelection(index)}
-                          className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
+                          className={`w-4 h-4 rounded border flex items-center justify-center transition-all duration-200 ${
                             selectedTaskIds.has(index)
-                              ? 'bg-primary border-primary text-primary-foreground'
-                              : 'border-border hover:border-primary/50'
+                              ? 'bg-background border-foreground/40 text-primary'
+                              : 'border-foreground/40 hover:border-primary/50 bg-background'
                           }`}
                         >
                           {selectedTaskIds.has(index) && <Check className="w-3 h-3" />}
@@ -238,18 +260,96 @@ export const DesignDetailView: React.FC = () => {
                       {/* Task Content */}
                       <div className="flex-1">
                         <div className="flex items-start justify-between mb-2">
-                          <h4>{task.title}</h4>
-                          <span className={`badge ${getPriorityBadgeClass(task.priority)}`}>
-                            {task.priority}
-                          </span>
+                          <div className="flex-1 mr-3">
+                            {isEditing(index, 'title') ? (
+                              <input
+                                type="text"
+                                value={task.title}
+                                onChange={(e) => updateTask(index, 'title', e.target.value)}
+                                className="form-input"
+                                onBlur={stopEditing}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') stopEditing();
+                                  if (e.key === 'Escape') stopEditing();
+                                }}
+                                autoFocus
+                              />
+                            ) : (
+                              <h4 
+                                className="cursor-pointer hover:bg-background/50 rounded px-1 py-0.5 -mx-1 -my-0.5 transition-colors"
+                                onClick={() => startEditing(index, 'title')}
+                              >
+                                {task.title}
+                              </h4>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => editingTaskId === index ? stopEditing() : startEditing(index, 'title')}
+                              className="p-1 text-foreground-dim hover:text-foreground transition-colors"
+                              title={editingTaskId === index ? "Stop editing" : "Edit task"}
+                            >
+                              {editingTaskId === index ? <Save className="w-4 h-4" /> : <Edit2 className="w-4 h-4" />}
+                            </button>
+                            <select
+                              value={task.priority}
+                              onChange={(e) => updateTask(index, 'priority', e.target.value)}
+                              className={`badge ${getPriorityBadgeClass(task.priority)} appearance-none cursor-pointer border-none outline-none`}
+                            >
+                              <option value="low" style={{backgroundColor: '#1a1a1a', color: '#e0e0e0' }}>low</option>
+                              <option value="medium" style={{backgroundColor: '#1a1a1a', color: '#e0e0e0' }}>medium</option>
+                              <option value="high" style={{backgroundColor: '#1a1a1a', color: '#e0e0e0' }}>high</option>
+                              <option value="highest" style={{backgroundColor: '#1a1a1a', color: '#e0e0e0' }}>highest</option>
+                            </select>
+                          </div>
                         </div>
-                        <p className="text-foreground-dim text-sm mb-3">{task.description}</p>
+                        
+                        {isEditing(index, 'description') ? (
+                          <textarea
+                            value={task.description}
+                            onChange={(e) => updateTask(index, 'description', e.target.value)}
+                            className="form-textarea"
+                            rows={3}
+                            onBlur={stopEditing}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Escape') stopEditing();
+                            }}
+                            autoFocus
+                          />
+                        ) : (
+                          <p 
+                            className="text-foreground-dim text-sm mb-3 cursor-pointer hover:bg-background/50 rounded px-1 py-0.5 -mx-1 -my-0.5 transition-colors"
+                            onClick={() => startEditing(index, 'description')}
+                          >
+                            {task.description}
+                          </p>
+                        )}
+                        
                         <div className="flex items-center gap-2 flex-wrap">
                           {task.tags.map((tag, tagIndex) => (
                             <span key={tagIndex} className="badge-info">
                               {tag}
                             </span>
                           ))}
+                          {/* {task.estimated_hours && (
+                            <span 
+                              className="px-2 py-1 bg-secondary/50 text-foreground-dim rounded-full text-xs cursor-pointer hover:bg-secondary/70 transition-colors"
+                              onClick={() => {
+                                const hours = prompt('Enter estimated hours:', task.estimated_hours?.toString() || '');
+                                if (hours !== null) {
+                                  const parsedHours = parseFloat(hours);
+                                  if (!isNaN(parsedHours) && parsedHours > 0) {
+                                    updateTask(index, 'estimated_hours', parsedHours);
+                                  } else if (hours === '' || hours === '0') {
+                                    updateTask(index, 'estimated_hours', null);
+                                  }
+                                }
+                              }}
+                              title="Click to edit estimated hours"
+                            >
+                              {task.estimated_hours}h
+                            </span>
+                          )} */}
                         </div>
                       </div>
                     </div>
