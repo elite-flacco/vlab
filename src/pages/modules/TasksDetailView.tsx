@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { AlertTriangle, ArrowDown, ArrowUp, CheckSquare, Edit3, Loader2, Minus, Plus, Save, Search, Square, Tag, Trash2, X, Zap } from 'lucide-react';
+import { ArrowDown, ArrowUp, CheckSquare, Edit3, Loader2, Minus, Plus, Save, Search, Square, Tag, Trash2, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { BackButton } from '../../components/common/BackButton';
@@ -184,22 +184,24 @@ export const TasksDetailView: React.FC = () => {
 
   const getPriorityIcon = (priority: string) => {
     switch (priority) {
-      case 'urgent': return <ArrowUp className="w-3 h-3" />;     // Double up arrow style
-      case 'high': return <ArrowUp className="w-3 h-3" />;       // Up arrow
-      case 'medium': return <Minus className="w-3 h-3" />;       // Dash/minus for medium
+      case 'urgent': return <ArrowUp className="w-3 h-3" />;     // Up arrow for urgent
+      case 'high': return <ArrowUp className="w-3 h-3" />;       // Up arrow for high
+      case 'medium': return <Minus className="w-3 h-3" />;       // Dash for medium
       default: return <ArrowDown className="w-3 h-3" />;         // Down arrow for low
     }
   };
 
+
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'todo': return 'badge-info';
-      case 'in_progress': return 'badge-warning';
-      case 'done': return 'badge-success';
-      case 'blocked': return 'badge-danger';
+      case 'todo': return 'badge-secondary';   // Gray for to-do
+      case 'in_progress': return 'badge-info'; // Blue for in progress
+      case 'done': return 'badge-success';     // Green for completed
+      case 'blocked': return 'badge-danger';   // Red for blocked
       default: return 'badge-secondary';
     }
   };
+
 
   const getStatusDisplayName = (status: string) => {
     switch (status) {
