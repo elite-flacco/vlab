@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ModuleContainer } from '../../components/Workspace/ModuleContainer';
 import { BackButton } from '../../components/common/BackButton';
 import { Palette, Sparkles, Zap, Layers, PenTool, Loader2, CheckCircle2, AlertCircle, Plus } from 'lucide-react';
-import { db } from '../../lib/supabase';
+import { db, supabase } from '../../lib/supabase';
 import { generateDesignTasks } from '../../lib/openai';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -60,7 +60,7 @@ export const DesignDetailView: React.FC = () => {
 
     try {
       // Get current user
-      const { data: { user } } = await db.auth.getUser();
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         setError('You must be logged in to add tasks');
         return;
@@ -69,9 +69,7 @@ export const DesignDetailView: React.FC = () => {
       // Add each generated task to the database using the db helper
       for (const task of generatedTasks) {
         const taskData = {
-          id: uuidv4(),
           project_id: projectId,
-          user_id: user.id,
           title: task.title,
           description: task.description,
           status: task.status,
@@ -81,8 +79,6 @@ export const DesignDetailView: React.FC = () => {
           due_date: task.due_date,
           dependencies: task.dependencies,
           position: task.position,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
         };
 
         const { error: insertError } = await db.createTask(taskData);
