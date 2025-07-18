@@ -218,13 +218,16 @@ export const DesignDetailView: React.FC = () => {
 
           {/* Generated Tasks */}
           {generatedTasks.length > 0 && (
-            <div className="space-y-4">
+            <div className="space-y-4 mt-12">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <h3>Generated Tasks</h3>
                   <button
                     onClick={toggleAllTasks}
-                    className="text-sm text-primary hover:text-primary/80 font-medium"
+                    className={`${selectedTaskIds.size === generatedTasks.length
+                      ? 'filter-button'
+                      : 'filter-button-active'
+                      }`}
                   >
                     {selectedTaskIds.size === generatedTasks.length ? 'Deselect All' : 'Select All'}
                   </button>
@@ -276,7 +279,7 @@ export const DesignDetailView: React.FC = () => {
                               />
                             ) : (
                               <h4 
-                                className="cursor-pointer hover:bg-background/50 rounded px-1 py-0.5 -mx-1 -my-0.5 transition-colors"
+                                className="text-base cursor-pointer hover:bg-background/50 rounded px-1 py-0.5 -mx-1 -my-0.5 transition-colors"
                                 onClick={() => startEditing(index, 'title')}
                               >
                                 {task.title}
