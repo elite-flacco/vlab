@@ -11,7 +11,7 @@ interface TaskItem {
   project_id: string;
   title: string;
   description: string;
-  status: 'todo' | 'in_progress' | 'done' | 'blocked';
+  status: 'todo' | 'in_progress' | 'done' | 'blocked' | 'cancelled';
   priority: 'low' | 'medium' | 'high' | 'urgent';
   due_date?: string;
   tags: string[];
@@ -30,7 +30,7 @@ export const TasksDetailView: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   // Initialize filters from localStorage or defaults
-  const [filter, setFilter] = useState<'all' | 'todo' | 'in_progress' | 'done'>(() => {
+  const [filter, setFilter] = useState<'all' | 'todo' | 'in_progress' | 'done' | 'blocked' | 'cancelled'>(() => {
     return (localStorage.getItem('tasks-status-filter') as any) || 'all';
   });
   const [priorityFilter, setPriorityFilter] = useState<'all' | 'urgent' | 'high' | 'medium' | 'low'>(() => {
@@ -193,7 +193,7 @@ export const TasksDetailView: React.FC = () => {
   const filteredTasks = tasks
     .filter(task => {
       const matchesStatus = filter === 'all'
-        ? (showCompleted || task.status !== 'done')
+        ? (showCompleted || (task.status !== 'done' && task.status !== 'cancelled'))
         : task.status === filter;
 
       const matchesPriority = priorityFilter === 'all' || task.priority === priorityFilter;
@@ -249,6 +249,7 @@ export const TasksDetailView: React.FC = () => {
       case 'in_progress': return 'badge-info'; // Blue for in progress
       case 'done': return 'badge-success';     // Green for completed
       case 'blocked': return 'badge-danger';   // Red for blocked
+      case 'cancelled': return 'badge-warning'; // Orange for cancelled
       default: return 'badge-secondary';
     }
   };
@@ -260,6 +261,7 @@ export const TasksDetailView: React.FC = () => {
       case 'in_progress': return 'In Progress';
       case 'done': return 'Done';
       case 'blocked': return 'Blocked';
+      case 'cancelled': return 'Cancelled';
       default: return status;
     }
   };
@@ -299,6 +301,7 @@ export const TasksDetailView: React.FC = () => {
         <option value="in_progress" style={showBadgeStyle ? { backgroundColor: '#1a1a1a', color: '#e0e0e0' } : {}}>In Progress</option>
         <option value="done" style={showBadgeStyle ? { backgroundColor: '#1a1a1a', color: '#e0e0e0' } : {}}>Done</option>
         <option value="blocked" style={showBadgeStyle ? { backgroundColor: '#1a1a1a', color: '#e0e0e0' } : {}}>Blocked</option>
+        <option value="cancelled" style={showBadgeStyle ? { backgroundColor: '#1a1a1a', color: '#e0e0e0' } : {}}>Cancelled</option>
       </select>
     );
   };
@@ -655,6 +658,8 @@ export const TasksDetailView: React.FC = () => {
                 <option value="todo">To Do</option>
                 <option value="in_progress">In Progress</option>
                 <option value="done">Completed</option>
+                <option value="blocked">Blocked</option>
+                <option value="cancelled">Cancelled</option>
               </select>
               <select
                 value={priorityFilter}
@@ -886,7 +891,7 @@ export const TasksDetailView: React.FC = () => {
           {/* Footer */}
           <div className="mt-4 flex items-center justify-between pt-3 border-t border-gray-200">
             <div className="text-xs text-gray-500">
-              {tasks.filter(t => t.status !== 'done').length} active • {tasks.filter(t => t.status === 'done').length} completed
+              {tasks.filter(t => t.status !== 'done' && t.status !== 'cancelled').length} active • {tasks.filter(t => t.status === 'done').length} completed • {tasks.filter(t => t.status === 'cancelled').length} cancelled
             </div>
           </div>
         </div>
