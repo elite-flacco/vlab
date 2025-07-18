@@ -127,7 +127,7 @@
   }
   
   h4 {
-    @apply text-lg font-semibold leading-tight text-foreground;
+    @apply text-lg font-medium leading-tight text-foreground;
   }
   
   /* Body Text */
@@ -378,7 +378,7 @@
 
   /* Badge components */
   .badge {
-    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium font-mono transition-colors duration-200;
+    @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium font-mono transition-colors duration-200;
   }
 
   .badge-primary {
@@ -411,7 +411,7 @@
 
   /* Task priority badges */
   .badge-priority {
-    @apply badge px-2.5 py-1 text-xs font-medium;
+    @apply badge text-xs font-medium;
   }
 
   .badge-priority-urgent {

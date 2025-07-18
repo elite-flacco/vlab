@@ -98,13 +98,13 @@ export const DesignDetailView: React.FC = () => {
     }
   };
 
-  const getPriorityColor = (priority: string) => {
+  const getPriorityBadgeClass = (priority: string) => {
     switch (priority) {
-      case 'highest': return 'bg-red-100 text-red-800 border-red-200';
-      case 'high': return 'bg-orange-100 text-orange-800 border-orange-200';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'low': return 'bg-green-100 text-green-800 border-green-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'highest': return 'badge-priority-urgent';   // Red for critical/highest
+      case 'high': return 'badge-priority-high';       // Orange for high
+      case 'medium': return 'badge-priority-medium';   // Yellow for medium  
+      case 'low': return 'badge-priority-low';         // Green for low
+      default: return 'badge-priority-low';            // Default to low
     }
   };
 
@@ -118,9 +118,9 @@ export const DesignDetailView: React.FC = () => {
             <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
               <Palette className="w-8 h-8 text-primary" />
             </div>
-            <h2 className="text-2xl font-bold text-foreground mb-2">Design Co-Pilot</h2>
+            <h2 className="mb-2">Design Co-Pilot</h2>
             <p className="text-foreground-dim text-sm">
-              Paste design feedback and automatically generate actionable tasks for your team
+              Paste design feedback and automatically generate tasks
             </p>
           </div>
 
@@ -135,7 +135,7 @@ export const DesignDetailView: React.FC = () => {
                 value={feedbackText}
                 onChange={(e) => setFeedbackText(e.target.value)}
                 placeholder="Paste your design feedback here... For example: 'The header feels too cramped on mobile. The call-to-action button needs more contrast. The navigation could be more intuitive.'"
-                className="w-full h-32 p-3 border border-border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                className="form-textarea min-h-[8rem]"
                 disabled={isGenerating}
               />
             </div>
@@ -143,7 +143,7 @@ export const DesignDetailView: React.FC = () => {
             <button
               onClick={generateTasks}
               disabled={isGenerating || !feedbackText.trim()}
-              className="w-full bg-primary text-primary-foreground py-3 px-4 rounded-lg font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="btn-primary w-full flex items-center justify-center gap-2"
             >
               {isGenerating ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -173,11 +173,11 @@ export const DesignDetailView: React.FC = () => {
           {generatedTasks.length > 0 && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-foreground">Generated Tasks</h3>
+                <h3>Generated Tasks</h3>
                 <button
                   onClick={addTasksToProject}
                   disabled={isGenerating}
-                  className="bg-green-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  className="btn-primary flex items-center gap-2"
                 >
                   <Plus className="w-4 h-4" />
                   Add {generatedTasks.length} Tasks
@@ -188,23 +188,18 @@ export const DesignDetailView: React.FC = () => {
                 {generatedTasks.map((task, index) => (
                   <div key={index} className="bg-card border border-border rounded-lg p-4">
                     <div className="flex items-start justify-between mb-2">
-                      <h4 className="font-medium text-foreground">{task.title}</h4>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getPriorityColor(task.priority)}`}>
+                      <h4>{task.title}</h4>
+                      <span className={`badge ${getPriorityBadgeClass(task.priority)}`}>
                         {task.priority}
                       </span>
                     </div>
                     <p className="text-foreground-dim text-sm mb-3">{task.description}</p>
                     <div className="flex items-center gap-2 flex-wrap">
                       {task.tags.map((tag, tagIndex) => (
-                        <span key={tagIndex} className="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs">
+                        <span key={tagIndex} className="badge-info">
                           {tag}
                         </span>
                       ))}
-                      {task.estimated_hours && (
-                        <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
-                          {task.estimated_hours}h
-                        </span>
-                      )}
                     </div>
                   </div>
                 ))}
