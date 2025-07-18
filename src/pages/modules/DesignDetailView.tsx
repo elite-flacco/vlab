@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ModuleContainer } from '../../components/Workspace/ModuleContainer';
 import { BackButton } from '../../components/common/BackButton';
-import { Palette, Sparkles, Zap, Layers, PenTool, Loader2, CheckCircle2, AlertCircle, Plus } from 'lucide-react';
+import { Palette, Sparkles, Zap, Layers, PenTool, Loader2, CheckCircle2, AlertCircle, Plus, Check } from 'lucide-react';
 import { db, supabase } from '../../lib/supabase';
 import { generateDesignTasks } from '../../lib/openai';
 import { v4 as uuidv4 } from 'uuid';
@@ -25,6 +25,7 @@ export const DesignDetailView: React.FC = () => {
   const [feedbackText, setFeedbackText] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedTasks, setGeneratedTasks] = useState<GeneratedTask[]>([]);
+  const [selectedTaskIds, setSelectedTaskIds] = useState<Set<number>>(new Set());
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -45,6 +46,8 @@ export const DesignDetailView: React.FC = () => {
     try {
       const tasks = await generateDesignTasks(feedbackText);
       setGeneratedTasks(tasks);
+      // Select all tasks by default
+      setSelectedTaskIds(new Set(tasks.map((_, index) => index)));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to generate tasks');
     } finally {
@@ -53,7 +56,8 @@ export const DesignDetailView: React.FC = () => {
   };
 
   const addTasksToProject = async () => {
-    if (!projectId || generatedTasks.length === 0) return;
+    const selectedTasks = generatedTasks.filter((_, index) => selectedTaskIds.has(index));
+    if (!projectId || selectedTasks.length === 0) return;
 
     setIsGenerating(true);
     setError(null);
@@ -66,8 +70,8 @@ export const DesignDetailView: React.FC = () => {
         return;
       }
 
-      // Add each generated task to the database using the db helper
-      for (const task of generatedTasks) {
+      // Add each selected task to the database using the db helper
+      for (const task of selectedTasks) {
         const taskData = {
           project_id: projectId,
           title: task.title,
@@ -87,14 +91,35 @@ export const DesignDetailView: React.FC = () => {
         }
       }
 
-      setSuccess(`Successfully added ${generatedTasks.length} tasks to your project!`);
+      setSuccess(`Successfully added ${selectedTasks.length} tasks to your project!`);
       setGeneratedTasks([]);
+      setSelectedTaskIds(new Set());
       setFeedbackText('');
 
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to add tasks');
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const toggleTaskSelection = (taskIndex: number) => {
+    const newSelection = new Set(selectedTaskIds);
+    if (newSelection.has(taskIndex)) {
+      newSelection.delete(taskIndex);
+    } else {
+      newSelection.add(taskIndex);
+    }
+    setSelectedTaskIds(newSelection);
+  };
+
+  const toggleAllTasks = () => {
+    if (selectedTaskIds.size === generatedTasks.length) {
+      // If all are selected, deselect all
+      setSelectedTaskIds(new Set());
+    } else {
+      // Otherwise, select all
+      setSelectedTaskIds(new Set(generatedTasks.map((_, index) => index)));
     }
   };
 
@@ -173,33 +198,60 @@ export const DesignDetailView: React.FC = () => {
           {generatedTasks.length > 0 && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3>Generated Tasks</h3>
+                <div className="flex items-center gap-3">
+                  <h3>Generated Tasks</h3>
+                  <button
+                    onClick={toggleAllTasks}
+                    className="text-sm text-primary hover:text-primary/80 font-medium"
+                  >
+                    {selectedTaskIds.size === generatedTasks.length ? 'Deselect All' : 'Select All'}
+                  </button>
+                </div>
                 <button
                   onClick={addTasksToProject}
-                  disabled={isGenerating}
+                  disabled={isGenerating || selectedTaskIds.size === 0}
                   className="btn-primary flex items-center gap-2"
                 >
                   <Plus className="w-4 h-4" />
-                  Add {generatedTasks.length} Tasks
+                  Add {selectedTaskIds.size} Task{selectedTaskIds.size !== 1 ? 's' : ''}
                 </button>
               </div>
 
               <div className="space-y-3">
                 {generatedTasks.map((task, index) => (
                   <div key={index} className="bg-card border border-border rounded-lg p-4">
-                    <div className="flex items-start justify-between mb-2">
-                      <h4>{task.title}</h4>
-                      <span className={`badge ${getPriorityBadgeClass(task.priority)}`}>
-                        {task.priority}
-                      </span>
-                    </div>
-                    <p className="text-foreground-dim text-sm mb-3">{task.description}</p>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      {task.tags.map((tag, tagIndex) => (
-                        <span key={tagIndex} className="badge-info">
-                          {tag}
-                        </span>
-                      ))}
+                    <div className="flex items-start gap-3">
+                      {/* Checkbox */}
+                      <div className="flex-shrink-0 pt-1">
+                        <button
+                          onClick={() => toggleTaskSelection(index)}
+                          className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
+                            selectedTaskIds.has(index)
+                              ? 'bg-primary border-primary text-primary-foreground'
+                              : 'border-border hover:border-primary/50'
+                          }`}
+                        >
+                          {selectedTaskIds.has(index) && <Check className="w-3 h-3" />}
+                        </button>
+                      </div>
+                      
+                      {/* Task Content */}
+                      <div className="flex-1">
+                        <div className="flex items-start justify-between mb-2">
+                          <h4>{task.title}</h4>
+                          <span className={`badge ${getPriorityBadgeClass(task.priority)}`}>
+                            {task.priority}
+                          </span>
+                        </div>
+                        <p className="text-foreground-dim text-sm mb-3">{task.description}</p>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {task.tags.map((tag, tagIndex) => (
+                            <span key={tagIndex} className="badge-info">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 ))}
