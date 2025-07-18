@@ -30,7 +30,7 @@ export const DesignDetailView: React.FC = () => {
   const [editingField, setEditingField] = useState<'title' | 'description' | null>(null);
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [analysisMode, setAnalysisMode] = useState<'text' | 'image'>('text');
+  const [analysisMode, setAnalysisMode] = useState<'text' | 'image'>('image');
   const [isDragOver, setIsDragOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -44,7 +44,7 @@ export const DesignDetailView: React.FC = () => {
       setError('Please enter some design feedback text');
       return;
     }
-    
+
     if (analysisMode === 'image' && !uploadedImage) {
       setError('Please upload a screenshot to analyze');
       return;
@@ -62,7 +62,7 @@ export const DesignDetailView: React.FC = () => {
         // TODO: Implement image analysis
         tasks = await generateDesignTasksFromImage(uploadedImage!);
       }
-      
+
       setGeneratedTasks(tasks);
       // Select all tasks by default
       setSelectedTaskIds(new Set(tasks.map((_, index) => index)));
@@ -91,12 +91,12 @@ export const DesignDetailView: React.FC = () => {
 
     try {
       console.log('Processing uploaded image:', file.name, file.type, file.size);
-      
+
       // Compress image to reduce payload size
       const compressedFile = await compressImage(file, 0.8, 1200); // 80% quality, max 1200px width
       console.log('Image compressed successfully:', compressedFile.size);
       setUploadedImage(compressedFile);
-      
+
       // Create preview from original file for better quality display
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -120,35 +120,35 @@ export const DesignDetailView: React.FC = () => {
     return new Promise((resolve, reject) => {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
-      
+
       if (!ctx) {
         reject(new Error('Canvas context not available'));
         return;
       }
-      
+
       const img = document.createElement('img');
-      
+
       img.onload = () => {
         try {
           // Calculate new dimensions
           const ratio = Math.min(maxWidth / img.width, maxWidth / img.height);
           const newWidth = img.width * ratio;
           const newHeight = img.height * ratio;
-          
+
           // Set canvas size
           canvas.width = newWidth;
           canvas.height = newHeight;
-          
+
           // Draw and compress
           ctx.drawImage(img, 0, 0, newWidth, newHeight);
-          
+
           canvas.toBlob(
             (blob) => {
               if (!blob) {
                 reject(new Error('Failed to compress image'));
                 return;
               }
-              
+
               const compressedFile = new File([blob], file.name, {
                 type: file.type,
                 lastModified: Date.now()
@@ -162,11 +162,11 @@ export const DesignDetailView: React.FC = () => {
           reject(error);
         }
       };
-      
+
       img.onerror = () => {
         reject(new Error('Failed to load image'));
       };
-      
+
       img.src = URL.createObjectURL(file);
     });
   };
@@ -201,7 +201,7 @@ export const DesignDetailView: React.FC = () => {
 
     const files = Array.from(e.dataTransfer.files);
     const imageFile = files.find(file => file.type.startsWith('image/'));
-    
+
     if (!imageFile) {
       setError('Please drop a valid image file');
       return;
@@ -215,12 +215,12 @@ export const DesignDetailView: React.FC = () => {
 
     try {
       console.log('Processing dropped image:', imageFile.name, imageFile.type, imageFile.size);
-      
+
       // Compress image to reduce payload size
       const compressedFile = await compressImage(imageFile, 0.8, 1200);
       console.log('Image compressed successfully:', compressedFile.size);
       setUploadedImage(compressedFile);
-      
+
       // Create preview from original file for better quality display
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -350,7 +350,7 @@ export const DesignDetailView: React.FC = () => {
             </div>
             <h2 className="mb-2">Design Co-Pilot</h2>
             <p className="text-foreground-dim text-sm">
-              Paste design feedback and automatically generate tasks
+              Get feedback on your UI/UX design and automatically generate tasks
             </p>
           </div>
 
@@ -358,27 +358,26 @@ export const DesignDetailView: React.FC = () => {
           <div className="flex items-center justify-center mb-6">
             <div className="flex bg-background border border-border rounded-lg p-1">
               <button
-                onClick={() => setAnalysisMode('text')}
-                className={`flex items-center gap-2 px-4 py-2 text-base rounded-md transition-all ${
-                  analysisMode === 'text'
-                    ? 'filter-button-active'
-                    : 'filter-button'
-                }`}
-              >
-                <FileText className="w-4 h-4" />
-                Text Feedback
-              </button>
-              <button
                 onClick={() => setAnalysisMode('image')}
-                className={`flex items-center gap-2 px-4 py-2 text-base rounded-md transition-all ${
-                  analysisMode === 'image'
+                className={`flex items-center gap-2 px-4 py-2 text-base rounded-md transition-all ${analysisMode === 'image'
                     ? 'filter-button-active'
                     : 'filter-button'
-                }`}
+                  }`}
               >
                 <Image className="w-4 h-4" />
-                Screenshot Analysis
+                Upload Screenshot
               </button>
+              <button
+                onClick={() => setAnalysisMode('text')}
+                className={`flex items-center gap-2 px-4 py-2 text-base rounded-md transition-all ${analysisMode === 'text'
+                    ? 'filter-button-active'
+                    : 'filter-button'
+                  }`}
+              >
+                <FileText className="w-4 h-4" />
+                Paste Text
+              </button>
+
             </div>
           </div>
 
@@ -393,7 +392,7 @@ export const DesignDetailView: React.FC = () => {
                   id="feedback"
                   value={feedbackText}
                   onChange={(e) => setFeedbackText(e.target.value)}
-                  placeholder="Paste your design feedback here... For example: 'The header feels too cramped on mobile. The call-to-action button needs more contrast. The navigation could be more intuitive.'"
+                  placeholder="If you want to use your preferred AI tools, you can simply paste the feedback here... For example: 'The header feels too cramped on mobile. The call-to-action button needs more contrast. The navigation could be more intuitive.'"
                   className="form-textarea min-h-[8rem]"
                   disabled={isGenerating}
                 />
@@ -403,14 +402,13 @@ export const DesignDetailView: React.FC = () => {
                 <label className="block text-sm font-medium text-foreground mb-2">
                   Upload Screenshot
                 </label>
-                
+
                 {!imagePreview ? (
-                  <div 
-                    className={`border-2 border-dashed rounded-lg p-8 text-center transition-all ${
-                      isDragOver 
-                        ? 'border-primary bg-primary/5 scale-105' 
+                  <div
+                    className={`border-2 border-dashed rounded-lg p-8 text-center transition-all ${isDragOver
+                        ? 'border-primary bg-primary/5 scale-105'
                         : 'border-border hover:border-primary/50'
-                    }`}
+                      }`}
                     onDragOver={handleDragOver}
                     onDragEnter={handleDragEnter}
                     onDragLeave={handleDragLeave}
@@ -425,12 +423,10 @@ export const DesignDetailView: React.FC = () => {
                       disabled={isGenerating}
                     />
                     <label htmlFor="image-upload" className="cursor-pointer block">
-                      <Upload className={`w-10 h-10 mx-auto mb-4 transition-colors ${
-                        isDragOver ? 'text-primary' : 'text-foreground-dim'
-                      }`} />
-                      <p className={`mb-2 transition-colors ${
-                        isDragOver ? 'text-primary font-medium' : 'text-foreground-dim'
-                      }`}>
+                      <Upload className={`w-10 h-10 mx-auto mb-4 transition-colors ${isDragOver ? 'text-primary' : 'text-foreground-dim'
+                        }`} />
+                      <p className={`mb-2 transition-colors ${isDragOver ? 'text-primary font-medium' : 'text-foreground-dim'
+                        }`}>
                         {isDragOver ? 'Drop your screenshot here!' : 'Click to upload a screenshot or drag and drop'}
                       </p>
                       <p className="text-sm text-foreground-dim/70">
@@ -465,7 +461,7 @@ export const DesignDetailView: React.FC = () => {
             <button
               onClick={generateTasks}
               disabled={
-                isGenerating || 
+                isGenerating ||
                 (analysisMode === 'text' && !feedbackText.trim()) ||
                 (analysisMode === 'image' && !uploadedImage)
               }
@@ -476,10 +472,10 @@ export const DesignDetailView: React.FC = () => {
               ) : (
                 <Sparkles className="w-4 h-4" />
               )}
-              {isGenerating 
-                ? 'Analyzing...' 
-                : analysisMode === 'text' 
-                  ? 'Generate Tasks' 
+              {isGenerating
+                ? 'Analyzing...'
+                : analysisMode === 'text'
+                  ? 'Generate Tasks'
                   : 'Analyze Screenshot'
               }
             </button>
@@ -534,16 +530,15 @@ export const DesignDetailView: React.FC = () => {
                       <div className="flex-shrink-0 pt-1">
                         <button
                           onClick={() => toggleTaskSelection(index)}
-                          className={`w-4 h-4 rounded border flex items-center justify-center transition-all duration-200 ${
-                            selectedTaskIds.has(index)
+                          className={`w-4 h-4 rounded border flex items-center justify-center transition-all duration-200 ${selectedTaskIds.has(index)
                               ? 'bg-background border-foreground/40 text-primary'
                               : 'border-foreground/40 hover:border-primary/50 bg-background'
-                          }`}
+                            }`}
                         >
                           {selectedTaskIds.has(index) && <Check className="w-3 h-3" />}
                         </button>
                       </div>
-                      
+
                       {/* Task Content */}
                       <div className="flex-1">
                         <div className="flex items-start justify-between mb-2">
@@ -562,7 +557,7 @@ export const DesignDetailView: React.FC = () => {
                                 autoFocus
                               />
                             ) : (
-                              <h4 
+                              <h4
                                 className="text-base cursor-pointer hover:bg-background/50 rounded px-1 py-0.5 -mx-1 -my-0.5 transition-colors"
                                 onClick={() => startEditing(index, 'title')}
                               >
@@ -583,14 +578,14 @@ export const DesignDetailView: React.FC = () => {
                               onChange={(e) => updateTask(index, 'priority', e.target.value)}
                               className={`badge ${getPriorityBadgeClass(task.priority)} appearance-none cursor-pointer border-none outline-none`}
                             >
-                              <option value="low" style={{backgroundColor: '#1a1a1a', color: '#e0e0e0' }}>low</option>
-                              <option value="medium" style={{backgroundColor: '#1a1a1a', color: '#e0e0e0' }}>medium</option>
-                              <option value="high" style={{backgroundColor: '#1a1a1a', color: '#e0e0e0' }}>high</option>
-                              <option value="highest" style={{backgroundColor: '#1a1a1a', color: '#e0e0e0' }}>highest</option>
+                              <option value="low" style={{ backgroundColor: '#1a1a1a', color: '#e0e0e0' }}>low</option>
+                              <option value="medium" style={{ backgroundColor: '#1a1a1a', color: '#e0e0e0' }}>medium</option>
+                              <option value="high" style={{ backgroundColor: '#1a1a1a', color: '#e0e0e0' }}>high</option>
+                              <option value="highest" style={{ backgroundColor: '#1a1a1a', color: '#e0e0e0' }}>highest</option>
                             </select>
                           </div>
                         </div>
-                        
+
                         {isEditing(index, 'description') ? (
                           <textarea
                             value={task.description}
@@ -604,14 +599,14 @@ export const DesignDetailView: React.FC = () => {
                             autoFocus
                           />
                         ) : (
-                          <p 
+                          <p
                             className="text-foreground-dim text-sm mb-3 cursor-pointer hover:bg-background/50 rounded px-1 py-0.5 -mx-1 -my-0.5 transition-colors"
                             onClick={() => startEditing(index, 'description')}
                           >
                             {task.description}
                           </p>
                         )}
-                        
+
                         <div className="flex items-center gap-2 flex-wrap">
                           {task.tags.map((tag, tagIndex) => (
                             <span key={tagIndex} className="badge-info">
