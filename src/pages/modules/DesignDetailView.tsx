@@ -31,6 +31,7 @@ export const DesignDetailView: React.FC = () => {
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [analysisMode, setAnalysisMode] = useState<'text' | 'image'>('text');
+  const [isDragOver, setIsDragOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -89,53 +90,81 @@ export const DesignDetailView: React.FC = () => {
     }
 
     try {
+      console.log('Processing uploaded image:', file.name, file.type, file.size);
+      
       // Compress image to reduce payload size
       const compressedFile = await compressImage(file, 0.8, 1200); // 80% quality, max 1200px width
+      console.log('Image compressed successfully:', compressedFile.size);
       setUploadedImage(compressedFile);
       
       // Create preview from original file for better quality display
       const reader = new FileReader();
       reader.onload = (e) => {
         setImagePreview(e.target?.result as string);
+        console.log('Image preview created successfully');
+      };
+      reader.onerror = (e) => {
+        console.error('Failed to create image preview:', e);
+        setError('Failed to create image preview');
       };
       reader.readAsDataURL(file);
       setError(null);
     } catch (err) {
-      setError('Failed to process image');
+      console.error('Error processing uploaded image:', err);
+      setError(err instanceof Error ? err.message : 'Failed to process image');
     }
   };
 
   // Compress image to reduce API payload size
   const compressImage = (file: File, quality: number, maxWidth: number): Promise<File> => {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d')!;
-      const img = new Image();
+      const ctx = canvas.getContext('2d');
+      
+      if (!ctx) {
+        reject(new Error('Canvas context not available'));
+        return;
+      }
+      
+      const img = document.createElement('img');
       
       img.onload = () => {
-        // Calculate new dimensions
-        const ratio = Math.min(maxWidth / img.width, maxWidth / img.height);
-        const newWidth = img.width * ratio;
-        const newHeight = img.height * ratio;
-        
-        // Set canvas size
-        canvas.width = newWidth;
-        canvas.height = newHeight;
-        
-        // Draw and compress
-        ctx.drawImage(img, 0, 0, newWidth, newHeight);
-        
-        canvas.toBlob(
-          (blob) => {
-            const compressedFile = new File([blob!], file.name, {
-              type: file.type,
-              lastModified: Date.now()
-            });
-            resolve(compressedFile);
-          },
-          file.type,
-          quality
-        );
+        try {
+          // Calculate new dimensions
+          const ratio = Math.min(maxWidth / img.width, maxWidth / img.height);
+          const newWidth = img.width * ratio;
+          const newHeight = img.height * ratio;
+          
+          // Set canvas size
+          canvas.width = newWidth;
+          canvas.height = newHeight;
+          
+          // Draw and compress
+          ctx.drawImage(img, 0, 0, newWidth, newHeight);
+          
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) {
+                reject(new Error('Failed to compress image'));
+                return;
+              }
+              
+              const compressedFile = new File([blob], file.name, {
+                type: file.type,
+                lastModified: Date.now()
+              });
+              resolve(compressedFile);
+            },
+            file.type,
+            quality
+          );
+        } catch (error) {
+          reject(error);
+        }
+      };
+      
+      img.onerror = () => {
+        reject(new Error('Failed to load image'));
       };
       
       img.src = URL.createObjectURL(file);
@@ -145,6 +174,69 @@ export const DesignDetailView: React.FC = () => {
   const removeImage = () => {
     setUploadedImage(null);
     setImagePreview(null);
+  };
+
+  // Drag and drop handlers
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+
+    const files = Array.from(e.dataTransfer.files);
+    const imageFile = files.find(file => file.type.startsWith('image/'));
+    
+    if (!imageFile) {
+      setError('Please drop a valid image file');
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (imageFile.size > 10 * 1024 * 1024) {
+      setError('Image size must be less than 10MB');
+      return;
+    }
+
+    try {
+      console.log('Processing dropped image:', imageFile.name, imageFile.type, imageFile.size);
+      
+      // Compress image to reduce payload size
+      const compressedFile = await compressImage(imageFile, 0.8, 1200);
+      console.log('Image compressed successfully:', compressedFile.size);
+      setUploadedImage(compressedFile);
+      
+      // Create preview from original file for better quality display
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+        console.log('Image preview created successfully');
+      };
+      reader.onerror = (e) => {
+        console.error('Failed to create image preview:', e);
+        setError('Failed to create image preview');
+      };
+      reader.readAsDataURL(imageFile);
+      setError(null);
+    } catch (err) {
+      console.error('Error processing dropped image:', err);
+      setError(err instanceof Error ? err.message : 'Failed to process image');
+    }
   };
 
 
@@ -313,7 +405,17 @@ export const DesignDetailView: React.FC = () => {
                 </label>
                 
                 {!imagePreview ? (
-                  <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
+                  <div 
+                    className={`border-2 border-dashed rounded-lg p-8 text-center transition-all ${
+                      isDragOver 
+                        ? 'border-primary bg-primary/5 scale-105' 
+                        : 'border-border hover:border-primary/50'
+                    }`}
+                    onDragOver={handleDragOver}
+                    onDragEnter={handleDragEnter}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                  >
                     <input
                       type="file"
                       accept="image/*"
@@ -322,10 +424,14 @@ export const DesignDetailView: React.FC = () => {
                       id="image-upload"
                       disabled={isGenerating}
                     />
-                    <label htmlFor="image-upload" className="cursor-pointer">
-                      <Upload className="w-10 h-10 text-foreground-dim mx-auto mb-4" />
-                      <p className="text-foreground-dim mb-2">
-                        Click to upload a screenshot or drag and drop
+                    <label htmlFor="image-upload" className="cursor-pointer block">
+                      <Upload className={`w-10 h-10 mx-auto mb-4 transition-colors ${
+                        isDragOver ? 'text-primary' : 'text-foreground-dim'
+                      }`} />
+                      <p className={`mb-2 transition-colors ${
+                        isDragOver ? 'text-primary font-medium' : 'text-foreground-dim'
+                      }`}>
+                        {isDragOver ? 'Drop your screenshot here!' : 'Click to upload a screenshot or drag and drop'}
                       </p>
                       <p className="text-sm text-foreground-dim/70">
                         PNG, JPG, or WebP up to 10MB
@@ -337,7 +443,7 @@ export const DesignDetailView: React.FC = () => {
                     <img
                       src={imagePreview}
                       alt="Uploaded screenshot"
-                      className="w-full max-h-64 object-contain rounded-lg border border-border"
+                      className="w-full max-h-64 p-4 object-contain rounded-lg border border-border"
                     />
                     <button
                       onClick={removeImage}
@@ -346,11 +452,11 @@ export const DesignDetailView: React.FC = () => {
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
-                    {uploadedImage && (
+                    {/* {uploadedImage && (
                       <div className="mt-2 text-sm text-foreground-dim">
                         Compressed: {(uploadedImage.size / 1024).toFixed(1)}KB
                       </div>
-                    )}
+                    )} */}
                   </div>
                 )}
               </div>
@@ -381,9 +487,9 @@ export const DesignDetailView: React.FC = () => {
 
           {/* Error/Success Messages */}
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3">
-              <AlertCircle className="w-5 h-5 text-red-600" />
-              <span className="text-red-800">{error}</span>
+            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 flex items-center gap-3">
+              <AlertCircle className="w-5 h-5 text-destructive" />
+              <span className="text-destructive">{error}</span>
             </div>
           )}
 
