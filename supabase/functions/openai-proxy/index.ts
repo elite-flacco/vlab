@@ -1,7 +1,9 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
 
+// More restrictive CORS configuration
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": Deno.env.get("ALLOWED_ORIGIN") || "http://localhost:5173",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
@@ -19,6 +21,12 @@ interface OpenAIRequest {
   roadmapItems?: any[];
 }
 
+// Simple rate limiting store (in-memory for demo - use Redis in production)
+const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
+
+const RATE_LIMIT_MAX = 20; // Max requests per window
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute window
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
@@ -26,15 +34,88 @@ serve(async (req) => {
   }
 
   try {
-    // Get OpenAI API key from environment variable
-    const apiKey = Deno.env.get("OPENAI_API_KEY");
-    if (!apiKey) {
-      throw new Error("OpenAI API key not configured");
+    // 1. AUTHENTICATION: Validate authorization header
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return new Response(JSON.stringify({ error: 'Missing or invalid authorization header' }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
     }
 
-    // Parse request body
-    const requestData: OpenAIRequest = await req.json();
+    // 2. INITIALIZE SUPABASE CLIENT
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // 3. VALIDATE JWT TOKEN
+    const jwt = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(jwt);
+    
+    if (authError || !user) {
+      return new Response(JSON.stringify({ error: 'Invalid or expired token' }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+
+    // 4. RATE LIMITING: Check rate limit for this user
+    const userId = user.id;
+    const now = Date.now();
+    const userRateLimit = rateLimitStore.get(userId);
+    
+    if (userRateLimit && now < userRateLimit.resetTime) {
+      if (userRateLimit.count >= RATE_LIMIT_MAX) {
+        return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }), {
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+      userRateLimit.count++;
+    } else {
+      // Reset or initialize rate limit
+      rateLimitStore.set(userId, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+    }
+
+    // 5. GET OPENAI API KEY
+    const apiKey = Deno.env.get("OPENAI_API_KEY");
+    if (!apiKey) {
+      return new Response(JSON.stringify({ error: 'Service configuration error' }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+
+    // 6. VALIDATE REQUEST SIZE
+    const requestText = await req.text();
+    if (requestText.length > 50000) { // 50KB limit
+      return new Response(JSON.stringify({ error: 'Request too large' }), {
+        status: 413,
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+
+    // 7. PARSE AND VALIDATE REQUEST
+    let requestData: OpenAIRequest;
+    try {
+      requestData = JSON.parse(requestText);
+    } catch (parseError) {
+      return new Response(JSON.stringify({ error: 'Invalid JSON format' }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+
     const { action } = requestData;
+    
+    // Validate action
+    const validActions = ['chat', 'summary', 'prd', 'roadmap', 'tasks'];
+    if (!validActions.includes(action)) {
+      return new Response(JSON.stringify({ error: 'Invalid action specified' }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
 
     let openaiResponse;
 
@@ -87,9 +168,21 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("Error processing request:", error);
+    // Log detailed error for debugging (server-side only)
+    console.error("Error processing request:", {
+      error: error.message,
+      stack: error.stack,
+      timestamp: new Date().toISOString(),
+      // Don't log sensitive data like API keys or user tokens
+    });
+    
+    // Return sanitized error to client
+    const sanitizedError = error instanceof Error && error.message.includes('API') 
+      ? 'External service error' 
+      : 'An unexpected error occurred';
+    
     return new Response(
-      JSON.stringify({ error: error.message || "An error occurred" }),
+      JSON.stringify({ error: sanitizedError }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -106,8 +199,22 @@ const cleanJsonResponse = (content: string): string => {
     .trim();
 };
 
+// Input sanitization function
+function sanitizeInput(input: string): string {
+  // Remove potentially harmful characters and limit length
+  return input
+    .replace(/[<>\"'&]/g, '') // Remove HTML/script chars
+    .substring(0, 10000) // Limit length
+    .trim();
+}
+
 // Function to generate chat response for idea bouncer
 async function generateChatResponse(apiKey: string, messages: ChatMessage[]): Promise<string> {
+  // Sanitize message content
+  const sanitizedMessages = messages.map(msg => ({
+    ...msg,
+    content: sanitizeInput(msg.content)
+  }));
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -131,7 +238,7 @@ Be conversational, encouraging, and practical. Ask one focused question at a tim
 
 When they seem to have a clear direction, acknowledge it and suggest they're ready to move to the next step.`
         },
-        ...messages
+        ...sanitizedMessages
       ],
       max_tokens: 300,
       temperature: 0.7,
@@ -150,7 +257,7 @@ When they seem to have a clear direction, acknowledge it and suggest they're rea
 // Function to generate idea summary
 async function generateIdeaSummary(apiKey: string, chatHistory: ChatMessage[]): Promise<string> {
   const conversationText = chatHistory
-    .map(msg => `${msg.role === 'user' ? 'User' : 'AI'}: ${msg.content}`)
+    .map(msg => `${msg.role === 'user' ? 'User' : 'AI'}: ${sanitizeInput(msg.content)}`)
     .join('\n\n');
 
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -187,6 +294,7 @@ async function generateIdeaSummary(apiKey: string, chatHistory: ChatMessage[]): 
 
 // Function to generate PRD
 async function generatePRD(apiKey: string, ideaSummary: string): Promise<string> {
+  const sanitizedSummary = sanitizeInput(ideaSummary);
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -215,7 +323,7 @@ Make it practical, actionable, and specific to the idea provided. Use clear head
         },
         {
           role: "user",
-          content: `Create a PRD for this project idea: ${ideaSummary}`
+          content: `Create a PRD for this project idea: ${sanitizedSummary}`
         }
       ],
       max_tokens: 1500,
@@ -234,6 +342,7 @@ Make it practical, actionable, and specific to the idea provided. Use clear head
 
 // Function to generate roadmap
 async function generateRoadmap(apiKey: string, prdContent: string): Promise<any[]> {
+  const sanitizedContent = sanitizeInput(prdContent);
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -274,7 +383,7 @@ Guidelines:
         },
         {
           role: "user",
-          content: `Create a development roadmap based on this PRD:\n\n${prdContent}`
+          content: `Create a development roadmap based on this PRD:\n\n${sanitizedContent}`
         }
       ],
       max_tokens: 1000,
@@ -354,8 +463,9 @@ Guidelines:
 
 // Function to generate tasks
 async function generateTasks(apiKey: string, prdContent: string, roadmapItems: any[]): Promise<any[]> {
+  const sanitizedContent = sanitizeInput(prdContent);
   const roadmapSummary = roadmapItems.map(item => 
-    `${item.title}: ${item.description}`
+    `${sanitizeInput(item.title)}: ${sanitizeInput(item.description)}`
   ).join('\n');
 
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -402,7 +512,7 @@ Guidelines:
           content: `Generate development tasks based on this PRD and roadmap:
 
 PRD:
-${prdContent}
+${sanitizedContent}
 
 Roadmap:
 ${roadmapSummary}`
