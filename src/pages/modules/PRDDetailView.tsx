@@ -3,6 +3,7 @@ import { ChevronDown, Clock, Edit3, Eye, FileText, GitBranch, History, Plus, Sav
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { BackButton } from '../../components/common/BackButton';
+import { MarkdownRenderer, useMarkdownPreprocessing } from '../../components/common/MarkdownRenderer';
 import { VersionHistory } from '../../components/PRD/VersionHistory';
 import { ModuleContainer } from '../../components/Workspace/ModuleContainer';
 import { db } from '../../lib/supabase';
@@ -21,6 +22,7 @@ export const PRDDetailView: React.FC = () => {
   const [editedPRD, setEditedPRD] = useState<any>(null);
   const [saving, setSaving] = useState(false);
   const [showVersionHistory, setShowVersionHistory] = useState(false);
+  const { processContent } = useMarkdownPreprocessing();
 
   useEffect(() => {
     if (projectId) {
@@ -117,7 +119,7 @@ export const PRDDetailView: React.FC = () => {
       );
       setPrds(updatedPRDs);
       setSelectedPRD(data);
-      
+
       // Refetch all versions to get the updated data
       await fetchAllVersionsForPRD(data);
       setIsEditing(false);
@@ -155,7 +157,7 @@ export const PRDDetailView: React.FC = () => {
       );
       setPrds(updatedPRDs);
       setSelectedPRD(data);
-      
+
       // Refetch all versions to get the updated data
       await fetchAllVersionsForPRD(data);
       setShowVersionHistory(false);
@@ -171,29 +173,15 @@ export const PRDDetailView: React.FC = () => {
   };
 
   const renderMarkdown = (content: string) => {
-    return content
-      .split('\n')
-      .map((line, index) => {
-        if (line.startsWith('# ')) {
-          return <h1 key={index} className="text-xl">{line.slice(2)}</h1>;
-        }
-        if (line.startsWith('## ')) {
-          return <h2 key={index} className="text-lg">{line.slice(3)}</h2>;
-        }
-        if (line.startsWith('### ')) {
-          return <h3 key={index} className="text-md">{line.slice(4)}</h3>;
-        }
-        if (line.startsWith('- ')) {
-          return <li key={index} className="text-foreground-dim mb-1 ml-4">{line.slice(2)}</li>;
-        }
-        if (line.startsWith('**') && line.endsWith('**')) {
-          return <p key={index} className="font-semibold text-foreground mb-2">{line.slice(2, -2)}</p>;
-        }
-        if (line.trim() === '') {
-          return <br key={index} />;
-        }
-        return <p key={index} className="text-foreground-dim mb-2 text-sm leading-relaxed">{line}</p>;
-      });
+    return (
+      <div className="prose prose-sm max-w-none mt-4 break-words">
+        <MarkdownRenderer
+          content={processContent(content, { convertUrls: true })}
+          variant="default"
+          className="text-foreground/90"
+        />
+      </div>
+    );
   };
 
   const isCurrentVersion = selectedVersionData?.is_current || selectedVersionData?.version_number === selectedPRD?.version;
@@ -383,7 +371,7 @@ export const PRDDetailView: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  
+
                   {selectedVersionData.change_description && (
                     <div className="mt-3 pt-3 border-t border-foreground-dim/20">
                       <p className="text-xs font-medium text-foreground mb-1">

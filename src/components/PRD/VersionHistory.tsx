@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { History, RotateCcw, GitCompare, Clock, User, FileText, X, Loader2, Check } from 'lucide-react';
+import { MarkdownRenderer } from '../common/MarkdownRenderer';
 
 // Component styles
 const styles = `
@@ -163,49 +164,30 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
   };
 
   const renderMarkdownPreview = (content: string, isComparison = false) => {
-    // When in comparison mode, show all content with proper formatting
     if (isComparison) {
+      // Full content for comparison view
       return (
-        <div className="prose prose-sm max-w-none text-foreground/80">
-          {content.split('\n').map((line, index) => {
-            if (line.startsWith('# ')) {
-              return <h3 key={index} className="text-foreground font-semibold text-base mb-2 mt-4">{line.slice(2)}</h3>;
-            }
-            if (line.startsWith('## ')) {
-              return <h4 key={index} className="text-foreground font-medium text-sm mb-2 mt-3">{line.slice(3)}</h4>;
-            }
-            if (line.startsWith('### ')) {
-              return <h5 key={index} className="text-foreground font-medium text-sm mb-1 mt-2">{line.slice(4)}</h5>;
-            }
-            if (line.trim() === '') {
-              return <div key={index} className="h-4" />;
-            }
-            // Handle lists
-            if (line.trim().startsWith('- ')) {
-              return <div key={index} className="flex"><span className="mr-2">•</span><span>{line.slice(2)}</span></div>;
-            }
-            return <p key={index} className="text-foreground/80 text-sm leading-relaxed mb-2">{line}</p>;
-          })}
-        </div>
+        <MarkdownRenderer 
+          content={content}
+          variant="default"
+          className="text-foreground/80"
+        />
       );
     }
     
-    // For preview mode (non-comparison), show limited content
-    return content
+    // For preview mode, show limited content (first 10 lines)
+    const previewContent = content
       .split('\n')
-      .slice(0, 10) // Show first 10 lines
-      .map((line, index) => {
-        if (line.startsWith('# ')) {
-          return <h3 key={index} className="font-semibold text-foreground text-sm">{line.slice(2)}</h3>;
-        }
-        if (line.startsWith('## ')) {
-          return <h4 key={index} className="font-medium text-foreground/90 text-sm">{line.slice(3)}</h4>;
-        }
-        if (line.trim() === '') {
-          return <br key={index} />;
-        }
-        return <p key={index} className="text-foreground/80 text-xs leading-relaxed">{line}</p>;
-      });
+      .slice(0, 10)
+      .join('\n');
+    
+    return (
+      <MarkdownRenderer 
+        content={previewContent}
+        variant="compact"
+        className="text-foreground/80"
+      />
+    );
   };
 
   const renderComparison = () => {

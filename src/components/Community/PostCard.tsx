@@ -1,18 +1,19 @@
-import React, { useState } from 'react';
 import { format } from 'date-fns';
 import {
-  ThumbsUp,
-  ThumbsDown,
-  MessageSquare,
   Bookmark,
   BookmarkCheck,
-  Eye,
-  Tag,
+  Clock,
   ExternalLink,
-  User,
-  Clock
+  Eye,
+  MessageSquare,
+  Tag,
+  ThumbsDown,
+  ThumbsUp,
+  User
 } from 'lucide-react';
+import React, { useState } from 'react';
 import { communityApi } from '../../lib/communityApi';
+import { MarkdownRenderer, useMarkdownPreprocessing } from '../common/MarkdownRenderer';
 
 interface PostCardProps {
   post: {
@@ -51,6 +52,7 @@ export const PostCard: React.FC<PostCardProps> = ({
   const [upvotes, setUpvotes] = useState(post.upvotes);
   const [downvotes, setDownvotes] = useState(post.downvotes);
   const [loading, setLoading] = useState(false);
+  const { processContent } = useMarkdownPreprocessing();
 
   const handleVote = async (voteType: 'upvote' | 'downvote') => {
     if (loading) return;
@@ -112,86 +114,6 @@ export const PostCard: React.FC<PostCardProps> = ({
   };
 
   // Function to parse text and convert URLs to links
-  const parseTextWithLinks = (text: string) => {
-    // This regex matches URLs starting with http://, https://, or www.
-    const urlRegex = /(https?:\/\/[^\s]+)|(www\.[^\s]+)/g;
-    
-    // Find all matches and their positions
-    const matches: {text: string, index: number}[] = [];
-    let match;
-    while ((match = urlRegex.exec(text)) !== null) {
-      matches.push({
-        text: match[0],
-        index: match.index
-      });
-    }
-    
-    // If no URLs found, return the text as is
-    if (matches.length === 0) return text;
-    
-    const result: React.ReactNode[] = [];
-    let lastIndex = 0;
-    
-    // Rebuild the content with links
-    matches.forEach((match, i) => {
-      // Add text before the URL
-      if (match.index > lastIndex) {
-        result.push(text.substring(lastIndex, match.index));
-      }
-      
-      // Add the URL as a link
-      const url = match.text.startsWith('www.') ? `https://${match.text}` : match.text;
-      result.push(
-        <a 
-          key={`link-${i}`} 
-          href={url} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="text-primary/60 hover:underline break-all"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {match.text}
-        </a>
-      );
-      
-      lastIndex = match.index + match.text.length;
-    });
-    
-    // Add any remaining text after the last URL
-    if (lastIndex < text.length) {
-      result.push(text.substring(lastIndex));
-    }
-    
-    return result;
-  };
-
-  const renderMarkdown = (content: string) => {
-    if (!content) return null;
-    
-    // Truncate content if not showing full content
-    const displayContent = !showFullContent && content.length > 200 
-      ? content.substring(0, 200) + '...' 
-      : content;
-    
-    return displayContent.split('\n').map((line, index) => {
-      if (line.startsWith('## ')) {
-        return <h2 key={index} className="text-lg font-semibold mt-4 mb-2">{parseTextWithLinks(line.slice(3))}</h2>;
-      }
-      if (line.startsWith('### ')) {
-        return <h3 key={index} className="text-md font-medium mt-3 mb-1.5">{parseTextWithLinks(line.slice(4))}</h3>;
-      }
-      if (line.startsWith('- ')) {
-        return <li key={index} className="text-foreground-dim mb-1 ml-4">{parseTextWithLinks(line.slice(2))}</li>;
-      }
-      if (line.startsWith('**') && line.endsWith('**')) {
-        return <p key={index} className="font-semibold text-foreground my-1.5">{parseTextWithLinks(line.slice(2, -2))}</p>;
-      }
-      if (line.trim() === '') {
-        return <br key={index} />;
-      }
-      return <p key={index} className="text-foreground-dim mb-2 text-sm leading-relaxed">{parseTextWithLinks(line)}</p>;
-    });
-  };
 
   const getCategoryBadges = () => {
     const badges = [];
@@ -213,9 +135,9 @@ export const PostCard: React.FC<PostCardProps> = ({
         'v0': { bg: 'bg-purple-900/30', text: 'text-purple-300', border: 'border-purple-700/50' },
         'other': { bg: 'bg-gray-700/30', text: 'text-gray-300', border: 'border-gray-600/50' }
       };
-      
+
       const colors = toolColors[post.tool] || toolColors['other'];
-      
+
       badges.push(
         <span key="tool" className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium ${colors.bg} ${colors.text} border ${colors.border}`}>
           🛠️ {toolLabels[post.tool] || post.tool}
@@ -233,7 +155,7 @@ export const PostCard: React.FC<PostCardProps> = ({
         'documentation': 'Documentation',
         'other': 'Other'
       };
-      
+
       const tipColors: Record<string, { bg: string; text: string; border: string }> = {
         'prompt_tricks': { bg: 'bg-purple-900/30', text: 'text-purple-300', border: 'border-purple-700/50' },
         'integrations': { bg: 'bg-indigo-900/30', text: 'text-indigo-300', border: 'border-indigo-700/50' },
@@ -242,9 +164,9 @@ export const PostCard: React.FC<PostCardProps> = ({
         'documentation': { bg: 'bg-amber-900/30', text: 'text-amber-300', border: 'border-amber-700/50' },
         'other': { bg: 'bg-slate-900/30', text: 'text-slate-300', border: 'border-slate-700/50' }
       };
-      
+
       const colors = tipColors[post.tip_category] || tipColors['other'];
-      
+
       badges.push(
         <span key="tip" className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium ${colors.bg} ${colors.text} border ${colors.border}`}>
           💡 {categoryLabels[post.tip_category] || post.tip_category}
@@ -294,7 +216,16 @@ export const PostCard: React.FC<PostCardProps> = ({
 
       {/* Content */}
       <div className="text-foreground-dim text-sm leading-relaxed mb-4">
-        {renderMarkdown(post.content)}
+        <MarkdownRenderer
+          content={processContent(
+            !showFullContent && post.content.length > 200
+              ? post.content.substring(0, 200) + '...'
+              : post.content,
+            { convertUrls: true }
+          )}
+          variant="compact"
+          className="text-sm"
+        />
         {!showFullContent && post.content.length > 200 && (
           <button
             onClick={() => onPostClick?.(post.id)}

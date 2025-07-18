@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
-import { 
-  ThumbsUp, 
-  ThumbsDown, 
-  MessageSquare, 
+import {
   Loader2,
+  MessageSquare,
+  ThumbsDown,
+  ThumbsUp,
   User
 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { communityApi } from '../../lib/communityApi';
+import { MarkdownRenderer, useMarkdownPreprocessing } from '../common/MarkdownRenderer';
 
 interface Comment {
   id: string;
@@ -60,6 +61,7 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
   const [submittingComment, setSubmittingComment] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [userVote, setUserVote] = useState<'upvote' | 'downvote' | null>(null);
+  const { processContent } = useMarkdownPreprocessing();
 
   useEffect(() => {
     fetchPost();
@@ -104,7 +106,7 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
       // Change vote
       if (previousVote === 'upvote') newUpvotes--;
       else if (previousVote === 'downvote') newDownvotes--;
-      
+
       if (voteType === 'upvote') newUpvotes++;
       else newDownvotes++;
     }
@@ -145,7 +147,7 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
     try {
       const newSavedState = !isSaved;
       setIsSaved(newSavedState);
-      
+
       if (newSavedState) {
         await communityApi.savePost(post.id);
       } else {
@@ -167,10 +169,10 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
         content: content.trim(),
         parent_comment_id: parentId,
       });
-      
+
       // Refresh comments
       await fetchPost();
-      
+
       // Reset form
       if (parentId) {
         setReplyContent('');
@@ -188,7 +190,7 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
 
   const getCategoryBadge = (tool?: string, tipCategory?: string) => {
     const badges = [];
-    
+
     // Tool badge
     if (tool) {
       const toolLabels: Record<string, string> = {
@@ -204,7 +206,7 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
         </span>
       );
     }
-    
+
     // Tip category badge
     if (tipCategory) {
       const categoryLabels: Record<string, string> = {
@@ -221,90 +223,14 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
         </span>
       );
     }
-    
+
     return badges;
   };
 
-  // Function to parse text and convert URLs to links
-  const parseTextWithLinks = (text: string) => {
-    // This regex matches URLs starting with http://, https://, or www.
-    const urlRegex = /(https?:\/\/[^\s]+)|(www\.[^\s]+)/g;
-    
-    // Find all matches and their positions
-    const matches: {text: string, index: number}[] = [];
-    let match;
-    while ((match = urlRegex.exec(text)) !== null) {
-      matches.push({
-        text: match[0],
-        index: match.index
-      });
-    }
-    
-    // If no URLs found, return the text as is
-    if (matches.length === 0) return text;
-    
-    const result: React.ReactNode[] = [];
-    let lastIndex = 0;
-    
-    // Rebuild the content with links
-    matches.forEach((match, i) => {
-      // Add text before the URL
-      if (match.index > lastIndex) {
-        result.push(text.substring(lastIndex, match.index));
-      }
-      
-      // Add the URL as a link
-      const url = match.text.startsWith('www.') ? `https://${match.text}` : match.text;
-      result.push(
-        <a 
-          key={`link-${i}`} 
-          href={url} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="text-primary/60 hover:underline break-all"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {match.text}
-        </a>
-      );
-      
-      lastIndex = match.index + match.text.length;
-    });
-    
-    // Add any remaining text after the last URL
-    if (lastIndex < text.length) {
-      result.push(text.substring(lastIndex));
-    }
-    
-    return result;
-  };
-
-  const renderMarkdown = (content: string) => {
-    if (!content) return null;
-    
-    return content.split('\n').map((line, index) => {
-      if (line.startsWith('## ')) {
-        return <h2 key={index} className="text-lg font-semibold mt-4 mb-2">{parseTextWithLinks(line.slice(3))}</h2>;
-      }
-      if (line.startsWith('### ')) {
-        return <h3 key={index} className="text-md font-medium mt-3 mb-1.5">{parseTextWithLinks(line.slice(4))}</h3>;
-      }
-      if (line.startsWith('- ')) {
-        return <li key={index} className="text-foreground-dim mb-1 ml-4">{parseTextWithLinks(line.slice(2))}</li>;
-      }
-      if (line.startsWith('**') && line.endsWith('**')) {
-        return <p key={index} className="font-semibold text-foreground my-1.5">{parseTextWithLinks(line.slice(2, -2))}</p>;
-      }
-      if (line.trim() === '') {
-        return <br key={index} />;
-      }
-      return <p key={index} className="text-foreground-dim mb-2 text-sm leading-relaxed">{parseTextWithLinks(line)}</p>;
-    });
-  };
 
   const renderComment = (comment: Comment, depth = 0) => {
     const isReplying = replyingTo === comment.id;
-    
+
     return (
       <div key={comment.id} className={`${depth > 0 ? 'ml-8 border-l-2 border-foreground/5 pl-4' : ''}`}>
         <div className="bg-foreground/5 rounded-xl p-4 mb-4 border border-foreground/10 transition-all hover:bg-foreground/10">
@@ -321,7 +247,7 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
                 </div>
               </div>
             </div>
-            
+
             <button
               onClick={() => setReplyingTo(isReplying ? null : comment.id)}
               className="flex items-center text-foreground/60 hover:text-primary text-sm transition-colors duration-200 group"
@@ -460,24 +386,28 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
                 <span className="mx-2 opacity-40">•</span>
                 <span>{post.view_count} views</span>
               </div>
-              
+
               <h1 className="text-2xl font-bold text-foreground mb-4">{post.title}</h1>
-              
+
               <div className="prose prose-invert max-w-none mb-6 text-foreground/90">
-                {renderMarkdown(post.content)}
+                <MarkdownRenderer
+                  content={processContent(post.content, { convertUrls: true })}
+                  variant="default"
+                  className="text-foreground/90"
+                />
               </div>
-              
+
               <div className="flex items-center pt-4 border-t border-foreground/10">
                 <div className="flex items-center mr-6">
-                  <button 
+                  <button
                     onClick={() => handleVote('upvote')}
                     className={`p-1 rounded-full hover:bg-foreground/5 ${userVote === 'upvote' ? 'text-primary' : 'text-foreground/60 hover:text-primary'}`}
                   >
                     <ThumbsUp size={18} />
                   </button>
                   <span className="mx-1 text-sm font-medium text-foreground/80">{post.upvotes}</span>
-                  
-                  <button 
+
+                  <button
                     onClick={() => handleVote('downvote')}
                     className={`p-1 rounded-full hover:bg-foreground/5 ${userVote === 'downvote' ? 'text-destructive' : 'text-foreground/60 hover:text-destructive'}`}
                   >
@@ -485,15 +415,15 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
                   </button>
                   <span className="mx-1 text-sm font-medium text-foreground/80">{post.downvotes}</span>
                 </div>
-                
-                <button 
+
+                <button
                   onClick={handleToggleSave}
                   className={`flex items-center text-sm ${isSaved ? 'text-primary' : 'text-foreground/60 hover:text-primary'}`}
                 >
-                  <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    className="h-5 w-5 mr-1" 
-                    viewBox="0 0 20 20" 
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 mr-1"
+                    viewBox="0 0 20 20"
                     fill="currentColor"
                   >
                     <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" />

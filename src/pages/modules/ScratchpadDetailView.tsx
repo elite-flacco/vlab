@@ -1,10 +1,10 @@
 import { format } from 'date-fns';
-import { Edit3, Loader2, Pin, Plus, Save, Search, StickyNote, Tag, Trash2, X, ChevronDown, ChevronUp } from 'lucide-react';
-import React, { useEffect, useState, useRef } from 'react';
-import ReactMarkdown from 'react-markdown';
+import { ChevronDown, ChevronUp, Edit3, Loader2, Pin, Plus, Save, Search, StickyNote, Trash2, X } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ModuleContainer } from '../../components/Workspace/ModuleContainer';
 import { BackButton } from '../../components/common/BackButton';
+import { MarkdownRenderer, useMarkdownPreprocessing } from '../../components/common/MarkdownRenderer';
 import { db } from '../../lib/supabase';
 
 interface DatabaseResponse<T> {
@@ -61,46 +61,7 @@ export const ScratchpadDetailView: React.FC = () => {
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [newNote, setNewNote] = useState<Partial<ScratchpadNote> | null>(null);
   const [saving, setSaving] = useState(false);
-  const [isReordering] = useState(false); // Used for drag and drop functionality
-
-  // Helper function to preprocess markdown content
-  const preprocessMarkdown = (content: string): string => {
-    if (!content) return '';
-    
-    console.log('Original content:', content);
-    
-    const processed = content
-      .split('\n')
-      .map(line => {
-        console.log('Original line:', line);
-        
-        // Trim leading whitespace for matching
-        const trimmedLine = line.trimStart();
-        const leadingSpaces = line.length - trimmedLine.length;
-        const leadingWhitespace = ' '.repeat(leadingSpaces);
-        
-        console.log('Trimmed line:', trimmedLine);
-        
-        // Match patterns like "Phase 1", "Step 2", etc.
-        const phaseMatch = trimmedLine.match(/^(Phase\s+\d+)([:.]?\s*)(.*)/i);
-        const stepMatch = trimmedLine.match(/^(Step\s+\d+)([:.]?\s*)(.*)/i);
-        
-        if (phaseMatch) {
-          const result = `${leadingWhitespace}# ${phaseMatch[1]}${phaseMatch[2]}${phaseMatch[3]}`;
-          console.log('Matched phase:', result);
-          return result;
-        } else if (stepMatch) {
-          const result = `${leadingWhitespace}# ${stepMatch[1]}${stepMatch[2]}${stepMatch[3]}`;
-          console.log('Matched step:', result);
-          return result;
-        }
-        return line;
-      })
-      .join('\n');
-      
-    console.log('Processed content:', processed);
-    return processed;
-  };
+  const { processContent } = useMarkdownPreprocessing();
 
   const [expandedNotes, setExpandedNotes] = useState<Record<string, boolean>>({});
   const contentRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -555,11 +516,11 @@ export const ScratchpadDetailView: React.FC = () => {
                     // Display Mode with Direct Edit/Delete Icons
                     <div className="flex-1">
                       <div className="flex items-start justify-between mb-2">
-                        <div className="flex-1">
+                        <div className="flex-1 min-w-0">
                           <div className="space-y-2">
                             <div className="flex items-center justify-between">
                               {note.title && (
-                                <h3 className="font-semibold text-foreground">{note.title}</h3>
+                                <h3 className="font-semibold text-foreground truncate pr-2">{note.title}</h3>
                               )}
                               {note.is_pinned && (
                                 <span className="inline-flex items-center text-xs text-foreground/60">
@@ -569,18 +530,22 @@ export const ScratchpadDetailView: React.FC = () => {
                             </div>
                             {note.title && <div className="h-px bg-foreground/20 w-full"></div>}
                           </div>
-                          <div 
+                          <div
                             ref={el => contentRefs.current[note.id] = el}
                             className={`overflow-hidden transition-all duration-300 ease-in-out ${expandedNotes[note.id] ? '' : 'max-h-32'}`}
                           >
-                            <div 
-                              className="prose prose-sm max-w-none mt-4 break-words"
-                              style={{ 
+                            <div
+                              className="prose prose-sm max-w-none mt-4 break-words overflow-hidden"
+                              style={{
                                 fontSize: `${Math.max(12, note.font_size - 2)}px`,
                                 color: 'inherit' // Ensure text color is inherited
                               }}
                             >
-                              <ReactMarkdown
+                              <MarkdownRenderer
+                                content={processContent(note.content, { convertUrls: true })}
+                                enableAutoLinks={true}
+                              />
+                              {/* <ReactMarkdown
                                 children={preprocessMarkdown(note.content)}
                                 components={{
                                   h1: (props) => <h1 className="text-lg font-semibold mt-2 mb-1 text-foreground/90" {...props} />,
@@ -603,7 +568,7 @@ export const ScratchpadDetailView: React.FC = () => {
                                       );
                                     }
                                     return (
-                                      <pre className="bg-foreground/10 p-2 rounded-md overflow-x-auto my-2">
+                                      <pre className="bg-foreground/10 p-2 rounded-md overflow-x-auto my-2 max-w-full">
                                         <code className="text-xs font-mono" {...props}>
                                           {children}
                                         </code>
@@ -620,11 +585,11 @@ export const ScratchpadDetailView: React.FC = () => {
                                   ),
                                 }}
                               >
-                              </ReactMarkdown>
+                              </ReactMarkdown> */}
                             </div>
                           </div>
                           {(note.content.length > 100 || expandedNotes[note.id]) && (
-                            <button 
+                            <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 toggleNoteExpansion(note.id);
@@ -650,7 +615,7 @@ export const ScratchpadDetailView: React.FC = () => {
                         </div>
 
                         {/* Direct Edit/Delete Icons - Always visible */}
-                        <div className="flex items-center space-x-1 ml-2">
+                        <div className="flex items-center space-x-1 flex-shrink-0 ml-2">
                           <button
                             onClick={() => setEditingNoteId(note.id)}
                             className="p-1.5 text-foreground-dim hover:text-primary hover:bg-foreground-dim/10 rounded-lg transition-colors"
