@@ -140,6 +140,10 @@ export const TasksDetailView: React.FC = () => {
     await handleUpdateTask(taskId, { priority: newPriority as TaskItem['priority'] });
   };
 
+  const handleStatusChange = async (taskId: string, newStatus: string) => {
+    await handleUpdateTask(taskId, { status: newStatus as TaskItem['status'] });
+  };
+
   const filteredTasks = tasks
     .filter(task => {
       const matchesStatus = filter === 'all'
@@ -168,10 +172,30 @@ export const TasksDetailView: React.FC = () => {
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'urgent': return 'bg-error/10 text-error border border-error/20';
-      case 'high': return 'bg-warning/10 text-warning border border-warning/20';
-      case 'medium': return 'bg-secondary text-foreground-dim border border-foreground-dim/30';
-      default: return 'bg-secondary/50 text-foreground-dim/70 border border-foreground-dim/20'; // low
+      case 'urgent': return 'badge-danger';
+      case 'high': return 'badge-warning';
+      case 'medium': return 'badge-secondary';
+      default: return 'badge-secondary'; // low
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'todo': return 'badge-info';
+      case 'in_progress': return 'badge-warning';
+      case 'done': return 'badge-success';
+      case 'blocked': return 'badge-danger';
+      default: return 'badge-secondary';
+    }
+  };
+
+  const getStatusDisplayName = (status: string) => {
+    switch (status) {
+      case 'todo': return 'To Do';
+      case 'in_progress': return 'In Progress';
+      case 'done': return 'Done';
+      case 'blocked': return 'Blocked';
+      default: return status;
     }
   };
 
@@ -541,12 +565,24 @@ export const TasksDetailView: React.FC = () => {
                           {task.title}
                         </h4>
                         <div className="flex items-center space-x-2 ml-2">
+                          {/* Interactive Status Dropdown */}
+                          <select
+                            value={task.status}
+                            onChange={(e) => handleStatusChange(task.id, e.target.value)}
+                            disabled={saving}
+                            className={`appearance-none cursor-pointer ${getStatusColor(task.status)} disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-1`}
+                          >
+                            <option value="todo">To Do</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="done">Done</option>
+                            <option value="blocked">Blocked</option>
+                          </select>
                           {/* Interactive Priority Dropdown */}
                           <select
                             value={task.priority}
                             onChange={(e) => handlePriorityChange(task.id, e.target.value)}
                             disabled={saving}
-                            className={`appearance-none cursor-pointer px-2 py-1 rounded-full text-2xs font-medium border flex-shrink-0 ${getPriorityColor(task.priority)} disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-1`}
+                            className={`appearance-none cursor-pointer ${getPriorityColor(task.priority)} disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-1`}
                           >
                             <option value="low">Low</option>
                             <option value="medium">Medium</option>
