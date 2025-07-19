@@ -199,6 +199,16 @@ export const Workspace: React.FC = () => {
     // If we have a projectId but no currentProject or currentProject doesn't match
     if (projectId && (!currentProject || currentProject.id !== projectId)) {
       
+      // Clear workspace data when switching projects
+      setWorkspaceData({
+        prds: [],
+        roadmapItems: [],
+        tasks: [],
+        scratchpadNotes: [],
+        prompts: [],
+        secrets: [],
+      });
+      
       // First check if project exists in already-loaded projects
       const project = allProjects.find(p => p.id === projectId);
       
@@ -242,8 +252,6 @@ export const Workspace: React.FC = () => {
       
       if (!hasWorkspaceData && !loading) {
         fetchWorkspaceData(projectId);
-      } else if (hasWorkspaceData) {
-      } else if (loading) {
       }
     }
   }, [projectId, allProjects, currentProject, setCurrentProject, fetchWorkspaceData, navigate, projectsLoading, user, projectsError, workspaceData, loading]);
@@ -316,31 +324,36 @@ export const Workspace: React.FC = () => {
   const getModuleSummary = (type: ModuleType): string => {
     switch (type) {
       case 'prd':
-        const latestPRD = workspaceData.prds[0];
-        return latestPRD ? `Latest: ${latestPRD.title} (v${latestPRD.version})` : 'No Product Requirements Documents yet.';
+        const latestPRD = workspaceData.prds?.[0];
+        return latestPRD ? `Latest: ${latestPRD.title} (v${latestPRD.version})` : 'Ready for your first PRD.';
       case 'roadmap':
-        const completedRoadmapItems = workspaceData.roadmapItems.filter(item => item.status === 'completed').length;
-        return `${workspaceData.roadmapItems.length} phases, ${completedRoadmapItems} completed.`;
+        const completedRoadmapItems = workspaceData.roadmapItems?.filter(item => item.status === 'completed').length || 0;
+        const totalRoadmapItems = workspaceData.roadmapItems?.length || 0;
+        return totalRoadmapItems > 0 ? `${totalRoadmapItems} phases, ${completedRoadmapItems} completed.` : 'Start your roadmap.';
       case 'tasks':
-        const todoTasks = workspaceData.tasks.filter(task => task.status === 'todo').length;
-        const inProgressTasks = workspaceData.tasks.filter(task => task.status === 'in_progress').length;
-        return `${workspaceData.tasks.length} tasks total, ${todoTasks} to do, ${inProgressTasks} in progress.`;
+        const todoTasks = workspaceData.tasks?.filter(task => task.status === 'todo').length || 0;
+        const inProgressTasks = workspaceData.tasks?.filter(task => task.status === 'in_progress').length || 0;
+        const totalTasks = workspaceData.tasks?.length || 0;
+        return totalTasks > 0 ? `${totalTasks} tasks total, ${todoTasks} to do, ${inProgressTasks} in progress.` : 'No tasks yet.';
       case 'scratchpad':
-        return `${workspaceData.scratchpadNotes.length} notes.`;
+        const notesCount = workspaceData.scratchpadNotes?.length || 0;
+        return notesCount > 0 ? `${notesCount} notes.` : 'Start writing down your ideas and notes.';
       case 'prompts':
-        return `${workspaceData.prompts.length} prompts.`;
+        const promptsCount = workspaceData.prompts?.length || 0;
+        return promptsCount > 0 ? `${promptsCount} prompts.` : 'Save your favorite prompts.';
       case 'secrets':
-        const activeSecrets = workspaceData.secrets.filter(secret => secret.is_active).length;
-        return `${workspaceData.secrets.length} secrets, ${activeSecrets} active.`;
+        const activeSecrets = workspaceData.secrets?.filter(secret => secret.is_active).length || 0;
+        const totalSecrets = workspaceData.secrets?.length || 0;
+        return totalSecrets > 0 ? `${totalSecrets} secrets, ${activeSecrets} active.` : 'Coming soon.';
       case 'design':
-        return 'AI-powered design assistant. Coming soon!';
+        return 'AI-powered design assistant.';
       default:
-        return 'No data available.';
+        return 'Ready to get started.';
     }
   };
 
-  // Show loading if projects are loading OR we're loading a specific project OR workspace data is loading
-  if (projectsLoading || isProjectLoading || loading) {
+  // Show loading only if we don't have a project yet or are still loading projects
+  if (projectsLoading || isProjectLoading || (!currentProject && !projectsError)) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">

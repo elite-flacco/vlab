@@ -625,10 +625,10 @@ export const RoadmapDetailView: React.FC = () => {
         <BackButton onClick={handleReturnToWorkspace} />
         <ModuleContainer title="Roadmap" type="roadmap">
           <div className="h-full flex items-center justify-center">
-            <div className="text-center">
+            <div className="text-center pt-4">
               <Map className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">No Roadmap Yet</h3>
-              <p className="text-foreground-dim mb-4 text-sm">
+              <h3 className="mb-2">No Roadmap Yet</h3>
+              <p className="mb-4 text-sm">
                 Create roadmap items to plan your project phases.
               </p>
               <button
@@ -642,7 +642,7 @@ export const RoadmapDetailView: React.FC = () => {
                   color: '#3b82f6',
                   dependencies: [],
                 })}
-                className="btn-add"
+                className="btn-add mb-6"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Add Phase

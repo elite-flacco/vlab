@@ -498,10 +498,10 @@ export const TasksDetailView: React.FC = () => {
         <BackButton onClick={handleReturnToWorkspace} />
         <ModuleContainer title="Tasks" type="tasks">
           <div className="h-full flex items-center justify-center">
-            <div className="text-center">
-              <CheckSquare className="w-12 h-12 text-foreground-dim/50 mx-auto mb-4" />
-              <h3 className="card-title mb-2">No Tasks Yet</h3>
-              <p className="card-content mb-4">
+            <div className="text-center pt-4">
+              <CheckSquare className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+              <h3 className="mb-2">No Tasks Yet</h3>
+              <p className="mb-4 text-sm">
                 Create tasks to track your development progress.
               </p>
               <button
@@ -513,7 +513,7 @@ export const TasksDetailView: React.FC = () => {
                   tags: [],
                   dependencies: [],
                 })}
-                className="btn-add mb-4"
+                className="btn-add mb-6"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Add Task
@@ -636,7 +636,8 @@ export const TasksDetailView: React.FC = () => {
               </div>
             </div>
           )}
-          <div className="card p-4 mb-6">
+          <div className="flex flex-col lg:flex-row lg:items-center gap-4 mb-6">
+            {tasks.length > 0 && (
             <div className="flex flex-wrap items-center gap-2">
               {/* Search Bar */}
               <div className="relative flex-shrink-0">
@@ -692,7 +693,7 @@ export const TasksDetailView: React.FC = () => {
                 {showCompleted ? 'Hide' : 'Show'} Completed
               </button>
             </div>
-
+            )}
           </div>
 
           {/* Tasks List */}

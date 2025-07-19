@@ -215,7 +215,7 @@ export const PromptsDetailView: React.FC = () => {
                   tags: [],
                   is_template: false,
                 })}
-                className="btn-add mb-4"
+                className="btn-add mb-6"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Add Prompt

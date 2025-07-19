@@ -329,13 +329,27 @@ export const ScratchpadDetailView: React.FC = () => {
       <div className="max-w-6xl mx-auto">
         <BackButton onClick={handleReturnToWorkspace} />
         <ModuleContainer title="Scratchpad" type="scratchpad">
-          <div className="h-full flex items-center justify-center py-12">
-            <div className="text-center">
-              <StickyNote className="w-12 h-12 text-foreground-dim/50 mx-auto mb-4" />
-              <h3 className="card-title mb-2">No Notes Yet</h3>
-              <p className="card-content">
+          <div className="h-full flex items-center justify-center">
+            <div className="text-center pt-4">
+              <StickyNote className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+              <h3 className="mb-2">No Notes Yet</h3>
+              <p className="mb-4 text-sm">
                 Create notes to capture ideas and important information.
               </p>
+              <button
+                onClick={() => setNewNote({
+                  title: '',
+                  content: '',
+                  color: '#fef3c7',
+                  font_size: 14,
+                  is_pinned: false,
+                  tags: [],
+                })}
+                className="btn-add mb-6"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Note
+              </button>
             </div>
           </div>
         </ModuleContainer>
@@ -464,6 +478,7 @@ export const ScratchpadDetailView: React.FC = () => {
           )}
           <div className="flex flex-col lg:flex-row lg:items-center gap-4 mb-6">
             {/* Search and Filter Controls */}
+            {notes.length > 0 && (
             <div className="relative w-full lg:w-64 flex-shrink-0">
               <Search className="search-icon" />
               <input
@@ -474,6 +489,7 @@ export const ScratchpadDetailView: React.FC = () => {
                 className="search-input w-full"
               />
             </div>
+            )}
             {/* Tags Filter */}
             {allTags.length > 0 && (
               <div className="flex flex-wrap items-center gap-2 overflow-x-auto w-full lg:w-auto pb-1">
