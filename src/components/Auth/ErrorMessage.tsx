@@ -223,8 +223,6 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
   return (
     <div 
       className={`border rounded-lg p-4 ${colors.container} ${className}`}
-      role="alert"
-      aria-live="polite"
     >
       <div className="flex items-start space-x-3">
         <div className="flex-shrink-0">
