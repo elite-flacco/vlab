@@ -183,70 +183,37 @@ export const RoadmapDetailView: React.FC = () => {
       return;
     }
 
-    const sourcePhase = source.droppableId as RoadmapItem['phase'];
     const destinationPhase = destination.droppableId as RoadmapItem['phase'];
 
-    // Get the item being moved
+    // Find the item being moved
     const movedItem = roadmapItems.find(item => item.id === draggableId);
     if (!movedItem) return;
 
-    // Create new roadmap items array with updated positions and phases
-    let updatedItems = [...roadmapItems];
+    // Store original state for potential revert
+    const originalItems = [...roadmapItems];
 
-    // Remove the item from its current position
-    updatedItems = updatedItems.filter(item => item.id !== draggableId);
+    // Update the item's phase and position in local state immediately
+    const updatedItems = roadmapItems.map(item => 
+      item.id === draggableId 
+        ? { ...item, phase: destinationPhase, position: destination.index }
+        : item
+    );
 
-    // Get items in the destination phase (excluding the moved item)
-    const destinationItems = updatedItems.filter(item => item.phase === destinationPhase);
+    setRoadmapItems(updatedItems);
 
-    // Insert the moved item at the new position
-    const updatedMovedItem = {
-      ...movedItem,
-      phase: destinationPhase,
-    };
-
-    destinationItems.splice(destination.index, 0, updatedMovedItem);
-
-    // Update positions for items in the destination phase
-    const destinationItemsWithPositions = destinationItems.map((item, index) => ({
-      ...item,
-      position: index,
-    }));
-
-    // Combine all items
-    const otherPhaseItems = updatedItems.filter(item => item.phase !== destinationPhase);
-    const finalItems = [...otherPhaseItems, ...destinationItemsWithPositions];
-
-    // Update local state immediately for better UX
-    setRoadmapItems(finalItems);
-
-    // Update the database for all affected items
+    // Update the database
     try {
       setSaving(true);
-
-      // Update the moved item's phase
-      if (sourcePhase !== destinationPhase) {
-        await handleUpdateRoadmapItem(draggableId, {
-          phase: destinationPhase,
-          position: destination.index
-        });
-      } else {
-        await handleUpdateRoadmapItem(draggableId, {
-          position: destination.index
-        });
-      }
-
-      // Update positions for other items in the destination phase if needed
-      const positionUpdates = destinationItemsWithPositions
-        .filter(item => item.id !== draggableId)
-        .map(item => handleUpdateRoadmapItem(item.id, { position: item.position }));
-
-      await Promise.all(positionUpdates);
+      
+      await handleUpdateRoadmapItem(draggableId, {
+        phase: destinationPhase,
+        position: destination.index
+      });
 
     } catch (err: any) {
       // Revert local state on error
-      setRoadmapItems(roadmapItems);
-      setError(err.message || 'Failed to update item positions');
+      setRoadmapItems(originalItems);
+      setError(err.message || 'Failed to update item position');
     } finally {
       setSaving(false);
     }
@@ -760,9 +727,6 @@ export const RoadmapDetailView: React.FC = () => {
                     <Plus className="w-4 h-4 mr-2" />,
                     'bg-yellow-500/5'
                   )}
-                </div>
-                <div className="mt-2 text-center">
-                  <p className="text-xs text-foreground-dim italic">Drag and drop functionality coming soon</p>
                 </div>
               </DragDropContext>
             ) : (
