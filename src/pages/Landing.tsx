@@ -24,7 +24,10 @@ export const Landing: React.FC = () => {
   // Redirect if already authenticated
   useEffect(() => {
     if (user) {
-      navigate('/');
+      // Get the intended destination from sessionStorage or use dashboard as default
+      const returnUrl = sessionStorage.getItem('returnUrl') || '/';
+      sessionStorage.removeItem('returnUrl'); // Clean up
+      navigate(returnUrl);
     }
   }, [user, navigate]);
 

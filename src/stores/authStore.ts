@@ -242,6 +242,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       clearProjects();
       
       set({ user: null, loading: false });
+      
+      // Redirect to landing page after logout
+      window.location.href = '/';
     } catch (error: any) {
       set({ error: error.message, loading: false });
     }

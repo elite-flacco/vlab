@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
 import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
 import { Landing } from './pages/Landing';
@@ -16,6 +16,20 @@ import { ScratchpadDetailView } from './pages/modules/ScratchpadDetailView';
 import { PromptsDetailView } from './pages/modules/PromptsDetailView';
 import { SecretsDetailView } from './pages/modules/SecretsDetailView';
 import { DesignDetailView } from './pages/modules/DesignDetailView';
+
+// Wrapper component to handle return URL logic
+function LandingWrapper() {
+  const location = useLocation();
+  
+  useEffect(() => {
+    // Store the current path as return URL if it's not the root
+    if (location.pathname !== '/' && location.pathname !== '/landing') {
+      sessionStorage.setItem('returnUrl', location.pathname + location.search);
+    }
+  }, [location]);
+  
+  return <Landing />;
+}
 
 function App() {
   const { user, loading, initialize } = useAuthStore();
@@ -41,7 +55,7 @@ function App() {
         <Routes>
           {/* Landing page for unauthenticated users */}
           {!user ? (
-            <Route path="*" element={<Landing />} />
+            <Route path="*" element={<LandingWrapper />} />
           ) : (
             <>
               {/* Authenticated routes */}
