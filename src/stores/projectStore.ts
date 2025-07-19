@@ -16,6 +16,7 @@ interface ProjectState {
   deleteProjectPermanently: (id: string) => Promise<void>;
   setCurrentProject: (project: Project | null) => void;
   updateWorkspaceLayout: (layout: WorkspaceLayout) => Promise<void>;
+  clearProjects: () => void;
   clearError: () => void;
 }
 
@@ -239,6 +240,17 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
     } catch (error: any) {
       set({ error: error.message });
     }
+  },
+
+  clearProjects: () => {
+    console.log('🧹 ProjectStore: Clearing all projects and current project');
+    set({ 
+      activeProjects: [], 
+      archivedProjects: [], 
+      currentProject: null,
+      loading: false,
+      error: null
+    });
   },
 
   clearError: () => set({ error: null }),

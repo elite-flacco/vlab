@@ -95,6 +95,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const { error } = await auth.signOut();
       if (error) throw error;
       console.log('✅ AuthStore: Sign out successful');
+      
+      // Clear all project data when signing out
+      const { clearProjects } = await import('./projectStore').then(m => m.useProjectStore.getState());
+      clearProjects();
+      
       set({ user: null, loading: false });
     } catch (error: any) {
       console.error('❌ AuthStore: Sign out error:', error);
@@ -138,6 +143,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           if (loading) {
             console.log('🔐 AuthStore: No active session found');
           }
+          
+          // Clear projects when no session is found (user logged out)
+          const { clearProjects } = await import('./projectStore').then(m => m.useProjectStore.getState());
+          clearProjects();
+          
           set({ user: null, loading: false, error: null });
           return;
         }
@@ -171,6 +181,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         if (loading) {
           console.log('🔐 AuthStore: No user session found');
         }
+        
+        // Clear projects when no user is found
+        const { clearProjects } = await import('./projectStore').then(m => m.useProjectStore.getState());
+        clearProjects();
+        
         set({ user: null, loading: false });
       }
     } catch (error: any) {
