@@ -373,15 +373,15 @@ async function generateRoadmap(apiKey: string, prdContent: string): Promise<any[
       messages: [
         {
           role: "system",
-          content: `You are a senior product manager creating a development roadmap. Based on the PRD provided, generate a phased roadmap that breaks down the project into logical development phases.
+          content: `You are a senior product manager creating a granular development roadmap. Based on the PRD provided, break down the project into specific, actionable deliverables rather than high-level phases.
 
-Create 3-5 roadmap items representing different phases. Each phase should build upon the previous one.
+Create 8-12 specific roadmap items that represent concrete features/deliverables. Focus on individual features, components, or capabilities that can be built and shipped independently.
 
 Return ONLY a valid JSON array with this exact structure:
 [
   {
-    "title": "MVP - Core Features",
-    "description": "Detailed description of what will be built in this phase",
+    "title": "User Authentication System",
+    "description": "Build user registration, login, password reset, and profile management functionality",
     "status": "planned",
     "phase": "mvp",
     "milestone": true,
@@ -390,22 +390,40 @@ Return ONLY a valid JSON array with this exact structure:
   }
 ]
 
-Guidelines:
-- First phase should ALWAYS have phase: "mvp" with core features
-- Second phase should have phase: "phase_2" for enhanced features
-- Additional phases should have phase: "backlog" for future items
-- Mark major phases as milestones (milestone: true)
+Guidelines for Creating Granular Items:
+- Break down features into specific, deliverable components (e.g., "User Authentication", "Product Search", "Payment Processing")
+- Each item should be scoped to 1-3 weeks of development work
+- Make titles specific and actionable (avoid generic terms like "Core Features")
+- Descriptions should clearly define what will be built and delivered
+- MVP phase (4-6 items): Essential features needed for launch
+- Phase 2 (2-4 items): Important enhancements and improvements  
+- Backlog (2-3 items): Nice-to-have features for future releases
+- Mark key foundational items as milestones (milestone: true)
 - Use colors: #3b82f6 (blue), #10b981 (green), #f59e0b (amber), #ef4444 (red), #8b5cf6 (purple)
-- Keep descriptions concise but specific
 - Status should always be "planned" for new roadmaps
-- Position should increment from 0`
+- Position should increment from 0
+
+Examples of good granular items:
+- "User Registration & Authentication"
+- "Product Catalog with Search & Filtering"
+- "Shopping Cart & Checkout Flow"
+- "Admin Dashboard for Order Management"
+- "Email Notification System"
+- "Mobile Responsive Design"
+- "Payment Gateway Integration"
+- "User Profile & Settings"
+
+Avoid vague items like:
+- "MVP - Core Features"
+- "Phase 2 - Enhanced Features" 
+- "Implement all functionality"`
         },
         {
           role: "user",
-          content: `Create a development roadmap based on this PRD:\n\n${sanitizedContent}`
+          content: `Create a granular development roadmap based on this PRD:\n\n${sanitizedContent}`
         }
       ],
-      max_tokens: 1000,
+      max_tokens: 1500,
       temperature: 0.6,
     }),
   });
@@ -447,11 +465,11 @@ Guidelines:
   } catch (parseError) {
     console.error('Failed to parse roadmap JSON:', content);
     
-    // Fallback: create a basic roadmap structure
+    // Fallback: create a granular roadmap structure
     return [
       {
-        title: 'MVP - Core Features',
-        description: 'Build the essential features needed for the minimum viable product',
+        title: 'User Authentication System',
+        description: 'Build user registration, login, password reset, and profile management functionality',
         status: 'planned',
         phase: 'mvp',
         milestone: true,
@@ -459,22 +477,85 @@ Guidelines:
         position: 0,
       },
       {
-        title: 'Phase 2 - Enhanced Features',
-        description: 'Add additional features and improvements based on user feedback',
+        title: 'Core Data Models & Database',
+        description: 'Design and implement the foundational data models and database schema',
+        status: 'planned',
+        phase: 'mvp',
+        milestone: true,
+        color: '#3b82f6',
+        position: 1,
+      },
+      {
+        title: 'Main User Interface',
+        description: 'Create the primary user interface and navigation structure',
+        status: 'planned',
+        phase: 'mvp',
+        milestone: false,
+        color: '#3b82f6',
+        position: 2,
+      },
+      {
+        title: 'Core Feature Implementation',
+        description: 'Build the main functionality identified in the requirements',
+        status: 'planned',
+        phase: 'mvp',
+        milestone: false,
+        color: '#3b82f6',
+        position: 3,
+      },
+      {
+        title: 'API Integration & Backend',
+        description: 'Develop API endpoints and backend services for core functionality',
+        status: 'planned',
+        phase: 'mvp',
+        milestone: false,
+        color: '#3b82f6',
+        position: 4,
+      },
+      {
+        title: 'Testing & Quality Assurance',
+        description: 'Implement testing suite and ensure application quality and reliability',
+        status: 'planned',
+        phase: 'mvp',
+        milestone: false,
+        color: '#10b981',
+        position: 5,
+      },
+      {
+        title: 'User Experience Enhancements',
+        description: 'Improve user interface design and user experience based on feedback',
         status: 'planned',
         phase: 'phase_2',
         milestone: false,
         color: '#10b981',
-        position: 1,
+        position: 6,
       },
       {
-        title: 'Future Enhancements',
-        description: 'Advanced features and optimizations for future releases',
+        title: 'Performance Optimization',
+        description: 'Optimize application performance, loading times, and responsiveness',
+        status: 'planned',
+        phase: 'phase_2',
+        milestone: false,
+        color: '#10b981',
+        position: 7,
+      },
+      {
+        title: 'Advanced Features',
+        description: 'Implement additional features and capabilities for enhanced functionality',
         status: 'planned',
         phase: 'backlog',
         milestone: false,
         color: '#f59e0b',
-        position: 2,
+        position: 8,
+      },
+      {
+        title: 'Mobile App Development',
+        description: 'Create mobile application versions for iOS and Android platforms',
+        status: 'planned',
+        phase: 'backlog',
+        milestone: false,
+        color: '#8b5cf6',
+        position: 9,
       },
     ];
   }
