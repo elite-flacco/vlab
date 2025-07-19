@@ -186,42 +186,32 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
       
       if (data.user) {
-        // Check if this is an existing user (Supabase returns user without creating new account)
-        const isExistingUser = data.user.email_confirmed_at !== null && !data.session;
+        // Supabase will send a confirmation email regardless, so we should show success message
+        // The user will need to confirm their email to complete registration
+        const needsEmailConfirmation = !data.session || data.user.email_confirmed_at === null;
         
-        if (isExistingUser) {
+        if (needsEmailConfirmation) {
           set({ 
             user: null, 
             loading: false,
-            error: 'An account with this email address already exists'
+            error: 'Account created! Please check your email and click the confirmation link to activate your account.'
           });
         } else {
-          // Check if email confirmation is required for new user
-          const needsEmailConfirmation = !data.session || data.user.email_confirmed_at === null;
+          // User is fully registered and confirmed (rare case for immediate confirmation)
+          const user: User = {
+            id: data.user.id,
+            email: data.user.email || '',
+            name: data.user.user_metadata?.name || 
+                  data.user.user_metadata?.full_name || 
+                  name || 
+                  data.user.email?.split('@')[0] || 
+                  'User',
+            avatar_url: data.user.user_metadata?.avatar_url,
+            created_at: data.user.created_at,
+            updated_at: data.user.updated_at || data.user.created_at,
+          };
           
-          if (needsEmailConfirmation) {
-            set({ 
-              user: null, 
-              loading: false,
-              error: 'Please check your email and click the confirmation link to activate your account.'
-            });
-          } else {
-            // User is fully registered and confirmed
-            const user: User = {
-              id: data.user.id,
-              email: data.user.email || '',
-              name: data.user.user_metadata?.name || 
-                    data.user.user_metadata?.full_name || 
-                    name || 
-                    data.user.email?.split('@')[0] || 
-                    'User',
-              avatar_url: data.user.user_metadata?.avatar_url,
-              created_at: data.user.created_at,
-              updated_at: data.user.updated_at || data.user.created_at,
-            };
-            
-            set({ user, loading: false });
-          }
+          set({ user, loading: false });
         }
       } else {
         set({ loading: false });

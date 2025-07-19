@@ -159,7 +159,7 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
         type: 'email_confirmation',
         title: 'Email Confirmation Required',
         message: errorMessage,
-        suggestion: 'If you don\'t see the email, check your spam folder. You can also try signing up again to resend the confirmation email.',
+        suggestion: 'If you don\'t see the email, please check your spam folder.',
         showLoginLink: false,
         icon: AlertCircle,
         color: 'blue'
