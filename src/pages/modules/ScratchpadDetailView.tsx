@@ -1,12 +1,12 @@
 import { format } from 'date-fns';
-import { ChevronDown, ChevronUp, Edit3, Loader2, Pin, Plus, Save, Search, StickyNote, Trash2, X, Sparkles, Check, CheckCircle2, AlertCircle } from 'lucide-react';
+import { AlertCircle, Check, CheckCircle2, ChevronDown, ChevronUp, Edit3, Loader2, Pin, Plus, Save, Search, Sparkles, StickyNote, Tag, Trash2, X } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ModuleContainer } from '../../components/Workspace/ModuleContainer';
 import { BackButton } from '../../components/common/BackButton';
 import { MarkdownRenderer, useMarkdownPreprocessing } from '../../components/common/MarkdownRenderer';
-import { db, supabase } from '../../lib/supabase';
 import { generateDesignTasks } from '../../lib/openai';
+import { db, supabase } from '../../lib/supabase';
 
 interface DatabaseResponse<T> {
   data: T | null;
@@ -48,20 +48,8 @@ const TAG_OPTIONS = [
   'AI Discussion'
 ];
 
-const getTagBadgeClass = (tag: string) => {
-  switch (tag.toLowerCase()) {
-    case 'project notes':
-      return 'badge-primary'; // Greenish
-    case 'ideas':
-      return 'badge-info'; // Bluish
-    case 'links & resources':
-      return 'badge-purple'; // Purplish
-    case 'ai discussion':
-      return 'badge-secondary'; // Dark gray/light gray
-    default:
-      return 'badge-secondary'; // Fallback for any other tags
-  }
-};
+// Use consistent tag styling across all modules
+const getTagClass = () => 'badge-tag';
 
 export const ScratchpadDetailView: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
@@ -78,7 +66,7 @@ export const ScratchpadDetailView: React.FC = () => {
 
   const [expandedNotes, setExpandedNotes] = useState<Record<string, boolean>>({});
   const contentRefs = useRef<Record<string, HTMLDivElement | null>>({});
-  
+
   // Task generation state
   const [isGeneratingTasks, setIsGeneratingTasks] = useState(false);
   const [generatedTasks, setGeneratedTasks] = useState<GeneratedTask[]>([]);
@@ -769,7 +757,7 @@ export const ScratchpadDetailView: React.FC = () => {
                       </div>
                     </div>
                   )}
-                  
+
                   {/* Show generated tasks immediately below the note that generated them */}
                   {selectedNoteForTasks === note.id && generatedTasks.length > 0 && (
                     <div className="mt-4">
@@ -794,7 +782,7 @@ export const ScratchpadDetailView: React.FC = () => {
                                 setSelectedTaskIds(new Set());
                                 setSelectedNoteForTasks(null);
                               }}
-                              className="text-xs px-2 py-1 rounded bg-foreground-dim/10 text-foreground-dim hover:bg-foreground-dim/20 transition-colors"
+                              className="btn-secondary text-xs px-3 py-1 flex items-center gap-1"
                             >
                               Cancel
                             </button>
@@ -818,8 +806,8 @@ export const ScratchpadDetailView: React.FC = () => {
                                   <button
                                     onClick={() => toggleTaskSelection(index)}
                                     className={`w-4 h-4 rounded border flex items-center justify-center transition-all duration-200 ${selectedTaskIds.has(index)
-                                        ? 'bg-primary border-primary text-white'
-                                        : 'border-foreground/40 hover:border-primary/50 bg-background'
+                                      ? 'bg-background border-foreground/40 text-primary'
+                                      : 'border-foreground/40 hover:border-primary/50 bg-background'
                                       }`}
                                   >
                                     {selectedTaskIds.has(index) && <Check className="w-3 h-3" />}
@@ -841,23 +829,27 @@ export const ScratchpadDetailView: React.FC = () => {
                                     </div>
                                   </div>
 
-                                  <p className="text-foreground-dim text-xs mb-2">
+                                  <p className="text-foreground-dim text-sm mb-2">
                                     {task.description}
                                   </p>
 
                                   <div className="flex items-center gap-1 flex-wrap">
-                                    {task.tags.map((tag, tagIndex) => (
-                                      <span key={tagIndex} className="badge-info text-xs px-1 py-0.5">
-                                        {tag}
-                                      </span>
-                                    ))}
+                                    {task.tags && task.tags.length > 0 && (
+                                      <div className="flex items-center space-x-1">
+                                        <Tag className="w-3 h-3 text-foreground-dim" />
+                                        <span className="text-xs text-foreground-dim">
+                                          {task.tags.slice(0, 2).join(', ')}
+                                          {task.tags.length > 2 && ` +${task.tags.length - 2}`}
+                                        </span>
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
                               </div>
                             </div>
                           ))}
                         </div>
-                        
+
                         {/* Task Error/Success Messages within the card */}
                         {taskError && (
                           <div className="mt-3 bg-destructive/10 border border-destructive/20 rounded p-2 flex items-center gap-2">

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ModuleContainer } from '../../components/Workspace/ModuleContainer';
 import { BackButton } from '../../components/common/BackButton';
-import { Palette, Sparkles, Zap, Layers, PenTool, Loader2, CheckCircle2, AlertCircle, Plus, Check, Edit2, Save, X, Upload, Image, FileText, Trash2 } from 'lucide-react';
+import { Palette, Sparkles, Zap, Layers, PenTool, Loader2, CheckCircle2, AlertCircle, Plus, Check, Edit2, Save, X, Upload, Image, FileText, Trash2, Tag } from 'lucide-react';
 import { db, supabase } from '../../lib/supabase';
 import { generateDesignTasks, generateDesignTasksFromImage } from '../../lib/openai';
 import { v4 as uuidv4 } from 'uuid';
@@ -346,8 +346,8 @@ export const DesignDetailView: React.FC = () => {
               <button
                 onClick={() => setAnalysisMode('image')}
                 className={`flex items-center gap-2 px-4 py-2 text-base rounded-md transition-all ${analysisMode === 'image'
-                    ? 'filter-button-active'
-                    : 'filter-button'
+                  ? 'filter-button-active'
+                  : 'filter-button'
                   }`}
               >
                 <Image className="w-4 h-4" />
@@ -356,8 +356,8 @@ export const DesignDetailView: React.FC = () => {
               <button
                 onClick={() => setAnalysisMode('text')}
                 className={`flex items-center gap-2 px-4 py-2 text-base rounded-md transition-all ${analysisMode === 'text'
-                    ? 'filter-button-active'
-                    : 'filter-button'
+                  ? 'filter-button-active'
+                  : 'filter-button'
                   }`}
               >
                 <FileText className="w-4 h-4" />
@@ -392,8 +392,8 @@ export const DesignDetailView: React.FC = () => {
                 {!imagePreview ? (
                   <div
                     className={`border-2 border-dashed rounded-lg p-8 text-center transition-all ${isDragOver
-                        ? 'border-primary bg-primary/5 scale-105'
-                        : 'border-border hover:border-primary/50'
+                      ? 'border-primary bg-primary/5 scale-105'
+                      : 'border-border hover:border-primary/50'
                       }`}
                     onDragOver={handleDragOver}
                     onDragEnter={handleDragEnter}
@@ -517,8 +517,8 @@ export const DesignDetailView: React.FC = () => {
                         <button
                           onClick={() => toggleTaskSelection(index)}
                           className={`w-4 h-4 rounded border flex items-center justify-center transition-all duration-200 ${selectedTaskIds.has(index)
-                              ? 'bg-background border-foreground/40 text-primary'
-                              : 'border-foreground/40 hover:border-primary/50 bg-background'
+                            ? 'bg-background border-foreground/40 text-primary'
+                            : 'border-foreground/40 hover:border-primary/50 bg-background'
                             }`}
                         >
                           {selectedTaskIds.has(index) && <Check className="w-3 h-3" />}
@@ -594,11 +594,15 @@ export const DesignDetailView: React.FC = () => {
                         )}
 
                         <div className="flex items-center gap-2 flex-wrap">
-                          {task.tags.map((tag, tagIndex) => (
-                            <span key={tagIndex} className="badge-info">
-                              {tag}
-                            </span>
-                          ))}
+                          {task.tags && task.tags.length > 0 && (
+                            <div className="flex items-center space-x-1">
+                              <Tag className="w-3 h-3 text-foreground-dim" />
+                              <span className="text-xs text-foreground-dim">
+                                {task.tags.slice(0, 2).join(', ')}
+                                {task.tags.length > 2 && ` +${task.tags.length - 2}`}
+                              </span>
+                            </div>
+                          )}
                           {/* {task.estimated_hours && (
                             <span 
                               className="px-2 py-1 bg-secondary/50 text-foreground-dim rounded-full text-xs cursor-pointer hover:bg-secondary/70 transition-colors"
