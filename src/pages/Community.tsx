@@ -35,7 +35,7 @@ export const Community: React.FC = () => {
   const [selectedTool, setSelectedTool] = useState<string>('');
   const [selectedTipCategory, setSelectedTipCategory] = useState<string>('');
   const [selectedTag, setSelectedTag] = useState<string>('');
-  const [sortBy, setSortBy] = useState<'newest' | 'popular' | 'trending'>('trending');
+  const [sortBy, setSortBy] = useState<'newest' | 'popular' | 'trending'>('newest');
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -64,7 +64,7 @@ export const Community: React.FC = () => {
     if (selectedTool) params.set('tool', selectedTool);
     if (selectedTipCategory) params.set('tip_category', selectedTipCategory);
     if (searchTerm) params.set('search', searchTerm);
-    if (sortBy !== 'trending') params.set('sort', sortBy);
+    if (sortBy !== 'newest') params.set('sort', sortBy);
 
     const newUrl = params.toString() ? `${window.location.pathname}?${params.toString()}` : window.location.pathname;
     window.history.replaceState({}, '', newUrl);

@@ -72,10 +72,8 @@ serve(async (req) => {
         query = query.order('upvotes', { ascending: false })
         break
       case 'trending':
-        // Simple trending: high upvotes in recent time
-        query = query
-          .gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
-          .order('upvotes', { ascending: false })
+        // Trending: sort by upvotes but with recency boost (no date filter to avoid empty results)
+        query = query.order('upvotes', { ascending: false }).order('created_at', { ascending: false })
         break
       case 'oldest':
         query = query.order('created_at', { ascending: true })
