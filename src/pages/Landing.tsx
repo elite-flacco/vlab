@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { ErrorMessage } from '../components/Auth/ErrorMessage';
-import { Terminal, Code, Zap, Shield, ArrowRight, Eye, EyeOff, X } from 'lucide-react';
+import { Terminal, Code, Zap, Shield, ArrowRight, Eye, EyeOff, X, Mail } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { ErrorBoundary } from '../components/ErrorBoundary/ErrorBoundary';
 
@@ -235,7 +235,7 @@ export const Landing: React.FC = () => {
 
               {/* Value Proposition */}
               <p className="text-lg md:text-xl text-foreground-dim mb-8 max-w-2xl mx-auto leading-relaxed">
-                // built_for(vibe_coders)
+                // built_for(<span className="text-primary">vibe_coders</span>)
                 <br />
                 A minimalist, AI-powered all-in-one workspace for chaotic builders.
               </p>
@@ -283,14 +283,14 @@ export const Landing: React.FC = () => {
                         <img 
                           src={feature.staticImage}
                           alt={feature.alt}
-                          className="w-full h-32 object-cover object-top group-hover:opacity-0 transition-opacity duration-500"
+                          className="w-full h-48 object-cover object-top group-hover:opacity-0 transition-opacity duration-500"
                           loading="lazy"
                         />
                         {/* GIF (shows on hover) */}
                         <img 
                           src={feature.gifImage}
                           alt={`${feature.alt} - Animated`}
-                          className="absolute inset-0 w-full h-32 object-cover object-top opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                          className="absolute inset-0 w-full h-48 object-cover object-top opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                           loading="lazy"
                         />
                         
@@ -498,13 +498,14 @@ export const Landing: React.FC = () => {
               <div className="flex flex-col md:flex-row items-center justify-between">
                 <div className="flex items-center space-x-2 mb-4 md:mb-0">
                   <Terminal className="w-5 h-5 text-primary" />
-                  <span className="text-foreground-dim">VLab  2025</span>
+                  <span className="text-foreground-dim">© 2025 VLab. All rights reserved.</span>
                 </div>
-                <div className="flex items-center space-x-6 text-sm text-foreground-dim">
+                <div className="flex items-center space-x-6 text-foreground-dim">
                   <button
                     onClick={() => setShowContactModal(true)}
                     className="hover:text-primary transition-colors flex items-center space-x-1"
                   >
+                    <Mail className="w-4 h-4 mr-1" />
                     <span>Get in touch</span>
                   </button>
                   <span className="flex items-center space-x-1">
@@ -541,7 +542,7 @@ export const Landing: React.FC = () => {
                   <div className="p-6">
                     <h3 className="mb-2">Get in Touch</h3>
                     <p className="text-foreground-dim mb-6">
-                      Have questions, feedback or want to learn more? Send us a message at <a href="mailto:vibelab.feedback@gmail.com" className="text-primary hover:underline">vibelab.feedback@gmail.com</a>, let's chat!
+                      Have questions, feedback or want to learn more? Drop us a message at <a href="mailto:vibelab.feedback@gmail.com" className="text-primary hover:underline">vibelab.feedback@gmail.com</a>, let's chat!
                     </p>
                   </div>
                 </div>
