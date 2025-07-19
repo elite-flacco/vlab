@@ -744,7 +744,11 @@ export const ScratchpadDetailView: React.FC = () => {
                             className="p-1.5 text-foreground-dim hover:text-primary hover:bg-foreground-dim/10 rounded-lg transition-colors disabled:opacity-50"
                             title="Generate tasks from this note"
                           >
-                            <Sparkles className="w-3 h-3" />
+                            {isGeneratingTasks && selectedNoteForTasks === note.id ? (
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                            ) : (
+                              <Sparkles className="w-3 h-3" />
+                            )}
                           </button>
                           <button
                             onClick={() => setEditingNoteId(note.id)}
@@ -765,6 +769,112 @@ export const ScratchpadDetailView: React.FC = () => {
                       </div>
                     </div>
                   )}
+                  
+                  {/* Show generated tasks immediately below the note that generated them */}
+                  {selectedNoteForTasks === note.id && generatedTasks.length > 0 && (
+                    <div className="mt-4">
+                      <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-3">
+                            <h4 className="text-base font-medium text-primary">Generated Tasks from this Note</h4>
+                            <button
+                              onClick={toggleAllTasks}
+                              className={`text-xs px-2 py-1 rounded ${selectedTaskIds.size === generatedTasks.length
+                                ? 'bg-primary/10 text-primary border border-primary/20'
+                                : 'bg-primary text-white border border-primary'
+                                }`}
+                            >
+                              {selectedTaskIds.size === generatedTasks.length ? 'Deselect All' : 'Select All'}
+                            </button>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => {
+                                setGeneratedTasks([]);
+                                setSelectedTaskIds(new Set());
+                                setSelectedNoteForTasks(null);
+                              }}
+                              className="text-xs px-2 py-1 rounded bg-foreground-dim/10 text-foreground-dim hover:bg-foreground-dim/20 transition-colors"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              onClick={addTasksToProject}
+                              disabled={isGeneratingTasks || selectedTaskIds.size === 0}
+                              className="btn-primary text-xs px-3 py-1 flex items-center gap-1"
+                            >
+                              <Plus className="w-3 h-3" />
+                              Add {selectedTaskIds.size} Task{selectedTaskIds.size !== 1 ? 's' : ''}
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          {generatedTasks.map((task, index) => (
+                            <div key={index} className="bg-background border border-border rounded-lg p-3">
+                              <div className="flex items-start gap-3">
+                                {/* Checkbox */}
+                                <div className="flex-shrink-0 pt-1">
+                                  <button
+                                    onClick={() => toggleTaskSelection(index)}
+                                    className={`w-4 h-4 rounded border flex items-center justify-center transition-all duration-200 ${selectedTaskIds.has(index)
+                                        ? 'bg-primary border-primary text-white'
+                                        : 'border-foreground/40 hover:border-primary/50 bg-background'
+                                      }`}
+                                  >
+                                    {selectedTaskIds.has(index) && <Check className="w-3 h-3" />}
+                                  </button>
+                                </div>
+
+                                {/* Task Content */}
+                                <div className="flex-1">
+                                  <div className="flex items-start justify-between mb-1">
+                                    <div className="flex-1 mr-3">
+                                      <h5 className="text-sm font-medium text-foreground">
+                                        {task.title}
+                                      </h5>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <span className={`badge text-xs ${getPriorityBadgeClass(task.priority)}`}>
+                                        {task.priority}
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  <p className="text-foreground-dim text-xs mb-2">
+                                    {task.description}
+                                  </p>
+
+                                  <div className="flex items-center gap-1 flex-wrap">
+                                    {task.tags.map((tag, tagIndex) => (
+                                      <span key={tagIndex} className="badge-info text-xs px-1 py-0.5">
+                                        {tag}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        
+                        {/* Task Error/Success Messages within the card */}
+                        {taskError && (
+                          <div className="mt-3 bg-destructive/10 border border-destructive/20 rounded p-2 flex items-center gap-2">
+                            <AlertCircle className="w-4 h-4 text-destructive" />
+                            <span className="text-destructive text-xs">{taskError}</span>
+                          </div>
+                        )}
+
+                        {taskSuccess && (
+                          <div className="mt-3 bg-green-500/10 border border-green-500/20 rounded p-2 flex items-center gap-2">
+                            <CheckCircle2 className="w-4 h-4 text-green-600" />
+                            <span className="text-green-600 text-xs">{taskSuccess}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
 
@@ -781,97 +891,11 @@ export const ScratchpadDetailView: React.FC = () => {
             </div>
           </div>
 
-          {/* Task Generation Section */}
-          {generatedTasks.length > 0 && (
-            <div className="mt-8">
-              <div className="card p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-3">
-                    <h3>Generated Tasks</h3>
-                    <button
-                      onClick={toggleAllTasks}
-                      className={`${selectedTaskIds.size === generatedTasks.length
-                        ? 'filter-button'
-                        : 'filter-button-active'
-                        }`}
-                    >
-                      {selectedTaskIds.size === generatedTasks.length ? 'Deselect All' : 'Select All'}
-                    </button>
-                  </div>
-                  <button
-                    onClick={addTasksToProject}
-                    disabled={isGeneratingTasks || selectedTaskIds.size === 0}
-                    className="btn-primary flex items-center gap-2"
-                  >
-                    <Plus className="w-4 h-4" />
-                    Add {selectedTaskIds.size} Task{selectedTaskIds.size !== 1 ? 's' : ''}
-                  </button>
-                </div>
-
-                <div className="space-y-3">
-                  {generatedTasks.map((task, index) => (
-                    <div key={index} className="bg-card border border-border rounded-lg p-4">
-                      <div className="flex items-start gap-3">
-                        {/* Checkbox */}
-                        <div className="flex-shrink-0 pt-1">
-                          <button
-                            onClick={() => toggleTaskSelection(index)}
-                            className={`w-4 h-4 rounded border flex items-center justify-center transition-all duration-200 ${selectedTaskIds.has(index)
-                                ? 'bg-background border-foreground/40 text-primary'
-                                : 'border-foreground/40 hover:border-primary/50 bg-background'
-                              }`}
-                          >
-                            {selectedTaskIds.has(index) && <Check className="w-3 h-3" />}
-                          </button>
-                        </div>
-
-                        {/* Task Content */}
-                        <div className="flex-1">
-                          <div className="flex items-start justify-between mb-2">
-                            <div className="flex-1 mr-3">
-                              <h4 className="text-base font-medium">
-                                {task.title}
-                              </h4>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className={`badge ${getPriorityBadgeClass(task.priority)}`}>
-                                {task.priority}
-                              </span>
-                            </div>
-                          </div>
-
-                          <p className="text-foreground-dim text-sm mb-3">
-                            {task.description}
-                          </p>
-
-                          <div className="flex items-center gap-2 flex-wrap">
-                            {task.tags.map((tag, tagIndex) => (
-                              <span key={tagIndex} className="badge-info">
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Task Error/Success Messages */}
-          {taskError && (
-            <div className="mt-4 bg-destructive/10 border border-destructive/20 rounded-lg p-4 flex items-center gap-3">
-              <AlertCircle className="w-5 h-5 text-destructive" />
-              <span className="text-destructive">{taskError}</span>
-            </div>
-          )}
-
-          {taskSuccess && (
-            <div className="mt-4 bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-3">
-              <CheckCircle2 className="w-5 h-5 text-green-600" />
-              <span className="text-green-800">{taskSuccess}</span>
+          {/* Loading indicator when generating tasks */}
+          {isGeneratingTasks && selectedNoteForTasks && (
+            <div className="mt-4 bg-primary/5 border border-primary/20 rounded-lg p-4 flex items-center gap-3">
+              <Loader2 className="w-5 h-5 text-primary animate-spin" />
+              <span className="text-primary font-medium">Generating tasks from your note...</span>
             </div>
           )}
 
