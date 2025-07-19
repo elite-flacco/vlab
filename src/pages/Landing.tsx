@@ -115,14 +115,62 @@ export const Landing: React.FC = () => {
   };
 
   const features = [
-    { code: 'prd.generate()', desc: 'Ideas to PRD in seconds' },
-    { code: 'roadmap.plan()', desc: 'Build smart, phase fast' },
-    { code: 'tasks.automate()', desc: 'Tasks handled, flow unbroken' },
-    { code: 'scratchpad.ideate()', desc: 'Think freely, code later' },
-    { code: 'prompt.save()', desc: 'Prompt once, reuse forever' },
-    { code: 'design.copilot()', desc: 'Design faster, smarter' },
-    { code: 'workspace.sync()', desc: 'Everything in one place' },
-    { code: 'community.join()', desc: 'Ship with your people' },
+    { 
+      code: 'prd.generate()', 
+      desc: 'Ideas to PRD in seconds',
+      staticImage: '/screenshots/prd-static.png',
+      gifImage: '/gifs/prd-demo.gif',
+      alt: 'PRD Generation Demo'
+    },
+    { 
+      code: 'roadmap.plan()', 
+      desc: 'Build smart, phase fast',
+      staticImage: '/screenshots/roadmap-static.png',
+      gifImage: '/gifs/roadmap-demo.gif',
+      alt: 'Roadmap Planning Demo'
+    },
+    { 
+      code: 'tasks.automate()', 
+      desc: 'Tasks handled, flow unbroken',
+      staticImage: '/screenshots/tasks-static.png',
+      gifImage: '/gifs/tasks-demo.gif',
+      alt: 'Task Automation Demo'
+    },
+    { 
+      code: 'scratchpad.ideate()', 
+      desc: 'Think freely, code later',
+      staticImage: '/screenshots/scratchpad-static.png',
+      gifImage: '/gifs/scratchpad-demo.gif',
+      alt: 'Scratchpad Ideation Demo'
+    },
+    { 
+      code: 'prompt.save()', 
+      desc: 'Prompt once, reuse forever',
+      staticImage: '/screenshots/prompts-static.png',
+      gifImage: '/gifs/prompts-demo.gif',
+      alt: 'Prompt Management Demo'
+    },
+    { 
+      code: 'design.copilot()', 
+      desc: 'Design faster, smarter',
+      staticImage: '/screenshots/design-static.png',
+      gifImage: '/gifs/design-demo.gif',
+      alt: 'Design Co-pilot Demo'
+    },
+    { 
+      code: 'workspace.sync()', 
+      desc: 'Everything in one place',
+      staticImage: '/screenshots/workspace-static.png',
+      gifImage: '/gifs/workspace-demo.gif',
+      alt: 'Workspace Overview Demo'
+    },
+    { 
+      code: 'community.join()', 
+      desc: 'Ship with your people',
+      staticImage: '/screenshots/community-static.png',
+      gifImage: '/gifs/community-demo.gif',
+      alt: 'Community Features Demo'
+    },
   ];
 
   return (
@@ -219,15 +267,52 @@ export const Landing: React.FC = () => {
                     key={index}
                     className="group p-6 bg-background/50 border border-foreground-dim/20 rounded-lg hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10"
                   >
-                    <div className="flex items-start space-x-4">
-                      <div className="flex-shrink-0 w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                        <Code className="w-6 h-6 text-primary" />
+                    {/* Terminal-style Preview Window */}
+                    <div className="bg-secondary/50 border border-foreground-dim/20 rounded-lg p-3 mb-4 overflow-hidden">
+                      {/* Terminal Header */}
+                      <div className="flex items-center space-x-2 mb-3 text-xs text-foreground-dim">
+                        <div className="w-2.5 h-2.5 rounded-full bg-red-500"></div>
+                        <div className="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
+                        <div className="w-2.5 h-2.5 rounded-full bg-green-500"></div>
+                        <span className="ml-2">{feature.code.split('.')[0]}.preview</span>
                       </div>
-                      <div>
-                        <code className="text-primary text-lg font-semibold block mb-2">
+                      
+                      {/* Image Container with Hover Effect */}
+                      <div className="relative overflow-hidden rounded border border-foreground-dim/10">
+                        {/* Static Screenshot (default) */}
+                        <img 
+                          src={feature.staticImage}
+                          alt={feature.alt}
+                          className="w-full h-32 object-cover object-top group-hover:opacity-0 transition-opacity duration-500"
+                          loading="lazy"
+                        />
+                        {/* GIF (shows on hover) */}
+                        <img 
+                          src={feature.gifImage}
+                          alt={`${feature.alt} - Animated`}
+                          className="absolute inset-0 w-full h-32 object-cover object-top opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                          loading="lazy"
+                        />
+                        
+                        {/* Hover Overlay Indicator */}
+                        <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                          <div className="text-xs text-primary/80 bg-background/80 px-2 py-1 rounded font-mono">
+                            ▶ Live Demo
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Feature Description */}
+                    <div className="flex items-start space-x-4">
+                      <div className="flex-shrink-0 w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                        <Code className="w-5 h-5 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <code className="text-primary text-base font-semibold block mb-2">
                           {feature.code}
                         </code>
-                        <p className="text-foreground-dim text-sm">{feature.desc}</p>
+                        <p className="text-foreground-dim text-sm leading-relaxed">{feature.desc}</p>
                       </div>
                     </div>
                   </div>
@@ -430,20 +515,6 @@ export const Landing: React.FC = () => {
                     <Zap className="w-4 h-4" />
                     <span>AI-powered</span>
                   </span>
-                  {/* Bolt.new Badge */}
-                  <a
-                    href="https://bolt.new"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="z-50 transition-transform hover:scale-105"
-                    title="Built with Bolt.new"
-                  >
-                    <img
-                      src="/bolt_badge.png"
-                      alt="Built with Bolt.new"
-                      className="w-12 h-12"
-                    />
-                  </a>
                 </div>
 
               </div>
