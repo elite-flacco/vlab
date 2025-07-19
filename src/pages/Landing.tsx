@@ -15,8 +15,10 @@ export const Landing: React.FC = () => {
     email: '',
     password: '',
     name: '',
-    message: ''
+    message: '',
+    earlyAccessCode: ''
   });
+  const [accessCodeError, setAccessCodeError] = useState<string | null>(null);
   const [terminalText, setTerminalText] = useState('');
   const [showCursor, setShowCursor] = useState(true);
   const [showContactModal, setShowContactModal] = useState(false);
@@ -58,8 +60,15 @@ export const Landing: React.FC = () => {
     e.preventDefault();
     const initialScrollY = window.scrollY;
     clearError();
+    setAccessCodeError(null);
 
     if (isSignUp) {
+      // Validate early access code for sign-up
+      if (formData.earlyAccessCode.toUpperCase() !== 'VIBEEARLY') {
+        setAccessCodeError('Invalid early access code. Please check your code and try again.');
+        return;
+      }
+      
       await signUp(formData.email, formData.password, formData.name);
       
       // Restore scroll position after signup to prevent unwanted scroll-to-top
@@ -82,17 +91,20 @@ export const Landing: React.FC = () => {
   const handleSwitchToLogin = () => {
     setIsSignUp(false);
     clearError();
-    setFormData({ ...formData, password: '', name: '', message: '' });
+    setAccessCodeError(null);
+    setFormData({ ...formData, password: '', name: '', message: '', earlyAccessCode: '' });
   };
 
   const handleRetry = () => {
     clearError();
+    setAccessCodeError(null);
   };
 
   const handleModeSwitch = () => {
     setIsSignUp(!isSignUp);
     clearError();
-    setFormData({ email: '', password: '', name: '', message: '' });
+    setAccessCodeError(null);
+    setFormData({ email: '', password: '', name: '', message: '', earlyAccessCode: '' });
   };
 
   const scrollToSection = (elementId: string) => {
@@ -185,7 +197,7 @@ export const Landing: React.FC = () => {
                 onClick={() => scrollToSection('signup')}
                 className="inline-flex items-center px-8 py-4 bg-primary text-background font-semibold rounded-lg hover:bg-primary/90 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-primary/25 hover:text-background"
               >
-                <span>&gt;_ Start Vibe Coding</span>
+                <span>&gt;_ Start Vib'ing</span>
                 {/* <ArrowRight className="w-5 h-5 ml-2" /> */}
               </button>
             </div>
@@ -236,28 +248,57 @@ export const Landing: React.FC = () => {
                   <span className="ml-2">auth.vibelab</span>
                 </div>
 
-                <h3 className="text-2xl font-bold mb-6 text-center">
+                <h3 className="text-2xl font-bold mb-4 text-center">
                   <span className="text-primary">$</span> {isSignUp ? 'create_account' : 'login'}
                 </h3>
+                
+                {isSignUp && (
+                  <div className="mb-6 p-3 bg-primary/10 border border-primary/20 rounded-lg">
+                    <p className="text-center text-sm text-primary">
+                      🚀 Early Access - We're in beta and looking for feedback!
+                    </p>
+                  </div>
+                )}
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                   {isSignUp && (
-                    <div>
-                      <label className="block text-sm text-foreground-dim mb-2">
-                        --name
-                      </label>
-                      <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        className="form-input"
-                        placeholder="Enter your name"
-                        required={isSignUp}
-                        aria-label="Full name"
-                        autoComplete="name"
-                      />
-                    </div>
+                    <>
+                      <div>
+                        <label className="block text-sm text-foreground-dim mb-2">
+                          --name
+                        </label>
+                        <input
+                          type="text"
+                          name="name"
+                          value={formData.name}
+                          onChange={handleInputChange}
+                          className="form-input"
+                          placeholder="Enter your name"
+                          required={isSignUp}
+                          aria-label="Full name"
+                          autoComplete="name"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm text-foreground-dim mb-2">
+                          --early-access-code
+                        </label>
+                        <input
+                          type="text"
+                          name="earlyAccessCode"
+                          value={formData.earlyAccessCode}
+                          onChange={handleInputChange}
+                          className="form-input"
+                          placeholder="Enter your early access code"
+                          required={isSignUp}
+                          aria-label="Early access code"
+                        />
+                        {/* <p className="mt-1 text-xs text-foreground-dim">
+                          Get your code from our community posts or direct messages
+                        </p> */}
+                      </div>
+                    </>
                   )}
 
                   <div>
@@ -312,6 +353,25 @@ export const Landing: React.FC = () => {
                       onSwitchToLogin={isSignUp ? handleSwitchToLogin : undefined}
                       className="mt-4"
                     />
+                  )}
+                  
+                  {/* Early Access Code Error */}
+                  {accessCodeError && (
+                    <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 flex items-start space-x-3">
+                      <div className="flex-shrink-0">
+                        <svg className="w-5 h-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm font-medium text-red-400 mb-1">
+                          Invalid Access Code
+                        </h3>
+                        <p className="text-sm text-red-300">
+                          {accessCodeError}
+                        </p>
+                      </div>
+                    </div>
                   )}
 
                   <button
