@@ -23,7 +23,7 @@ export const Workspace: React.FC = () => {
   
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
-  const { user } = useAuthStore();
+  const { user, loading: authLoading } = useAuthStore();
   
   // Get ALL store values to ensure proper subscription
   const projectStore = useProjectStore();
@@ -62,10 +62,11 @@ export const Workspace: React.FC = () => {
 
   // Fetch projects when user is available and we don't have projects yet
   useEffect(() => {
-    if (user && !projectsLoading && activeProjects.length === 0 && archivedProjects.length === 0 && !projectsError) {
+    // Wait for auth to complete initialization before fetching projects
+    if (user && !authLoading && !projectsLoading && activeProjects.length === 0 && archivedProjects.length === 0 && !projectsError) {
       fetchProjects(user.id);
     }
-  }, [user, projectsLoading, activeProjects.length, archivedProjects.length, projectsError, fetchProjects]);
+  }, [user, authLoading, projectsLoading, activeProjects.length, archivedProjects.length, projectsError, fetchProjects]);
 
   // Memoize fetchWorkspaceData to prevent unnecessary re-renders
   const fetchWorkspaceData = useCallback(async (projectId: string, isRetry = false) => {

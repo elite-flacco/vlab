@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useProjectStore } from '../../stores/projectStore';
-import { Folder, Settings, Archive, ChevronDown, ChevronRight, RotateCcw, Users, PanelLeftClose, PanelLeftOpen, Menu, Wrench } from 'lucide-react';
+import { useAuthStore } from '../../stores/authStore';
+import { Folder, Settings, Archive, ChevronDown, ChevronRight, RotateCcw, Users, PanelLeftClose, PanelLeftOpen, Menu, Wrench, Loader2 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 interface SidebarProps {
@@ -10,7 +11,8 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { activeProjects, archivedProjects, currentProject, setCurrentProject, restoreProject } = useProjectStore();
+  const { activeProjects, archivedProjects, currentProject, setCurrentProject, restoreProject, loading, error, fetchProjects } = useProjectStore();
+  const { user } = useAuthStore();
   const [showArchived, setShowArchived] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -67,6 +69,31 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
           )}
           
           <div className={`sidebar-section ${isCollapsed ? 'space-y-2' : ''}`}>
+            {/* Loading State */}
+            {loading && activeProjects.length === 0 && (
+              <div className={`flex items-center ${isCollapsed ? 'justify-center py-2' : 'space-x-2 px-3 py-2'} text-foreground-dim`}>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                {!isCollapsed && <span className="text-sm">Loading projects...</span>}
+              </div>
+            )}
+            
+            {/* Error State */}
+            {error && activeProjects.length === 0 && !loading && (
+              <div className={`${isCollapsed ? 'flex flex-col items-center space-y-1' : 'px-3 py-2'}`}>
+                <div className={`text-xs text-destructive ${isCollapsed ? 'text-center' : ''}`}>
+                  {isCollapsed ? 'Error' : 'Failed to load projects'}
+                </div>
+                {!isCollapsed && (
+                  <button 
+                    onClick={() => user?.id && fetchProjects(user.id)}
+                    className="text-xs text-primary hover:underline"
+                  >
+                    Retry
+                  </button>
+                )}
+              </div>
+            )}
+            
             {activeProjects.map((project) => (
               <button
                 key={project.id}

@@ -10,7 +10,7 @@ interface OutletContext {
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useAuthStore();
+  const { user, loading: authLoading } = useAuthStore();
   const { 
     activeProjects, 
     archivedProjects, 
@@ -25,10 +25,11 @@ export const Dashboard: React.FC = () => {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   useEffect(() => {
-    if (user) {
+    // Wait for auth to complete initialization before fetching projects
+    if (user && !authLoading) {
       fetchProjects(user.id);
     }
-  }, [user, fetchProjects]);
+  }, [user, authLoading, fetchProjects]);
 
   const handleOpenProject = (projectId: string) => {
     navigate(`/workspace/${projectId}`);
