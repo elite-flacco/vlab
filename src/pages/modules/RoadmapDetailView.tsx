@@ -253,10 +253,10 @@ export const RoadmapDetailView: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'text-green-400 border-green-500/20';
-      case 'in_progress': return 'text-blue-400 border-blue-500/20';
-      case 'cancelled': return 'text-red-400 border-red-500/20';
-      default: return 'text-foreground-dim border-foreground-dim/20';
+      case 'completed': return 'bg-green-500/10 text-green-400 border border-green-500/20 hover:bg-green-500/20 hover:border-green-500/30';
+      case 'in_progress': return 'bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500/20 hover:border-blue-500/30';
+      case 'cancelled': return 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 hover:bg-yellow-500/20 hover:border-yellow-500/30';
+      default: return 'bg-secondary text-foreground-dim border border-foreground-dim/20 hover:bg-secondary/80 hover:border-foreground-dim/30';
     }
   };
 
@@ -265,7 +265,7 @@ export const RoadmapDetailView: React.FC = () => {
       case 'mvp': return 'bg-red-500/10 text-red-400 border-red-500/20';
       case 'phase_2': return 'bg-purple-500/10 text-purple-400 border-purple-500/20';
       case 'backlog': return 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20';
-      default: return 'bg-gray-500/10 text-gray-400 border-gray-500/20';
+      default: return 'bg-secondary text-foreground-dim border border-foreground-dim/20 hover:bg-secondary/80 hover:border-foreground-dim/30';
     }
   };
 
@@ -502,14 +502,14 @@ export const RoadmapDetailView: React.FC = () => {
                     value={item.status}
                     onChange={(e) => handleDirectStatusChange(item.id, e.target.value)}
                     disabled={saving}
-                    className={`bg-gray-800 cursor-pointer px-2 py-1 rounded-full text-2xs border ${getStatusColor(
+                    className={`cursor-pointer px-2 py-1 rounded-md text-2xs border ${getStatusColor(
                       item.status
                     )} disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-1 focus:ring-offset-1`}
                   >
-                    <option value="planned">Planned</option>
-                    <option value="in_progress">In Progress</option>
-                    <option value="completed">Completed</option>
-                    <option value="cancelled">Cancelled</option>
+                    <option value="planned" style={{ backgroundColor: '#1a1a1a', color: '#e0e0e0' }}>Planned</option>
+                    <option value="in_progress" style={{ backgroundColor: '#1a1a1a', color: '#e0e0e0' }}>In Progress</option>
+                    <option value="completed" style={{ backgroundColor: '#1a1a1a', color: '#e0e0e0' }}>Completed</option>
+                    <option value="cancelled" style={{ backgroundColor: '#1a1a1a', color: '#e0e0e0' }}>Cancelled</option>
                   </select>
                 </div>
               </div>

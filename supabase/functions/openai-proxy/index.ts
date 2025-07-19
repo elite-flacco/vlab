@@ -395,13 +395,14 @@ Guidelines for Creating Granular Items:
 - Each item should be scoped to 1-3 weeks of development work
 - Make titles specific and actionable (avoid generic terms like "Core Features")
 - Descriptions should clearly define what will be built and delivered
-- MVP phase (4-6 items): Essential features needed for launch
-- Phase 2 (2-4 items): Important enhancements and improvements  
-- Backlog (2-3 items): Nice-to-have features for future releases
+- MVP phase (4-6 items): Essential features needed for launch - use phase: "mvp"
+- Phase 2 (2-4 items): Important enhancements and improvements - use phase: "phase_2"
+- Backlog (2-3 items): Nice-to-have features for future releases - use phase: "backlog"
 - Mark key foundational items as milestones (milestone: true)
 - Use colors: #3b82f6 (blue), #10b981 (green), #f59e0b (amber), #ef4444 (red), #8b5cf6 (purple)
 - Status should always be "planned" for new roadmaps
 - Position should increment from 0
+- IMPORTANT: Only use these exact phase values: "mvp", "phase_2", "backlog"
 
 Examples of good granular items:
 - "User Registration & Authentication"
@@ -453,15 +454,30 @@ Avoid vague items like:
     }
 
     // Ensure each item has required fields and set defaults
-    return roadmapItems.map((item: any, index: number) => ({
-      title: item.title || `Phase ${index + 1}`,
-      description: item.description || 'Description not provided',
-      status: 'planned',
-      phase: item.phase || (index === 0 ? 'mvp' : index === 1 ? 'phase_2' : 'backlog'),
-      milestone: item.milestone || false,
-      color: item.color || '#3b82f6',
-      position: index,
-    }));
+    return roadmapItems.map((item: any, index: number) => {
+      // Validate and normalize phase
+      let phase = item.phase;
+      if (!['mvp', 'phase_2', 'backlog'].includes(phase)) {
+        // If invalid phase, assign based on position
+        if (index < 6) {
+          phase = 'mvp';
+        } else if (index < 10) {
+          phase = 'phase_2';
+        } else {
+          phase = 'backlog';
+        }
+      }
+      
+      return {
+        title: item.title || `Feature ${index + 1}`,
+        description: item.description || 'Description not provided',
+        status: 'planned',
+        phase,
+        milestone: item.milestone || false,
+        color: item.color || '#3b82f6',
+        position: index,
+      };
+    });
   } catch (parseError) {
     console.error('Failed to parse roadmap JSON:', content);
     

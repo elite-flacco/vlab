@@ -128,21 +128,20 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'bg-success/10 text-success border-success/20';
-      case 'in_progress': return 'bg-primary/10 text-primary border-primary/20';
-      default: return 'bg-muted text-foreground/80 border-border';
+      case 'completed': return 'bg-green-500/10 text-green-400 border border-green-500/20 hover:bg-green-500/20 hover:border-green-500/30';
+      case 'in_progress': return 'bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500/20 hover:border-blue-500/30';
+      case 'cancelled': return 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 hover:bg-yellow-500/20 hover:border-yellow-500/30';
+      default: return 'bg-secondary text-foreground-dim border border-foreground-dim/20 hover:bg-secondary/80 hover:border-foreground-dim/30';
     }
   };
-
-  const getPhaseLabel = (index: number) => {
-    if (index === 0) return 'MVP';
-    if (index === 1) return 'Phase 2';
-    if (index === 2) return 'Backlog';
-    return `Phase ${index + 1}`;
+  const getPhaseLabel = (phase: string) => {
+    if (phase === 'mvp') return 'MVP';
+    if (phase === 'phase_2') return 'Phase 2';
+    if (phase === 'backlog') return 'Backlog';
+    return phase;
   };
 
-  const getPhaseColor = (index: number) => {
-    const phase = index === 0 ? 'mvp' : index === 1 ? 'phase_2' : 'backlog';
+  const getPhaseColor = (phase: string) => {
     switch (phase) {
       case 'mvp': return 'bg-red-500/10 text-red-400 border-red-500/20';
       case 'phase_2': return 'bg-purple-500/10 text-purple-400 border-purple-500/20';
@@ -213,8 +212,8 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
                 <div key={index} className="relative">
                   {/* Phase Label */}
                   <div className="flex items-center gap-2 mb-3">
-                    <div className={`px-3 py-1 rounded-md text-xs font-medium ${getPhaseColor(index)}`}>
-                      {getPhaseLabel(index)}
+                    <div className={`px-3 py-1 rounded-md text-xs font-medium ${getPhaseColor(item.phase)}`}>
+                      {getPhaseLabel(item.phase)}
                     </div>
                   </div>
 
@@ -275,7 +274,7 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
                         <div className="flex items-start justify-between gap-4 mb-2">
                           <h5>{item.title}</h5>
                           <div className="flex items-center gap-2">
-                            <span className={`px-2.5 py-1 rounded-full text-2xs border ${getStatusColor(item.status)}`}>
+                            <span className={`px-2.5 py-1 rounded-md text-2xs border ${getStatusColor(item.status)}`}>
                               {item.status.replace('_', ' ')}
                             </span>
                             {isEditing && (
