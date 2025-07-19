@@ -250,6 +250,7 @@ export const Landing: React.FC = () => {
                       placeholder="Enter your name"
                       required={isSignUp}
                       aria-label="Full name"
+                      autoComplete="name"
                     />
                   </div>
                 )}
@@ -267,6 +268,7 @@ export const Landing: React.FC = () => {
                     placeholder="user@domain.com"
                     required
                     aria-label="Email address"
+                    autoComplete="email"
                   />
                 </div>
 
@@ -284,6 +286,7 @@ export const Landing: React.FC = () => {
                       placeholder="••••••••"
                       required
                       aria-label="Password"
+                      autoComplete={isSignUp ? "new-password" : "current-password"}
                     />
                     <button
                       type="button"
