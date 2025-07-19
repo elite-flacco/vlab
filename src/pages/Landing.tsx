@@ -52,10 +52,17 @@ export const Landing: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const initialScrollY = window.scrollY;
     clearError();
 
     if (isSignUp) {
       await signUp(formData.email, formData.password, formData.name);
+      
+      // Restore scroll position after signup to prevent unwanted scroll-to-top
+      // Only restore if we actually jumped to top and have form data
+      if (window.scrollY === 0 && initialScrollY > 0 && formData.email) {
+        window.scrollTo({ top: initialScrollY, behavior: 'instant' });
+      }
     } else {
       await signIn(formData.email, formData.password);
     }
@@ -82,6 +89,13 @@ export const Landing: React.FC = () => {
     setIsSignUp(!isSignUp);
     clearError();
     setFormData({ email: '', password: '', name: '', message: '' });
+  };
+
+  const scrollToSection = (elementId: string) => {
+    const element = document.getElementById(elementId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   };
 
   const features = [
@@ -118,11 +132,11 @@ export const Landing: React.FC = () => {
                 <span className="text-xl font-bold">VLab</span>
               </div>
               <nav className="hidden md:flex items-center space-x-6 text-sm">
-                <a href="#features" className="hover:text-primary transition-colors">Core Modules</a>
-                <a href="#signup" className="hover:text-primary transition-colors flex items-center space-x-1">
+                <button onClick={() => scrollToSection('features')} className="hover:text-primary transition-colors">Core Modules</button>
+                <button onClick={() => scrollToSection('signup')} className="hover:text-primary transition-colors flex items-center space-x-1">
                   <span>Start Vib'ing</span>
                   <ArrowRight className="w-4 h-4" />
-                </a>
+                </button>
               </nav>
             </div>
           </div>
@@ -162,13 +176,13 @@ export const Landing: React.FC = () => {
             </p>
 
             {/* CTA Button */}
-            <a
-              href="#signup"
+            <button
+              onClick={() => scrollToSection('signup')}
               className="inline-flex items-center px-8 py-4 bg-primary text-background font-semibold rounded-lg hover:bg-primary/90 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-primary/25 hover:text-background"
             >
               <span>&gt;_ Start Vibe Coding</span>
               {/* <ArrowRight className="w-5 h-5 ml-2" /> */}
-            </a>
+            </button>
           </div>
         </section>
 
@@ -236,6 +250,7 @@ export const Landing: React.FC = () => {
                       placeholder="Enter your name"
                       required={isSignUp}
                       aria-label="Full name"
+                      autoComplete="name"
                     />
                   </div>
                 )}
@@ -253,6 +268,7 @@ export const Landing: React.FC = () => {
                     placeholder="user@domain.com"
                     required
                     aria-label="Email address"
+                    autoComplete="email"
                   />
                 </div>
 
@@ -270,6 +286,7 @@ export const Landing: React.FC = () => {
                       placeholder="••••••••"
                       required
                       aria-label="Password"
+                      autoComplete={isSignUp ? "new-password" : "current-password"}
                     />
                     <button
                       type="button"
