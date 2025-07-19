@@ -2,6 +2,115 @@ import { create } from 'zustand';
 import { User } from '../types';
 import { auth, supabase } from '../lib/supabase';
 
+// Stricter email validation regex
+const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+
+// Client-side validation functions
+const validateSignInInput = (email: string, password: string): string | null => {
+  if (!email.trim()) {
+    return 'Email address is required';
+  }
+  
+  if (!EMAIL_REGEX.test(email)) {
+    return 'Please enter a valid email address';
+  }
+  
+  if (!password) {
+    return 'Password is required';
+  }
+  
+  return null;
+};
+
+const validateSignUpInput = (email: string, password: string, name: string): string | null => {
+  if (!name.trim()) {
+    return 'Full name is required';
+  }
+  
+  if (name.trim().length < 2) {
+    return 'Name must be at least 2 characters long';
+  }
+  
+  if (!email.trim()) {
+    return 'Email address is required';
+  }
+  
+  if (!EMAIL_REGEX.test(email)) {
+    return 'Please enter a valid email address';
+  }
+  
+  if (!password) {
+    return 'Password is required';
+  }
+  
+  if (password.length < 8) {
+    return 'Password must be at least 8 characters with uppercase, lowercase, and numbers';
+  }
+  
+  if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
+    return 'Password must contain at least one uppercase letter, one lowercase letter, and one number';
+  }
+  
+  return null;
+};
+
+// Map Supabase errors to user-friendly messages
+const mapSupabaseError = (error: any): string => {
+  const message = error?.message || '';
+  const code = error?.code || '';
+  
+  console.log('🔐 AuthStore: Mapping Supabase error:', { message, code, error });
+  
+  // Check for specific error patterns
+  if (message.includes('User already registered') || 
+      message.includes('already registered') ||
+      code === 'signup_disabled' ||
+      message.includes('duplicate')) {
+    return 'An account with this email address already exists';
+  }
+  
+  if (message.includes('Email not confirmed')) {
+    return 'Please check your email and click the confirmation link to activate your account before signing in.';
+  }
+  
+  if (message.includes('Invalid login credentials') ||
+      message.includes('invalid credentials')) {
+    return 'Invalid email or password. Please check your credentials and try again.';
+  }
+  
+  if (message.includes('Password should be at least') ||
+      message.includes('weak password') ||
+      code === 'weak_password') {
+    return 'Password must be at least 8 characters with uppercase, lowercase, and numbers';
+  }
+  
+  if (message.includes('invalid email') ||
+      message.includes('email format') ||
+      code === 'invalid_email') {
+    return 'Please enter a valid email address';
+  }
+  
+  if (message.includes('network') || 
+      message.includes('fetch') ||
+      message.includes('timeout') ||
+      code === 'network_error') {
+    return 'Connection problem. Please check your internet and try again.';
+  }
+  
+  if (message.includes('rate limit') ||
+      code === 'too_many_requests') {
+    return 'Too many attempts. Please wait a moment before trying again.';
+  }
+  
+  if (message.includes('signup_disabled')) {
+    return 'Account registration is currently disabled. Please contact support.';
+  }
+  
+  // If we can't map the error, return a generic message but log the original
+  console.warn('🔐 AuthStore: Unmapped Supabase error:', error);
+  return 'Authentication failed. Please try again or contact support if the problem continues.';
+};
+
 interface AuthState {
   user: User | null;
   loading: boolean;
@@ -22,10 +131,21 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   signIn: async (email: string, password: string) => {
     console.log('🔐 AuthStore: Starting sign in for:', email);
     set({ loading: true, error: null });
+    
+    // Client-side validation
+    const validationError = validateSignInInput(email, password);
+    if (validationError) {
+      set({ error: validationError, loading: false });
+      return;
+    }
+    
     try {
       const { data, error } = await auth.signIn(email, password);
       
-      if (error) throw error;
+      if (error) {
+        const friendlyError = mapSupabaseError(error);
+        throw new Error(friendlyError);
+      }
       
       if (data.user) {
         // Construct User object with proper field mapping
@@ -56,28 +176,52 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   signUp: async (email: string, password: string, name: string) => {
     console.log('🔐 AuthStore: Starting sign up for:', email);
     set({ loading: true, error: null });
+    
+    // Client-side validation
+    const validationError = validateSignUpInput(email, password, name);
+    if (validationError) {
+      set({ error: validationError, loading: false });
+      return;
+    }
+    
     try {
       const { data, error } = await auth.signUp(email, password, name);
       
-      if (error) throw error;
+      if (error) {
+        const friendlyError = mapSupabaseError(error);
+        throw new Error(friendlyError);
+      }
       
       if (data.user) {
-        // Construct User object with proper field mapping
-        const user: User = {
-          id: data.user.id,
-          email: data.user.email || '',
-          name: data.user.user_metadata?.name || 
-                data.user.user_metadata?.full_name || 
-                name || 
-                data.user.email?.split('@')[0] || 
-                'User',
-          avatar_url: data.user.user_metadata?.avatar_url,
-          created_at: data.user.created_at,
-          updated_at: data.user.updated_at || data.user.created_at,
-        };
+        // Check if email confirmation is required
+        const needsEmailConfirmation = !data.session || data.user.email_confirmed_at === null;
         
-        console.log('✅ AuthStore: Sign up successful for:', user.email);
-        set({ user, loading: false });
+        if (needsEmailConfirmation) {
+          console.log('📧 AuthStore: Sign up successful, email confirmation required for:', data.user.email);
+          // Don't set user in store, show confirmation message instead
+          set({ 
+            user: null, 
+            loading: false,
+            error: 'Please check your email and click the confirmation link to activate your account.'
+          });
+        } else {
+          // User is fully registered and confirmed
+          const user: User = {
+            id: data.user.id,
+            email: data.user.email || '',
+            name: data.user.user_metadata?.name || 
+                  data.user.user_metadata?.full_name || 
+                  name || 
+                  data.user.email?.split('@')[0] || 
+                  'User',
+            avatar_url: data.user.user_metadata?.avatar_url,
+            created_at: data.user.created_at,
+            updated_at: data.user.updated_at || data.user.created_at,
+          };
+          
+          console.log('✅ AuthStore: Sign up successful for:', user.email);
+          set({ user, loading: false });
+        }
       } else {
         console.log('❌ AuthStore: No user object in response');
         set({ loading: false });

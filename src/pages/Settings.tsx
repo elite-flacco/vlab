@@ -114,7 +114,7 @@ export const Settings: React.FC = () => {
 
     // Validation
     if (passwordData.newPassword.length < 6) {
-      setPasswordError('Password must be at least 6 characters long');
+      setPasswordError('Password must be at least 8 characters long');
       return;
     }
 
@@ -431,7 +431,7 @@ export const Settings: React.FC = () => {
               <div className="bg-secondary/30 border border-foreground-dim/20 rounded-lg p-4">
                 <h4 className="text-sm font-medium text-foreground mb-2">Password Requirements:</h4>
                 <ul className="text-xs text-foreground-dim space-y-1">
-                  <li>• At least 6 characters long</li>
+                  <li>• At least 8 characters long</li>
                   <li>• Must match confirmation password</li>
                   <li>• Consider using a mix of letters, numbers, and symbols for better security</li>
                 </ul>

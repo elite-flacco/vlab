@@ -18,11 +18,12 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
   const getErrorDetails = (errorMessage: string) => {
     const lowerError = errorMessage.toLowerCase();
     
-    if (lowerError.includes('user already registered') || 
+    // Account already exists
+    if (lowerError.includes('account with this email') || 
+        lowerError.includes('user already registered') || 
         lowerError.includes('email already exists') ||
         lowerError.includes('already registered') ||
-        lowerError.includes('duplicate') ||
-        lowerError.includes('unique constraint')) {
+        lowerError.includes('duplicate')) {
       return {
         type: 'existing_email',
         title: 'Account Already Exists',
@@ -34,47 +35,144 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
       };
     }
     
-    if (lowerError.includes('invalid email') || lowerError.includes('email format')) {
+    // Invalid credentials
+    if (lowerError.includes('invalid email or password') ||
+        lowerError.includes('invalid login credentials') ||
+        lowerError.includes('invalid credentials')) {
+      return {
+        type: 'invalid_credentials',
+        title: 'Invalid Credentials',
+        message: 'The email or password you entered is incorrect.',
+        suggestion: 'Please check your credentials and try again.',
+        showLoginLink: false,
+        icon: AlertCircle,
+        color: 'red'
+      };
+    }
+    
+    // Email validation
+    if (lowerError.includes('valid email address') || 
+        lowerError.includes('invalid email') || 
+        lowerError.includes('email format') ||
+        lowerError.includes('email address is required')) {
       return {
         type: 'invalid_email',
-        title: 'Invalid Email Format',
-        message: 'Please enter a valid email address.',
-        suggestion: 'Check your email format and try again.',
+        title: 'Invalid Email',
+        message: errorMessage,
+        suggestion: 'Please enter a valid email address (e.g., user@example.com).',
         showLoginLink: false,
         icon: AlertCircle,
         color: 'orange'
       };
     }
     
-    if (lowerError.includes('password') && (lowerError.includes('weak') || lowerError.includes('short'))) {
+    // Password requirements
+    if (lowerError.includes('password must') || 
+        lowerError.includes('password should') ||
+        lowerError.includes('weak password') ||
+        lowerError.includes('password is required') ||
+        lowerError.includes('characters')) {
+      
+      // Check if the error message already contains detailed requirements
+      const hasDetailedRequirements = (lowerError.includes('uppercase') && 
+                                      lowerError.includes('lowercase') && 
+                                      lowerError.includes('number')) ||
+                                     (lowerError.includes('8 characters with'));
+      
       return {
-        type: 'weak_password',
-        title: 'Password Too Weak',
-        message: 'Your password doesn\'t meet our security requirements.',
-        suggestion: 'Use at least 8 characters with a mix of letters, numbers, and symbols.',
+        type: 'password_requirements',
+        title: 'Password Requirements',
+        message: errorMessage,
+        suggestion: hasDetailedRequirements ? 'Please check that your password meets all requirements above.' : 'Password must be at least 8 characters with uppercase, lowercase, and numbers.',
         showLoginLink: false,
         icon: AlertCircle,
         color: 'orange'
       };
     }
     
-    if (lowerError.includes('network') || lowerError.includes('connection') || lowerError.includes('timeout')) {
+    // Name validation
+    if (lowerError.includes('name is required') || 
+        lowerError.includes('name must be')) {
+      return {
+        type: 'invalid_name',
+        title: 'Name Required',
+        message: errorMessage,
+        suggestion: 'Please enter your full name (at least 2 characters).',
+        showLoginLink: false,
+        icon: AlertCircle,
+        color: 'orange'
+      };
+    }
+    
+    // Network/connection issues
+    if (lowerError.includes('connection problem') ||
+        lowerError.includes('network') || 
+        lowerError.includes('connection') || 
+        lowerError.includes('timeout') ||
+        lowerError.includes('check your internet')) {
       return {
         type: 'network_error',
         title: 'Connection Problem',
         message: 'We\'re having trouble connecting to our servers.',
-        suggestion: 'Check your internet connection and try again.',
+        suggestion: 'Please check your internet connection and try again.',
         showLoginLink: false,
         icon: RefreshCw,
         color: 'red'
       };
     }
     
-    // Default error handling
+    // Rate limiting
+    if (lowerError.includes('too many attempts') ||
+        lowerError.includes('rate limit')) {
+      return {
+        type: 'rate_limit',
+        title: 'Too Many Attempts',
+        message: 'You\'ve made too many requests in a short time.',
+        suggestion: 'Please wait a moment before trying again.',
+        showLoginLink: false,
+        icon: AlertCircle,
+        color: 'orange'
+      };
+    }
+    
+    // Authentication failed with more details
+    if (lowerError.includes('authentication failed')) {
+      return {
+        type: 'auth_failed',
+        title: 'Authentication Failed',
+        message: 'We couldn\'t complete your request.',
+        suggestion: 'Please try again or contact support if the problem continues.',
+        showLoginLink: false,
+        icon: AlertCircle,
+        color: 'red'
+      };
+    }
+    
+    // Email confirmation required (success or reminder message)
+    if (lowerError.includes('check your email') ||
+        lowerError.includes('confirmation link') ||
+        lowerError.includes('activate your account') ||
+        lowerError.includes('before signing in')) {
+      return {
+        type: 'email_confirmation',
+        title: 'Email Confirmation Required',
+        message: errorMessage,
+        suggestion: 'If you don\'t see the email, check your spam folder. You can also try signing up again to resend the confirmation email.',
+        showLoginLink: false,
+        icon: AlertCircle,
+        color: 'blue'
+      };
+    }
+    
+    // Default error handling - try to use the original message if it's descriptive
+    const isDescriptive = errorMessage.length > 10 && 
+                         !lowerError.includes('something went wrong') &&
+                         !lowerError.includes('unexpected error');
+    
     return {
       type: 'generic',
       title: 'Something Went Wrong',
-      message: 'We encountered an unexpected error.',
+      message: isDescriptive ? errorMessage : 'We encountered an unexpected error.',
       suggestion: 'Please try again in a moment.',
       showLoginLink: false,
       icon: AlertCircle,
@@ -89,33 +187,33 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
     switch (color) {
       case 'blue':
         return {
-          container: 'bg-blue-50 border-blue-200',
-          icon: 'text-blue-600',
-          title: 'text-blue-900',
-          message: 'text-blue-800',
-          suggestion: 'text-blue-700',
-          button: 'bg-blue-600 hover:bg-blue-700 text-white',
-          linkButton: 'text-blue-600 hover:text-blue-800'
+          container: 'bg-primary/10 border border-primary/20',
+          icon: 'text-primary',
+          title: 'text-primary',
+          message: 'text-foreground',
+          suggestion: 'text-foreground-dim',
+          button: 'btn-primary',
+          linkButton: 'text-primary hover:text-primary-light transition-colors'
         };
       case 'orange':
         return {
-          container: 'bg-orange-50 border-orange-200',
-          icon: 'text-orange-600',
-          title: 'text-orange-900',
-          message: 'text-orange-800',
-          suggestion: 'text-orange-700',
-          button: 'bg-orange-600 hover:bg-orange-700 text-white',
-          linkButton: 'text-orange-600 hover:text-orange-800'
+          container: 'bg-warning/10 border border-warning/20',
+          icon: 'text-warning',
+          title: 'text-warning',
+          message: 'text-foreground',
+          suggestion: 'text-foreground-dim',
+          button: 'bg-warning hover:bg-warning/90 text-background font-medium',
+          linkButton: 'text-warning hover:text-warning/80 transition-colors'
         };
       default:
         return {
-          container: 'bg-red-50 border-red-200',
-          icon: 'text-red-600',
-          title: 'text-red-900',
-          message: 'text-red-800',
-          suggestion: 'text-red-700',
-          button: 'bg-red-600 hover:bg-red-700 text-white',
-          linkButton: 'text-red-600 hover:text-red-800'
+          container: 'bg-destructive/10 border border-destructive/20',
+          icon: 'text-destructive',
+          title: 'text-destructive',
+          message: 'text-foreground',
+          suggestion: 'text-foreground-dim',
+          button: 'btn-danger',
+          linkButton: 'text-destructive hover:text-destructive/80 transition-colors'
         };
     }
   };
