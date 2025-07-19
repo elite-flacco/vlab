@@ -59,11 +59,10 @@ export const Landing: React.FC = () => {
       await signUp(formData.email, formData.password, formData.name);
       
       // Restore scroll position after signup to prevent unwanted scroll-to-top
-      setTimeout(() => {
-        if (window.scrollY === 0 && initialScrollY > 0) {
-          window.scrollTo({ top: initialScrollY, behavior: 'instant' });
-        }
-      }, 0);
+      // Only restore if we actually jumped to top and have form data
+      if (window.scrollY === 0 && initialScrollY > 0 && formData.email) {
+        window.scrollTo({ top: initialScrollY, behavior: 'instant' });
+      }
     } else {
       await signIn(formData.email, formData.password);
     }

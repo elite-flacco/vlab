@@ -193,34 +193,46 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
       
       if (data.user) {
-        // Check if email confirmation is required
-        const needsEmailConfirmation = !data.session || data.user.email_confirmed_at === null;
+        // Check if this is an existing user (Supabase returns user without creating new account)
+        const isExistingUser = data.user.email_confirmed_at !== null && !data.session;
         
-        if (needsEmailConfirmation) {
-          console.log('📧 AuthStore: Sign up successful, email confirmation required for:', data.user.email);
-          // Don't set user in store, show confirmation message instead
+        if (isExistingUser) {
+          console.log('👤 AuthStore: User already exists for:', data.user.email);
           set({ 
             user: null, 
             loading: false,
-            error: 'Please check your email and click the confirmation link to activate your account.'
+            error: 'An account with this email address already exists'
           });
         } else {
-          // User is fully registered and confirmed
-          const user: User = {
-            id: data.user.id,
-            email: data.user.email || '',
-            name: data.user.user_metadata?.name || 
-                  data.user.user_metadata?.full_name || 
-                  name || 
-                  data.user.email?.split('@')[0] || 
-                  'User',
-            avatar_url: data.user.user_metadata?.avatar_url,
-            created_at: data.user.created_at,
-            updated_at: data.user.updated_at || data.user.created_at,
-          };
+          // Check if email confirmation is required for new user
+          const needsEmailConfirmation = !data.session || data.user.email_confirmed_at === null;
           
-          console.log('✅ AuthStore: Sign up successful for:', user.email);
-          set({ user, loading: false });
+          if (needsEmailConfirmation) {
+            console.log('📧 AuthStore: Sign up successful, email confirmation required for:', data.user.email);
+            // Don't set user in store, show confirmation message instead
+            set({ 
+              user: null, 
+              loading: false,
+              error: 'Please check your email and click the confirmation link to activate your account.'
+            });
+          } else {
+            // User is fully registered and confirmed
+            const user: User = {
+              id: data.user.id,
+              email: data.user.email || '',
+              name: data.user.user_metadata?.name || 
+                    data.user.user_metadata?.full_name || 
+                    name || 
+                    data.user.email?.split('@')[0] || 
+                    'User',
+              avatar_url: data.user.user_metadata?.avatar_url,
+              created_at: data.user.created_at,
+              updated_at: data.user.updated_at || data.user.created_at,
+            };
+            
+            console.log('✅ AuthStore: Sign up successful for:', user.email);
+            set({ user, loading: false });
+          }
         }
       } else {
         console.log('❌ AuthStore: No user object in response');

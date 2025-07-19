@@ -19,8 +19,10 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
     const lowerError = errorMessage.toLowerCase();
     
     // Account already exists
-    if (lowerError.includes('account with this email') || 
+    if (lowerError.includes('account with this email address already exists') ||
+        lowerError.includes('account with this email') || 
         lowerError.includes('user already registered') || 
+        lowerError.includes('email address already exists') ||
         lowerError.includes('email already exists') ||
         lowerError.includes('already registered') ||
         lowerError.includes('duplicate')) {
@@ -187,13 +189,13 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
     switch (color) {
       case 'blue':
         return {
-          container: 'bg-primary/10 border border-primary/20',
-          icon: 'text-primary',
-          title: 'text-primary',
+          container: 'bg-blue-500/10 border border-blue-500/20',
+          icon: 'text-blue-400',
+          title: 'text-blue-400',
           message: 'text-foreground',
           suggestion: 'text-foreground-dim',
-          button: 'btn-primary',
-          linkButton: 'text-primary hover:text-primary-light transition-colors'
+          button: 'bg-blue-500 hover:bg-blue-600 text-white font-medium',
+          linkButton: 'text-blue-400 hover:text-blue-300 transition-colors'
         };
       case 'orange':
         return {
