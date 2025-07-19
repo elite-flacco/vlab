@@ -267,17 +267,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     // Only log if we're actually loading (not just checking again)
     const { loading } = get();
     if (loading) {
-      // Only log once when we first detect no session
-      if (loading) {
-        console.log('🔐 AuthStore: No active session found');
-      }
-      
-      // Clear projects when no session is found (user logged out)
-      const { clearProjects } = await import('./projectStore').then(m => m.useProjectStore.getState());
-      clearProjects();
-      
-      set({ user: null, loading: false, error: null });
-      return;
+      console.log('🔐 AuthStore: Initializing auth state');
     }
     
     try {
