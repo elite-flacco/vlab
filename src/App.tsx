@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
+import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
 import { Landing } from './pages/Landing';
 import { AppLayout } from './components/Layout/AppLayout';
 import { Dashboard } from './pages/Dashboard';
@@ -35,33 +36,35 @@ function App() {
   }
 
   return (
-    <Router>
-      <Routes>
-        {/* Landing page for unauthenticated users */}
-        {!user ? (
-          <Route path="*" element={<Landing />} />
-        ) : (
-          <>
-            {/* Authenticated routes */}
-            <Route path="/" element={<AppLayout />}>
-              <Route index element={<Dashboard />} />
-              <Route path="community" element={<Community />} />
-              <Route path="settings" element={<Settings />} />
-              <Route path="kickoff/:projectId" element={<KickoffFlow />} />
-              <Route path="workspace/:projectId" element={<Workspace />} />
-              <Route path="workspace/:projectId/prd" element={<PRDDetailView />} />
-              <Route path="workspace/:projectId/roadmap" element={<RoadmapDetailView />} />
-              <Route path="workspace/:projectId/tasks" element={<TasksDetailView />} />
-              <Route path="workspace/:projectId/scratchpad" element={<ScratchpadDetailView />} />
-              <Route path="workspace/:projectId/prompts" element={<PromptsDetailView />} />
-              <Route path="workspace/:projectId/secrets" element={<SecretsDetailView />} />
-              <Route path="workspace/:projectId/design" element={<DesignDetailView />} />
-            </Route>
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </>
-        )}
-      </Routes>
-    </Router>
+    <ErrorBoundary context="Application Root">
+      <Router>
+        <Routes>
+          {/* Landing page for unauthenticated users */}
+          {!user ? (
+            <Route path="*" element={<Landing />} />
+          ) : (
+            <>
+              {/* Authenticated routes */}
+              <Route path="/" element={<AppLayout />}>
+                <Route index element={<Dashboard />} />
+                <Route path="community" element={<Community />} />
+                <Route path="settings" element={<Settings />} />
+                <Route path="kickoff/:projectId" element={<KickoffFlow />} />
+                <Route path="workspace/:projectId" element={<Workspace />} />
+                <Route path="workspace/:projectId/prd" element={<PRDDetailView />} />
+                <Route path="workspace/:projectId/roadmap" element={<RoadmapDetailView />} />
+                <Route path="workspace/:projectId/tasks" element={<TasksDetailView />} />
+                <Route path="workspace/:projectId/scratchpad" element={<ScratchpadDetailView />} />
+                <Route path="workspace/:projectId/prompts" element={<PromptsDetailView />} />
+                <Route path="workspace/:projectId/secrets" element={<SecretsDetailView />} />
+                <Route path="workspace/:projectId/design" element={<DesignDetailView />} />
+              </Route>
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </>
+          )}
+        </Routes>
+      </Router>
+    </ErrorBoundary>
   );
 }
 

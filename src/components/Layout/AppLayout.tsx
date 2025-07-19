@@ -5,6 +5,7 @@ import { Sidebar } from './Sidebar';
 import { NewProjectModal } from '../Projects/NewProjectModal';
 import { useProjectStore } from '../../stores/projectStore';
 import { useAuthStore } from '../../stores/authStore';
+import { ErrorBoundary } from '../ErrorBoundary/ErrorBoundary';
 
 export const AppLayout: React.FC = () => {
   const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
@@ -37,7 +38,9 @@ export const AppLayout: React.FC = () => {
         <Sidebar onNewProjectClick={openNewProjectModal} />
         <main className="flex-1 p-6 overflow-y-auto">
           <div className="fade-in">
-            <Outlet context={{ onNewProjectClick: openNewProjectModal }} />
+            <ErrorBoundary context="Main Content Area">
+              <Outlet context={{ onNewProjectClick: openNewProjectModal }} />
+            </ErrorBoundary>
           </div>
         </main>
       </div>
