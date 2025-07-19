@@ -90,27 +90,20 @@ export const DesignDetailView: React.FC = () => {
     }
 
     try {
-      console.log('Processing uploaded image:', file.name, file.type, file.size);
-
       // Compress image to reduce payload size
       const compressedFile = await compressImage(file, 0.8, 1200); // 80% quality, max 1200px width
-      console.log('Image compressed successfully:', compressedFile.size);
-      setUploadedImage(compressedFile);
 
       // Create preview from original file for better quality display
       const reader = new FileReader();
       reader.onload = (e) => {
         setImagePreview(e.target?.result as string);
-        console.log('Image preview created successfully');
       };
       reader.onerror = (e) => {
-        console.error('Failed to create image preview:', e);
         setError('Failed to create image preview');
       };
       reader.readAsDataURL(file);
       setError(null);
     } catch (err) {
-      console.error('Error processing uploaded image:', err);
       setError(err instanceof Error ? err.message : 'Failed to process image');
     }
   };
@@ -214,27 +207,20 @@ export const DesignDetailView: React.FC = () => {
     }
 
     try {
-      console.log('Processing dropped image:', imageFile.name, imageFile.type, imageFile.size);
-
       // Compress image to reduce payload size
       const compressedFile = await compressImage(imageFile, 0.8, 1200);
-      console.log('Image compressed successfully:', compressedFile.size);
-      setUploadedImage(compressedFile);
 
       // Create preview from original file for better quality display
       const reader = new FileReader();
       reader.onload = (e) => {
         setImagePreview(e.target?.result as string);
-        console.log('Image preview created successfully');
       };
       reader.onerror = (e) => {
-        console.error('Failed to create image preview:', e);
         setError('Failed to create image preview');
       };
       reader.readAsDataURL(imageFile);
       setError(null);
     } catch (err) {
-      console.error('Error processing dropped image:', err);
       setError(err instanceof Error ? err.message : 'Failed to process image');
     }
   };

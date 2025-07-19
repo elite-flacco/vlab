@@ -59,8 +59,6 @@ const mapSupabaseError = (error: any): string => {
   const message = error?.message || '';
   const code = error?.code || '';
   
-  console.log('🔐 AuthStore: Mapping Supabase error:', { message, code, error });
-  
   // Check for specific error patterns
   if (message.includes('User already registered') || 
       message.includes('already registered') ||
@@ -129,7 +127,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   error: null,
 
   signIn: async (email: string, password: string) => {
-    console.log('🔐 AuthStore: Starting sign in for:', email);
     set({ loading: true, error: null });
     
     // Client-side validation
@@ -161,20 +158,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           updated_at: data.user.updated_at || data.user.created_at,
         };
         
-        console.log('✅ AuthStore: Sign in successful for:', user.email);
         set({ user, loading: false });
       } else {
-        console.log('❌ AuthStore: No user object in response');
         set({ loading: false });
       }
     } catch (error: any) {
-      console.error('❌ AuthStore: Sign in error:', error);
       set({ error: error.message, loading: false });
     }
   },
 
   signUp: async (email: string, password: string, name: string) => {
-    console.log('🔐 AuthStore: Starting sign up for:', email);
     set({ loading: true, error: null });
     
     // Client-side validation
@@ -197,7 +190,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         const isExistingUser = data.user.email_confirmed_at !== null && !data.session;
         
         if (isExistingUser) {
-          console.log('👤 AuthStore: User already exists for:', data.user.email);
           set({ 
             user: null, 
             loading: false,
@@ -208,8 +200,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           const needsEmailConfirmation = !data.session || data.user.email_confirmed_at === null;
           
           if (needsEmailConfirmation) {
-            console.log('📧 AuthStore: Sign up successful, email confirmation required for:', data.user.email);
-            // Don't set user in store, show confirmation message instead
             set({ 
               user: null, 
               loading: false,
@@ -230,27 +220,22 @@ export const useAuthStore = create<AuthState>((set, get) => ({
               updated_at: data.user.updated_at || data.user.created_at,
             };
             
-            console.log('✅ AuthStore: Sign up successful for:', user.email);
             set({ user, loading: false });
           }
         }
       } else {
-        console.log('❌ AuthStore: No user object in response');
         set({ loading: false });
       }
     } catch (error: any) {
-      console.error('❌ AuthStore: Sign up error:', error);
       set({ error: error.message, loading: false });
     }
   },
 
   signOut: async () => {
-    console.log('🔐 AuthStore: Starting sign out');
     set({ loading: true });
     try {
       const { error } = await auth.signOut();
       if (error) throw error;
-      console.log('✅ AuthStore: Sign out successful');
       
       // Clear all project data when signing out
       const { clearProjects } = await import('./projectStore').then(m => m.useProjectStore.getState());
@@ -258,13 +243,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       
       set({ user: null, loading: false });
     } catch (error: any) {
-      console.error('❌ AuthStore: Sign out error:', error);
       set({ error: error.message, loading: false });
     }
   },
 
   updatePassword: async (newPassword: string) => {
-    console.log('🔐 AuthStore: Starting password update');
     set({ loading: true, error: null });
     try {
       const { error } = await supabase.auth.updateUser({
@@ -273,10 +256,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       
       if (error) throw error;
       
-      console.log('✅ AuthStore: Password updated successfully');
       set({ loading: false });
     } catch (error: any) {
-      console.error('❌ AuthStore: Password update error:', error);
       set({ error: error.message, loading: false });
       throw error; // Re-throw so the component can handle it
     }
@@ -286,7 +267,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     // Only log if we're actually loading (not just checking again)
     const { loading } = get();
     if (loading) {
-      console.log('🔐 AuthStore: Initializing auth state');
+      // Only log once when we first detect no session
+      if (loading) {
+        console.log('🔐 AuthStore: No active session found');
+      }
+      
+      // Clear projects when no session is found (user logged out)
+      const { clearProjects } = await import('./projectStore').then(m => m.useProjectStore.getState());
+      clearProjects();
+      
+      set({ user: null, loading: false, error: null });
+      return;
     }
     
     try {
@@ -328,9 +319,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         };
         
         // Only log if this is a new user or we're loading
-        if (loading || !get().user) {
-          console.log('✅ AuthStore: User session restored for:', mappedUser.email);
-        }
         set({ user: mappedUser, loading: false });
       } else {
         // Only log once when we first detect no user

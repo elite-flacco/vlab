@@ -20,7 +20,6 @@ interface WorkspaceData {
 const ALL_MODULE_TYPES: ModuleType[] = ['prd', 'roadmap', 'tasks', 'scratchpad', 'prompts', 'secrets', 'design'];
 
 export const Workspace: React.FC = () => {
-  console.log('🏠 Workspace: Component render started');
   
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
@@ -58,58 +57,32 @@ export const Workspace: React.FC = () => {
   
   const maxRetries = 3;
 
-  console.log('🏠 Workspace: Component state:', {
-    projectId,
-    currentProject: currentProject?.id,
-    loading,
-    isProjectLoading,
-    error,
-    retryCount,
-    isRetrying,
-    activeProjectsCount: activeProjects?.length || 0,
-    archivedProjectsCount: archivedProjects?.length || 0,
-    projectsLoading,
-    userExists: !!user,
-    userId: user?.id,
-    projectsError
-  });
-
   // Combine active and archived projects
   const allProjects = [...(activeProjects || []), ...(archivedProjects || [])];
 
   // Fetch projects when user is available and we don't have projects yet
   useEffect(() => {
     if (user && !projectsLoading && activeProjects.length === 0 && archivedProjects.length === 0 && !projectsError) {
-      console.log('📊 Workspace: Triggering fetchProjects for user:', user.id);
       fetchProjects(user.id);
     }
   }, [user, projectsLoading, activeProjects.length, archivedProjects.length, projectsError, fetchProjects]);
 
   // Memoize fetchWorkspaceData to prevent unnecessary re-renders
   const fetchWorkspaceData = useCallback(async (projectId: string, isRetry = false) => {
-    console.log('📡 Workspace: fetchWorkspaceData called', {
-      projectId,
-      isRetry,
-      currentLoading: loading,
-    });
-
+    
     // Prevent duplicate fetch attempts by checking loading state
     if (loading && !isRetry) {
-      console.log('📡 Workspace: Skipping duplicate fetch attempt (already loading)');
       return;
     }
     
-    console.log('🔄 Workspace: Setting loading state to true');
     setLoading(true);
     setError(null);
     
     if (isRetry) {
-      console.log('🔄 Workspace: Setting retry state to true');
       setIsRetrying(true);
     }
 
     try {
-      console.log('📡 Workspace: Starting parallel data fetch for all modules');
       
       // Wrap each database call with timeout and timing
       const fetchOperations = [
@@ -145,7 +118,6 @@ export const Workspace: React.FC = () => {
         ),
       ];
 
-      console.log('📡 Workspace: Executing Promise.all for all data fetches');
       const [
         prdsResult,
         roadmapResult,
@@ -155,31 +127,23 @@ export const Workspace: React.FC = () => {
         secretsResult,
       ] = await Promise.all(fetchOperations);
 
-      console.log('📡 Workspace: All fetch operations completed, checking for errors');
-
       // Check for errors
       if (prdsResult.error) {
-        console.error('❌ Workspace: PRDs fetch error:', prdsResult.error);
         throw prdsResult.error;
       }
       if (roadmapResult.error) {
-        console.error('❌ Workspace: Roadmap fetch error:', roadmapResult.error);
         throw roadmapResult.error;
       }
       if (tasksResult.error) {
-        console.error('❌ Workspace: Tasks fetch error:', tasksResult.error);
         throw tasksResult.error;
       }
       if (scratchpadResult.error) {
-        console.error('❌ Workspace: Scratchpad fetch error:', scratchpadResult.error);
         throw scratchpadResult.error;
       }
       if (promptsResult.error) {
-        console.error('❌ Workspace: Prompts fetch error:', promptsResult.error);
         throw promptsResult.error;
       }
       if (secretsResult.error) {
-        console.error('❌ Workspace: Secrets fetch error:', secretsResult.error);
         throw secretsResult.error;
       }
 
@@ -192,50 +156,32 @@ export const Workspace: React.FC = () => {
         secrets: secretsResult.data || [],
       };
 
-      console.log('✅ Workspace: All data fetched successfully:', {
-        prds: newWorkspaceData.prds.length,
-        roadmapItems: newWorkspaceData.roadmapItems.length,
-        tasks: newWorkspaceData.tasks.length,
-        scratchpadNotes: newWorkspaceData.scratchpadNotes.length,
-        prompts: newWorkspaceData.prompts.length,
-        secrets: newWorkspaceData.secrets.length,
-      });
-
-      console.log('🔄 Workspace: Setting workspace data state');
       setWorkspaceData(newWorkspaceData);
       
       // Reset retry count on success
-      console.log('🔄 Workspace: Resetting retry count to 0');
       setRetryCount(0);
     } catch (error: any) {
-      console.error('❌ Workspace: Error fetching workspace data:', error);
       
       // Handle different types of errors
       let errorMessage = 'Failed to load workspace data';
       
       if (error.message?.includes('timed out')) {
         errorMessage = `Database operation timed out: ${error.message}. This might indicate a slow connection or server issues.`;
-        console.error('⏰ Workspace: Timeout error detected');
       } else if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
         errorMessage = 'Unable to connect to the database. Please check your internet connection and Supabase configuration.';
-        console.error('🌐 Workspace: Network error detected');
       } else if (error.message?.includes('JWT') || error.message?.includes('auth')) {
         errorMessage = 'Authentication error. Please try signing in again.';
-        console.error('🔐 Workspace: Authentication error detected');
       } else if (error.message) {
         errorMessage = error.message;
       }
       
-      console.log('🔄 Workspace: Setting error state:', errorMessage);
       setError(errorMessage);
       
       // Don't auto-retry on auth errors or after max retries
       if (!error.message?.includes('auth') && retryCount < maxRetries && !isRetry) {
-        console.log('🔄 Workspace: Incrementing retry count:', retryCount + 1);
         setRetryCount(prev => prev + 1);
       }
     } finally {
-      console.log('🔄 Workspace: Setting loading and retry states to false');
       setLoading(false);
       setIsRetrying(false);
     }
@@ -243,36 +189,22 @@ export const Workspace: React.FC = () => {
 
   // Handle project selection and data fetching
   useEffect(() => {
-    console.log('🔄 Workspace: useEffect[projectId, allProjects, projectsLoading, workspaceData] triggered', {
-      projectId,
-      allProjectsLength: allProjects.length,
-      currentProjectId: currentProject?.id,
-      projectsLoading,
-      userExists: !!user,
-      hasWorkspaceData: Object.values(workspaceData).some(arr => arr.length > 0),
-      loading,
-      isProjectLoading,
-    });
-
+    
     // Wait for user to be available
     if (!user) {
-      console.log('⏳ Workspace: Waiting for user to be available');
       return;
     }
 
     // If we have a projectId but no currentProject or currentProject doesn't match
     if (projectId && (!currentProject || currentProject.id !== projectId)) {
-      console.log('🔍 Workspace: Need to load project:', projectId);
       
       // First check if project exists in already-loaded projects
       const project = allProjects.find(p => p.id === projectId);
       
       if (project) {
-        console.log('🔄 Workspace: Found project in loaded projects, setting as current:', project.name);
         setCurrentProject(project);
       } else if (!projectsLoading && allProjects.length > 0) {
         // Projects have been loaded but project not found in list - try fetching it directly
-        console.log('🔍 Workspace: Project not found in loaded projects, fetching directly');
         setIsProjectLoading(true);
         
         db.getProject(projectId)
@@ -282,7 +214,6 @@ export const Workspace: React.FC = () => {
               // Project not found, redirect to dashboard
               navigate('/');
             } else if (data) {
-              console.log('✅ Workspace: Project fetched successfully:', data.name);
               setCurrentProject(data);
             } else {
               console.log('❌ Workspace: Project not found, redirecting to dashboard');
@@ -309,20 +240,16 @@ export const Workspace: React.FC = () => {
       const hasWorkspaceData = Object.values(workspaceData).some(arr => arr.length > 0);
       
       if (!hasWorkspaceData && !loading) {
-        console.log('📡 Workspace: Triggering fetchWorkspaceData for current project');
         fetchWorkspaceData(projectId);
       } else if (hasWorkspaceData) {
-        console.log('📡 Workspace: Workspace data already loaded for current project');
       } else if (loading) {
-        console.log('📡 Workspace: Already loading workspace data');
       }
     }
   }, [projectId, allProjects, currentProject, setCurrentProject, fetchWorkspaceData, navigate, projectsLoading, user, projectsError, workspaceData, loading]);
 
   const handleAddMissingModules = async () => {
-    console.log('➕ Workspace: handleAddMissingModules called');
+    
     if (!currentProject) {
-      console.log('❌ Workspace: No current project, cannot add modules');
       return;
     }
 
@@ -338,8 +265,6 @@ export const Workspace: React.FC = () => {
     const existingModuleTypes = new Set(currentProject.workspace_layout.modules.map(m => m.type));
     const missingModules = defaultModules.filter(module => !existingModuleTypes.has(module.type));
 
-    console.log('➕ Workspace: Missing modules:', missingModules.map(m => m.type));
-
     if (missingModules.length > 0) {
       const updatedLayout = {
         ...currentProject.workspace_layout,
@@ -352,44 +277,36 @@ export const Workspace: React.FC = () => {
         },
       };
 
-      console.log('🔄 Workspace: Updating workspace layout');
       await updateWorkspaceLayout(updatedLayout);
       if (projectId) {
-        console.log('📡 Workspace: Refetching workspace data after adding modules');
         await fetchWorkspaceData(projectId, true);
       }
     }
   };
 
   const handleDeleteProject = async () => {
-    console.log('🗑️ Workspace: handleDeleteProject called');
+    
     if (!currentProject || isDeleting) {
-      console.log('❌ Workspace: Cannot delete - no project or already deleting');
       return;
     }
 
-    console.log('🔄 Workspace: Setting deleting state to true');
     setIsDeleting(true);
     try {
-      console.log('🗑️ Workspace: Calling deleteProjectPermanently for:', currentProject.id);
       await deleteProjectPermanently(currentProject.id);
       // Navigate back to dashboard after successful deletion
-      console.log('🧭 Workspace: Navigating to dashboard after deletion');
       navigate('/');
     } catch (error) {
       console.error('❌ Workspace: Failed to delete project:', error);
       // Error handling is managed by the store
     } finally {
-      console.log('🔄 Workspace: Setting deleting and confirm states to false');
       setIsDeleting(false);
       setShowDeleteConfirm(false);
     }
   };
 
   const handleRetry = () => {
-    console.log('🔄 Workspace: handleRetry called');
+    
     if (projectId) {
-      console.log('🔄 Workspace: Resetting retry count and triggering fetchWorkspaceData');
       setRetryCount(0);
       fetchWorkspaceData(projectId, true);
     }
@@ -423,7 +340,6 @@ export const Workspace: React.FC = () => {
 
   // Show loading if projects are loading OR we're loading a specific project OR workspace data is loading
   if (projectsLoading || isProjectLoading || loading) {
-    console.log('⏳ Workspace: Rendering loading state', { projectsLoading, isProjectLoading, loading });
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
@@ -438,7 +354,6 @@ export const Workspace: React.FC = () => {
 
   if (error || projectsError) {
     const displayError = error || projectsError;
-    console.log('❌ Workspace: Rendering error state:', displayError);
     return (
       <div className="bg-secondary/50 border border-border rounded-lg p-6">
         <div className="flex items-start space-x-3">
@@ -492,12 +407,10 @@ export const Workspace: React.FC = () => {
 
   // Always render workspace content if we have a projectId, even without currentProject or data
   if (!projectId) {
-    console.log('❌ Workspace: No projectId in URL, redirecting to dashboard');
     navigate('/');
     return null;
   }
 
-  console.log('✅ Workspace: Rendering main workspace content');
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
@@ -581,7 +494,6 @@ export const Workspace: React.FC = () => {
       {/* Module Cards Grid */}
       <div className="workspace-grid">
         {ALL_MODULE_TYPES.map((type) => {
-          console.log('🎯 Workspace: Rendering module card for:', type);
           
           // // Special handling for design module
           // if (type === 'design') {
@@ -614,7 +526,6 @@ export const Workspace: React.FC = () => {
               type={type}
               summary={getModuleSummary(type)}
               onClick={() => {
-                console.log('🧭 Workspace: Navigating to module:', type);
                 navigate(`/workspace/${projectId}/${type}`);
               }}
             />

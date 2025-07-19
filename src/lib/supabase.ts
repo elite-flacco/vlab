@@ -76,7 +76,6 @@ export const auth = {
 export const db = {
   // Profiles
   getProfile: async (userId: string) => {
-    console.log('📊 DB: Getting profile for user:', userId);
     const operation = () => supabase
       .from('profiles')
       .select('*')
@@ -91,7 +90,6 @@ export const db = {
   },
 
   updateProfile: async (userId: string, updates: any) => {
-    console.log('📊 DB: Updating profile for user:', userId, 'with updates:', updates);
     const operation = () => supabase
       .from('profiles')
       .update(updates)
@@ -108,7 +106,6 @@ export const db = {
 
   // Projects
   getProject: async (projectId: string) => {
-    console.log('📊 DB: Getting single project:', projectId);
     const operation = () => supabase
       .from('projects')
       .select('*')
@@ -123,7 +120,6 @@ export const db = {
   },
 
   getProjects: async (userId: string) => {
-    console.log('📊 DB: Getting all projects for user:', userId);
     const operation = () => supabase
       .from('projects')
       .select('*')
@@ -138,7 +134,6 @@ export const db = {
   },
 
   getActiveProjects: async (userId: string) => {
-    console.log('📊 DB: Getting active projects for user:', userId);
     const operation = () => supabase
       .from('projects')
       .select('*')
@@ -154,7 +149,6 @@ export const db = {
   },
 
   getArchivedProjects: async (userId: string) => {
-    console.log('📊 DB: Getting archived projects for user:', userId);
     const operation = () => supabase
       .from('projects')
       .select('*')
@@ -170,7 +164,6 @@ export const db = {
   },
 
   createProject: async (project: any) => {
-    console.log('📊 DB: Creating project:', project.name);
     const operation = () => supabase
       .from('projects')
       .insert(project)
@@ -185,7 +178,6 @@ export const db = {
   },
 
   updateProject: async (id: string, updates: any) => {
-    console.log('📊 DB: Updating project:', id, 'with updates:', Object.keys(updates));
     const operation = () => supabase
       .from('projects')
       .update(updates)
@@ -201,7 +193,6 @@ export const db = {
   },
 
   archiveProject: async (id: string) => {
-    console.log('📊 DB: Archiving project:', id);
     const operation = () => supabase
       .from('projects')
       .update({ is_archived: true })
@@ -215,7 +206,6 @@ export const db = {
   },
 
   restoreProject: async (id: string) => {
-    console.log('📊 DB: Restoring project:', id);
     const operation = () => supabase
       .from('projects')
       .update({ is_archived: false })
@@ -229,7 +219,6 @@ export const db = {
   },
 
   deleteProjectPermanently: async (id: string) => {
-    console.log('📊 DB: Permanently deleting project:', id);
     const operation = () => supabase
       .from('projects')
       .delete()
@@ -244,7 +233,6 @@ export const db = {
 
   // Workspace Modules
   getWorkspaceModules: async (projectId: string) => {
-    console.log('📊 DB: Getting workspace modules for project:', projectId);
     const operation = () => supabase
       .from('workspace_modules')
       .select('*')
@@ -259,7 +247,6 @@ export const db = {
   },
 
   upsertWorkspaceModule: async (module: any) => {
-    console.log('📊 DB: Upserting workspace module:', module.module_type);
     const operation = () => supabase
       .from('workspace_modules')
       .upsert(module)
@@ -274,7 +261,6 @@ export const db = {
   },
 
   deleteWorkspaceModule: async (id: string) => {
-    console.log('📊 DB: Deleting workspace module:', id);
     const operation = () => supabase
       .from('workspace_modules')
       .delete()
@@ -289,7 +275,6 @@ export const db = {
 
   // PRDs
   getPRDs: async (projectId: string) => {
-    console.log('📊 DB: Getting PRDs for project:', projectId);
     const operation = () => supabase
       .from('prds')
       .select(`
@@ -308,7 +293,6 @@ export const db = {
   },
 
   createPRD: async (prd: any) => {
-    console.log('📊 DB: Creating PRD:', prd.title);
     const operation = () => supabase
       .from('prds')
       .insert(prd)
@@ -327,7 +311,6 @@ export const db = {
   },
 
   updatePRD: async (id: string, updates: any) => {
-    console.log('📊 DB: Updating PRD:', id);
     const operation = () => supabase
       .from('prds')
       .update(updates)
@@ -348,7 +331,6 @@ export const db = {
 
   // PRD Versions
   getPRDVersions: async (prdId: string) => {
-    console.log('📊 DB: Getting PRD versions for:', prdId);
     const operation = () => supabase
       .from('prd_versions')
       .select(`
@@ -366,7 +348,6 @@ export const db = {
   },
 
   getSpecificPRDVersion: async (prdId: string, versionNumber: number) => {
-    console.log('📊 DB: Getting specific PRD version:', prdId, 'version', versionNumber);
     
     // First get the current PRD to check if this is the current version
     const currentPRDResult = await supabase
@@ -416,7 +397,6 @@ export const db = {
   },
 
   getPRDVersionComparison: async (prdId: string, versionA: number, versionB: number) => {
-    console.log('📊 DB: Getting PRD version comparison:', prdId, versionA, 'vs', versionB);
     const operation = () => supabase
       .rpc('get_prd_version_comparison', {
         prd_uuid: prdId,
@@ -432,7 +412,6 @@ export const db = {
   },
 
   restorePRDVersion: async (prdId: string, versionNumber: number, changeDescription?: string) => {
-    console.log('📊 DB: Restoring PRD version:', prdId, 'to version', versionNumber);
     
     // First get the version data
     const versionResult = await supabase
@@ -469,7 +448,6 @@ export const db = {
 
   // Tasks
   getTasks: async (projectId: string) => {
-    console.log('📊 DB: Getting tasks for project:', projectId);
     const operation = () => supabase
       .from('tasks')
       .select('*')
@@ -484,7 +462,6 @@ export const db = {
   },
 
   createTask: async (task: any) => {
-    console.log('📊 DB: Creating task:', task.title);
     const operation = () => supabase
       .from('tasks')
       .insert(task)
@@ -499,7 +476,6 @@ export const db = {
   },
 
   updateTask: async (id: string, updates: any) => {
-    console.log('📊 DB: Updating task:', id);
     const operation = () => supabase
       .from('tasks')
       .update(updates)
@@ -515,7 +491,6 @@ export const db = {
   },
 
   deleteTask: async (id: string) => {
-    console.log('📊 DB: Deleting task:', id);
     const operation = () => supabase
       .from('tasks')
       .delete()
@@ -530,7 +505,6 @@ export const db = {
 
   // Prompts
   getPrompts: async (projectId: string) => {
-    console.log('📊 DB: Getting prompts for project:', projectId);
     const operation = () => supabase
       .from('prompts')
       .select('*')
@@ -545,7 +519,6 @@ export const db = {
   },
 
   createPrompt: async (prompt: any) => {
-    console.log('📊 DB: Creating prompt:', prompt.name);
     const operation = () => supabase
       .from('prompts')
       .insert(prompt)
@@ -560,7 +533,6 @@ export const db = {
   },
 
   updatePrompt: async (id: string, updates: any) => {
-    console.log('📊 DB: Updating prompt:', id);
     const operation = () => supabase
       .from('prompts')
       .update(updates)
@@ -576,7 +548,6 @@ export const db = {
   },
 
   deletePrompt: async (id: string) => {
-    console.log('📊 DB: Deleting prompt:', id);
     const operation = () => supabase
       .from('prompts')
       .delete()
@@ -591,7 +562,6 @@ export const db = {
 
   // Scratchpad Notes
   getScratchpadNotes: async (projectId: string) => {
-    console.log('📊 DB: Getting scratchpad notes for project:', projectId);
     const operation = () => supabase
       .from('scratchpad_notes')
       .select('*')
@@ -606,7 +576,6 @@ export const db = {
   },
 
   createScratchpadNote: async (note: any) => {
-    console.log('📊 DB: Creating scratchpad note');
     const operation = () => supabase
       .from('scratchpad_notes')
       .insert(note)
@@ -621,7 +590,6 @@ export const db = {
   },
 
   updateScratchpadNote: async (id: string, updates: any) => {
-    console.log('📊 DB: Updating scratchpad note:', id);
     const operation = () => supabase
       .from('scratchpad_notes')
       .update(updates)
@@ -637,7 +605,6 @@ export const db = {
   },
 
   deleteScratchpadNote: async (id: string) => {
-    console.log('📊 DB: Deleting scratchpad note:', id);
     const operation = () => supabase
       .from('scratchpad_notes')
       .delete()
@@ -652,7 +619,6 @@ export const db = {
 
   // Roadmap Items
   getRoadmapItems: async (projectId: string) => {
-    console.log('📊 DB: Getting roadmap items for project:', projectId);
     const operation = () => supabase
       .from('roadmap_items')
       .select('*')
@@ -667,7 +633,6 @@ export const db = {
   },
 
   createRoadmapItem: async (item: any) => {
-    console.log('📊 DB: Creating roadmap item:', item.title);
     const operation = () => supabase
       .from('roadmap_items')
       .insert(item)
@@ -682,7 +647,6 @@ export const db = {
   },
 
   updateRoadmapItem: async (id: string, updates: any) => {
-    console.log('📊 DB: Updating roadmap item:', id);
     const operation = () => supabase
       .from('roadmap_items')
       .update(updates)
@@ -699,7 +663,6 @@ export const db = {
 
   // Secrets
   getSecrets: async (projectId: string) => {
-    console.log('📊 DB: Getting secrets for project:', projectId);
     const operation = () => supabase
       .from('secrets')
       .select('id, name, description, category, is_active, created_at, updated_at')
@@ -715,7 +678,6 @@ export const db = {
   },
 
   createSecret: async (secret: any) => {
-    console.log('📊 DB: Creating secret:', secret.name);
     const operation = () => supabase
       .from('secrets')
       .insert(secret)
@@ -730,7 +692,6 @@ export const db = {
   },
 
   updateSecret: async (id: string, updates: any) => {
-    console.log('📊 DB: Updating secret:', id);
     const operation = () => supabase
       .from('secrets')
       .update(updates)
@@ -747,7 +708,6 @@ export const db = {
 
   // Templates
   getPublicTemplates: async () => {
-    console.log('📊 DB: Getting public templates');
     const operation = () => supabase
       .from('templates')
       .select(`
@@ -766,7 +726,6 @@ export const db = {
   },
 
   getUserTemplates: async (userId: string) => {
-    console.log('📊 DB: Getting user templates for:', userId);
     const operation = () => supabase
       .from('templates')
       .select(`
@@ -784,7 +743,6 @@ export const db = {
   },
 
   createTemplate: async (template: any) => {
-    console.log('📊 DB: Creating template:', template.name);
     const operation = () => supabase
       .from('templates')
       .insert(template)
@@ -800,7 +758,6 @@ export const db = {
 
   // Generic CRUD operations for backward compatibility
   getModuleData: async (table: string, projectId: string) => {
-    console.log('📊 DB: Getting module data from table:', table, 'for project:', projectId);
     const operation = () => supabase
       .from(table)
       .select('*')
@@ -815,7 +772,6 @@ export const db = {
   },
 
   createModuleData: async (table: string, data: any) => {
-    console.log('📊 DB: Creating module data in table:', table);
     const operation = () => supabase
       .from(table)
       .insert(data)
@@ -830,7 +786,6 @@ export const db = {
   },
 
   updateModuleData: async (table: string, id: string, updates: any) => {
-    console.log('📊 DB: Updating module data in table:', table, 'id:', id);
     const operation = () => supabase
       .from(table)
       .update(updates)
@@ -846,7 +801,6 @@ export const db = {
   },
 
   deleteModuleData: async (table: string, id: string) => {
-    console.log('📊 DB: Deleting module data from table:', table, 'id:', id);
     const operation = () => supabase
       .from(table)
       .delete()

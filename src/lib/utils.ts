@@ -42,16 +42,13 @@ export async function withTiming<T>(
   operation: () => Promise<T>
 ): Promise<T> {
   const startTime = performance.now();
-  console.log(`🕐 [${label}] Starting operation`);
   
   try {
     const result = await operation();
     const endTime = performance.now();
-    console.log(`✅ [${label}] Completed in ${(endTime - startTime).toFixed(2)}ms`);
     return result;
   } catch (error) {
     const endTime = performance.now();
-    console.error(`❌ [${label}] Failed after ${(endTime - startTime).toFixed(2)}ms:`, error);
     throw error;
   }
 }

@@ -50,37 +50,28 @@ export const TaskGenerator: React.FC<TaskGeneratorProps> = ({
 
   // Debug logging for component props
   useEffect(() => {
-    console.log('🔍 TaskGenerator Debug - Component Mounted');
-    console.log('  - projectId:', projectId);
-    console.log('  - prdContent length:', prdContent?.length || 0);
-    console.log('  - roadmapItems count:', roadmapItems?.length || 0);
-    console.log('  - roadmapItems:', roadmapItems);
-    console.log('  - hasGenerated:', hasGenerated);
+    // console.log('🔍 TaskGenerator Debug - Component Mounted');
+    // console.log('  - projectId:', projectId);
+    // console.log('  - prdContent length:', prdContent?.length || 0);
+    // console.log('  - roadmapItems count:', roadmapItems?.length || 0);
+    // console.log('  - roadmapItems:', roadmapItems);
+    // console.log('  - hasGenerated:', hasGenerated);
   }, []);
 
   // Auto-generate tasks when component mounts
   useEffect(() => {
-    console.log('🔍 TaskGenerator Debug - useEffect Trigger');
-    console.log('  - prdContent exists:', !!prdContent);
-    console.log('  - roadmapItems.length:', roadmapItems?.length || 0);
-    console.log('  - hasGenerated:', hasGenerated);
-    console.log('  - Condition met:', prdContent && roadmapItems.length > 0 && !hasGenerated);
 
     if (prdContent && roadmapItems.length > 0 && !hasGenerated) {
-      console.log('🔍 TaskGenerator Debug - Triggering handleGenerateTasks');
       handleGenerateTasks();
     }
   }, [prdContent, roadmapItems, hasGenerated]);
 
   const handleGenerateTasks = async () => {
-    console.log('🔍 TaskGenerator Debug - handleGenerateTasks called');
     setIsGenerating(true);
     setError(null);
 
     try {
-      console.log('🔍 TaskGenerator Debug - Calling generateTasks API');
       const generatedTasks = await generateTasks(prdContent, roadmapItems);
-      console.log('🔍 TaskGenerator Debug - Generated tasks:', generatedTasks);
       setTasks(generatedTasks);
       setHasGenerated(true);
     } catch (error) {

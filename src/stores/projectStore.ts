@@ -70,11 +70,9 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   error: null,
 
   fetchProjects: async (userId: string) => {
-    console.log('📊 ProjectStore: fetchProjects called with userId:', userId);
     set({ loading: true, error: null });
     
     try {
-      console.log('📊 ProjectStore: Starting parallel fetch for active and archived projects');
       
       const [activeResult, archivedResult] = await Promise.all([
         db.getActiveProjects(userId),
@@ -93,13 +91,7 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       const activeProjects = activeResult.data || [];
       const archivedProjects = archivedResult.data || [];
       
-      console.log('📊 ProjectStore: Setting projects in store:', {
-        activeCount: activeProjects.length,
-        archivedCount: archivedProjects.length,
-        activeProjects: activeProjects.map(p => ({ id: p.id, name: p.name })),
-        archivedProjects: archivedProjects.map(p => ({ id: p.id, name: p.name }))
-      });
-
+      
       set({ 
         activeProjects,
         archivedProjects,
@@ -113,7 +105,6 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   },
 
   createProject: async (name: string, userId: string, description?: string) => {
-    console.log('📊 ProjectStore: Creating project:', { name, userId, description });
     set({ loading: true, error: null });
     try {
       const projectData = {
@@ -126,7 +117,6 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       if (error) throw error;
       
       const { activeProjects } = get();
-      console.log('📊 ProjectStore: Project created successfully:', data);
       set({ 
         activeProjects: [data, ...activeProjects],
         currentProject: data,
@@ -227,7 +217,6 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   },
 
   setCurrentProject: (project: Project | null) => {
-    console.log('📊 ProjectStore: setCurrentProject called with:', project ? { id: project.id, name: project.name } : null);
     set({ currentProject: project });
   },
 
@@ -243,7 +232,6 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   },
 
   clearProjects: () => {
-    console.log('🧹 ProjectStore: Clearing all projects and current project');
     set({ 
       activeProjects: [], 
       archivedProjects: [], 

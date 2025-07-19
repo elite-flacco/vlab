@@ -75,28 +75,13 @@ export const KickoffFlow: React.FC = () => {
 
   // Debug logging for step data
   useEffect(() => {
-    console.log('🔍 KickoffFlow Debug - Current Step:', currentStep);
-    console.log('🔍 KickoffFlow Debug - Step Data:', stepData);
-    console.log('🔍 KickoffFlow Debug - Completed Steps:', Array.from(completedSteps));
     
     if (currentStep === 3) {
-      console.log('🔍 KickoffFlow Debug - Task Step Conditions:');
-      console.log('  - projectId:', projectId);
-      console.log('  - stepData.summary?.prd?.content exists:', !!stepData.summary?.prd?.content);
-      console.log('  - stepData.roadmap?.items exists:', !!stepData.roadmap?.items);
-      console.log('  - stepData.roadmap?.items length:', stepData.roadmap?.items?.length || 0);
       
-      if (stepData.summary?.prd?.content) {
-        console.log('  - PRD content preview:', stepData.summary.prd.content.substring(0, 100) + '...');
-      }
-      if (stepData.roadmap?.items) {
-        console.log('  - Roadmap items:', stepData.roadmap.items);
-      }
     }
   }, [currentStep, stepData, projectId]);
 
   const handleStepComplete = (data?: any) => {
-    console.log('🔍 KickoffFlow Debug - Step Complete:', currentStep, data);
     
     if (data) {
       setStepData(prev => {
@@ -104,7 +89,6 @@ export const KickoffFlow: React.FC = () => {
           ...prev,
           [KICKOFF_STEPS[currentStep].id]: data,
         };
-        console.log('🔍 KickoffFlow Debug - Updated Step Data:', newStepData);
         return newStepData;
       });
     }
@@ -123,22 +107,18 @@ export const KickoffFlow: React.FC = () => {
   };
 
   const handleIdeaSelected = (ideaSummary: string) => {
-    console.log('🔍 KickoffFlow Debug - Idea Selected:', ideaSummary);
     handleStepComplete({ ideaSummary });
   };
 
   const handlePRDCreated = (prdData: { title: string; content: string; id: string }) => {
-    console.log('🔍 KickoffFlow Debug - PRD Created:', prdData);
     handleStepComplete({ prd: prdData });
   };
 
   const handleRoadmapGenerated = (roadmapData: { items: any[]; count: number }) => {
-    console.log('🔍 KickoffFlow Debug - Roadmap Generated:', roadmapData);
     handleStepComplete( roadmapData );
   };
 
   const handleTasksGenerated = (tasksData: { tasks: any[]; count: number }) => {
-    console.log('🔍 KickoffFlow Debug - Tasks Generated:', tasksData);
     handleStepComplete(tasksData);
   };
 
