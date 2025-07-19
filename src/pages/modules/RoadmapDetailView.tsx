@@ -572,7 +572,7 @@ export const RoadmapDetailView: React.FC = () => {
             <div
               ref={provided.innerRef}
               {...provided.droppableProps}
-              className={`flex-1 space-y-3 min-h-32 transition-colors ${snapshot.isDraggingOver ? 'bg-blue-50 border-2 border-dashed border-blue-300 rounded-lg p-2' : ''
+              className={`flex-1 space-y-3 min-h-32 transition-colors ${snapshot.isDraggingOver ? 'bg-primary/5 border-2 border-dashed border-primary/30 rounded-lg p-2' : ''
                 }`}
             >
               {items.map((item, index) => renderRoadmapItem(item, index, false, true))}
