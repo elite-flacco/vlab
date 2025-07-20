@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { ErrorMessage } from '../components/Auth/ErrorMessage';
@@ -22,6 +22,76 @@ export const Landing: React.FC = () => {
   const [terminalText, setTerminalText] = useState('');
   const [showCursor, setShowCursor] = useState(true);
   const [showContactModal, setShowContactModal] = useState(false);
+  const [visibleFeatures, setVisibleFeatures] = useState<Set<number>>(new Set());
+  const [animatedFeatures, setAnimatedFeatures] = useState<Set<number>>(new Set());
+  const featureRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  const features = [
+    { 
+      code: 'project.create()', 
+      desc: 'Kickstart with AI',
+      info: 'Brainstorm with AI to spark ideas and set a strong foundation for your next build.',
+      staticImage: '/screenshots/ideate-static.png',
+      gifImage: '/gifs/ideate-demo.gif',
+      alt: 'Ideation Demo'
+    },
+    { 
+      code: 'prd.generate()', 
+      desc: 'From ideas to PRD in seconds',
+      info: 'Turn your messy thoughts into a clean, structured Product Requirements Document — powered by AI and ready to guide your build.',
+      staticImage: '/screenshots/prd-static.png',
+      gifImage: '/gifs/prd-demo.gif',
+      alt: 'PRD Generation Demo'
+    },
+    { 
+      code: 'roadmap.plan()', 
+      desc: 'Plan smart, move fast',
+      info: 'Instantly generate multi-phase roadmaps from your PRD. Stay focused, see the big picture, and build in clear steps.',
+      staticImage: '/screenshots/roadmap-static.png',
+      gifImage: '/gifs/roadmap-demo.gif',
+      alt: 'Roadmap Planning Demo'
+    },
+    { 
+      code: 'tasks.automate()', 
+      desc: 'Auto-task your roadmap',
+      info: 'Convert each roadmap phase into clear, actionable tasks — complete with priorities, tags, and no mental load.',
+      staticImage: '/screenshots/tasks-static.png',
+      gifImage: '/gifs/tasks-demo.gif',
+      alt: 'Task Automation Demo'
+    },
+    { 
+      code: 'workspace.sync()', 
+      desc: 'One workspace to rule it all',
+      info: 'All your tools — PRDs, roadmaps, tasks, notes, and designs — synced in a single, streamlined dashboard.',
+      staticImage: '/screenshots/workspace-static.png',
+      gifImage: '/gifs/workspace-demo.gif',
+      alt: 'Unified Workspace Demo'
+    },
+    { 
+      code: 'scratchpad.ideate()', 
+      desc: 'Jot now, code later',
+      info: 'Drop your ideas, thoughts, or random sparks in a clean space. Turn them into tasks anytime with text-to-task conversion.',
+      staticImage: '/screenshots/scratchpad-static.png',
+      gifImage: '/gifs/scratchpad-demo.gif',
+      alt: 'Scratchpad Demo'
+    },
+    { 
+      code: 'design.copilot()', 
+      desc: 'Design with an AI partner',
+      info: 'Upload a screenshot, get instant UX feedback, and generate design tasks — your AI co-designer’s got your back.',
+      staticImage: '/screenshots/design-static.png',
+      gifImage: '/gifs/design-demo.gif',
+      alt: 'Design Assistant Demo'
+    },
+    { 
+      code: 'community.join()', 
+      desc: 'Build with your people',
+      info: 'Swap tips, workflows, and lessons learned with other builders mastering the vibe coding way. Learn faster, ship smarter.',
+      staticImage: '/screenshots/community-static.png',
+      // gifImage: '/gifs/community-demo.gif',
+      alt: 'Community Demo'
+    },
+  ];
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -55,6 +125,51 @@ export const Landing: React.FC = () => {
 
     return () => clearInterval(cursorInterval);
   }, []);
+
+  // Intersection Observer for scroll animations
+  useEffect(() => {
+    const observers: IntersectionObserver[] = [];
+    
+    featureRefs.current.forEach((ref, index) => {
+      if (ref) {
+        const observer = new IntersectionObserver(
+          ([entry]) => {
+            if (entry.isIntersecting) {
+              setVisibleFeatures(prev => new Set([...prev, index]));
+              // Start GIF animation after 1.5 seconds only if GIF exists
+              if (features[index]?.gifImage) {
+                setTimeout(() => {
+                  setAnimatedFeatures(prev => new Set([...prev, index]));
+                }, 1500);
+              }
+            } else {
+              setVisibleFeatures(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(index);
+                return newSet;
+              });
+              setAnimatedFeatures(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(index);
+                return newSet;
+              });
+            }
+          },
+          {
+            threshold: 0.3,
+            rootMargin: '-100px 0px'
+          }
+        );
+        
+        observer.observe(ref);
+        observers.push(observer);
+      }
+    });
+
+    return () => {
+      observers.forEach(observer => observer.disconnect());
+    };
+  }, [features.length]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -113,65 +228,6 @@ export const Landing: React.FC = () => {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
-
-  const features = [
-    { 
-      code: 'prd.generate()', 
-      desc: 'Ideas to PRD in seconds',
-      staticImage: '/screenshots/prd-static.png',
-      gifImage: '/gifs/prd-demo.gif',
-      alt: 'PRD Generation Demo'
-    },
-    { 
-      code: 'roadmap.plan()', 
-      desc: 'Build smart, phase fast',
-      staticImage: '/screenshots/roadmap-static.png',
-      gifImage: '/gifs/roadmap-demo.gif',
-      alt: 'Roadmap Planning Demo'
-    },
-    { 
-      code: 'tasks.automate()', 
-      desc: 'Tasks handled, flow unbroken',
-      staticImage: '/screenshots/tasks-static.png',
-      gifImage: '/gifs/tasks-demo.gif',
-      alt: 'Task Automation Demo'
-    },
-    { 
-      code: 'scratchpad.ideate()', 
-      desc: 'Think freely, code later',
-      staticImage: '/screenshots/scratchpad-static.png',
-      gifImage: '/gifs/scratchpad-demo.gif',
-      alt: 'Scratchpad Ideation Demo'
-    },
-    { 
-      code: 'prompt.save()', 
-      desc: 'Prompt once, reuse forever',
-      staticImage: '/screenshots/prompts-static.png',
-      gifImage: '/gifs/prompts-demo.gif',
-      alt: 'Prompt Management Demo'
-    },
-    { 
-      code: 'design.copilot()', 
-      desc: 'Design faster, smarter',
-      staticImage: '/screenshots/design-static.png',
-      gifImage: '/gifs/design-demo.gif',
-      alt: 'Design Co-pilot Demo'
-    },
-    { 
-      code: 'workspace.sync()', 
-      desc: 'Everything in one place',
-      staticImage: '/screenshots/workspace-static.png',
-      gifImage: '/gifs/workspace-demo.gif',
-      alt: 'Workspace Overview Demo'
-    },
-    { 
-      code: 'community.join()', 
-      desc: 'Ship with your people',
-      staticImage: '/screenshots/community-static.png',
-      gifImage: '/gifs/community-demo.gif',
-      alt: 'Community Features Demo'
-    },
-  ];
 
   return (
     <ErrorBoundary>
@@ -235,7 +291,7 @@ export const Landing: React.FC = () => {
 
               {/* Value Proposition */}
               <p className="text-lg md:text-xl text-foreground-dim mb-8 max-w-2xl mx-auto leading-relaxed">
-                // built_for(<span className="text-primary">vibe_coders</span>)
+                // built_for_(<span className="text-primary">solo_vibe_coders</span>)
                 <br />
                 A minimalist, AI-powered all-in-one workspace for chaotic builders.
               </p>
@@ -253,70 +309,136 @@ export const Landing: React.FC = () => {
 
           {/* Features Section */}
           <section id="features" className="px-6 py-20 bg-secondary/30">
-            <div className="max-w-6xl mx-auto">
-              <div className="text-center mb-16">
+            <div className="max-w-7xl mx-auto">
+              <div className="text-center mb-20">
                 <h2 className="text-3xl md:text-4xl font-bold mb-4">
                   <span className="text-primary">//</span> Core Modules
                 </h2>
-                <p className="text-foreground-dim text-md">Essential tools designed to help you level up your vibe coding — from idea spark to shipping in flow.</p>
+                <p className="text-foreground-dim text-lg max-w-2xl mx-auto">Essential tools designed to help you level up your vibe coding — from idea spark to shipping in flow.</p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {features.map((feature, index) => (
-                  <div
-                    key={index}
-                    className="group p-6 bg-background/50 border border-foreground-dim/20 rounded-lg hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10"
-                  >
-                    {/* Terminal-style Preview Window */}
-                    <div className="bg-secondary/50 border border-foreground-dim/20 rounded-lg p-3 mb-4 overflow-hidden">
-                      {/* Terminal Header */}
-                      <div className="flex items-center space-x-2 mb-3 text-xs text-foreground-dim">
-                        <div className="w-2.5 h-2.5 rounded-full bg-red-500"></div>
-                        <div className="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
-                        <div className="w-2.5 h-2.5 rounded-full bg-green-500"></div>
-                        <span className="ml-2">{feature.code.split('.')[0]}.preview</span>
-                      </div>
-                      
-                      {/* Image Container with Hover Effect */}
-                      <div className="relative overflow-hidden rounded border border-foreground-dim/10">
-                        {/* Static Screenshot (default) */}
-                        <img 
-                          src={feature.staticImage}
-                          alt={feature.alt}
-                          className="w-full h-48 object-cover object-top group-hover:opacity-0 transition-opacity duration-500"
-                          loading="lazy"
-                        />
-                        {/* GIF (shows on hover) */}
-                        <img 
-                          src={feature.gifImage}
-                          alt={`${feature.alt} - Animated`}
-                          className="absolute inset-0 w-full h-48 object-cover object-top opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                          loading="lazy"
-                        />
+              <div className="space-y-16 md:space-y-24 lg:space-y-32">
+                {features.map((feature, index) => {
+                  const isEven = index % 2 === 0;
+                  const isVisible = visibleFeatures.has(index);
+                  const isAnimated = animatedFeatures.has(index);
+                  const hasGif = !!feature.gifImage;
+                  return (
+                    <div
+                      key={index}
+                      ref={el => featureRefs.current[index] = el}
+                      className={`flex flex-col ${
+                        isEven ? 'lg:flex-row' : 'lg:flex-row-reverse'
+                      } items-center gap-8 md:gap-12 lg:gap-20 transition-all duration-1000 ${
+                        isVisible 
+                          ? 'opacity-100 translate-y-0' 
+                          : 'opacity-0 translate-y-8 md:translate-y-16'
+                      }`}
+                    >
+                      {/* Content Side */}
+                      <div className={`flex-1 space-y-6 transition-all duration-1000 delay-200 ${
+                        isEven ? 'lg:text-right text-left' : 'text-left'
+                      } ${
+                        isVisible 
+                          ? 'opacity-100 translate-x-0' 
+                          : `opacity-0 lg:${isEven ? '-translate-x-8' : 'translate-x-8'}`
+                      }`}>
+                        <div className={`flex items-center space-x-3 ${
+                          isEven ? 'lg:flex-row-reverse lg:space-x-reverse' : ''
+                        }`}>
+                          <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                            <Code className="w-6 h-6 text-primary" />
+                          </div>
+                          <span className="text-sm text-foreground-dim font-mono">
+                            {feature.code.split('.')[0]}.module
+                          </span>
+                        </div>
                         
-                        {/* Hover Overlay Indicator */}
-                        <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                          <div className="text-xs text-primary/80 bg-background/80 px-2 py-1 rounded font-mono">
-                            ▶ Live Demo
+                        <div>
+                          <code className="text-primary text-2xl md:text-3xl font-bold block mb-4 font-mono">
+                            {feature.code}
+                          </code>
+                          <h3 className="text-foreground text-xl md:text-xl font-semibold mb-4 leading-tight">
+                            {feature.desc}
+                          </h3>
+                          <p className="text-foreground-dim text-base leading-relaxed mb-6 opacity-90">
+                            {feature.info}
+                          </p>
+                          <div className={`flex items-center space-x-2 text-sm text-primary ${
+                            isEven ? 'lg:flex-row-reverse lg:space-x-reverse' : ''
+                          }`}>
+                            {/* <ArrowRight className="w-4 h-4" />
+                            <span>Explore {feature.code.split('.')[0]}</span> */}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Visual Side */}
+                      <div className={`flex-1 max-w-2xl transition-all duration-1000 delay-400 ${
+                        isVisible 
+                          ? 'opacity-100 translate-x-0' 
+                          : `opacity-0 lg:${isEven ? 'translate-x-8' : '-translate-x-8'}`
+                      }`}>
+                        <div className="group relative">
+                          {/* Terminal Window */}
+                          <div className="bg-secondary/80 border border-foreground-dim/20 rounded-xl overflow-hidden backdrop-blur-sm shadow-2xl">
+                            {/* Terminal Header */}
+                            <div className="flex items-center justify-between px-4 py-3 bg-secondary/50 border-b border-foreground-dim/20">
+                              <div className="flex items-center space-x-2">
+                                <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                                <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                              </div>
+                              <span className="text-xs text-foreground-dim font-mono">
+                                {feature.code.split('.')[0]}.preview
+                              </span>
+                              <div className="w-16"></div>
+                            </div>
+                            
+                            {/* Large Screenshot Container */}
+                            <div className="relative bg-background p-4">
+                              {/* Static Screenshot */}
+                              <img 
+                                src={feature.staticImage}
+                                alt={feature.alt}
+                                className={`w-full h-auto max-h-80 md:max-h-96 object-contain ${
+                                  hasGif ? 'transition-opacity duration-700' : ''
+                                } ${
+                                  hasGif && isAnimated ? 'opacity-0' : 'opacity-100'
+                                }`}
+                                loading="lazy"
+                              />
+                              
+                              {/* Animated GIF - only render if it exists */}
+                              {hasGif && (
+                                <img 
+                                  src={feature.gifImage}
+                                  alt={`${feature.alt} - Interactive Demo`}
+                                  className={`absolute inset-4 w-[calc(100%-2rem)] h-auto max-h-80 md:max-h-96 object-contain transition-opacity duration-700 ${
+                                    isAnimated ? 'opacity-100' : 'opacity-0'
+                                  }`}
+                                  loading="lazy"
+                                />
+                              )}
+                              
+                              {/* Live indicator - only show if GIF exists and is playing */}
+                              {hasGif && (
+                                <div className={`absolute top-6 right-6 transition-all duration-500 ${
+                                  isAnimated ? 'opacity-100' : 'opacity-0'
+                                }`}>
+                                  <div className="bg-primary/90 text-background px-2 py-1 rounded-full text-xs font-medium flex items-center space-x-1">
+                                    <div className="w-1.5 h-1.5 bg-background rounded-full animate-pulse"></div>
+                                    <span>LIVE</span>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                    
-                    {/* Feature Description */}
-                    <div className="flex items-start space-x-4">
-                      <div className="flex-shrink-0 w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                        <Code className="w-5 h-5 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <code className="text-primary text-base font-semibold block mb-2">
-                          {feature.code}
-                        </code>
-                        <p className="text-foreground-dim text-sm leading-relaxed">{feature.desc}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </section>

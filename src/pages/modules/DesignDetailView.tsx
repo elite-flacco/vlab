@@ -92,6 +92,9 @@ export const DesignDetailView: React.FC = () => {
     try {
       // Compress image to reduce payload size
       const compressedFile = await compressImage(file, 0.8, 1200); // 80% quality, max 1200px width
+      
+      // Set the compressed file for API use
+      setUploadedImage(compressedFile);
 
       // Create preview from original file for better quality display
       const reader = new FileReader();
@@ -209,6 +212,9 @@ export const DesignDetailView: React.FC = () => {
     try {
       // Compress image to reduce payload size
       const compressedFile = await compressImage(imageFile, 0.8, 1200);
+      
+      // Set the compressed file for API use
+      setUploadedImage(compressedFile);
 
       // Create preview from original file for better quality display
       const reader = new FileReader();
@@ -476,9 +482,9 @@ export const DesignDetailView: React.FC = () => {
           )}
 
           {success && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-3">
+            <div className="mt-3 bg-green-500/10 border border-green-500/20 rounded p-4 flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 text-green-600" />
-              <span className="text-green-800">{success}</span>
+              <span className="text-green-600 text-xs">{success}</span>
             </div>
           )}
 
