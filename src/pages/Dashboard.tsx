@@ -125,7 +125,7 @@ export const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="terminal-window p-6">
+        {/* <div className="terminal-window p-6">
           <div className="flex items-center">
             <div className="p-2 bg-primary/10 rounded-lg">
               <Star className="w-6 h-6 text-primary" />
@@ -135,7 +135,7 @@ export const Dashboard: React.FC = () => {
               <p className="text-2xl font-bold text-foreground">0</p>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* Active Projects */}

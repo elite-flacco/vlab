@@ -4,6 +4,8 @@ import { PostSubmissionForm } from '../components/Community/PostSubmissionForm';
 import { PostCard } from '../components/Community/PostCard';
 import { PostDetailView } from '../components/Community/PostDetailView';
 import { communityApi } from '../lib/communityApi';
+import { useProjectStore } from '../stores/projectStore';
+import { useAuthStore } from '../stores/authStore';
 
 // Tool and category options for filtering
 const TOOL_OPTIONS = [
@@ -29,6 +31,10 @@ export const Community: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showSubmissionForm, setShowSubmissionForm] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+  
+  // Add project store and auth store hooks
+  const { fetchProjects, loading: projectsLoading, activeProjects } = useProjectStore();
+  const { user, loading: authLoading } = useAuthStore();
 
   // Enhanced filters with URL state management
   const [searchTerm, setSearchTerm] = useState('');
@@ -41,6 +47,13 @@ export const Community: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [hasNextPage, setHasNextPage] = useState(false);
   const [totalPosts, setTotalPosts] = useState(0);
+
+  // Fetch projects when component mounts and user is available
+  useEffect(() => {
+    if (!authLoading && user?.id && activeProjects.length === 0 && !projectsLoading) {
+      fetchProjects(user.id);
+    }
+  }, [user, authLoading, fetchProjects, activeProjects.length, projectsLoading]);
 
   // Initialize filters from URL parameters on component mount
   useEffect(() => {
@@ -245,13 +258,13 @@ export const Community: React.FC = () => {
           </div>
         ) : error ? (
           <div className="text-center py-16">
-            <div className="bg-white border border-gray-200 rounded-lg p-6 max-w-md mx-auto">
+            <div className="bg-destructive/10 text-destructive border-destructive/20 rounded-lg p-6 max-w-md mx-auto">
               <div className="flex flex-col items-center">
                 <AlertCircle className="w-6 h-6 text-red-600 mb-3" />
                 <p className="text-red-600 mb-4">{error}</p>
                 <button
                   onClick={fetchPosts}
-                  className="btn-primary px-4 py-2 text-sm"
+                  className="btn-danger px-4 py-2 text-sm"
                 >
                   Try Again
                 </button>
