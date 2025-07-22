@@ -21,7 +21,9 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
     return text.trimStart()
       .replace(/^\s*(Phase \d+[:\-\s]*)/gm, '## $1')
       .replace(/^\s*(Step \d+[:\-\s]*)/gm, '### $1')
-      .replace(/^\s*(\d+\.\s)/gm, '- ')
+      // Convert lines that start with "Phase X." or "Step X." to bullet points
+      .replace(/^\s*(Phase \d+\.\s)/gmi, '- $1')
+      .replace(/^\s*(Step \d+\.\s)/gmi, '- $1')
       .replace(/\*\*(.*?)\*\*/g, '**$1**')
       .replace(/\*(.*?)\*/g, '*$1*');
   };
@@ -49,16 +51,16 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
       <ReactMarkdown
         children={preprocessMarkdown(content)}
         components={{
-          h1: (props) => <h1 className="text-lg font-semibold mt-2 mb-1 text-foreground/90" {...props} />,
-          h2: (props) => <h2 className="text-base font-semibold mt-2 mb-1 text-foreground/90" {...props} />,
-          h3: (props) => <h3 className="text-sm font-semibold mt-1.5 mb-1 text-foreground/90" {...props} />,
-          h4: (props) => <h4 className="text-sm font-semibold mt-1.5 mb-1 text-foreground/90" {...props} />,
-          h5: (props) => <h5 className="text-xs font-semibold mt-1 mb-1 text-foreground/90" {...props} />,
+          h1: (props) => <h1 className="text-2xl font-bold mt-3 mb-2 text-foreground" {...props} />,
+          h2: (props) => <h2 className="text-xl font-bold mt-3 mb-2 text-foreground" {...props} />,
+          h3: (props) => <h3 className="text-lg font-semibold mt-2 mb-1 text-foreground" {...props} />,
+          h4: (props) => <h4 className="text-base font-semibold mt-2 mb-1 text-foreground" {...props} />,
+          h5: (props) => <h5 className="text-sm font-medium mt-2 mb-1 text-foreground" {...props} />,
           h6: (props) => <h6 className="text-xs font-medium mt-1 mb-1 text-foreground/90" {...props} />,
-          ul: (props) => <ul className="list-disc pl-5 space-y-1 my-1" {...props} />,
-          ol: (props) => <ol className="list-decimal pl-5 space-y-1 my-1" {...props} />,
-          li: (props) => <li className="pl-1 text-foreground/80" {...props} />,
-          p: (props) => <p className="text-xs my-1.5 text-foreground-muted" {...props} />,
+          ul: (props) => <ul className="text-sm list-disc pl-6 space-y-1 my-2" {...props} />,
+          ol: (props) => <ol className="text-sm list-decimal pl-6 space-y-1 my-2" {...props} />,
+          li: (props) => <li className="text-sm pl-1 my-0.5 text-foreground/80" {...props} />,
+          p: (props) => <p className="text-sm my-2 text-foreground-dim leading-relaxed" {...props} />,
           strong: (props) => <strong className="font-semibold text-foreground/90" {...props} />,
           em: (props) => <em className="italic text-foreground/80" {...props} />,
           blockquote: (props) => (
@@ -68,14 +70,14 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
             const isInline = !className?.includes('language-');
             if (isInline) {
               return (
-                <code className="bg-foreground/10 px-1 py-0.5 rounded text-xs font-mono text-foreground/90" {...props}>
+                <code className="bg-foreground/10 px-1 py-0.5 rounded text-sm font-mono text-foreground/90" {...props}>
                   {children}
                 </code>
               );
             }
             return (
               <pre className="bg-foreground/10 p-2 rounded-md overflow-x-auto my-2 max-w-full">
-                <code className="text-xs font-mono text-foreground/90" {...props}>
+                <code className="text-sm font-mono text-foreground/90" {...props}>
                   {children}
                 </code>
               </pre>
@@ -107,10 +109,10 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
             </div>
           ),
           th: (props) => (
-            <th className="border border-foreground/20 px-2 py-1 bg-foreground/5 font-semibold text-xs text-foreground/90" {...props} />
+            <th className="border border-foreground/20 px-2 py-1 bg-foreground/5 font-semibold text-sm text-foreground/90" {...props} />
           ),
           td: (props) => (
-            <td className="border border-foreground/20 px-2 py-1 text-xs text-foreground/80" {...props} />
+            <td className="border border-foreground/20 px-2 py-1 text-sm text-foreground/80" {...props} />
           ),
         }}
       />

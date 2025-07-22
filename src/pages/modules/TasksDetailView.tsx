@@ -3,6 +3,7 @@ import { ArrowDown, ArrowUp, CheckSquare, ChevronDown, Edit3, Loader2, Minus, Pl
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { BackButton } from '../../components/common/BackButton';
+import { MarkdownRenderer, useMarkdownPreprocessing } from '../../components/common/MarkdownRenderer';
 import { ModuleContainer } from '../../components/Workspace/ModuleContainer';
 import { db } from '../../lib/supabase';
 
@@ -49,6 +50,7 @@ export const TasksDetailView: React.FC = () => {
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [newTask, setNewTask] = useState<Partial<TaskItem> | null>(null);
   const [saving, setSaving] = useState(false);
+  const { processContent } = useMarkdownPreprocessing();
 
   useEffect(() => {
     if (projectId) {
@@ -862,7 +864,12 @@ export const TasksDetailView: React.FC = () => {
                       </div>
 
                       {task.description && (
-                        <p className="card-content mt-1 text-sm">{task.description}</p>
+                        <div className="mt-1 text-sm prose prose-sm max-w-none">
+                          <MarkdownRenderer
+                            content={processContent(task.description, { convertUrls: true })}
+                            enableAutoLinks={true}
+                          />
+                        </div>
                       )}
 
                       <div className="flex items-center flex-wrap gap-2 mt-2">
