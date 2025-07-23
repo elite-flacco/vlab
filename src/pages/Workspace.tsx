@@ -15,9 +15,10 @@ interface WorkspaceData {
   scratchpadNotes: any[];
   prompts: any[];
   secrets: any[];
+  deploymentItems: any[];
 }
 
-const ALL_MODULE_TYPES: ModuleType[] = ['prd', 'roadmap', 'tasks', 'scratchpad', 'prompts', 'secrets', 'design'];
+const ALL_MODULE_TYPES: ModuleType[] = ['prd', 'roadmap', 'tasks', 'scratchpad', 'prompts', 'design', 'deployment'];
 
 export const Workspace: React.FC = () => {
   
@@ -46,6 +47,7 @@ export const Workspace: React.FC = () => {
     scratchpadNotes: [],
     prompts: [],
     secrets: [],
+    deploymentItems: [],
   });
   const [loading, setLoading] = useState(false);
   const [isProjectLoading, setIsProjectLoading] = useState(false);
@@ -117,6 +119,11 @@ export const Workspace: React.FC = () => {
           10000,
           'Secrets fetch timed out after 10 seconds'
         ),
+        withTimeout(
+          withTiming('Workspace Deployment', () => db.getDeploymentItems(projectId)),
+          10000,
+          'Deployment items fetch timed out after 10 seconds'
+        ),
       ];
 
       const [
@@ -126,6 +133,7 @@ export const Workspace: React.FC = () => {
         scratchpadResult,
         promptsResult,
         secretsResult,
+        deploymentResult,
       ] = await Promise.all(fetchOperations);
 
       // Check for errors
@@ -147,6 +155,9 @@ export const Workspace: React.FC = () => {
       if (secretsResult.error) {
         throw secretsResult.error;
       }
+      if (deploymentResult.error) {
+        throw deploymentResult.error;
+      }
 
       const newWorkspaceData = {
         prds: prdsResult.data || [],
@@ -155,6 +166,7 @@ export const Workspace: React.FC = () => {
         scratchpadNotes: scratchpadResult.data || [],
         prompts: promptsResult.data || [],
         secrets: secretsResult.data || [],
+        deploymentItems: deploymentResult.data || [],
       };
 
       setWorkspaceData(newWorkspaceData);
@@ -347,6 +359,13 @@ export const Workspace: React.FC = () => {
         return totalSecrets > 0 ? `${totalSecrets} secrets, ${activeSecrets} active.` : 'Coming soon.';
       case 'design':
         return 'AI-powered design assistant.';
+      case 'deployment':
+        const completedDeploymentItems = workspaceData.deploymentItems?.filter(item => item.status === 'done').length || 0;
+        const totalDeploymentItems = workspaceData.deploymentItems?.length || 0;
+        const criticalItems = workspaceData.deploymentItems?.filter(item => item.priority === 'critical' && item.status !== 'done').length || 0;
+        return totalDeploymentItems > 0 
+          ? `${totalDeploymentItems} items, ${completedDeploymentItems} completed${criticalItems > 0 ? `, ${criticalItems} critical pending` : ''}.`
+          : 'Go-live preparation checklist.';
       default:
         return 'Ready to get started.';
     }

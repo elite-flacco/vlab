@@ -812,4 +812,61 @@ export const db = {
       `Delete ${table} data operation timed out`
     );
   },
+
+  // Deployment Items
+  getDeploymentItems: async (projectId: string) => {
+    const operation = () => supabase
+      .from('deployment_items')
+      .select('*')
+      .eq('project_id', projectId)
+      .order('position');
+    
+    return withTimeout(
+      withTiming('DB GetDeploymentItems', operation),
+      DB_TIMEOUT,
+      'Get deployment items operation timed out'
+    );
+  },
+
+  createDeploymentItem: async (item: any) => {
+    const operation = () => supabase
+      .from('deployment_items')
+      .insert(item)
+      .select()
+      .single();
+    
+    return withTimeout(
+      withTiming('DB CreateDeploymentItem', operation),
+      DB_TIMEOUT,
+      'Create deployment item operation timed out'
+    );
+  },
+
+  updateDeploymentItem: async (id: string, updates: any) => {
+    const operation = () => supabase
+      .from('deployment_items')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
+    
+    return withTimeout(
+      withTiming('DB UpdateDeploymentItem', operation),
+      DB_TIMEOUT,
+      'Update deployment item operation timed out'
+    );
+  },
+
+  deleteDeploymentItem: async (id: string) => {
+    const operation = () => supabase
+      .from('deployment_items')
+      .delete()
+      .eq('id', id);
+    
+    return withTimeout(
+      withTiming('DB DeleteDeploymentItem', operation),
+      DB_TIMEOUT,
+      'Delete deployment item operation timed out'
+    );
+  },
 };

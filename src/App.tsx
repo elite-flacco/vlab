@@ -16,6 +16,7 @@ import { ScratchpadDetailView } from './pages/modules/ScratchpadDetailView';
 import { PromptsDetailView } from './pages/modules/PromptsDetailView';
 import { SecretsDetailView } from './pages/modules/SecretsDetailView';
 import { DesignDetailView } from './pages/modules/DesignDetailView';
+import { DeploymentDetailView } from './pages/modules/DeploymentDetailView';
 
 // Wrapper component to handle return URL logic
 function LandingWrapper() {
@@ -72,6 +73,7 @@ function App() {
                 <Route path="workspace/:projectId/prompts" element={<PromptsDetailView />} />
                 <Route path="workspace/:projectId/secrets" element={<SecretsDetailView />} />
                 <Route path="workspace/:projectId/design" element={<DesignDetailView />} />
+                <Route path="workspace/:projectId/deployment" element={<DeploymentDetailView />} />
               </Route>
               <Route path="*" element={<Navigate to="/" replace />} />
             </>

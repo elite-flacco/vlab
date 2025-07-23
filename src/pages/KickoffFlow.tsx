@@ -37,7 +37,7 @@ const KICKOFF_STEPS = [
     color: 'orange',
   },
   {
-    id: 'todos',
+    id: 'complete',
     title: 'Ready to Roll!',
     description: 'Ready to start building',
     icon: Rocket,
@@ -322,8 +322,8 @@ export const KickoffFlow: React.FC = () => {
                     <div>
                       <h4 className="mb-2">🎉 Your Project is Ready!</h4>
                       <p className="text-foreground-dim text-sm">
-                        You now have a complete project setup with PRD, roadmap, and actionable tasks. 
-                        These will be available in your workspace for ongoing development.
+                        You now have a complete project setup with PRD, roadmap, and development tasks. 
+                        Everything will be available in your workspace for ongoing development. You can also set up your deployment checklist from the deployment module when you're ready to go live.
                       </p>
                     </div>
                   </div>

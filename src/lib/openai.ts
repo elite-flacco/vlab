@@ -27,6 +27,20 @@ interface TaskItem {
   position: number;
 }
 
+interface DeploymentItem {
+  title: string;
+  description: string;
+  category: 'general' | 'hosting' | 'database' | 'auth' | 'env' | 'security' | 'monitoring' | 'testing' | 'dns' | 'ssl';
+  platform: 'general' | 'vercel' | 'netlify' | 'aws' | 'gcp' | 'azure' | 'heroku' | 'digitalocean' | 'supabase';
+  environment: 'development' | 'staging' | 'production';
+  status: 'todo' | 'in_progress' | 'done' | 'blocked' | 'not_applicable';
+  priority: 'low' | 'medium' | 'high' | 'critical';
+  is_required: boolean;
+  verification_notes: string;
+  helpful_links: Array<{ title: string; url: string; description?: string }>;
+  position: number;
+}
+
 const SUPABASE_FUNCTIONS_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`;
 
 // Helper function to get auth headers
@@ -223,6 +237,35 @@ export const generateDesignTasksFromImage = async (imageFile: File): Promise<Tas
     return data.result || [];
   } catch (error) {
     console.error('Error in generateDesignTasksFromImage:', error);
+    throw error;
+  }
+};
+
+export const generateDeploymentChecklist = async (params: { platforms: string[]; projectId: string; prdContent?: string; roadmapItems?: RoadmapItem[] }): Promise<DeploymentItem[]> => {
+  try {
+    const headers = await getAuthHeaders();
+    
+    const response = await fetch(`${SUPABASE_FUNCTIONS_URL}/openai-proxy`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        action: 'deployment_checklist',
+        platforms: params.platforms,
+        projectId: params.projectId,
+        prdContent: params.prdContent,
+        roadmapItems: params.roadmapItems
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.result || [];
+  } catch (error) {
+    console.error('Error in generateDeploymentChecklist:', error);
     throw error;
   }
 };

@@ -47,7 +47,7 @@ export interface GridConfig {
   gap: number;
 }
 
-export type ModuleType = 'prd' | 'tasks' | 'prompts' | 'scratchpad' | 'roadmap' | 'secrets' | 'design';
+export type ModuleType = 'prd' | 'tasks' | 'prompts' | 'scratchpad' | 'roadmap' | 'secrets' | 'design' | 'deployment';
 
 export interface PRD {
   id: string;
@@ -133,6 +133,32 @@ export interface Secret {
   name: string;
   encrypted_value: string;
   description?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DeploymentItem {
+  id: string;
+  project_id: string;
+  title: string;
+  description: string;
+  category: 'general' | 'hosting' | 'database' | 'auth' | 'env' | 'security' | 'monitoring' | 'testing' | 'dns' | 'ssl';
+  platform: 'general' | 'vercel' | 'netlify' | 'aws' | 'gcp' | 'azure' | 'heroku' | 'digitalocean' | 'supabase';
+  environment: 'development' | 'staging' | 'production';
+  status: 'todo' | 'in_progress' | 'done' | 'blocked' | 'not_applicable';
+  priority: 'low' | 'medium' | 'high' | 'critical';
+  is_required: boolean;
+  is_auto_generated: boolean;
+  estimated_hours?: number;
+  actual_hours?: number;
+  due_date?: string;
+  completion_date?: string;
+  tags: string[];
+  dependencies: string[];
+  assignee_id?: string;
+  verification_notes: string;
+  helpful_links: Array<{ title: string; url: string; description?: string }>;
+  position: number;
   created_at: string;
   updated_at: string;
 }

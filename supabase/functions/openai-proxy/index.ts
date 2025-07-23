@@ -14,7 +14,7 @@ interface ChatMessage {
 }
 
 interface OpenAIRequest {
-  action: 'chat' | 'summary' | 'prd' | 'roadmap' | 'tasks' | 'design_tasks' | 'design_tasks_image';
+  action: 'chat' | 'summary' | 'prd' | 'roadmap' | 'tasks' | 'design_tasks' | 'design_tasks_image' | 'deployment_checklist';
   messages?: ChatMessage[];
   ideaSummary?: string;
   prdContent?: string;
@@ -22,6 +22,8 @@ interface OpenAIRequest {
   feedbackText?: string;
   imageData?: string;
   mimeType?: string;
+  platforms?: string[];
+  projectId?: string;
 }
 
 // Simple rate limiting store (in-memory for demo - use Redis in production)
@@ -112,7 +114,7 @@ serve(async (req) => {
     const { action } = requestData;
     
     // Validate action
-    const validActions = ['chat', 'summary', 'prd', 'roadmap', 'tasks', 'design_tasks', 'design_tasks_image'];
+    const validActions = ['chat', 'summary', 'prd', 'roadmap', 'tasks', 'design_tasks', 'design_tasks_image', 'deployment_checklist'];
     if (!validActions.includes(action)) {
       return new Response(JSON.stringify({ error: 'Invalid action specified' }), {
         status: 400,
@@ -177,6 +179,20 @@ serve(async (req) => {
           throw new Error("Image data and mime type are required for image analysis");
         }
         openaiResponse = await generateDesignTasksFromImage(apiKey, requestData.imageData, requestData.mimeType);
+        break;
+
+      case 'deployment_checklist':
+        // Handle deployment checklist generation
+        if (!requestData.platforms || !Array.isArray(requestData.platforms) || requestData.platforms.length === 0) {
+          throw new Error("Platforms array is required for deployment checklist generation");
+        }
+        openaiResponse = await generateDeploymentChecklist(
+          apiKey, 
+          requestData.platforms, 
+          requestData.projectId, 
+          requestData.prdContent, 
+          requestData.roadmapItems
+        );
         break;
 
       default:
@@ -965,6 +981,222 @@ async function generateDesignTasksFromImage(apiKey: string, imageData: string, m
         tags: ['design', 'analysis'],
         dependencies: [],
         position: 0,
+      },
+    ];
+  }
+}
+
+// Function to generate deployment checklist
+async function generateDeploymentChecklist(apiKey: string, platforms: string[], projectId?: string, prdContent?: string, roadmapItems?: any[]): Promise<any[]> {
+  const sanitizedPlatforms = platforms.map(p => sanitizeInput(p)).join(', ');
+  const sanitizedContent = prdContent ? sanitizeInput(prdContent) : '';
+  const roadmapSummary = roadmapItems ? roadmapItems.map(item => 
+    `${sanitizeInput(item.title)}: ${sanitizeInput(item.description)}`
+  ).join('\n') : '';
+
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: "gpt-3.5-turbo",
+      messages: [
+        {
+          role: "system",
+          content: `You are a senior DevOps engineer creating PROJECT-SPECIFIC deployment tasks. Platform-specific tasks (like Vercel/Netlify setup) are handled separately. Focus ONLY on tasks that are unique to this specific project based on its features, architecture, and requirements.
+
+Return ONLY a valid JSON array with this exact structure:
+[
+  {
+    "title": "Configure project-specific API rate limits",
+    "description": "Set up API rate limiting based on the project's expected user load and feature requirements", 
+    "category": "general",
+    "platform": "general",
+    "environment": "production",
+    "status": "todo",
+    "priority": "medium",
+    "is_required": true,
+    "verification_notes": "Test API endpoints under load to verify rate limits work correctly",
+    "helpful_links": [],
+    "position": 0
+  }
+]
+
+Guidelines for Project-Specific Tasks:
+- Create 3-8 items that are UNIQUE to this project
+- DO NOT include generic platform tasks (deployment, domain setup, SSL, etc.)
+- Focus on project features, integrations, and business requirements
+- Categories: "database", "auth", "security", "monitoring", "testing", "general"
+- Platform should be "general" unless specific to selected platforms: ${sanitizedPlatforms}
+- Environment: "production" (unless testing/staging specific)
+- Priority: "low", "medium", "high", "critical"
+- Status should always be "todo"
+- Include verification steps in verification_notes
+
+Focus on PROJECT-SPECIFIC areas like:
+**Data & Content:**
+- Project-specific database seeding or migrations
+- Content management setup
+- Data import/export procedures
+
+**Integrations & APIs:**
+- Third-party service configurations specific to project features
+- Payment gateway setup (if e-commerce)
+- Email service configuration for project notifications
+- Analytics tracking for project-specific events
+
+**Business Logic:**
+- Project-specific workflow testing
+- Feature flag configurations
+- Business rule validations
+
+**Project Features:**
+- Test project's unique functionality in production
+- Configure project-specific user roles/permissions
+- Set up project-specific monitoring alerts
+
+Make tasks highly specific to the project's purpose and features. Order by position (0, 1, 2, etc.).`
+        },
+        {
+          role: "user", 
+          content: `Generate project-specific deployment tasks for platforms: ${sanitizedPlatforms}
+
+${sanitizedContent ? `PRD:\n${sanitizedContent}\n` : ''}
+${roadmapSummary ? `Roadmap:\n${roadmapSummary}\n` : ''}
+
+${!sanitizedContent && !roadmapSummary ? 
+  'Since no PRD or roadmap is provided, generate 3-5 common project-specific deployment tasks that apply to most web applications.' : 
+  'Based on the project details above, create deployment tasks specific to this project\'s features and requirements.'
+}`
+        }
+      ],
+      max_tokens: 2000,
+      temperature: 0.6,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error?.message || `OpenAI API error: ${response.status}`);
+  }
+
+  const data = await response.json();
+  const content = data.choices[0]?.message?.content;
+  
+  if (!content) {
+    throw new Error('No content received from OpenAI');
+  }
+
+  try {
+    // Clean the content to remove markdown code blocks
+    const cleanedContent = cleanJsonResponse(content);
+    
+    // Try to parse the JSON response
+    const deploymentItems = JSON.parse(cleanedContent);
+    
+    // Validate the structure
+    if (!Array.isArray(deploymentItems)) {
+      throw new Error('Response is not an array');
+    }
+
+    // Ensure each item has required fields and set defaults
+    return deploymentItems.map((item: any, index: number) => ({
+      title: item.title || `Deployment Task ${index + 1}`,
+      description: item.description || 'Deployment task description',
+      category: ['general', 'hosting', 'database', 'auth', 'env', 'security', 'monitoring', 'testing', 'dns', 'ssl'].includes(item.category) ? item.category : 'general',
+      platform: ['general', 'vercel', 'netlify', 'aws', 'gcp', 'azure', 'heroku', 'digitalocean', 'supabase'].includes(item.platform) ? item.platform : 'general',
+      environment: ['development', 'staging', 'production'].includes(item.environment) ? item.environment : 'production',
+      status: 'todo',
+      priority: ['low', 'medium', 'high', 'critical'].includes(item.priority) ? item.priority : 'medium',
+      is_required: typeof item.is_required === 'boolean' ? item.is_required : true,
+      verification_notes: item.verification_notes || '',
+      helpful_links: Array.isArray(item.helpful_links) ? item.helpful_links : [],
+      position: index,
+    }));
+  } catch (parseError) {
+    console.error('Failed to parse deployment checklist JSON:', content);
+    
+    // Fallback: create basic deployment checklist
+    return [
+      {
+        title: 'Set up production hosting',
+        description: 'Deploy the application to a production hosting platform like Vercel, Netlify, or AWS',
+        category: 'hosting',
+        platform: 'general',
+        environment: 'production',
+        status: 'todo',
+        priority: 'critical',
+        is_required: true,
+        verification_notes: 'Verify application loads correctly in production environment',
+        helpful_links: [],
+        position: 0,
+      },
+      {
+        title: 'Configure environment variables',
+        description: 'Set up all required environment variables in production including API keys and database URLs',
+        category: 'env',
+        platform: 'general',
+        environment: 'production',
+        status: 'todo',
+        priority: 'critical',
+        is_required: true,
+        verification_notes: 'Test that all environment-dependent features work in production',
+        helpful_links: [],
+        position: 1,
+      },
+      {
+        title: 'Set up custom domain and SSL',
+        description: 'Configure custom domain name and ensure SSL certificate is properly installed',
+        category: 'dns',
+        platform: 'general',
+        environment: 'production',
+        status: 'todo',
+        priority: 'high',
+        is_required: true,
+        verification_notes: 'Verify HTTPS redirect works and certificate is valid',
+        helpful_links: [],
+        position: 2,
+      },
+      {
+        title: 'Configure authentication redirects',
+        description: 'Update authentication provider settings with production URLs for OAuth callbacks',
+        category: 'auth',
+        platform: 'general',
+        environment: 'production',
+        status: 'todo',
+        priority: 'critical',
+        is_required: true,
+        verification_notes: 'Test login flow works from production domain',
+        helpful_links: [],
+        position: 3,
+      },
+      {
+        title: 'Set up error monitoring',
+        description: 'Configure error tracking service like Sentry to monitor production issues',
+        category: 'monitoring',
+        platform: 'general',
+        environment: 'production',
+        status: 'todo',
+        priority: 'medium',
+        is_required: false,
+        verification_notes: 'Verify errors are being captured and reported correctly',
+        helpful_links: [],
+        position: 4,
+      },
+      {
+        title: 'Production testing checklist',
+        description: 'Run comprehensive tests on production environment including all critical user flows',
+        category: 'testing',
+        platform: 'general',
+        environment: 'production',
+        status: 'todo',
+        priority: 'high',
+        is_required: true,
+        verification_notes: 'Document test results and any issues found',
+        helpful_links: [],
+        position: 5,
       },
     ];
   }
