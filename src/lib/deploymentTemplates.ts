@@ -19,6 +19,7 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
         { title: 'Vercel Deployment Guide', url: 'https://vercel.com/docs/deployments', description: 'Official guide for deploying to Vercel' }
       ],
       tags: ['deployment', 'hosting'],
+      dependencies: [],
     },
     {
       title: 'Configure Vercel environment variables',
@@ -35,6 +36,7 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
         { title: 'Vercel Environment Variables', url: 'https://vercel.com/docs/concepts/projects/environment-variables', description: 'How to set environment variables in Vercel' }
       ],
       tags: ['env-vars', 'config'],
+      dependencies: [],
     },
     {
       title: 'Set up custom domain on Vercel',
@@ -51,6 +53,7 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
         { title: 'Vercel Custom Domains', url: 'https://vercel.com/docs/concepts/projects/domains', description: 'Guide for setting up custom domains' }
       ],
       tags: ['domain', 'ssl'],
+      dependencies: [],
     },
     {
       title: 'Configure Vercel analytics',
@@ -67,6 +70,7 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
         { title: 'Vercel Analytics', url: 'https://vercel.com/docs/analytics', description: 'Setting up Vercel Analytics' }
       ],
       tags: ['analytics', 'monitoring'],
+      dependencies: [],
     },
   ],
 
@@ -85,6 +89,8 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       helpful_links: [
         { title: 'Netlify Deployment', url: 'https://docs.netlify.com/site-deploys/create-deploys/', description: 'How to deploy sites on Netlify' }
       ],
+      tags: ['deployment', 'hosting'],
+      dependencies: [],
     },
     {
       title: 'Configure Netlify environment variables',
@@ -100,6 +106,8 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       helpful_links: [
         { title: 'Netlify Environment Variables', url: 'https://docs.netlify.com/environment-variables/', description: 'Managing environment variables on Netlify' }
       ],
+      tags: ['env', 'deployment'],
+      dependencies: [],
     },
     {
       title: 'Set up custom domain on Netlify',
@@ -115,6 +123,8 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       helpful_links: [
         { title: 'Netlify Custom Domains', url: 'https://docs.netlify.com/domains-https/custom-domains/', description: 'Setting up custom domains on Netlify' }
       ],
+      tags: ['dns', 'deployment'],
+      dependencies: [],
     },
     {
       title: 'Configure Netlify Forms (if needed)',
@@ -130,6 +140,8 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       helpful_links: [
         { title: 'Netlify Forms', url: 'https://docs.netlify.com/forms/setup/', description: 'Setting up forms on Netlify' }
       ],
+      tags: ['forms', 'deployment'],
+      dependencies: [],
     },
   ],
 
@@ -149,6 +161,7 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
         { title: 'Supabase Auth Configuration', url: 'https://supabase.com/docs/guides/auth/configuration', description: 'Configuring authentication settings' }
       ],
       tags: ['auth', 'oauth'],
+      dependencies: [],
     },
     {
       title: 'Set up Supabase RLS policies for production',
@@ -165,6 +178,7 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
         { title: 'Supabase RLS', url: 'https://supabase.com/docs/guides/auth/row-level-security', description: 'Row Level Security guide' }
       ],
       tags: ['security', 'database'],
+      dependencies: [],
     },
     {
       title: 'Configure Supabase CORS settings',
@@ -180,6 +194,8 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       helpful_links: [
         { title: 'Supabase CORS', url: 'https://supabase.com/docs/guides/api/cors', description: 'Configuring CORS settings' }
       ],
+      tags: ['security', 'cors'],
+      dependencies: [],
     },
     {
       title: 'Set up Supabase database backups',
@@ -195,6 +211,8 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       helpful_links: [
         { title: 'Supabase Backups', url: 'https://supabase.com/docs/guides/platform/backups', description: 'Database backup configuration' }
       ],
+      tags: ['database', 'backup'],
+      dependencies: [],
     },
   ],
 
@@ -213,6 +231,8 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       helpful_links: [
         { title: 'AWS Static Website Hosting', url: 'https://docs.aws.amazon.com/AmazonS3/latest/userguide/WebsiteHosting.html', description: 'Hosting static websites on AWS' }
       ],
+      tags: ['hosting', 'aws'],
+      dependencies: [],
     },
     {
       title: 'Configure AWS environment variables',
@@ -228,6 +248,8 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       helpful_links: [
         { title: 'AWS Parameter Store', url: 'https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html', description: 'Managing configuration data with Parameter Store' }
       ],
+      tags: ['env', 'aws'],
+      dependencies: [],
     },
     {
       title: 'Set up AWS CloudFront CDN',
@@ -243,6 +265,8 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       helpful_links: [
         { title: 'AWS CloudFront', url: 'https://docs.aws.amazon.com/cloudfront/', description: 'CloudFront documentation' }
       ],
+      tags: ['hosting', 'aws'],
+      dependencies: [],
     },
     {
       title: 'Configure AWS security groups and IAM',
@@ -258,6 +282,8 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       helpful_links: [
         { title: 'AWS Security Best Practices', url: 'https://docs.aws.amazon.com/security/?id=docs_gateway', description: 'AWS security documentation' }
       ],
+      tags: ['security', 'aws'],
+      dependencies: [],
     },
   ],
 
@@ -275,6 +301,7 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       verification_notes: 'Document test results and any issues found during testing',
       helpful_links: [],
       tags: ['testing', 'qa'],
+      dependencies: [],
     },
     {
       title: 'Set up error monitoring',
@@ -291,6 +318,7 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
         { title: 'Sentry Setup', url: 'https://docs.sentry.io/platforms/', description: 'Error monitoring with Sentry' }
       ],
       tags: ['monitoring', 'errors'],
+      dependencies: [],
     },
     {
       title: 'Configure analytics tracking',
@@ -306,6 +334,8 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       helpful_links: [
         { title: 'Google Analytics 4', url: 'https://support.google.com/analytics/answer/10089681', description: 'Setting up Google Analytics 4' }
       ],
+      tags: ['monitoring', 'analytics'],
+      dependencies: [],
     },
     {
       title: 'Set up SSL certificate',
@@ -321,6 +351,8 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       helpful_links: [
         { title: "Let's Encrypt", url: 'https://letsencrypt.org/getting-started/', description: 'Free SSL certificates' }
       ],
+      tags: ['ssl', 'security'],
+      dependencies: [],
     },
     {
       title: 'Configure security headers',
@@ -336,6 +368,8 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       helpful_links: [
         { title: 'Security Headers', url: 'https://securityheaders.com/', description: 'Test and learn about security headers' }
       ],
+      tags: ['security', 'headers'],
+      dependencies: [],
     },
     {
       title: 'Set up database backups',
@@ -349,6 +383,8 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       is_auto_generated: true,
       verification_notes: 'Verify backup schedule and test restore process',
       helpful_links: [],
+      tags: ['database', 'backup'],
+      dependencies: [],
     },
     {
       title: 'Performance optimization',
@@ -364,6 +400,8 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       helpful_links: [
         { title: 'Google PageSpeed Insights', url: 'https://pagespeed.web.dev/', description: 'Test and optimize page performance' }
       ],
+      tags: ['performance', 'optimization'],
+      dependencies: [],
     },
   ],
 };
@@ -382,6 +420,8 @@ export const CATEGORY_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       is_auto_generated: true,
       verification_notes: 'Test login flow with each OAuth provider from production domain',
       helpful_links: [],
+      tags: ['auth', 'oauth'],
+      dependencies: [],
     },
     {
       title: 'Test authentication flows',
@@ -395,6 +435,8 @@ export const CATEGORY_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       is_auto_generated: true,
       verification_notes: 'Test signup, login, logout, password reset, and email verification',
       helpful_links: [],
+      tags: ['auth', 'testing'],
+      dependencies: [],
     },
   ],
 
@@ -413,6 +455,8 @@ export const CATEGORY_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       helpful_links: [
         { title: 'OWASP Testing Guide', url: 'https://owasp.org/www-project-web-security-testing-guide/', description: 'Web security testing guide' }
       ],
+      tags: ['security', 'audit'],
+      dependencies: [],
     },
   ],
 
@@ -431,6 +475,8 @@ export const CATEGORY_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       helpful_links: [
         { title: 'UptimeRobot', url: 'https://uptimerobot.com/', description: 'Free uptime monitoring service' }
       ],
+      tags: ['monitoring', 'uptime'],
+      dependencies: [],
     },
   ],
 };

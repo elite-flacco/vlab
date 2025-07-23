@@ -311,6 +311,7 @@ export const DeploymentDetailView: React.FC = () => {
             ...template,
             project_id: projectId,
             position: deploymentItems.length + tasksToCreate.length,
+            dependencies: template.dependencies || [],
           });
         });
       });
@@ -322,6 +323,7 @@ export const DeploymentDetailView: React.FC = () => {
             ...template,
             project_id: projectId,
             position: deploymentItems.length + tasksToCreate.length,
+            dependencies: template.dependencies || [],
           });
         });
       });
