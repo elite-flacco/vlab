@@ -74,6 +74,23 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       tags: ['analytics', 'monitoring'],
       dependencies: [],
     },
+    {
+      title: 'Verify SSL is active',
+      description: 'Confirm your site uses HTTPS and has a valid SSL certificate',
+      category: 'ssl',
+      platform: 'vercel',
+      environment: 'production',
+      status: 'todo',
+      priority: 'high',
+      is_required: true,
+      is_auto_generated: true,
+      verification_notes: 'Open your deployed site and look for the lock icon in the address bar. Ensure the URL uses https:// and the certificate is valid.',
+      helpful_links: [
+        { title: 'Vercel SSL', url: 'https://vercel.com/docs/concepts/projects/custom-domains#ssl-certificates', description: 'Guide to configuring SSL on Vercel.' },
+      ],
+      tags: ['ssl', 'security'],
+      dependencies: [],
+    }
   ],
 
   netlify: [
@@ -145,6 +162,23 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       tags: ['forms', 'frontend'],
       dependencies: [],
     },
+    {
+      title: 'Verify SSL is active',
+      description: 'Confirm your site uses HTTPS and has a valid SSL certificate',
+      category: 'ssl',
+      platform: 'netlify',
+      environment: 'production',
+      status: 'todo',
+      priority: 'high',
+      is_required: true,
+      is_auto_generated: true,
+      verification_notes: 'Open your deployed site and look for the lock icon in the address bar. Ensure the URL uses https:// and the certificate is valid.',
+      helpful_links: [
+        { title: 'Netlify SSL', url: 'https://docs.netlify.com/manage/domains/secure-domains-with-https/https-ssl/', description: 'Guide to configuring SSL on Netlify.' }
+      ],
+      tags: ['ssl', 'security'],
+      dependencies: [],
+    }
   ],
 
   supabase: [
@@ -160,7 +194,7 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       is_auto_generated: true,
       verification_notes: 'Test login/logout from your production domain.',
       helpful_links: [
-        { title: 'Supabase Auth Configuration', url: 'https://supabase.com/docs/guides/auth/configuration', description: 'OAuth and redirect URL config.' }
+        { title: 'Supabase Auth Configuration', url: 'https://supabase.com/docs/guides/auth/redirect-urls', description: 'OAuth and redirect URL config.' }
       ],
       tags: ['auth', 'oauth'],
       dependencies: [],
@@ -194,7 +228,7 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       is_auto_generated: true,
       verification_notes: 'Test API requests from your frontend to Supabase.',
       helpful_links: [
-        { title: 'Supabase CORS', url: 'https://supabase.com/docs/guides/api/cors', description: 'CORS configuration guide.' }
+        { title: 'Supabase CORS', url: 'https://supabase.com/docs/guides/functions/cors', description: 'CORS configuration guide.' }
       ],
       tags: ['security', 'cors'],
       dependencies: [],
@@ -429,14 +463,14 @@ export const CATEGORY_TEMPLATES: Record<string, DeploymentTemplate[]> = {
   ssl: [
     {
       title: 'Ensure SSL certificate is active',
-      description: 'Install and verify SSL/TLS certificates for your production domain.',
+      description: 'Confirm your site uses HTTPS and has a valid SSL certificate issued by your hosting platform (e.g., Vercel, Netlify)',
       category: 'ssl',
       environment: 'production',
       status: 'todo',
-      priority: 'critical',
+      priority: 'high',
       is_required: true,
       is_auto_generated: true,
-      verification_notes: 'Verify HTTPS redirection and that the certificate is valid.',
+      verification_notes: 'Open your deployed site and look for the lock icon in the address bar. Ensure the URL uses https:// and the certificate is valid.',
       helpful_links: [
         { title: "Let's Encrypt", url: 'https://letsencrypt.org/getting-started/', description: 'Free SSL certificates setup.' }
       ],

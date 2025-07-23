@@ -27,7 +27,9 @@ export const DeploymentDetailView: React.FC = () => {
     return localStorage.getItem('deployment-category-filter') || 'all';
   });
   const [platformFilter, setPlatformFilter] = useState<string>(() => {
-    return localStorage.getItem('deployment-platform-filter') || 'all';
+    const saved = localStorage.getItem('deployment-platform-filter');
+    // Reset to 'all' if saved filter is 'general' (no longer valid)
+    return (saved === 'general') ? 'all' : (saved || 'all');
   });
   const [searchTerm, setSearchTerm] = useState(() => {
     return localStorage.getItem('deployment-search-term') || '';
@@ -51,6 +53,16 @@ export const DeploymentDetailView: React.FC = () => {
       fetchDeploymentItems(projectId);
     }
   }, [projectId]);
+
+  // Clean up invalid platform filter from localStorage
+  useEffect(() => {
+    if (platformFilter === 'all') {
+      const saved = localStorage.getItem('deployment-platform-filter');
+      if (saved === 'general') {
+        localStorage.setItem('deployment-platform-filter', 'all');
+      }
+    }
+  }, [platformFilter]);
 
   const fetchDeploymentItems = async (id: string) => {
     setLoading(true);
@@ -102,7 +114,7 @@ export const DeploymentDetailView: React.FC = () => {
         title: itemData.title || 'New Deployment Task',
         description: itemData.description || '',
         category: itemData.category || 'general',
-        platform: itemData.platform || 'vercel',
+        platform: itemData.platform || 'universal',
         environment: itemData.environment || 'production',
         status: itemData.status || 'todo',
         priority: itemData.priority || 'medium',
@@ -213,6 +225,7 @@ export const DeploymentDetailView: React.FC = () => {
         item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (item.description && item.description.toLowerCase().includes(searchTerm.toLowerCase()));
 
+
       return matchesStatus && matchesPriority && matchesCategory && matchesPlatform && matchesSearch;
     })
     .sort((a, b) => {
@@ -316,14 +329,12 @@ export const DeploymentDetailView: React.FC = () => {
         });
       });
 
-      // 2. Add general category tasks (always include these)
-      // For universal templates, use the first selected platform as default
-      const defaultPlatform = selectedPlatforms[0] || 'vercel';
+      // 2. Add universal category tasks (always include these)
       Object.values(CATEGORY_TEMPLATES).forEach(categoryTasks => {
         categoryTasks.forEach((template, index) => {
           tasksToCreate.push({
             ...template,
-            platform: defaultPlatform, // Assign platform to universal templates
+            platform: 'universal', // Universal tasks apply to any platform
             project_id: projectId,
             position: deploymentItems.length + tasksToCreate.length,
             dependencies: template.dependencies || [],
@@ -346,7 +357,7 @@ export const DeploymentDetailView: React.FC = () => {
                 title: aiTask.title || 'Generated Task',
                 description: aiTask.description || '',
                 category: aiTask.category || 'general',
-                platform: aiTask.platform || selectedPlatforms[0] || 'vercel',
+                platform: aiTask.platform || selectedPlatforms[0] || 'universal',
                 environment: aiTask.environment || 'production',
                 status: 'todo',
                 priority: aiTask.priority || 'medium',
@@ -366,6 +377,8 @@ export const DeploymentDetailView: React.FC = () => {
 
       // 4. Create all tasks in the database
       const createdTasks: DeploymentItem[] = [];
+      const failedTasks: string[] = [];
+      
       for (const taskData of tasksToCreate) {
         try {
           const { data, error: createError } = await db.createDeploymentItem(taskData);
@@ -373,11 +386,12 @@ export const DeploymentDetailView: React.FC = () => {
           createdTasks.push(data);
         } catch (err: any) {
           console.error('Failed to create deployment item:', err);
+          failedTasks.push(taskData.title || 'Unknown task');
           // Continue creating other tasks even if one fails
         }
       }
 
-      // 5. Update local state
+      // 5. Update local state with only successfully created tasks
       setDeploymentItems(prev => [...prev, ...createdTasks]);
 
       // 6. Close modal and reset state
@@ -385,9 +399,13 @@ export const DeploymentDetailView: React.FC = () => {
       setSelectedPlatforms([]);
       setIncludeProjectSpecific(true);
 
-      // Show success message
+      // Show success/error messages
       if (createdTasks.length > 0) {
         console.log(`✅ Generated ${createdTasks.length} deployment tasks`);
+      }
+      if (failedTasks.length > 0) {
+        console.warn(`❌ Failed to create ${failedTasks.length} tasks:`, failedTasks);
+        setError(`Created ${createdTasks.length} tasks successfully. ${failedTasks.length} tasks failed due to validation errors.`);
       }
 
     } catch (error: any) {
@@ -642,7 +660,7 @@ export const DeploymentDetailView: React.FC = () => {
                   title: '',
                   description: '',
                   category: 'hosting',
-                  platform: 'vercel',
+                  platform: 'universal',
                   environment: 'production',
                   status: 'todo',
                   priority: 'medium',
@@ -717,10 +735,11 @@ export const DeploymentDetailView: React.FC = () => {
                   <div className="w-auto">
                     <label className="block text-xs font-medium text-foreground mb-1">Platform</label>
                     <select
-                      value={newItem.platform || 'vercel'}
+                      value={newItem.platform || 'universal'}
                       onChange={(e) => setNewItem({ ...newItem, platform: e.target.value as any })}
                       className="form-select"
                     >
+                      <option value="universal">Universal</option>
                       <option value="vercel">Vercel</option>
                       <option value="netlify">Netlify</option>
                       <option value="aws">AWS</option>
@@ -952,6 +971,7 @@ export const DeploymentDetailView: React.FC = () => {
                           }}
                           className="form-select"
                         >
+                          <option value="universal">Universal</option>
                           <option value="vercel">Vercel</option>
                           <option value="netlify">Netlify</option>
                           <option value="aws">AWS</option>
