@@ -431,15 +431,8 @@ export const ScratchpadDetailView: React.FC = () => {
                           type="checkbox"
                           checked={newNote.is_pinned || false}
                           onChange={(e) => setNewNote(prev => ({ ...prev, is_pinned: e.target.checked }))}
-                          className="sr-only peer"
+                          className="form-checkbox"
                         />
-                        <div className="h-4 w-4 rounded border border-foreground-dim/30 bg-transparent peer-checked:border-foreground peer-focus:ring-1 peer-focus:ring-foreground/30 transition-colors flex items-center justify-center">
-                          {newNote.is_pinned && (
-                            <svg className="h-2.5 w-2.5 text-foreground" viewBox="0 0 20 20" fill="currentColor">
-                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                            </svg>
-                          )}
-                        </div>
                       </div>
                       <span className="text-foreground/80 group-hover:text-foreground transition-colors">Pin this note</span>
                     </label>
@@ -594,15 +587,8 @@ export const ScratchpadDetailView: React.FC = () => {
                                     );
                                     setNotes(updatedNotes);
                                   }}
-                                  className="sr-only peer"
+                                  className="form-checkbox"
                                 />
-                                <div className="h-4 w-4 rounded border border-foreground-dim/30 bg-transparent peer-checked:border-foreground peer-focus:ring-1 peer-focus:ring-foreground/30 transition-colors flex items-center justify-center">
-                                  {note.is_pinned && (
-                                    <svg className="h-2.5 w-2.5 text-foreground" viewBox="0 0 20 20" fill="currentColor">
-                                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                    </svg>
-                                  )}
-                                </div>
                               </div>
                               <span className="text-foreground">Pin this note</span>
                             </label>

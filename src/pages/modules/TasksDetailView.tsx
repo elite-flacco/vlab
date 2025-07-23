@@ -378,7 +378,7 @@ export const TasksDetailView: React.FC = () => {
     return (
       <div className="relative">
         <div 
-          className="form-input cursor-pointer flex items-center justify-between min-h-[2.5rem]"
+          className="form-select flex items-center justify-between"
           onClick={() => setIsOpen(!isOpen)}
         >
           <div className="flex flex-wrap gap-1">
@@ -402,7 +402,7 @@ export const TasksDetailView: React.FC = () => {
               ))
             )}
           </div>
-          <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+          {/* <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} /> */}
         </div>
 
         {isOpen && (

@@ -340,7 +340,7 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
                           type="checkbox"
                           checked={selectedVersions.includes(currentVersion)}
                           onChange={() => handleVersionSelect(currentVersion)}
-                          className="h-4 w-4 rounded border border-foreground/30 bg-background/80 text-primary focus:ring-2 focus:ring-primary/50 focus:ring-offset-1 focus:ring-offset-background transition-all duration-200 cursor-pointer appearance-none checked:bg-primary checked:border-primary hover:border-primary/50 hover:ring-1 hover:ring-foreground/20"
+                          className="form-checkbox"
                           aria-label={`Select version ${currentVersion}`}
                         />
                         {selectedVersions.includes(currentVersion) && (
@@ -388,9 +388,7 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
                             type="checkbox"
                             checked={selectedVersions.includes(version.version_number)}
                             onChange={() => handleVersionSelect(version.version_number)}
-                            className={`h-4 w-4 rounded border border-foreground/30 bg-background/80 text-primary focus:ring-2 focus:ring-primary/50 focus:ring-offset-1 focus:ring-offset-background transition-all duration-200 cursor-pointer appearance-none checked:bg-primary checked:border-primary hover:border-primary/50 ${
-                              selectedVersions.includes(version.version_number) ? 'ring-2 ring-primary/50 ring-offset-1 ring-offset-background' : 'hover:ring-1 hover:ring-foreground/20'
-                            }`}
+                            className="form-checkbox"
                             aria-label={`Select version ${version.version_number}`}
                           />
                           {selectedVersions.includes(version.version_number) && (

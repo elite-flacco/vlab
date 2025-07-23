@@ -204,7 +204,7 @@ export const PromptsDetailView: React.FC = () => {
               <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-4" />
               <h3 className="mb-2">No Prompts Yet</h3>
               <p className="mb-4 text-sm">
-                Create AI prompts to streamline your development workflow.
+                Save useful AI prompts to help you vibe better in the future.
               </p>
               <button
                 onClick={() => setNewPrompt({
@@ -331,7 +331,7 @@ export const PromptsDetailView: React.FC = () => {
                       type="checkbox"
                       checked={newPrompt.is_template || false}
                       onChange={(e) => setNewPrompt(prev => ({ ...prev, is_template: e.target.checked }))}
-                      className="rounded border-foreground-dim/20"
+                      className="form-checkbox"
                     />
                     <span className="text-foreground">Mark as template</span>
                   </label>
@@ -517,7 +517,7 @@ export const PromptsDetailView: React.FC = () => {
                             );
                             setPrompts(updatedPrompts);
                           }}
-                          className="rounded border-foreground-dim/20 text-primary focus:ring-1"
+                          className="form-checkbox"
                         />
                         <span className="text-foreground">Mark as template</span>
                       </label>
