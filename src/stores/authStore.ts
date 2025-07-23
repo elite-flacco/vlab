@@ -225,7 +225,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ loading: true });
     try {
       const { error } = await auth.signOut();
-      if (error) throw error;
+      if (error) {
+        console.warn('🔐 AuthStore: SignOut error (continuing with cleanup):', error);
+        // Continue with cleanup even if Supabase signOut fails
+      }
       
       // Clear all project data when signing out
       const { clearProjects } = await import('./projectStore').then(m => m.useProjectStore.getState());
@@ -233,10 +236,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       
       set({ user: null, loading: false });
       
-      // Redirect to landing page after logout
-      window.location.href = '/';
     } catch (error: any) {
-      set({ error: error.message, loading: false });
+      console.error('🔐 AuthStore: SignOut failed:', error);
+      // Still clear local state even if signOut failed
+      const { clearProjects } = await import('./projectStore').then(m => m.useProjectStore.getState());
+      clearProjects();
+      set({ user: null, loading: false });
+    } finally {
+      // Always redirect regardless of signOut success/failure
+      window.location.href = '/';
     }
   },
 
