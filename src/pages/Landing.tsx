@@ -15,10 +15,8 @@ export const Landing: React.FC = () => {
     email: '',
     password: '',
     name: '',
-    message: '',
-    earlyAccessCode: ''
+    message: ''
   });
-  const [accessCodeError, setAccessCodeError] = useState<string | null>(null);
   const [terminalText, setTerminalText] = useState('');
   const [showCursor, setShowCursor] = useState(true);
   const [showContactModal, setShowContactModal] = useState(false);
@@ -175,15 +173,8 @@ export const Landing: React.FC = () => {
     e.preventDefault();
     const initialScrollY = window.scrollY;
     clearError();
-    setAccessCodeError(null);
 
     if (isSignUp) {
-      // Validate early access code for sign-up
-      if (formData.earlyAccessCode.toUpperCase() !== 'VIBEEARLY') {
-        setAccessCodeError('Invalid early access code. Please check your code and try again.');
-        return;
-      }
-      
       await signUp(formData.email, formData.password, formData.name);
       
       // Restore scroll position after signup to prevent unwanted scroll-to-top
@@ -206,20 +197,17 @@ export const Landing: React.FC = () => {
   const handleSwitchToLogin = () => {
     setIsSignUp(false);
     clearError();
-    setAccessCodeError(null);
-    setFormData({ ...formData, password: '', name: '', message: '', earlyAccessCode: '' });
+    setFormData({ ...formData, password: '', name: '', message: '' });
   };
 
   const handleRetry = () => {
     clearError();
-    setAccessCodeError(null);
   };
 
   const handleModeSwitch = () => {
     setIsSignUp(!isSignUp);
     clearError();
-    setAccessCodeError(null);
-    setFormData({ email: '', password: '', name: '', message: '', earlyAccessCode: '' });
+    setFormData({ email: '', password: '', name: '', message: '' });
   };
 
   const scrollToSection = (elementId: string) => {
@@ -487,24 +475,6 @@ export const Landing: React.FC = () => {
                         />
                       </div>
                       
-                      <div>
-                        <label className="block text-sm text-foreground-dim mb-2">
-                          --early-access-code
-                        </label>
-                        <input
-                          type="text"
-                          name="earlyAccessCode"
-                          value={formData.earlyAccessCode}
-                          onChange={handleInputChange}
-                          className="form-input"
-                          placeholder="Enter your early access code"
-                          required={isSignUp}
-                          aria-label="Early access code"
-                        />
-                        {/* <p className="mt-1 text-xs text-foreground-dim">
-                          Get your code from our community posts or direct messages
-                        </p> */}
-                      </div>
                     </>
                   )}
 
@@ -562,24 +532,6 @@ export const Landing: React.FC = () => {
                     />
                   )}
                   
-                  {/* Early Access Code Error */}
-                  {accessCodeError && (
-                    <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 flex items-start space-x-3">
-                      <div className="flex-shrink-0">
-                        <svg className="w-5 h-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-sm font-medium text-red-400 mb-1">
-                          Invalid Access Code
-                        </h3>
-                        <p className="text-sm text-red-300">
-                          {accessCodeError}
-                        </p>
-                      </div>
-                    </div>
-                  )}
 
                   <button
                     type="submit"
