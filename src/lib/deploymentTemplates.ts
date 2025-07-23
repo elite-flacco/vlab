@@ -1,12 +1,14 @@
 import { DeploymentItem } from '../types';
 
-export interface DeploymentTemplate extends Omit<DeploymentItem, 'id' | 'project_id' | 'created_at' | 'updated_at' | 'position'> {}
+export interface DeploymentTemplate extends Omit<DeploymentItem, 'id' | 'project_id' | 'created_at' | 'updated_at' | 'position' | 'platform'> {
+  platform?: DeploymentItem['platform']; // Make platform optional for universal templates
+}
 
 export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
   vercel: [
     {
       title: 'Deploy to Vercel',
-      description: 'Connect your Git repository and deploy your application to Vercel',
+      description: 'Connect your Git repository and deploy your application to Vercel.',
       category: 'hosting',
       platform: 'vercel',
       environment: 'production',
@@ -14,16 +16,16 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       priority: 'critical',
       is_required: true,
       is_auto_generated: true,
-      verification_notes: 'Verify deployment succeeds and application loads correctly',
+      verification_notes: 'Confirm the deployment succeeds and the application loads correctly.',
       helpful_links: [
-        { title: 'Vercel Deployment Guide', url: 'https://vercel.com/docs/deployments', description: 'Official guide for deploying to Vercel' }
+        { title: 'Vercel Deployment Guide', url: 'https://vercel.com/docs/deployments', description: 'Official guide for deploying to Vercel.' }
       ],
       tags: ['deployment', 'hosting'],
       dependencies: [],
     },
     {
-      title: 'Configure Vercel environment variables',
-      description: 'Set up all required environment variables in Vercel dashboard including API keys, database URLs, and authentication secrets',
+      title: 'Configure environment variables in Vercel',
+      description: 'Set all required environment variables in the Vercel dashboard (e.g., API keys, database URLs, secrets).',
       category: 'env',
       platform: 'vercel',
       environment: 'production',
@@ -31,16 +33,16 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       priority: 'critical',
       is_required: true,
       is_auto_generated: true,
-      verification_notes: 'Test that all environment-dependent features work in production',
+      verification_notes: 'Test that environment-dependent features work in production.',
       helpful_links: [
-        { title: 'Vercel Environment Variables', url: 'https://vercel.com/docs/concepts/projects/environment-variables', description: 'How to set environment variables in Vercel' }
+        { title: 'Vercel Environment Variables', url: 'https://vercel.com/docs/concepts/projects/environment-variables', description: 'How to set environment variables in Vercel.' }
       ],
       tags: ['env-vars', 'config'],
       dependencies: [],
     },
     {
       title: 'Set up custom domain on Vercel',
-      description: 'Configure your custom domain and ensure it points to your Vercel deployment',
+      description: 'Configure your custom domain and ensure it resolves to your Vercel deployment.',
       category: 'dns',
       platform: 'vercel',
       environment: 'production',
@@ -48,16 +50,16 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       priority: 'high',
       is_required: false,
       is_auto_generated: true,
-      verification_notes: 'Verify domain resolves correctly and SSL certificate is active',
+      verification_notes: 'Confirm domain resolves correctly and HTTPS/SSL is active.',
       helpful_links: [
-        { title: 'Vercel Custom Domains', url: 'https://vercel.com/docs/concepts/projects/domains', description: 'Guide for setting up custom domains' }
+        { title: 'Vercel Custom Domains', url: 'https://vercel.com/docs/concepts/projects/domains', description: 'Guide for setting up custom domains on Vercel.' }
       ],
       tags: ['domain', 'ssl'],
       dependencies: [],
     },
     {
-      title: 'Configure Vercel analytics',
-      description: 'Enable Vercel Analytics to monitor your application performance and usage',
+      title: 'Enable Vercel Analytics',
+      description: 'Set up Vercel Analytics to monitor application performance and usage.',
       category: 'monitoring',
       platform: 'vercel',
       environment: 'production',
@@ -65,9 +67,9 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       priority: 'medium',
       is_required: false,
       is_auto_generated: true,
-      verification_notes: 'Verify analytics data is being collected correctly',
+      verification_notes: 'Ensure analytics data is collected properly.',
       helpful_links: [
-        { title: 'Vercel Analytics', url: 'https://vercel.com/docs/analytics', description: 'Setting up Vercel Analytics' }
+        { title: 'Vercel Analytics', url: 'https://vercel.com/docs/analytics', description: 'Guide to configuring Vercel Analytics.' }
       ],
       tags: ['analytics', 'monitoring'],
       dependencies: [],
@@ -77,7 +79,7 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
   netlify: [
     {
       title: 'Deploy to Netlify',
-      description: 'Connect your Git repository and set up continuous deployment on Netlify',
+      description: 'Connect your Git repository and enable continuous deployment on Netlify.',
       category: 'hosting',
       platform: 'netlify',
       environment: 'production',
@@ -85,16 +87,16 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       priority: 'critical',
       is_required: true,
       is_auto_generated: true,
-      verification_notes: 'Verify build completes successfully and site is accessible',
+      verification_notes: 'Verify build succeeds and the site is accessible.',
       helpful_links: [
-        { title: 'Netlify Deployment', url: 'https://docs.netlify.com/site-deploys/create-deploys/', description: 'How to deploy sites on Netlify' }
+        { title: 'Netlify Deployment', url: 'https://docs.netlify.com/site-deploys/create-deploys/', description: 'How to deploy sites on Netlify.' }
       ],
       tags: ['deployment', 'hosting'],
       dependencies: [],
     },
     {
-      title: 'Configure Netlify environment variables',
-      description: 'Set up environment variables in Netlify dashboard for API keys and configuration',
+      title: 'Configure environment variables in Netlify',
+      description: 'Add required environment variables in the Netlify dashboard.',
       category: 'env',
       platform: 'netlify',
       environment: 'production',
@@ -102,16 +104,16 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       priority: 'critical',
       is_required: true,
       is_auto_generated: true,
-      verification_notes: 'Test that environment variables are accessible during build and runtime',
+      verification_notes: 'Verify variables are accessible during build and runtime.',
       helpful_links: [
-        { title: 'Netlify Environment Variables', url: 'https://docs.netlify.com/environment-variables/', description: 'Managing environment variables on Netlify' }
+        { title: 'Netlify Environment Variables', url: 'https://docs.netlify.com/configure-builds/environment-variables/', description: 'Managing env vars on Netlify.' }
       ],
-      tags: ['env', 'deployment'],
+      tags: ['env', 'config'],
       dependencies: [],
     },
     {
       title: 'Set up custom domain on Netlify',
-      description: 'Configure your custom domain and SSL certificate on Netlify',
+      description: 'Configure your custom domain and SSL in the Netlify dashboard.',
       category: 'dns',
       platform: 'netlify',
       environment: 'production',
@@ -119,16 +121,16 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       priority: 'high',
       is_required: false,
       is_auto_generated: true,
-      verification_notes: 'Verify domain points to Netlify and SSL is working',
+      verification_notes: 'Ensure domain resolves and SSL is working.',
       helpful_links: [
-        { title: 'Netlify Custom Domains', url: 'https://docs.netlify.com/domains-https/custom-domains/', description: 'Setting up custom domains on Netlify' }
+        { title: 'Netlify Custom Domains', url: 'https://docs.netlify.com/domains-https/custom-domains/', description: 'Setting up custom domains on Netlify.' }
       ],
-      tags: ['dns', 'deployment'],
+      tags: ['dns', 'ssl'],
       dependencies: [],
     },
     {
-      title: 'Configure Netlify Forms (if needed)',
-      description: 'Set up Netlify Forms for contact forms or user submissions',
+      title: 'Enable Netlify Forms (optional)',
+      description: 'Set up Netlify Forms for user input and submissions.',
       category: 'general',
       platform: 'netlify',
       environment: 'production',
@@ -136,19 +138,19 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       priority: 'low',
       is_required: false,
       is_auto_generated: true,
-      verification_notes: 'Test form submissions and notification delivery',
+      verification_notes: 'Test form submission and email notifications.',
       helpful_links: [
-        { title: 'Netlify Forms', url: 'https://docs.netlify.com/forms/setup/', description: 'Setting up forms on Netlify' }
+        { title: 'Netlify Forms', url: 'https://docs.netlify.com/forms/setup/', description: 'Guide for setting up Netlify Forms.' }
       ],
-      tags: ['forms', 'deployment'],
+      tags: ['forms', 'frontend'],
       dependencies: [],
     },
   ],
 
   supabase: [
     {
-      title: 'Configure Supabase authentication redirect URLs',
-      description: 'Update authentication providers with production domain URLs for OAuth callbacks',
+      title: 'Set production redirect URLs in Supabase Auth',
+      description: 'Update Supabase Auth with correct OAuth callback URLs for production.',
       category: 'auth',
       platform: 'supabase',
       environment: 'production',
@@ -156,16 +158,16 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       priority: 'critical',
       is_required: true,
       is_auto_generated: true,
-      verification_notes: 'Test login/logout flow from production domain',
+      verification_notes: 'Test login/logout from your production domain.',
       helpful_links: [
-        { title: 'Supabase Auth Configuration', url: 'https://supabase.com/docs/guides/auth/configuration', description: 'Configuring authentication settings' }
+        { title: 'Supabase Auth Configuration', url: 'https://supabase.com/docs/guides/auth/configuration', description: 'OAuth and redirect URL config.' }
       ],
       tags: ['auth', 'oauth'],
       dependencies: [],
     },
     {
-      title: 'Set up Supabase RLS policies for production',
-      description: 'Review and configure Row Level Security policies for production data access',
+      title: 'Configure Row Level Security (RLS) policies',
+      description: 'Review and apply proper RLS policies for production data.',
       category: 'security',
       platform: 'supabase',
       environment: 'production',
@@ -173,16 +175,16 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       priority: 'critical',
       is_required: true,
       is_auto_generated: true,
-      verification_notes: 'Test that data access is properly restricted based on user permissions',
+      verification_notes: 'Ensure data access is scoped to the correct users.',
       helpful_links: [
-        { title: 'Supabase RLS', url: 'https://supabase.com/docs/guides/auth/row-level-security', description: 'Row Level Security guide' }
+        { title: 'Supabase RLS', url: 'https://supabase.com/docs/guides/auth/row-level-security', description: 'RLS setup and usage.' }
       ],
-      tags: ['security', 'database'],
+      tags: ['database', 'security'],
       dependencies: [],
     },
     {
-      title: 'Configure Supabase CORS settings',
-      description: 'Update CORS settings to allow requests from your production domain',
+      title: 'Configure CORS for production domain',
+      description: 'Allow requests from your production domain in Supabase CORS settings.',
       category: 'security',
       platform: 'supabase',
       environment: 'production',
@@ -190,16 +192,16 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       priority: 'high',
       is_required: true,
       is_auto_generated: true,
-      verification_notes: 'Verify API requests work from production domain',
+      verification_notes: 'Test API requests from your frontend to Supabase.',
       helpful_links: [
-        { title: 'Supabase CORS', url: 'https://supabase.com/docs/guides/api/cors', description: 'Configuring CORS settings' }
+        { title: 'Supabase CORS', url: 'https://supabase.com/docs/guides/api/cors', description: 'CORS configuration guide.' }
       ],
       tags: ['security', 'cors'],
       dependencies: [],
     },
     {
-      title: 'Set up Supabase database backups',
-      description: 'Configure automatic database backups for your production database',
+      title: 'Enable Supabase database backups',
+      description: 'Set up automatic backups for your production database.',
       category: 'database',
       platform: 'supabase',
       environment: 'production',
@@ -207,19 +209,19 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       priority: 'medium',
       is_required: false,
       is_auto_generated: true,
-      verification_notes: 'Verify backup schedule is configured and test restore process',
+      verification_notes: 'Ensure backups are scheduled and test restore process.',
       helpful_links: [
-        { title: 'Supabase Backups', url: 'https://supabase.com/docs/guides/platform/backups', description: 'Database backup configuration' }
+        { title: 'Supabase Backups', url: 'https://supabase.com/docs/guides/platform/backups', description: 'How to configure backups.' }
       ],
-      tags: ['database', 'backup'],
+      tags: ['backup', 'database'],
       dependencies: [],
     },
   ],
 
   aws: [
     {
-      title: 'Set up AWS hosting infrastructure',
-      description: 'Configure AWS services (S3, CloudFront, Route 53) for hosting your application',
+      title: 'Set up hosting infrastructure in AWS',
+      description: 'Use S3, CloudFront, and Route 53 to host your application.',
       category: 'hosting',
       platform: 'aws',
       environment: 'production',
@@ -227,16 +229,16 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       priority: 'critical',
       is_required: true,
       is_auto_generated: true,
-      verification_notes: 'Verify application is accessible through AWS infrastructure',
+      verification_notes: 'Ensure app is accessible via AWS services.',
       helpful_links: [
-        { title: 'AWS Static Website Hosting', url: 'https://docs.aws.amazon.com/AmazonS3/latest/userguide/WebsiteHosting.html', description: 'Hosting static websites on AWS' }
+        { title: 'AWS Static Website Hosting', url: 'https://docs.aws.amazon.com/AmazonS3/latest/userguide/WebsiteHosting.html', description: 'Guide to hosting static websites.' }
       ],
       tags: ['hosting', 'aws'],
       dependencies: [],
     },
     {
       title: 'Configure AWS environment variables',
-      description: 'Set up environment variables using AWS Systems Manager Parameter Store or Lambda environment variables',
+      description: 'Use Parameter Store or Lambda env variables to store secrets/config.',
       category: 'env',
       platform: 'aws',
       environment: 'production',
@@ -244,16 +246,16 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       priority: 'critical',
       is_required: true,
       is_auto_generated: true,
-      verification_notes: 'Test that environment variables are accessible to your application',
+      verification_notes: 'Verify application accesses these values successfully.',
       helpful_links: [
-        { title: 'AWS Parameter Store', url: 'https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html', description: 'Managing configuration data with Parameter Store' }
+        { title: 'AWS Parameter Store', url: 'https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html', description: 'Managing configuration data securely.' }
       ],
       tags: ['env', 'aws'],
       dependencies: [],
     },
     {
-      title: 'Set up AWS CloudFront CDN',
-      description: 'Configure CloudFront for global content delivery and caching',
+      title: 'Enable AWS CloudFront CDN',
+      description: 'Use CloudFront for global delivery and improved performance.',
       category: 'hosting',
       platform: 'aws',
       environment: 'production',
@@ -261,16 +263,16 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       priority: 'high',
       is_required: false,
       is_auto_generated: true,
-      verification_notes: 'Verify content is served from CDN and caching works correctly',
+      verification_notes: 'Confirm content is served globally and caching is effective.',
       helpful_links: [
-        { title: 'AWS CloudFront', url: 'https://docs.aws.amazon.com/cloudfront/', description: 'CloudFront documentation' }
+        { title: 'AWS CloudFront', url: 'https://docs.aws.amazon.com/cloudfront/', description: 'CloudFront overview and setup.' }
       ],
-      tags: ['hosting', 'aws'],
+      tags: ['cdn', 'hosting'],
       dependencies: [],
     },
     {
-      title: 'Configure AWS security groups and IAM',
-      description: 'Set up proper security groups and IAM roles for least-privilege access',
+      title: 'Set IAM policies and security groups',
+      description: 'Use least-privilege principles for AWS IAM and secure access.',
       category: 'security',
       platform: 'aws',
       environment: 'production',
@@ -278,162 +280,43 @@ export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {
       priority: 'critical',
       is_required: true,
       is_auto_generated: true,
-      verification_notes: 'Review and test access permissions, ensure principle of least privilege',
+      verification_notes: 'Review access permissions and test IAM roles.',
       helpful_links: [
-        { title: 'AWS Security Best Practices', url: 'https://docs.aws.amazon.com/security/?id=docs_gateway', description: 'AWS security documentation' }
+        { title: 'AWS Security Best Practices', url: 'https://docs.aws.amazon.com/general/latest/gr/aws-security-best-practices.html', description: 'Best practices for securing AWS accounts.' }
       ],
-      tags: ['security', 'aws'],
-      dependencies: [],
-    },
-  ],
-
-  general: [
-    {
-      title: 'Test production deployment',
-      description: 'Run comprehensive tests on the production environment including all critical user flows',
-      category: 'testing',
-      platform: 'general',
-      environment: 'production',
-      status: 'todo',
-      priority: 'critical',
-      is_required: true,
-      is_auto_generated: true,
-      verification_notes: 'Document test results and any issues found during testing',
-      helpful_links: [],
-      tags: ['testing', 'qa'],
-      dependencies: [],
-    },
-    {
-      title: 'Set up error monitoring',
-      description: 'Configure error tracking service like Sentry, LogRocket, or Rollbar to monitor production issues',
-      category: 'monitoring',
-      platform: 'general',
-      environment: 'production',
-      status: 'todo',
-      priority: 'high',
-      is_required: false,
-      is_auto_generated: true,
-      verification_notes: 'Verify errors are being captured and alerts are working',
-      helpful_links: [
-        { title: 'Sentry Setup', url: 'https://docs.sentry.io/platforms/', description: 'Error monitoring with Sentry' }
-      ],
-      tags: ['monitoring', 'errors'],
-      dependencies: [],
-    },
-    {
-      title: 'Configure analytics tracking',
-      description: 'Set up Google Analytics, Mixpanel, or similar analytics service to track user behavior',
-      category: 'monitoring',
-      platform: 'general',
-      environment: 'production',
-      status: 'todo',
-      priority: 'medium',
-      is_required: false,
-      is_auto_generated: true,
-      verification_notes: 'Verify analytics events are being tracked correctly',
-      helpful_links: [
-        { title: 'Google Analytics 4', url: 'https://support.google.com/analytics/answer/10089681', description: 'Setting up Google Analytics 4' }
-      ],
-      tags: ['monitoring', 'analytics'],
-      dependencies: [],
-    },
-    {
-      title: 'Set up SSL certificate',
-      description: 'Ensure SSL certificate is properly installed and configured for HTTPS',
-      category: 'ssl',
-      platform: 'general',
-      environment: 'production',
-      status: 'todo',
-      priority: 'critical',
-      is_required: true,
-      is_auto_generated: true,
-      verification_notes: 'Verify HTTPS redirect works and certificate is valid',
-      helpful_links: [
-        { title: "Let's Encrypt", url: 'https://letsencrypt.org/getting-started/', description: 'Free SSL certificates' }
-      ],
-      tags: ['ssl', 'security'],
-      dependencies: [],
-    },
-    {
-      title: 'Configure security headers',
-      description: 'Set up proper security headers (CSP, HSTS, X-Frame-Options) for enhanced security',
-      category: 'security',
-      platform: 'general',
-      environment: 'production',
-      status: 'todo',
-      priority: 'high',
-      is_required: true,
-      is_auto_generated: true,
-      verification_notes: 'Test security headers using security header analyzers',
-      helpful_links: [
-        { title: 'Security Headers', url: 'https://securityheaders.com/', description: 'Test and learn about security headers' }
-      ],
-      tags: ['security', 'headers'],
-      dependencies: [],
-    },
-    {
-      title: 'Set up database backups',
-      description: 'Configure automated database backups and test restore procedures',
-      category: 'database',
-      platform: 'general',
-      environment: 'production',
-      status: 'todo',
-      priority: 'high',
-      is_required: true,
-      is_auto_generated: true,
-      verification_notes: 'Verify backup schedule and test restore process',
-      helpful_links: [],
-      tags: ['database', 'backup'],
-      dependencies: [],
-    },
-    {
-      title: 'Performance optimization',
-      description: 'Optimize loading times, implement caching, and configure performance monitoring',
-      category: 'general',
-      platform: 'general',
-      environment: 'production',
-      status: 'todo',
-      priority: 'medium',
-      is_required: false,
-      is_auto_generated: true,
-      verification_notes: 'Run performance tests and verify acceptable loading times',
-      helpful_links: [
-        { title: 'Google PageSpeed Insights', url: 'https://pagespeed.web.dev/', description: 'Test and optimize page performance' }
-      ],
-      tags: ['performance', 'optimization'],
+      tags: ['security', 'iam'],
       dependencies: [],
     },
   ],
 };
 
+
 export const CATEGORY_TEMPLATES: Record<string, DeploymentTemplate[]> = {
   auth: [
     {
       title: 'Update OAuth redirect URLs',
-      description: 'Update all OAuth providers (Google, GitHub, etc.) with production redirect URLs',
+      description: 'Update all OAuth providers (e.g., Google, GitHub) with production redirect URLs.',
       category: 'auth',
-      platform: 'general',
       environment: 'production',
       status: 'todo',
       priority: 'critical',
       is_required: true,
       is_auto_generated: true,
-      verification_notes: 'Test login flow with each OAuth provider from production domain',
+      verification_notes: 'Test login flow with each provider from your production domain.',
       helpful_links: [],
       tags: ['auth', 'oauth'],
       dependencies: [],
     },
     {
       title: 'Test authentication flows',
-      description: 'Verify all authentication flows work correctly in production environment',
+      description: 'Verify that all authentication flows function correctly in production.',
       category: 'auth',
-      platform: 'general',
       environment: 'production',
       status: 'todo',
       priority: 'critical',
       is_required: true,
       is_auto_generated: true,
-      verification_notes: 'Test signup, login, logout, password reset, and email verification',
+      verification_notes: 'Test signup, login, logout, password reset, and email verification.',
       helpful_links: [],
       tags: ['auth', 'testing'],
       dependencies: [],
@@ -442,20 +325,35 @@ export const CATEGORY_TEMPLATES: Record<string, DeploymentTemplate[]> = {
 
   security: [
     {
-      title: 'Security audit and penetration testing',
-      description: 'Conduct security audit and penetration testing before going live',
+      title: 'Conduct security audit and penetration test',
+      description: 'Perform a final security audit and/or penetration test before going live.',
       category: 'security',
-      platform: 'general',
       environment: 'production',
       status: 'todo',
       priority: 'high',
       is_required: false,
       is_auto_generated: true,
-      verification_notes: 'Document security findings and remediation steps',
+      verification_notes: 'Document findings and remediation actions.',
       helpful_links: [
-        { title: 'OWASP Testing Guide', url: 'https://owasp.org/www-project-web-security-testing-guide/', description: 'Web security testing guide' }
+        { title: 'OWASP Testing Guide', url: 'https://owasp.org/www-project-web-security-testing-guide/', description: 'Comprehensive guide for web security testing.' }
       ],
       tags: ['security', 'audit'],
+      dependencies: [],
+    },
+    {
+      title: 'Configure security headers',
+      description: 'Set CSP, HSTS, X-Frame-Options, and other security headers.',
+      category: 'security',
+      environment: 'production',
+      status: 'todo',
+      priority: 'high',
+      is_required: true,
+      is_auto_generated: true,
+      verification_notes: 'Use online tools to verify headers are properly configured.',
+      helpful_links: [
+        { title: 'Security Headers', url: 'https://securityheaders.com/', description: 'Test and learn about HTTP security headers.' }
+      ],
+      tags: ['security', 'headers'],
       dependencies: [],
     },
   ],
@@ -463,19 +361,122 @@ export const CATEGORY_TEMPLATES: Record<string, DeploymentTemplate[]> = {
   monitoring: [
     {
       title: 'Set up uptime monitoring',
-      description: 'Configure uptime monitoring service to alert when site goes down',
+      description: 'Enable uptime monitoring and alerting for production systems.',
       category: 'monitoring',
-      platform: 'general',
       environment: 'production',
       status: 'todo',
       priority: 'high',
       is_required: false,
       is_auto_generated: true,
-      verification_notes: 'Test alert notifications when service is temporarily unavailable',
+      verification_notes: 'Test alerting when the site is unreachable.',
       helpful_links: [
-        { title: 'UptimeRobot', url: 'https://uptimerobot.com/', description: 'Free uptime monitoring service' }
+        { title: 'UptimeRobot', url: 'https://uptimerobot.com/', description: 'Free uptime monitoring service.' }
       ],
       tags: ['monitoring', 'uptime'],
+      dependencies: [],
+    },
+    {
+      title: 'Set up error monitoring',
+      description: 'Configure tools like Sentry, Rollbar, or LogRocket to track production errors.',
+      category: 'monitoring',
+      environment: 'production',
+      status: 'todo',
+      priority: 'high',
+      is_required: false,
+      is_auto_generated: true,
+      verification_notes: 'Confirm errors are reported and alerts are functioning.',
+      helpful_links: [
+        { title: 'Sentry Setup', url: 'https://docs.sentry.io/platforms/', description: 'Sentry platform integration docs.' }
+      ],
+      tags: ['monitoring', 'errors'],
+      dependencies: [],
+    },
+    {
+      title: 'Configure analytics tracking',
+      description: 'Set up analytics (Google Analytics, Mixpanel, etc.) to track usage.',
+      category: 'monitoring',
+      environment: 'production',
+      status: 'todo',
+      priority: 'medium',
+      is_required: false,
+      is_auto_generated: true,
+      verification_notes: 'Verify key events and page views are being tracked.',
+      helpful_links: [
+        { title: 'Google Analytics 4', url: 'https://support.google.com/analytics/answer/10089681', description: 'Set up GA4 for your app.' }
+      ],
+      tags: ['analytics', 'monitoring'],
+      dependencies: [],
+    },
+  ],
+
+  testing: [
+    {
+      title: 'Run production smoke tests',
+      description: 'Perform critical user flow tests in production (e.g., login, purchase, etc.).',
+      category: 'testing',
+      environment: 'production',
+      status: 'todo',
+      priority: 'critical',
+      is_required: true,
+      is_auto_generated: true,
+      verification_notes: 'Document results and fix any regressions.',
+      helpful_links: [],
+      tags: ['testing', 'qa'],
+      dependencies: [],
+    },
+  ],
+
+  ssl: [
+    {
+      title: 'Ensure SSL certificate is active',
+      description: 'Install and verify SSL/TLS certificates for your production domain.',
+      category: 'ssl',
+      environment: 'production',
+      status: 'todo',
+      priority: 'critical',
+      is_required: true,
+      is_auto_generated: true,
+      verification_notes: 'Verify HTTPS redirection and that the certificate is valid.',
+      helpful_links: [
+        { title: "Let's Encrypt", url: 'https://letsencrypt.org/getting-started/', description: 'Free SSL certificates setup.' }
+      ],
+      tags: ['ssl', 'security'],
+      dependencies: [],
+    },
+  ],
+
+  database: [
+    {
+      title: 'Configure automated database backups',
+      description: 'Set up backups and verify recovery procedures.',
+      category: 'database',
+      environment: 'production',
+      status: 'todo',
+      priority: 'high',
+      is_required: true,
+      is_auto_generated: true,
+      verification_notes: 'Test restoration and verify backup frequency.',
+      helpful_links: [],
+      tags: ['database', 'backup'],
+      dependencies: [],
+    },
+  ],
+
+  performance: [
+    {
+      title: 'Run performance checks',
+      description: 'Use tools like PageSpeed Insights or Lighthouse to assess performance.',
+      category: 'performance',
+      environment: 'production',
+      status: 'todo',
+      priority: 'medium',
+      is_required: false,
+      is_auto_generated: true,
+      verification_notes: 'Optimize loading times and reduce unnecessary blocking resources.',
+      helpful_links: [
+        { title: 'Google PageSpeed Insights', url: 'https://pagespeed.web.dev/', description: 'Measure and improve web performance.' }
+      ],
+      tags: ['performance', 'optimization'],
       dependencies: [],
     },
   ],

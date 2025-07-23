@@ -102,7 +102,7 @@ export const DeploymentDetailView: React.FC = () => {
         title: itemData.title || 'New Deployment Task',
         description: itemData.description || '',
         category: itemData.category || 'general',
-        platform: itemData.platform || 'general',
+        platform: itemData.platform || 'vercel',
         environment: itemData.environment || 'production',
         status: itemData.status || 'todo',
         priority: itemData.priority || 'medium',
@@ -317,10 +317,13 @@ export const DeploymentDetailView: React.FC = () => {
       });
 
       // 2. Add general category tasks (always include these)
+      // For universal templates, use the first selected platform as default
+      const defaultPlatform = selectedPlatforms[0] || 'vercel';
       Object.values(CATEGORY_TEMPLATES).forEach(categoryTasks => {
         categoryTasks.forEach((template, index) => {
           tasksToCreate.push({
             ...template,
+            platform: defaultPlatform, // Assign platform to universal templates
             project_id: projectId,
             position: deploymentItems.length + tasksToCreate.length,
             dependencies: template.dependencies || [],
@@ -343,7 +346,7 @@ export const DeploymentDetailView: React.FC = () => {
                 title: aiTask.title || 'Generated Task',
                 description: aiTask.description || '',
                 category: aiTask.category || 'general',
-                platform: aiTask.platform || 'general',
+                platform: aiTask.platform || selectedPlatforms[0] || 'vercel',
                 environment: aiTask.environment || 'production',
                 status: 'todo',
                 priority: aiTask.priority || 'medium',
@@ -638,8 +641,8 @@ export const DeploymentDetailView: React.FC = () => {
                 onClick={() => setNewItem({
                   title: '',
                   description: '',
-                  category: 'general',
-                  platform: 'general',
+                  category: 'hosting',
+                  platform: 'vercel',
                   environment: 'production',
                   status: 'todo',
                   priority: 'medium',
@@ -714,11 +717,10 @@ export const DeploymentDetailView: React.FC = () => {
                   <div className="w-auto">
                     <label className="block text-xs font-medium text-foreground mb-1">Platform</label>
                     <select
-                      value={newItem.platform || 'general'}
+                      value={newItem.platform || 'vercel'}
                       onChange={(e) => setNewItem({ ...newItem, platform: e.target.value as any })}
                       className="form-select"
                     >
-                      <option value="general">General</option>
                       <option value="vercel">Vercel</option>
                       <option value="netlify">Netlify</option>
                       <option value="aws">AWS</option>
@@ -950,7 +952,6 @@ export const DeploymentDetailView: React.FC = () => {
                           }}
                           className="form-select"
                         >
-                          <option value="general">General</option>
                           <option value="vercel">Vercel</option>
                           <option value="netlify">Netlify</option>
                           <option value="aws">AWS</option>

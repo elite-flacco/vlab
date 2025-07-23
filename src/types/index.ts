@@ -142,8 +142,8 @@ export interface DeploymentItem {
   project_id: string;
   title: string;
   description: string;
-  category: 'general' | 'hosting' | 'database' | 'auth' | 'env' | 'security' | 'monitoring' | 'testing' | 'dns' | 'ssl';
-  platform: 'general' | 'vercel' | 'netlify' | 'aws' | 'gcp' | 'azure' | 'heroku' | 'digitalocean' | 'supabase';
+  category: 'general' | 'hosting' | 'database' | 'auth' | 'env' | 'security' | 'monitoring' | 'testing' | 'dns' | 'ssl' | 'performance';
+  platform: 'vercel' | 'netlify' | 'aws' | 'gcp' | 'azure' | 'heroku' | 'digitalocean' | 'supabase';
   environment: 'development' | 'staging' | 'production';
   status: 'todo' | 'in_progress' | 'done' | 'blocked' | 'not_applicable';
   priority: 'low' | 'medium' | 'high' | 'critical';

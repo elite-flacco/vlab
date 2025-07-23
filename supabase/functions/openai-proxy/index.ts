@@ -1012,8 +1012,7 @@ Return ONLY a valid JSON array with this exact structure:
   {
     "title": "Configure project-specific API rate limits",
     "description": "Set up API rate limiting based on the project's expected user load and feature requirements", 
-    "category": "general",
-    "platform": "general",
+    "category": "performance",
     "environment": "production",
     "status": "todo",
     "priority": "medium",
@@ -1028,8 +1027,8 @@ Guidelines for Project-Specific Tasks:
 - Create 3-8 items that are UNIQUE to this project
 - DO NOT include generic platform tasks (deployment, domain setup, SSL, etc.)
 - Focus on project features, integrations, and business requirements
-- Categories: "database", "auth", "security", "monitoring", "testing", "general"
-- Platform should be "general" unless specific to selected platforms: ${sanitizedPlatforms}
+- Categories: "database", "auth", "security", "monitoring", "testing", "ssl", "performance"
+- Platform should match one of the selected platforms: ${sanitizedPlatforms}
 - Environment: "production" (unless testing/staging specific)
 - Priority: "low", "medium", "high", "critical"
 - Status should always be "todo"
@@ -1106,7 +1105,7 @@ ${!sanitizedContent && !roadmapSummary ?
       title: item.title || `Deployment Task ${index + 1}`,
       description: item.description || 'Deployment task description',
       category: ['general', 'hosting', 'database', 'auth', 'env', 'security', 'monitoring', 'testing', 'dns', 'ssl'].includes(item.category) ? item.category : 'general',
-      platform: ['general', 'vercel', 'netlify', 'aws', 'gcp', 'azure', 'heroku', 'digitalocean', 'supabase'].includes(item.platform) ? item.platform : 'general',
+      platform: ['vercel', 'netlify', 'aws', 'gcp', 'azure', 'heroku', 'digitalocean', 'supabase'].includes(item.platform) ? item.platform : 'vercel',
       environment: ['development', 'staging', 'production'].includes(item.environment) ? item.environment : 'production',
       status: 'todo',
       priority: ['low', 'medium', 'high', 'critical'].includes(item.priority) ? item.priority : 'medium',
@@ -1124,7 +1123,7 @@ ${!sanitizedContent && !roadmapSummary ?
         title: 'Set up production hosting',
         description: 'Deploy the application to a production hosting platform like Vercel, Netlify, or AWS',
         category: 'hosting',
-        platform: 'general',
+        platform: 'vercel',
         environment: 'production',
         status: 'todo',
         priority: 'critical',
@@ -1137,7 +1136,7 @@ ${!sanitizedContent && !roadmapSummary ?
         title: 'Configure environment variables',
         description: 'Set up all required environment variables in production including API keys and database URLs',
         category: 'env',
-        platform: 'general',
+        platform: 'vercel',
         environment: 'production',
         status: 'todo',
         priority: 'critical',
@@ -1150,7 +1149,7 @@ ${!sanitizedContent && !roadmapSummary ?
         title: 'Set up custom domain and SSL',
         description: 'Configure custom domain name and ensure SSL certificate is properly installed',
         category: 'dns',
-        platform: 'general',
+        platform: 'vercel',
         environment: 'production',
         status: 'todo',
         priority: 'high',
@@ -1163,7 +1162,7 @@ ${!sanitizedContent && !roadmapSummary ?
         title: 'Configure authentication redirects',
         description: 'Update authentication provider settings with production URLs for OAuth callbacks',
         category: 'auth',
-        platform: 'general',
+        platform: 'vercel',
         environment: 'production',
         status: 'todo',
         priority: 'critical',
@@ -1176,7 +1175,7 @@ ${!sanitizedContent && !roadmapSummary ?
         title: 'Set up error monitoring',
         description: 'Configure error tracking service like Sentry to monitor production issues',
         category: 'monitoring',
-        platform: 'general',
+        platform: 'vercel',
         environment: 'production',
         status: 'todo',
         priority: 'medium',
@@ -1189,7 +1188,7 @@ ${!sanitizedContent && !roadmapSummary ?
         title: 'Production testing checklist',
         description: 'Run comprehensive tests on production environment including all critical user flows',
         category: 'testing',
-        platform: 'general',
+        platform: 'vercel',
         environment: 'production',
         status: 'todo',
         priority: 'high',
