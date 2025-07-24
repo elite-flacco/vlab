@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
+import { trackPageView } from './lib/analytics';
 import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
 import { Landing } from './pages/Landing';
 import { AppLayout } from './components/Layout/AppLayout';
@@ -17,6 +18,17 @@ import { PromptsDetailView } from './pages/modules/PromptsDetailView';
 import { SecretsDetailView } from './pages/modules/SecretsDetailView';
 import { DesignDetailView } from './pages/modules/DesignDetailView';
 import { DeploymentDetailView } from './pages/modules/DeploymentDetailView';
+
+// Component to track page views automatically
+function PageViewTracker() {
+  const location = useLocation();
+  
+  useEffect(() => {
+    trackPageView(location.pathname + location.search);
+  }, [location]);
+  
+  return null;
+}
 
 // Wrapper component to handle return URL logic
 function LandingWrapper() {
@@ -53,6 +65,7 @@ function App() {
   return (
     <ErrorBoundary context="Application Root">
       <Router>
+        <PageViewTracker />
         <Routes>
           {/* Landing page for unauthenticated users */}
           {!user ? (
