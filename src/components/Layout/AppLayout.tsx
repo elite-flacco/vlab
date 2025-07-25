@@ -3,6 +3,7 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
 import { NewProjectModal } from '../Projects/NewProjectModal';
+import { AnonymousBanner } from '../Auth/AnonymousBanner';
 import { useProjectStore } from '../../stores/projectStore';
 import { useAuthStore } from '../../stores/authStore';
 import { ErrorBoundary } from '../ErrorBoundary/ErrorBoundary';
@@ -34,6 +35,7 @@ export const AppLayout: React.FC = () => {
 
   return (
     <div className="h-screen bg-background grid-bg flex flex-col">
+      <AnonymousBanner />
       <Header onNewProjectClick={openNewProjectModal} />
       <div className="flex-1 flex overflow-hidden">
         <Sidebar onNewProjectClick={openNewProjectModal} />

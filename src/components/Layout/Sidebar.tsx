@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useProjectStore } from '../../stores/projectStore';
 import { useAuthStore } from '../../stores/authStore';
-import { Folder, Settings, Archive, ChevronDown, ChevronRight, RotateCcw, Users, PanelLeftClose, PanelLeftOpen, Menu, Wrench, Loader2 } from 'lucide-react';
+import { Folder, Settings, Archive, ChevronDown, ChevronRight, RotateCcw, Users, PanelLeftClose, PanelLeftOpen, Menu, Wrench, Loader2, Info } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 interface SidebarProps {
@@ -176,8 +176,26 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
       {/* Footer with conditional settings button and collapse button */}
       <div className="p-4 border-t border-foreground-dim/20">
         {isCollapsed ? (
-          // When collapsed, only show the expand button centered
-          <div className="flex justify-center">
+          // When collapsed, show icons in vertical stack
+          <div className="flex flex-col items-center space-y-2">
+            <button 
+              onClick={() => navigate('/settings')}
+              className={`w-8 h-8 p-2 flex items-center justify-center rounded-md transition-colors ${
+                isOnSettings ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-secondary/50 hover:text-foreground'
+              }`}
+              title="Settings"
+            >
+              <Settings className="w-4 h-4" />
+            </button>
+            
+            <button 
+              onClick={() => window.open('/about', '_blank')}
+              className="w-8 h-8 p-2 flex items-center justify-center text-foreground hover:bg-secondary/50 hover:text-foreground rounded-md transition-colors"
+              title="About VLab"
+            >
+              <Info className="w-4 h-4" />
+            </button>
+            
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
               className="w-8 h-8 p-2 flex items-center justify-center text-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors"
@@ -187,18 +205,28 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
             </button>
           </div>
         ) : (
-          // When expanded, show both settings and collapse buttons
+          // When expanded, show settings, about, and collapse buttons
           <div className="flex items-center justify-between">
-            <button 
-              onClick={() => navigate('/settings')}
-              className={`flex items-center space-x-2 px-3 py-2 text-sm rounded-md transition-colors font-mono ${
-                isOnSettings ? 'bg-primary/10 text-primary border-primary/50'  : 'text-foreground hover:bg-secondary/50 hover:text-foreground'
-              }`}
-              title="Settings"
-            >
-              <Settings className="w-4 h-4" />
-              <span>Settings</span>
-            </button>
+            <div className="flex items-center space-x-0">
+              <button 
+                onClick={() => navigate('/settings')}
+                className={`flex items-center space-x-2 px-3 py-2 text-sm rounded-md transition-colors font-mono ${
+                  isOnSettings ? 'bg-primary/10 text-primary border-primary/50'  : 'text-foreground hover:bg-secondary/50 hover:text-foreground'
+                }`}
+                title="Settings"
+              >
+                <Settings className="w-4 h-4" />
+                <span>Settings</span>
+              </button>
+              
+              <button 
+                onClick={() => window.open('/about', '_blank')}
+                className="flex items-center space-x-2 px-3 py-2 text-sm rounded-md transition-colors font-mono text-foreground hover:bg-secondary/50 hover:text-foreground"
+                title="About VLab"
+              >
+                <Info className="w-4 h-4" />
+              </button>
+            </div>
             
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}

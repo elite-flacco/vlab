@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAuthStore } from '../../stores/authStore';
 import { useProjectStore } from '../../stores/projectStore';
-import { LogOut, Plus, User, Terminal, Settings } from 'lucide-react';
+import { LogOut, Plus, Terminal, UserCheck } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 interface HeaderProps {
@@ -58,12 +58,24 @@ export const Header: React.FC<HeaderProps> = ({ onNewProjectClick }) => {
             New Project
           </button>
           
-          <button
-            onClick={signOut}
-            className="p-2 text-foreground-dim hover:text-foreground transition-colors"
-          >
-            <LogOut className="w-5 h-5" />
-          </button>
+          {user?.is_anonymous ? (
+            <button
+              onClick={() => window.open('/landing?signup=true', '_blank')}
+              className="btn-secondary"
+              title="Create an account to keep your data safe"
+            >
+              <UserCheck className="w-5 h-5" />
+              {/* Create Account */}
+            </button>
+          ) : (
+            <button
+              onClick={signOut}
+              className="p-2 text-foreground-dim hover:text-foreground transition-colors"
+              title="Sign out"
+            >
+              <LogOut className="w-5 h-5" />
+            </button>
+          )}
         </div>
       </div>
     </header>

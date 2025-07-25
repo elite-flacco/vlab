@@ -3,6 +3,8 @@ export interface User {
   email: string;
   name: string;
   avatar_url?: string;
+  is_anonymous?: boolean;
+  anonymous_claimed_at?: string;
   created_at: string;
   updated_at: string;
 }

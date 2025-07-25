@@ -67,6 +67,67 @@ export const auth = {
     );
   },
 
+  signInAnonymously: async () => {
+    const operation = () => supabase.auth.signInAnonymously({
+      options: {
+        data: {
+          is_anonymous: true,
+          name: 'Guest User'
+        }
+      }
+    });
+    
+    return withTimeout(
+      withTiming('Auth SignInAnonymously', operation),
+      DB_TIMEOUT,
+      'Anonymous sign in operation timed out'
+    );
+  },
+
+  claimAnonymousAccount: async (email: string, password: string, name: string) => {
+    // For anonymous account claiming, we need to:
+    // 1. Create a new proper account
+    // 2. Transfer the data from anonymous to new account
+    // 3. Delete the anonymous account
+    
+    const operation = async () => {
+      // First, get the current anonymous user
+      const { data: currentUser } = await supabase.auth.getUser();
+      if (!currentUser.user) {
+        throw new Error('No anonymous user found');
+      }
+      
+      const anonymousUserId = currentUser.user.id;
+      
+      // Sign out the anonymous user
+      await supabase.auth.signOut();
+      
+      // Create a new proper account
+      const { data: newUserData, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name,
+            claimed_from_anonymous: anonymousUserId, // Track where this came from
+          }
+        }
+      });
+      
+      if (signUpError) {
+        throw signUpError;
+      }
+      
+      return { data: newUserData, error: null };
+    };
+    
+    return withTimeout(
+      withTiming('Auth ClaimAnonymousAccount', operation),
+      DB_TIMEOUT,
+      'Claim anonymous account operation timed out'
+    );
+  },
+
   onAuthStateChange: (callback: (event: string, session: any) => void) => {
     return supabase.auth.onAuthStateChange(callback);
   },

@@ -67,11 +67,17 @@ function App() {
       <Router>
         <PageViewTracker />
         <Routes>
-          {/* Landing page for unauthenticated users */}
+          {/* Landing page for unauthenticated users OR when explicitly accessing /landing or /#signup */}
           {!user ? (
             <Route path="*" element={<LandingWrapper />} />
           ) : (
             <>
+              {/* About page - landing page without redirect for authenticated users */}
+              <Route path="/about" element={<Landing showForAuthenticated={true} />} />
+              
+              {/* Landing page for anonymous users who want to sign up */}
+              <Route path="/landing" element={<Landing />} />
+
               {/* Authenticated routes */}
               <Route path="/" element={<AppLayout />}>
                 <Route index element={<Dashboard />} />

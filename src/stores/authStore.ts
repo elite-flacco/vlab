@@ -115,6 +115,8 @@ interface AuthState {
   error: string | null;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, name: string) => Promise<void>;
+  signInAnonymously: () => Promise<void>;
+  claimAccount: (email: string, password: string, name: string) => Promise<void>;
   signOut: () => Promise<void>;
   updatePassword: (newPassword: string) => Promise<void>;
   initialize: () => Promise<void>;
@@ -154,6 +156,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                 data.user.email?.split('@')[0] || 
                 'User',
           avatar_url: data.user.user_metadata?.avatar_url,
+          is_anonymous: data.user.user_metadata?.is_anonymous === 'true',
           created_at: data.user.created_at,
           updated_at: data.user.updated_at || data.user.created_at,
         };
@@ -207,11 +210,162 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                   data.user.email?.split('@')[0] || 
                   'User',
             avatar_url: data.user.user_metadata?.avatar_url,
+            is_anonymous: false,
             created_at: data.user.created_at,
             updated_at: data.user.updated_at || data.user.created_at,
           };
           
           set({ user, loading: false });
+        }
+      } else {
+        set({ loading: false });
+      }
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+    }
+  },
+
+  signInAnonymously: async () => {
+    set({ loading: true, error: null });
+    
+    try {
+      const { data, error } = await auth.signInAnonymously();
+      
+      if (error) {
+        const friendlyError = mapSupabaseError(error);
+        throw new Error(friendlyError);
+      }
+      
+      if (data.user) {
+        // For anonymous users, we need to fetch profile data to get the is_anonymous flag
+        try {
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', data.user.id)
+            .single();
+
+          const user: User = {
+            id: data.user.id,
+            email: profileData?.email || data.user.email || '',
+            name: profileData?.name || data.user.user_metadata?.name || 'Guest User',
+            avatar_url: data.user.user_metadata?.avatar_url || profileData?.avatar_url,
+            is_anonymous: profileData?.is_anonymous ?? true,
+            anonymous_claimed_at: profileData?.anonymous_claimed_at,
+            created_at: data.user.created_at,
+            updated_at: data.user.updated_at || data.user.created_at,
+          };
+          
+          set({ user, loading: false });
+        } catch (profileError) {
+          console.error('Failed to fetch profile data for anonymous user:', profileError);
+          // Fallback to basic user object
+          const user: User = {
+            id: data.user.id,
+            email: data.user.email || '',
+            name: data.user.user_metadata?.name || 'Guest User',
+            avatar_url: data.user.user_metadata?.avatar_url,
+            is_anonymous: true,
+            created_at: data.user.created_at,
+            updated_at: data.user.updated_at || data.user.created_at,
+          };
+          
+          set({ user, loading: false });
+        }
+      } else {
+        set({ loading: false });
+      }
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+    }
+  },
+
+  claimAccount: async (email: string, password: string, name: string) => {
+    set({ loading: true, error: null });
+    
+    // Client-side validation
+    const validationError = validateSignUpInput(email, password, name);
+    if (validationError) {
+      set({ error: validationError, loading: false });
+      return;
+    }
+    
+    try {
+      // Get the current anonymous user ID before claiming
+      const { user: currentUser } = get();
+      if (!currentUser || !currentUser.is_anonymous) {
+        throw new Error('No anonymous user found to claim');
+      }
+      
+      const anonymousUserId = currentUser.id;
+      
+      // Create the new account (this will sign out the anonymous user)
+      const response = await auth.claimAnonymousAccount(email, password, name);
+      
+      if (response.error) {
+        const friendlyError = mapSupabaseError(response.error);
+        throw new Error(friendlyError);
+      }
+      
+      const { data } = response;
+      if (data?.user) {
+        // Check if email confirmation is needed
+        const needsEmailConfirmation = !data.session || data.user.email_confirmed_at === null;
+        
+        console.log('🔍 Claim Debug:', {
+          hasSession: !!data.session,
+          emailConfirmedAt: data.user.email_confirmed_at,
+          needsEmailConfirmation,
+          anonymousUserId,
+          newUserId: data.user.id
+        });
+        
+        // Always store claiming info for now (we'll clean it up if not needed)
+        // Use localStorage instead of sessionStorage so it persists across tabs
+        localStorage.setItem('claiming_data', JSON.stringify({
+          anonymousUserId,
+          newUserId: data.user.id,
+          claimedAt: new Date().toISOString()
+        }));
+        
+        if (needsEmailConfirmation) {
+          // Keep anonymous user logged in and show confirmation message
+          set({ 
+            loading: false,
+            error: 'Account created! Please check your email and click the confirmation link. Your anonymous data will be automatically transferred once you verify your email.'
+          });
+        } else {
+          // User is confirmed, transfer data immediately
+          try {
+            await supabase.rpc('claim_anonymous_account', {
+              anonymous_user_id: anonymousUserId,
+              new_user_id: data.user.id
+            });
+            
+            const user: User = {
+              id: data.user.id,
+              email: data.user.email || email,
+              name: data.user.user_metadata?.name || name,
+              avatar_url: data.user.user_metadata?.avatar_url,
+              is_anonymous: false,
+              anonymous_claimed_at: new Date().toISOString(),
+              created_at: data.user.created_at,
+              updated_at: data.user.updated_at || data.user.created_at,
+            };
+            
+            set({ 
+              user, 
+              loading: false,
+              error: 'Account successfully claimed and data transferred!'
+            });
+          } catch (transferError) {
+            console.error('Failed to transfer data:', transferError);
+            set({ 
+              user: null, 
+              loading: false,
+              error: 'Account created but data transfer failed. Please contact support.'
+            });
+          }
         }
       } else {
         set({ loading: false });
@@ -290,27 +444,97 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           return;
         }
         
+        // Handle case where user was deleted but session still exists
+        if (error.message?.includes('User from sub claim in JWT does not exist') || 
+            error.message?.includes('does not exist')) {
+          console.log('🔐 AuthStore: User no longer exists, clearing session');
+          
+          // Clear the invalid session
+          try {
+            await supabase.auth.signOut();
+          } catch (signOutError) {
+            console.warn('🔐 AuthStore: Error clearing invalid session:', signOutError);
+          }
+          
+          // Clear projects and state
+          const { clearProjects } = await import('./projectStore').then(m => m.useProjectStore.getState());
+          clearProjects();
+          
+          set({ user: null, loading: false, error: null });
+          return;
+        }
+        
         console.error('❌ AuthStore: Initialize error:', error);
         set({ user: null, loading: false, error: error.message });
         return;
       }
       
       if (data.user) {
-        // Construct User object with proper field mapping
-        const mappedUser: User = {
-          id: data.user.id,
-          email: data.user.email || '',
-          name: data.user.user_metadata?.name || 
-                data.user.user_metadata?.full_name || 
-                data.user.email?.split('@')[0] || 
-                'User',
-          avatar_url: data.user.user_metadata?.avatar_url,
-          created_at: data.user.created_at,
-          updated_at: data.user.updated_at || data.user.created_at,
-        };
-        
-        // Only log if this is a new user or we're loading
-        set({ user: mappedUser, loading: false });
+        // Fetch profile data to get complete user information including is_anonymous
+        try {
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', data.user.id)
+            .single();
+
+          // Check if this user just signed in after claiming an anonymous account
+          const claimingData = localStorage.getItem('claiming_data');
+          if (claimingData && !profileData?.is_anonymous) {
+            try {
+              const { anonymousUserId, newUserId } = JSON.parse(claimingData);
+              if (newUserId === data.user.id) {
+                // Transfer the data from anonymous account
+                await supabase.rpc('claim_anonymous_account', {
+                  anonymous_user_id: anonymousUserId,
+                  new_user_id: newUserId
+                });
+                
+                // Clear the claiming data
+                localStorage.removeItem('claiming_data');
+                
+                console.log('✅ Successfully transferred data from anonymous account');
+              }
+            } catch (transferError) {
+              console.error('Failed to transfer anonymous data:', transferError);
+              // Don't fail the login, just log the error
+            }
+          }
+
+          const mappedUser: User = {
+            id: data.user.id,
+            email: profileData?.email || data.user.email || '',
+            name: profileData?.name || 
+                  data.user.user_metadata?.name || 
+                  data.user.user_metadata?.full_name || 
+                  data.user.email?.split('@')[0] || 
+                  'User',
+            avatar_url: data.user.user_metadata?.avatar_url || profileData?.avatar_url,
+            is_anonymous: profileData?.is_anonymous ?? false,
+            anonymous_claimed_at: profileData?.anonymous_claimed_at,
+            created_at: data.user.created_at,
+            updated_at: data.user.updated_at || data.user.created_at,
+          };
+          
+          set({ user: mappedUser, loading: false });
+        } catch (profileError) {
+          console.error('Failed to fetch profile data:', profileError);
+          // Fallback to basic user object without profile data
+          const mappedUser: User = {
+            id: data.user.id,
+            email: data.user.email || '',
+            name: data.user.user_metadata?.name || 
+                  data.user.user_metadata?.full_name || 
+                  data.user.email?.split('@')[0] || 
+                  'User',
+            avatar_url: data.user.user_metadata?.avatar_url,
+            is_anonymous: data.user.user_metadata?.is_anonymous === 'true',
+            created_at: data.user.created_at,
+            updated_at: data.user.updated_at || data.user.created_at,
+          };
+          
+          set({ user: mappedUser, loading: false });
+        }
       } else {
         // Only log once when we first detect no user
         if (loading) {
