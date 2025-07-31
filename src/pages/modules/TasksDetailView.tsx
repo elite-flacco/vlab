@@ -30,21 +30,21 @@ export const TasksDetailView: React.FC = () => {
   const [tasks, setTasks] = useState<TaskItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  // Initialize filters from localStorage or defaults
+  // Initialize filters from localStorage or defaults (scoped by project)
   const [filter, setFilter] = useState<'all' | 'todo' | 'in_progress' | 'done' | 'blocked' | 'cancelled'>(() => {
-    return (localStorage.getItem('tasks-status-filter') as any) || 'all';
+    return (localStorage.getItem(`tasks-status-filter-${projectId}`) as any) || 'all';
   });
   const [priorityFilter, setPriorityFilter] = useState<'all' | 'highest' | 'high' | 'medium' | 'low'>(() => {
-    return (localStorage.getItem('tasks-priority-filter') as any) || 'all';
+    return (localStorage.getItem(`tasks-priority-filter-${projectId}`) as any) || 'all';
   });
   const [tagFilter, setTagFilter] = useState<string>(() => {
-    return localStorage.getItem('tasks-tag-filter') || 'all';
+    return localStorage.getItem(`tasks-tag-filter-${projectId}`) || 'all';
   });
   const [searchTerm, setSearchTerm] = useState(() => {
-    return localStorage.getItem('tasks-search-term') || '';
+    return localStorage.getItem(`tasks-search-term-${projectId}`) || '';
   });
   const [showCompleted, setShowCompleted] = useState(() => {
-    const saved = localStorage.getItem('tasks-show-completed');
+    const saved = localStorage.getItem(`tasks-show-completed-${projectId}`);
     return saved !== null ? JSON.parse(saved) : true;
   });
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
@@ -160,30 +160,30 @@ export const TasksDetailView: React.FC = () => {
     await handleUpdateTask(taskId, { status: newStatus as TaskItem['status'] });
   };
 
-  // Custom setters that persist to localStorage
+  // Custom setters that persist to localStorage (scoped by project)
   const updateFilter = (newFilter: typeof filter) => {
     setFilter(newFilter);
-    localStorage.setItem('tasks-status-filter', newFilter);
+    localStorage.setItem(`tasks-status-filter-${projectId}`, newFilter);
   };
 
   const updatePriorityFilter = (newPriorityFilter: typeof priorityFilter) => {
     setPriorityFilter(newPriorityFilter);
-    localStorage.setItem('tasks-priority-filter', newPriorityFilter);
+    localStorage.setItem(`tasks-priority-filter-${projectId}`, newPriorityFilter);
   };
 
   const updateTagFilter = (newTagFilter: string) => {
     setTagFilter(newTagFilter);
-    localStorage.setItem('tasks-tag-filter', newTagFilter);
+    localStorage.setItem(`tasks-tag-filter-${projectId}`, newTagFilter);
   };
 
   const updateSearchTerm = (newSearchTerm: string) => {
     setSearchTerm(newSearchTerm);
-    localStorage.setItem('tasks-search-term', newSearchTerm);
+    localStorage.setItem(`tasks-search-term-${projectId}`, newSearchTerm);
   };
 
   const updateShowCompleted = (newShowCompleted: boolean) => {
     setShowCompleted(newShowCompleted);
-    localStorage.setItem('tasks-show-completed', JSON.stringify(newShowCompleted));
+    localStorage.setItem(`tasks-show-completed-${projectId}`, JSON.stringify(newShowCompleted));
   };
 
   // Get all unique tags from existing tasks
