@@ -10,6 +10,7 @@ import { Workspace } from './pages/Workspace';
 import { KickoffFlow } from './pages/KickoffFlow';
 import { Community } from './pages/Community';
 import { Settings } from './pages/Settings';
+import { GlobalScratchpad } from './pages/GlobalScratchpad';
 import { PRDDetailView } from './pages/modules/PRDDetailView';
 import { RoadmapDetailView } from './pages/modules/RoadmapDetailView';
 import { TasksDetailView } from './pages/modules/TasksDetailView';
@@ -82,6 +83,7 @@ function App() {
               <Route path="/" element={<AppLayout />}>
                 <Route index element={<Dashboard />} />
                 <Route path="community" element={<Community />} />
+                <Route path="scratchpad" element={<GlobalScratchpad />} />
                 <Route path="settings" element={<Settings />} />
                 <Route path="kickoff/:projectId" element={<KickoffFlow />} />
                 <Route path="workspace/:projectId" element={<Workspace />} />
