@@ -61,7 +61,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
           className={`${isOnScratchpad ? 'sidebar-item-active' : 'sidebar-item'} ${
             isCollapsed ? 'w-8 h-8 p-2 flex items-center justify-center' : 'flex items-center space-x-2 text-sm font-semibold text-foreground hover:text-foreground transition-colors mb-3 px-3 py-2 rounded-md w-full text-left'
           }`}
-          title="Global Scratchpad"
+          title="Scratchpad"
         >
           <StickyNote className="w-4 h-4 flex-shrink-0" />
           {!isCollapsed && <span>Scratchpad</span>}
