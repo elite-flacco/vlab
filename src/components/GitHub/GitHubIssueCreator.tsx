@@ -59,16 +59,6 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
   useEffect(() => {
     const initializeComponent = async () => {
       await checkExistingIssue();
-      // Also check auth status here to avoid double loading
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const { data: tokenData } = await db.getGitHubToken(user.id);
-          setIsAuthenticated(!!tokenData);
-        }
-      } catch (err) {
-        setIsAuthenticated(false);
-      }
       setInitialLoading(false);
     };
     initializeComponent();
@@ -158,7 +148,7 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
     return (
       <div className={`p-4 bg-secondary rounded-lg flex items-center justify-center ${className}`}>
         <Loader2 className="w-5 h-5 animate-spin mr-2" />
-        <span className="text-sm text-foreground-dim">Checking GitHub status...</span>
+        <span className="text-sm text-foreground-dim">Loading...</span>
       </div>
     );
   }
@@ -183,7 +173,7 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
                 rel="noopener noreferrer"
                 className="inline-flex items-center space-x-1"
               >
-                <span>View Issue #{existingIssue.github_issue_number}</span>
+                <span className="text-xs">View Issue</span>
                 <ExternalLink className="w-3 h-3" />
               </a>
             </div>
@@ -204,7 +194,7 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
       <GitHubAuthButton
         onAuthChange={(authenticated, username) => setIsAuthenticated(authenticated)}
         size="sm"
-        skipInitialLoading={true}
+        skipInitialLoading={false}
       />
 
       {isAuthenticated && (

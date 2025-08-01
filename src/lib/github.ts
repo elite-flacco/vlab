@@ -167,23 +167,10 @@ export const formatTaskAsIssue = (task: {
   let body = '';
   
   if (task.description) {
-    body += `## Description\n\n${task.description}\n\n`;
+    body += `${task.description}`;
   }
   
-  // Add task metadata
-  body += `## Task Details\n\n`;
-  body += `- **Priority**: ${task.priority || 'medium'}\n`;
-  body += `- **Status**: ${task.status || 'todo'}\n`;
-  
-  if (task.due_date) {
-    body += `- **Due Date**: ${new Date(task.due_date).toLocaleDateString()}\n`;
-  }
-  
-  if (task.tags && task.tags.length > 0) {
-    body += `- **Tags**: ${task.tags.join(', ')}\n`;
-  }
-  
-  body += `\n---\n\n*Created from VLab Tasks*`;
+  body += `\n\n*@claude please implement*`;
 
   // Convert task tags to GitHub labels (if any)
   const labels = task.tags || [];
