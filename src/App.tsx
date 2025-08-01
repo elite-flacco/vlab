@@ -18,6 +18,7 @@ import { PromptsDetailView } from './pages/modules/PromptsDetailView';
 import { SecretsDetailView } from './pages/modules/SecretsDetailView';
 import { DesignDetailView } from './pages/modules/DesignDetailView';
 import { DeploymentDetailView } from './pages/modules/DeploymentDetailView';
+import { GlobalScratchpad } from './pages/GlobalScratchpad';
 
 // Component to track page views automatically
 function PageViewTracker() {
@@ -83,6 +84,7 @@ function App() {
                 <Route index element={<Dashboard />} />
                 <Route path="community" element={<Community />} />
                 <Route path="settings" element={<Settings />} />
+                <Route path="scratchpad" element={<GlobalScratchpad />} />
                 <Route path="kickoff/:projectId" element={<KickoffFlow />} />
                 <Route path="workspace/:projectId" element={<Workspace />} />
                 <Route path="workspace/:projectId/prd" element={<PRDDetailView />} />
