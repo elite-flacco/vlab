@@ -15,16 +15,18 @@ interface GitHubAuthButtonProps {
   onAuthChange?: (isAuthenticated: boolean, username?: string) => void;
   className?: string;
   size?: 'sm' | 'md' | 'lg';
+  skipInitialLoading?: boolean;
 }
 
 export const GitHubAuthButton: React.FC<GitHubAuthButtonProps> = ({ 
   onAuthChange, 
   className = '', 
-  size = 'md' 
+  size = 'md',
+  skipInitialLoading = false
 }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [githubUsername, setGithubUsername] = useState<string>('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!skipInitialLoading);
   const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState<string>('');
 
@@ -32,8 +34,10 @@ export const GitHubAuthButton: React.FC<GitHubAuthButtonProps> = ({
   const isConfigured = validateGitHubConfig();
 
   useEffect(() => {
-    checkAuthStatus();
-  }, []);
+    if (!skipInitialLoading) {
+      checkAuthStatus();
+    }
+  }, [skipInitialLoading]);
 
   useEffect(() => {
     onAuthChange?.(isAuthenticated, githubUsername);

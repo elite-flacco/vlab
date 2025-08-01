@@ -97,6 +97,21 @@ serve(async (req) => {
     }
 
     // Create the issue on GitHub
+    const issuePayload: any = {
+      title,
+      body: body || '',
+    };
+
+    // Only include labels if they exist and are non-empty
+    if (labels && labels.length > 0) {
+      issuePayload.labels = labels;
+    }
+
+    // Only include assignees if they exist and are non-empty
+    if (assignees && assignees.length > 0) {
+      issuePayload.assignees = assignees;
+    }
+
     const githubResponse = await fetch(`https://api.github.com/repos/${repoData.repo_full_name}/issues`, {
       method: 'POST',
       headers: {
@@ -105,12 +120,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
         'User-Agent': 'VLab-GitHub-Integration/1.0',
       },
-      body: JSON.stringify({
-        title,
-        body,
-        labels: labels || [],
-        assignees: assignees || [],
-      }),
+      body: JSON.stringify(issuePayload),
     })
 
     if (!githubResponse.ok) {

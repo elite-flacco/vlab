@@ -1093,7 +1093,7 @@ export const db = {
   revokeGitHubToken: async (userId: string) => {
     const operation = () => supabase
       .from('github_tokens')
-      .update({ is_active: false })
+      .delete()
       .eq('user_id', userId)
       .eq('is_active', true);
     

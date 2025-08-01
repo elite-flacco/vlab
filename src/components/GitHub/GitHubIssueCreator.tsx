@@ -54,9 +54,24 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
   const [customTitle, setCustomTitle] = useState('');
   const [customBody, setCustomBody] = useState('');
   const [useCustomContent, setUseCustomContent] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
-    checkExistingIssue();
+    const initializeComponent = async () => {
+      await checkExistingIssue();
+      // Also check auth status here to avoid double loading
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: tokenData } = await db.getGitHubToken(user.id);
+          setIsAuthenticated(!!tokenData);
+        }
+      } catch (err) {
+        setIsAuthenticated(false);
+      }
+      setInitialLoading(false);
+    };
+    initializeComponent();
   }, [task.id]);
 
   useEffect(() => {
@@ -138,6 +153,16 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
     }
   };
 
+  // Show single loading state during initial check
+  if (initialLoading) {
+    return (
+      <div className={`p-4 bg-secondary rounded-lg flex items-center justify-center ${className}`}>
+        <Loader2 className="w-5 h-5 animate-spin mr-2" />
+        <span className="text-sm text-foreground-dim">Checking GitHub status...</span>
+      </div>
+    );
+  }
+
   // If there's already an issue for this task, show the existing issue info
   if (existingIssue) {
     return (
@@ -177,8 +202,9 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
 
       {/* GitHub Authentication */}
       <GitHubAuthButton
-        onAuthChange={setIsAuthenticated}
+        onAuthChange={(authenticated, username) => setIsAuthenticated(authenticated)}
         size="sm"
+        skipInitialLoading={true}
       />
 
       {isAuthenticated && (
