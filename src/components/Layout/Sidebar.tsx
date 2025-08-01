@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useProjectStore } from '../../stores/projectStore';
 import { useAuthStore } from '../../stores/authStore';
-import { Folder, Settings, Archive, ChevronDown, ChevronRight, RotateCcw, Users, PanelLeftClose, PanelLeftOpen, Menu, Wrench, Loader2, Info } from 'lucide-react';
+import { Folder, Settings, Archive, ChevronDown, ChevronRight, RotateCcw, Users, PanelLeftClose, PanelLeftOpen, Menu, Wrench, Loader2, Info, StickyNote } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 interface SidebarProps {
@@ -17,6 +17,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const isOnCommunity = location.pathname === '/community';
+  const isOnScratchpad = location.pathname === '/scratchpad';
   const isOnSettings = location.pathname === '/settings';
 
   const handleProjectClick = (project: any) => {
@@ -52,6 +53,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
         >
           <Users className="w-4 h-4 flex-shrink-0" />
           {!isCollapsed && <span>Community Hub</span>}
+        </button>
+
+        {/* Global Scratchpad */}
+        <button
+          onClick={() => navigate('/scratchpad')}
+          className={`${isOnScratchpad ? 'sidebar-item-active' : 'sidebar-item'} ${
+            isCollapsed ? 'w-8 h-8 p-2 flex items-center justify-center' : 'flex items-center space-x-2 text-sm font-semibold text-foreground hover:text-foreground transition-colors mb-3 px-3 py-2 rounded-md w-full text-left'
+          }`}
+          title="Scratchpad"
+        >
+          <StickyNote className="w-4 h-4 flex-shrink-0" />
+          {!isCollapsed && <span>Scratchpad</span>}
         </button>
 
         {/* Divider under Community Hub */}
@@ -98,7 +111,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
               <button
                 key={project.id}
                 onClick={() => handleProjectClick(project)}
-                className={`${currentProject?.id === project.id && !isOnCommunity && !isOnSettings ? 'sidebar-item-active' : 'sidebar-item'} ${
+                className={`${currentProject?.id === project.id && !isOnCommunity && !isOnScratchpad && !isOnSettings ? 'sidebar-item-active' : 'sidebar-item'} ${
                   isCollapsed ? 'w-8 h-8 p-2 flex items-center justify-center' : ''
                 }`}
                 title={project.name}

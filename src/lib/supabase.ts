@@ -678,6 +678,63 @@ export const db = {
     );
   },
 
+  // Global Notes (project-agnostic)
+  getGlobalNotes: async (userId: string) => {
+    const operation = () => supabase
+      .from('global_notes')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at');
+    
+    return withTimeout(
+      withTiming('DB GetGlobalNotes', operation),
+      DB_TIMEOUT,
+      'Get global notes operation timed out'
+    );
+  },
+
+  createGlobalNote: async (note: any) => {
+    const operation = () => supabase
+      .from('global_notes')
+      .insert(note)
+      .select()
+      .single();
+    
+    return withTimeout(
+      withTiming('DB CreateGlobalNote', operation),
+      DB_TIMEOUT,
+      'Create global note operation timed out'
+    );
+  },
+
+  updateGlobalNote: async (id: string, updates: any) => {
+    const operation = () => supabase
+      .from('global_notes')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
+    
+    return withTimeout(
+      withTiming('DB UpdateGlobalNote', operation),
+      DB_TIMEOUT,
+      'Update global note operation timed out'
+    );
+  },
+
+  deleteGlobalNote: async (id: string) => {
+    const operation = () => supabase
+      .from('global_notes')
+      .delete()
+      .eq('id', id);
+    
+    return withTimeout(
+      withTiming('DB DeleteGlobalNote', operation),
+      DB_TIMEOUT,
+      'Delete global note operation timed out'
+    );
+  },
+
   // Roadmap Items
   getRoadmapItems: async (projectId: string) => {
     const operation = () => supabase

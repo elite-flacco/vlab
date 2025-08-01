@@ -341,6 +341,50 @@ export interface Database {
           updated_at?: string;
         };
       };
+      global_notes: {
+        Row: {
+          id: string;
+          user_id: string;
+          title: string | null;
+          content: string;
+          position: any;
+          size: any;
+          color: string;
+          font_size: number;
+          is_pinned: boolean;
+          tags: string[];
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          title?: string | null;
+          content: string;
+          position?: any;
+          size?: any;
+          color?: string;
+          font_size?: number;
+          is_pinned?: boolean;
+          tags?: string[];
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          title?: string | null;
+          content?: string;
+          position?: any;
+          size?: any;
+          color?: string;
+          font_size?: number;
+          is_pinned?: boolean;
+          tags?: string[];
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
       roadmap_items: {
         Row: {
           id: string;
