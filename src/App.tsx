@@ -19,6 +19,7 @@ import { PromptsDetailView } from './pages/modules/PromptsDetailView';
 import { SecretsDetailView } from './pages/modules/SecretsDetailView';
 import { DesignDetailView } from './pages/modules/DesignDetailView';
 import { DeploymentDetailView } from './pages/modules/DeploymentDetailView';
+import { GitHubCallback } from './pages/auth/GitHubCallback';
 
 // Component to track page views automatically
 function PageViewTracker() {
@@ -79,6 +80,9 @@ function App() {
               {/* Landing page for anonymous users who want to sign up */}
               <Route path="/landing" element={<Landing />} />
 
+              {/* GitHub OAuth callback - standalone route */}
+              <Route path="/auth/github/callback" element={<GitHubCallback />} />
+              
               {/* Authenticated routes */}
               <Route path="/" element={<AppLayout />}>
                 <Route index element={<Dashboard />} />

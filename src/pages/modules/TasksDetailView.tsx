@@ -1,10 +1,11 @@
 import { format } from 'date-fns';
-import { ArrowDown, ArrowUp, CheckSquare, ChevronDown, Edit3, Loader2, Minus, Plus, Save, Search, Square, Tag, Trash2, X } from 'lucide-react';
+import { ArrowDown, ArrowUp, CheckSquare, ChevronDown, Edit3, Github, Loader2, Minus, Plus, Save, Search, Square, Tag, Trash2, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { BackButton } from '../../components/common/BackButton';
 import { MarkdownRenderer, useMarkdownPreprocessing } from '../../components/common/MarkdownRenderer';
 import { ModuleContainer } from '../../components/Workspace/ModuleContainer';
+import { GitHubIssueCreator } from '../../components/GitHub/GitHubIssueCreator';
 import { db } from '../../lib/supabase';
 
 interface TaskItem {
@@ -50,6 +51,7 @@ export const TasksDetailView: React.FC = () => {
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [newTask, setNewTask] = useState<Partial<TaskItem> | null>(null);
   const [saving, setSaving] = useState(false);
+  const [showGitHubModal, setShowGitHubModal] = useState<string | null>(null);
   const { processContent } = useMarkdownPreprocessing();
 
   useEffect(() => {
@@ -845,6 +847,13 @@ export const TasksDetailView: React.FC = () => {
                           />
                           <div className="flex items-center space-x-1 opacity-80 group-hover:opacity-100 transition-opacity">
                             <button
+                              onClick={() => setShowGitHubModal(task.id)}
+                              className="p-1.5 text-foreground-dim hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                              title="Create GitHub issue"
+                            >
+                              <Github className="w-3 h-3" />
+                            </button>
+                            <button
                               onClick={() => setEditingTaskId(task.id)}
                               className="p-1.5 text-foreground-dim hover:text-primary hover:bg-foreground-dim/10 rounded-lg transition-colorss"
                               title="Edit task"
@@ -904,6 +913,42 @@ export const TasksDetailView: React.FC = () => {
           </div>
         </div>
       </ModuleContainer>
+
+      {/* GitHub Issue Creator Modal */}
+      {showGitHubModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-4 border-b flex items-center justify-between">
+              <h3 className="text-lg font-medium">Create GitHub Issue</h3>
+              <button
+                onClick={() => setShowGitHubModal(null)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6">
+              {(() => {
+                const task = tasks.find(t => t.id === showGitHubModal);
+                if (!task || !projectId) return null;
+                
+                return (
+                  <GitHubIssueCreator
+                    task={task}
+                    projectId={projectId}
+                    onIssueCreated={(issue) => {
+                      console.log('GitHub issue created:', issue);
+                      setShowGitHubModal(null);
+                      // Optionally, you could show a success notification here
+                    }}
+                  />
+                );
+              })()}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
