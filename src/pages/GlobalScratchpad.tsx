@@ -204,7 +204,7 @@ export const GlobalScratchpad: React.FC = () => {
     return (
       <div className="max-w-6xl mx-auto">
         <BackButton onClick={handleReturnToDashboard} />
-        <ModuleContainer title="Global Scratchpad" type="scratchpad">
+        <ModuleContainer title="Scratchpad" type="scratchpad">
           <div className="h-full flex items-center justify-center">
             <div className="text-center">
               <div className="loading-spinner"></div>
@@ -220,7 +220,7 @@ export const GlobalScratchpad: React.FC = () => {
     return (
       <div className="max-w-6xl mx-auto">
         <BackButton onClick={handleReturnToDashboard} />
-        <ModuleContainer title="Global Scratchpad" type="scratchpad">
+        <ModuleContainer title="Scratchpad" type="scratchpad">
           <div className="card bg-red-50 border-red-200">
             <p className="card-content text-red-600">{error}</p>
           </div>
@@ -234,11 +234,11 @@ export const GlobalScratchpad: React.FC = () => {
     return (
       <div className="max-w-6xl mx-auto">
         <BackButton onClick={handleReturnToDashboard} />
-        <ModuleContainer title="Global Scratchpad" type="scratchpad">
+        <ModuleContainer title="Scratchpad" type="scratchpad">
           <div className="h-full flex items-center justify-center">
             <div className="text-center pt-4">
               <StickyNote className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-              <h3 className="mb-2">No Global Notes Yet</h3>
+              <h3 className="mb-2">No Notes Yet</h3>
               <p className="mb-4 text-sm">
                 Create project-agnostic notes to capture ideas and important information.
               </p>
@@ -266,7 +266,7 @@ export const GlobalScratchpad: React.FC = () => {
   return (
     <div className="max-w-6xl mx-auto">
       <BackButton onClick={handleReturnToDashboard} />
-      <ModuleContainer title="Global Scratchpad" type="scratchpad">
+      <ModuleContainer title="Scratchpad" type="scratchpad">
         <div className="h-full flex flex-col">
           {/* Add New Note Button - Always visible at the top */}
           {!newNote && (
@@ -291,7 +291,7 @@ export const GlobalScratchpad: React.FC = () => {
               <div className="flex items-center justify-between mb-4">
                 <h4 className="card-title flex items-center">
                   <Plus className="w-5 h-5 mr-2" />
-                  Add New Global Note
+                  Add New Note
                 </h4>
               </div>
 
