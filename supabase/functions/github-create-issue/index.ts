@@ -116,9 +116,10 @@ serve(async (req) => {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
-        'Accept': 'application/vnd.github.v3+json',
+        'Accept': 'application/vnd.github+json',
         'Content-Type': 'application/json',
         'User-Agent': 'VLab-GitHub-Integration/1.0',
+        'X-GitHub-Api-Version': '2022-11-28',
       },
       body: JSON.stringify(issuePayload),
     })
