@@ -58,11 +58,31 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
 
   useEffect(() => {
     const initializeComponent = async () => {
-      await checkExistingIssue();
+      // Check both existing issue and auth status
+      await Promise.all([
+        checkExistingIssue(),
+        checkAuthStatus()
+      ]);
       setInitialLoading(false);
     };
     initializeComponent();
   }, [task.id]);
+
+  const checkAuthStatus = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setIsAuthenticated(false);
+        return;
+      }
+
+      const { data: tokenData } = await db.getGitHubToken(user.id);
+      setIsAuthenticated(!!tokenData);
+    } catch (err) {
+      console.error('Error checking GitHub auth:', err);
+      setIsAuthenticated(false);
+    }
+  };
 
   useEffect(() => {
     if (!useCustomContent) {
@@ -192,9 +212,15 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
 
       {/* GitHub Authentication */}
       <GitHubAuthButton
-        onAuthChange={(authenticated, username) => setIsAuthenticated(authenticated)}
+        onAuthChange={(authenticated, username) => {
+          setIsAuthenticated(authenticated);
+          if (!authenticated) {
+            // Clear selected repository when disconnecting
+            setSelectedRepository(null);
+          }
+        }}
         size="sm"
-        skipInitialLoading={false}
+        skipInitialLoading={true}
       />
 
       {isAuthenticated && (

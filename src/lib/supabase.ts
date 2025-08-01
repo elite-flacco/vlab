@@ -1046,6 +1046,19 @@ export const db = {
     );
   },
 
+  deleteAllUserGitHubRepositories: async (userId: string) => {
+    const operation = () => supabase
+      .from('github_repositories')
+      .update({ is_active: false })
+      .eq('user_id', userId);
+    
+    return withTimeout(
+      withTiming('DB DeleteAllUserGitHubRepositories', operation),
+      DB_TIMEOUT,
+      'Delete all user GitHub repositories operation timed out'
+    );
+  },
+
   getGitHubToken: async (userId: string) => {
     const operation = () => supabase
       .from('github_tokens')
@@ -1125,10 +1138,7 @@ export const db = {
   getGitHubIssueByTask: async (taskId: string) => {
     const operation = () => supabase
       .from('github_issues')
-      .select(`
-        *,
-        repository:github_repositories(*)
-      `)
+      .select('*')
       .eq('task_id', taskId)
       .single();
     

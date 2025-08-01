@@ -154,9 +154,19 @@ export const GitHubAuthButton: React.FC<GitHubAuthButtonProps> = ({
         throw new Error('Not authenticated');
       }
 
-      const { error } = await db.revokeGitHubToken(user.id);
-      if (error) {
-        throw error;
+      // Revoke GitHub token and clear all user repositories
+      const [tokenResult, repoResult] = await Promise.all([
+        db.revokeGitHubToken(user.id),
+        db.deleteAllUserGitHubRepositories(user.id)
+      ]);
+
+      if (tokenResult.error) {
+        throw tokenResult.error;
+      }
+
+      if (repoResult.error) {
+        console.warn('Warning: Failed to clear repositories:', repoResult.error);
+        // Don't throw here since the main disconnection succeeded
       }
 
       setIsAuthenticated(false);

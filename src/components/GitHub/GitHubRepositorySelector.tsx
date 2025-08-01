@@ -42,6 +42,14 @@ export const GitHubRepositorySelector: React.FC<GitHubRepositorySelectorProps> =
     checkGitHubAuth();
   }, [projectId]);
 
+  useEffect(() => {
+    // Clear selections when auth status changes
+    if (!hasGitHubAuth) {
+      setRepositories([]);
+      onRepositorySelect(null);
+    }
+  }, [hasGitHubAuth, onRepositorySelect]);
+
   const checkGitHubAuth = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -91,6 +99,9 @@ export const GitHubRepositorySelector: React.FC<GitHubRepositorySelectorProps> =
       if (!tokenData) throw new Error('No GitHub token found');
 
       // Decrypt token (simple base64 - in production use proper decryption)
+      if (!tokenData.encrypted_token) {
+        throw new Error('No encrypted token found');
+      }
       const accessToken = atob(tokenData.encrypted_token);
       const githubClient = createGitHubClient(accessToken);
 
