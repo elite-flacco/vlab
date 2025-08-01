@@ -211,17 +211,48 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
       </div> */}
 
       {/* GitHub Authentication */}
-      <GitHubAuthButton
-        onAuthChange={(authenticated, username) => {
-          setIsAuthenticated(authenticated);
-          if (!authenticated) {
-            // Clear selected repository when disconnecting
-            setSelectedRepository(null);
-          }
-        }}
-        size="sm"
-        skipInitialLoading={true}
-      />
+      {!isAuthenticated && (
+        <GitHubAuthButton
+          onAuthChange={(authenticated) => {
+            setIsAuthenticated(authenticated);
+            if (!authenticated) {
+              // Clear selected repository when disconnecting
+              setSelectedRepository(null);
+            }
+          }}
+          size="sm"
+          skipInitialLoading={false}
+        />
+      )}
+
+      {isAuthenticated && (
+        <div className="flex items-center justify-between rounded-md">
+          <div className="flex items-center space-x-2 bg-primary/10 p-2 rounded-md">
+            <Github className="w-4 h-4 text-primary" />
+            <span className="text-sm text-primary">GitHub Connected</span>
+          </div>
+          <button
+            onClick={async () => {
+              try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (user) {
+                  await db.revokeGitHubToken(user.id);
+                }
+                setIsAuthenticated(false);
+                setSelectedRepository(null);
+              } catch (err) {
+                console.error('Error disconnecting from GitHub:', err);
+                // Still update local state even if disconnect fails
+                setIsAuthenticated(false);
+                setSelectedRepository(null);
+              }
+            }}
+            className="btn-danger"
+          >
+            Disconnect
+          </button>
+        </div>
+      )}
 
       {isAuthenticated && (
         <>

@@ -30,15 +30,19 @@ export const GitHubRepositorySelector: React.FC<GitHubRepositorySelectorProps> =
 }) => {
   const [repositories, setRepositories] = useState<GitHubRepo[]>([]);
   const [availableRepos, setAvailableRepos] = useState<GitHubRepository[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [loadingAvailable, setLoadingAvailable] = useState(false);
   const [showAddRepo, setShowAddRepo] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState<string>('');
   const [hasGitHubAuth, setHasGitHubAuth] = useState(false);
+  const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
   useEffect(() => {
-    fetchRepositories();
+    setHasInitiallyLoaded(false);
+    setCheckingAuth(true);
+    fetchRepositories(true);
     checkGitHubAuth();
   }, [projectId]);
 
@@ -51,20 +55,29 @@ export const GitHubRepositorySelector: React.FC<GitHubRepositorySelectorProps> =
   }, [hasGitHubAuth, onRepositorySelect]);
 
   const checkGitHubAuth = async () => {
+    setCheckingAuth(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        setHasGitHubAuth(false);
+        return;
+      }
 
       const { data: tokenData } = await db.getGitHubToken(user.id);
       setHasGitHubAuth(!!tokenData);
     } catch (err) {
       console.error('Error checking GitHub auth:', err);
       setHasGitHubAuth(false);
+    } finally {
+      setCheckingAuth(false);
     }
   };
 
-  const fetchRepositories = async () => {
-    setLoading(true);
+  const fetchRepositories = async (force = false) => {
+    // Only show loading if we haven't loaded before or if forced
+    if (force || !hasInitiallyLoaded) {
+      setLoading(true);
+    }
     setError('');
 
     try {
@@ -82,6 +95,7 @@ export const GitHubRepositorySelector: React.FC<GitHubRepositorySelectorProps> =
       setError('Failed to load GitHub repositories');
     } finally {
       setLoading(false);
+      setHasInitiallyLoaded(true);
     }
   };
 
@@ -145,7 +159,7 @@ export const GitHubRepositorySelector: React.FC<GitHubRepositorySelectorProps> =
       if (error) throw error;
 
       // Refresh the repositories list
-      await fetchRepositories();
+      await fetchRepositories(true);
       
       // Select the newly added repository
       onRepositorySelect(data);
@@ -164,6 +178,16 @@ export const GitHubRepositorySelector: React.FC<GitHubRepositorySelectorProps> =
   );
 
   const selectedRepo = repositories.find(r => r.id === selectedRepositoryId);
+
+  // Show loading while checking authentication
+  if (checkingAuth) {
+    return (
+      <div className={`flex items-center space-x-2 ${className}`}>
+        <Loader2 className="w-4 h-4 animate-spin" />
+        <span className="text-sm text-foreground-dim">Checking GitHub connection...</span>
+      </div>
+    );
+  }
 
   if (!hasGitHubAuth) {
     return (
