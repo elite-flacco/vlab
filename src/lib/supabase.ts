@@ -1156,7 +1156,10 @@ export const db = {
   getGitHubIssueByTask: async (taskId: string) => {
     const operation = () => supabase
       .from('github_issues')
-      .select('*')
+      .select(`
+        *,
+        repository:github_repositories(*)
+      `)
       .eq('task_id', taskId)
       .maybeSingle();
     

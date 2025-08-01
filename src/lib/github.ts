@@ -172,18 +172,9 @@ export const formatTaskAsIssue = (task: {
   
   body += `\n\n*@claude please implement*`;
 
-  // Convert task tags to GitHub labels (if any)
-  const labels = task.tags || [];
-  
-  // Add priority as a label
-  if (task.priority) {
-    labels.push(`priority: ${task.priority}`);
-  }
-
   return {
     title: task.title,
     body,
-    labels,
   };
 };
 

@@ -96,11 +96,16 @@ export const GitHubAuthButton: React.FC<GitHubAuthButtonProps> = ({
       
       const authUrl = `https://github.com/login/oauth/authorize?${params.toString()}`;
       
-      // Open OAuth flow in a popup
+      // Open OAuth flow in a popup - center it on screen
+      const width = 600;
+      const height = 600;
+      const left = (window.screen.width - width) / 2;
+      const top = (window.screen.height - height) / 2;
+      
       const popup = window.open(
         authUrl,
         'github-oauth',
-        'width=600,height=600,scrollbars=yes,resizable=yes'
+        `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`
       );
 
       if (!popup) {

@@ -96,18 +96,18 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
     try {
       const { data, error } = await db.getGitHubIssueByTask(task.id);
       if (error) {
-        console.log('No existing GitHub issue found for task:', task.id);
+        setError(`Failed to check existing issues: ${error.message || 'Unknown error'}`);
         setExistingIssue(null);
         return;
       }
-      
+
       if (data) {
         setExistingIssue(data);
       } else {
         setExistingIssue(null);
       }
     } catch (err) {
-      console.log('Error checking for existing GitHub issue:', err);
+      setError(`Failed to check existing issues: ${err instanceof Error ? err.message : 'Unknown error'}`);
       setExistingIssue(null);
     }
   };
@@ -154,7 +154,7 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
       }
 
       const result = await response.json();
-      
+
       if (result.success) {
         const newIssue = result.dbRecord;
         setExistingIssue(newIssue);
@@ -164,7 +164,6 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
       }
 
     } catch (err: any) {
-      console.error('Error creating GitHub issue:', err);
       setError(err.message || 'Failed to create GitHub issue');
     } finally {
       setCreating(false);
@@ -234,45 +233,9 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
       )}
 
       {isAuthenticated && (
-        <div className="flex items-center justify-between rounded-md">
-          <div className="flex items-center space-x-2 bg-primary/10 p-2 rounded-md">
-            <Github className="w-4 h-4 text-primary" />
-            <span className="text-sm text-primary">GitHub Connected</span>
-          </div>
-          <button
-            onClick={async () => {
-              try {
-                const { data: { user } } = await supabase.auth.getUser();
-                if (user) {
-                  await db.revokeGitHubToken(user.id);
-                }
-                setIsAuthenticated(false);
-                setSelectedRepository(null);
-              } catch (err) {
-                console.error('Error disconnecting from GitHub:', err);
-                // Still update local state even if disconnect fails
-                setIsAuthenticated(false);
-                setSelectedRepository(null);
-              }
-            }}
-            className="btn-danger"
-          >
-            Disconnect
-          </button>
-        </div>
-      )}
-
-      {isAuthenticated && (
         <>
-          {/* Repository Selection */}
-          <GitHubRepositorySelector
-            projectId={projectId}
-            selectedRepositoryId={selectedRepository?.id}
-            onRepositorySelect={setSelectedRepository}
-          />
-
           {selectedRepository && (
-            <div className="space-y-4 border-t pt-4 border-foreground-dim/20">
+            <div className="space-y-4 border-b pb-4 mb-8 border-foreground-dim/20">
               {/* Issue Content */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -354,7 +317,7 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
               </div>
 
               {/* Preview */}
-              <div className="border-t pt-4 mt-8 border-foreground-dim/20">
+              {/* <div className="border-t pt-4 mt-8 border-foreground-dim/20">
                 <h4 className="text-sm font-medium text-foreground mb-2">Preview</h4>
                 <div className="bg-foreground/5 border border-foreground/10 rounded-md p-3">
                   <div className="text-sm">
@@ -369,10 +332,48 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
                     )}
                   </div>
                 </div>
-              </div>
+              </div> */}
             </div>
           )}
         </>
+      )}
+
+      {isAuthenticated && (
+        <div>
+          {/* Repository Selection */}
+          <GitHubRepositorySelector
+            projectId={projectId}
+            selectedRepositoryId={selectedRepository?.id}
+            onRepositorySelect={setSelectedRepository}
+          />
+          <div className="flex items-center justify-end">
+            <div className="flex items-center space-x-2 bg-primary/10 p-2 mr-2 rounded-md">
+              <Github className="w-4 h-4 text-primary" />
+              <span className="text-xs text-primary">Connected</span>
+            </div>
+            <button
+              onClick={async () => {
+                try {
+                  const { data: { user } } = await supabase.auth.getUser();
+                  if (user) {
+                    await db.revokeGitHubToken(user.id);
+                  }
+                  setIsAuthenticated(false);
+                  setSelectedRepository(null);
+                } catch (err) {
+                  console.error('Error disconnecting from GitHub:', err);
+                  // Still update local state even if disconnect fails
+                  setIsAuthenticated(false);
+                  setSelectedRepository(null);
+                }
+              }}
+              className="btn-danger text-xs p-2"
+            >
+              Disconnect
+            </button>
+
+          </div>
+        </div>
       )}
     </div>
   );
