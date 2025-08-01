@@ -1007,7 +1007,10 @@ export const db = {
   createGitHubRepository: async (repository: any) => {
     const operation = () => supabase
       .from('github_repositories')
-      .insert(repository)
+      .upsert(repository, {
+        onConflict: 'project_id,repo_full_name',
+        ignoreDuplicates: false
+      })
       .select()
       .single();
     
