@@ -156,8 +156,8 @@ export const GitHubRepositorySelector: React.FC<GitHubRepositorySelectorProps> =
 
   if (!hasGitHubAuth) {
     return (
-      <div className={`p-4 bg-yellow-50 border border-yellow-200 rounded-md ${className}`}>
-        <p className="text-sm text-yellow-700 mb-2">
+      <div className={`p-4 bg-secondary border border-foreground-dim/20 rounded-md ${className}`}>
+        <p className="text-sm text-foreground-dim mb-2">
           Connect your GitHub account to link repositories to this project.
         </p>
       </div>
@@ -168,7 +168,7 @@ export const GitHubRepositorySelector: React.FC<GitHubRepositorySelectorProps> =
     return (
       <div className={`flex items-center space-x-2 ${className}`}>
         <Loader2 className="w-4 h-4 animate-spin" />
-        <span className="text-sm text-gray-500">Loading repositories...</span>
+        <span className="text-sm text-foreground-dim">Loading repositories...</span>
       </div>
     );
   }
@@ -176,15 +176,15 @@ export const GitHubRepositorySelector: React.FC<GitHubRepositorySelectorProps> =
   return (
     <div className={`space-y-3 ${className}`}>
       {error && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-          <p className="text-sm text-red-600">{error}</p>
+        <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+          <p className="text-sm text-destructive">{error}</p>
         </div>
       )}
 
       {repositories.length === 0 ? (
-        <div className="text-center p-4 bg-gray-50 border-2 border-dashed border-gray-200 rounded-md">
-          <Github className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-          <p className="text-sm text-gray-600 mb-3">No repositories linked to this project</p>
+        <div className="text-center p-4 bg-secondary border-2 border-dashed border-foreground/20 rounded-md">
+          <Github className="w-8 h-8 text-foreground-dim mx-auto mb-2" />
+          <p className="text-sm text-foreground-dim mb-3">No repositories linked to this project</p>
           <button
             onClick={() => {
               setShowAddRepo(true);
@@ -197,9 +197,9 @@ export const GitHubRepositorySelector: React.FC<GitHubRepositorySelectorProps> =
           </button>
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-2 mb-4">
           <div className="flex items-center justify-between">
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-foreground">
               GitHub Repository
             </label>
             <button
@@ -207,7 +207,7 @@ export const GitHubRepositorySelector: React.FC<GitHubRepositorySelectorProps> =
                 setShowAddRepo(true);
                 fetchAvailableRepositories();
               }}
-              className="text-sm text-blue-600 hover:text-blue-700 flex items-center space-x-1"
+              className="btn-primary"
             >
               <Plus className="w-3 h-3" />
               <span>Add Repository</span>
@@ -230,17 +230,17 @@ export const GitHubRepositorySelector: React.FC<GitHubRepositorySelectorProps> =
                 </option>
               ))}
             </select>
-            <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+            <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-foreground-dim pointer-events-none" />
           </div>
 
           {selectedRepo && (
-            <div className="flex items-center justify-between text-xs text-gray-500 bg-gray-50 p-2 rounded">
+            <div className="flex items-center justify-between text-xs text-foreground-dim bg-secondary/50 p-2 rounded">
               <span>Default branch: {selectedRepo.default_branch}</span>
               <a
                 href={selectedRepo.repo_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center space-x-1 text-blue-600 hover:text-blue-700"
+                className="flex items-center space-x-1"
               >
                 <span>View on GitHub</span>
                 <ExternalLink className="w-3 h-3" />
@@ -253,23 +253,23 @@ export const GitHubRepositorySelector: React.FC<GitHubRepositorySelectorProps> =
       {/* Add Repository Modal */}
       {showAddRepo && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-96 flex flex-col">
-            <div className="p-4 border-b">
+          <div className="bg-secondary rounded-lg shadow-xl max-w-md w-full max-h-96 flex flex-col">
+            <div className="p-4">
               <h3 className="text-lg font-medium">Add GitHub Repository</h3>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="text-sm text-foreground-dim mt-1">
                 Select a repository to link to this project
               </p>
             </div>
 
-            <div className="p-4 border-b">
+            <div className="p-4 border-b border-foreground-dim/20">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-foreground-dim" />
                 <input
                   type="text"
                   placeholder="Search repositories..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm"
+                  className="search-input"
                 />
               </div>
             </div>
@@ -277,13 +277,13 @@ export const GitHubRepositorySelector: React.FC<GitHubRepositorySelectorProps> =
             <div className="flex-1 overflow-y-auto p-4">
               {loadingAvailable ? (
                 <div className="flex items-center justify-center py-8">
-                  <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
-                  <span className="ml-2 text-sm text-gray-500">Loading repositories...</span>
+                  <Loader2 className="w-6 h-6 animate-spin text-foreground-dim" />
+                  <span className="ml-2 text-sm text-foreground-dim">Loading repositories...</span>
                 </div>
               ) : filteredAvailableRepos.length === 0 ? (
                 <div className="text-center py-8">
-                  <Github className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-sm text-gray-500">
+                  <Github className="w-8 h-8 text-foreground-dim mx-auto mb-2" />
+                  <p className="text-sm text-foreground-dim">
                     {searchTerm ? 'No repositories match your search' : 'No repositories available'}
                   </p>
                 </div>
@@ -292,13 +292,13 @@ export const GitHubRepositorySelector: React.FC<GitHubRepositorySelectorProps> =
                   {filteredAvailableRepos.map((repo) => (
                     <div
                       key={repo.id}
-                      className="flex items-center justify-between p-3 border border-gray-200 rounded-md hover:bg-gray-50"
+                      className="flex items-center justify-between p-3 bg-secondary/30 text-foreground-dim border border-foreground-dim/20 rounded-md hover:bg-primary/10 hover:text-primary hover:border-primary/20"
                     >
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">
+                        <p className="text-sm font-medium text-foreground-dim hover:text-primary truncate">
                           {repo.full_name}
                         </p>
-                        <div className="flex items-center space-x-2 text-xs text-gray-500">
+                        <div className="flex items-center space-x-2 text-xs text-foreground/40">
                           <span>{repo.private ? 'Private' : 'Public'}</span>
                           <span>•</span>
                           <span>{repo.default_branch}</span>
@@ -306,9 +306,9 @@ export const GitHubRepositorySelector: React.FC<GitHubRepositorySelectorProps> =
                       </div>
                       <button
                         onClick={() => handleAddRepository(repo)}
-                        className="ml-3 text-sm text-blue-600 hover:text-blue-700 font-medium"
+                        className="filter-button-active hover:bg-primary/50 hover:text-primary hover:border-primary/20"
                       >
-                        Add
+                        <Plus className="w-4 h-4 font-bold" />
                       </button>
                     </div>
                   ))}
@@ -316,10 +316,10 @@ export const GitHubRepositorySelector: React.FC<GitHubRepositorySelectorProps> =
               )}
             </div>
 
-            <div className="p-4 border-t">
+            <div className="p-4 border-t border-foreground-dim/20">
               <button
                 onClick={() => setShowAddRepo(false)}
-                className="w-full btn-outline"
+                className="w-full btn-secondary"
               >
                 Cancel
               </button>

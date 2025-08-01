@@ -98,16 +98,16 @@ export const GitHubCallback: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-md p-6">
+    <div className="min-h-screen flex items-center justify-center bg-secondary">
+      <div className="max-w-md w-full bg-secondary rounded-lg shadow-md p-6">
         <div className="text-center">
           {status === 'processing' && (
             <>
-              <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">
+              <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
+              <h2 className="text-xl font-semibold text-foreground mb-2">
                 Connecting to GitHub
               </h2>
-              <p className="text-gray-600">
+              <p className="text-foreground-dim">
                 Please wait while we set up your GitHub integration...
               </p>
             </>
@@ -115,19 +115,19 @@ export const GitHubCallback: React.FC = () => {
 
           {status === 'success' && (
             <>
-              <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">
+              <h2 className="text-xl font-semibold text-foreground mb-2">
                 GitHub Connected Successfully!
               </h2>
-              <p className="text-gray-600">
+              <p className="text-foreground-dim">
                 Your GitHub account has been linked. You can now create issues directly from your tasks.
               </p>
               {!window.opener && (
-                <p className="text-sm text-gray-500 mt-4">
+                <p className="text-sm text-foreground-dim mt-4">
                   Redirecting to dashboard...
                 </p>
               )}
@@ -136,15 +136,15 @@ export const GitHubCallback: React.FC = () => {
 
           {status === 'error' && (
             <>
-              <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-8 h-8 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-5 h-5 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">
+              <h2 className="text-xl font-semibold text-foreground mb-2">
                 Connection Failed
               </h2>
-              <p className="text-red-600 mb-4">
+              <p className="text-destructive mb-4">
                 {error}
               </p>
               <button

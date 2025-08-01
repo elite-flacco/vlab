@@ -200,33 +200,33 @@ export const GitHubAuthButton: React.FC<GitHubAuthButtonProps> = ({
       <div className={`space-y-2 ${className}`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Github className="w-4 h-4 text-green-600" />
-            <span className="text-sm text-green-600">
+            <Github className="w-4 h-4 text-primary" />
+            <span className="text-sm text-primary">
               Connected as <strong>@{githubUsername}</strong>
             </span>
           </div>
           <button
             onClick={handleDisconnect}
-            className="text-sm text-red-600 hover:text-red-700 flex items-center space-x-1"
+            className="btn-danger"
             title="Disconnect GitHub"
           >
-            <Unlink className="w-3 h-3" />
+            <Unlink className="w-3 h-3 mr-2" />
             <span>Disconnect</span>
           </button>
         </div>
         {error && (
-          <p className="text-sm text-red-600">{error}</p>
+          <p className="text-sm text-destructive">{error}</p>
         )}
       </div>
     );
   }
 
   return (
-    <div className={`space-y-2 ${className}`}>
+    <div className={`space-y-2 bg-secondary border border-foreground-dim/20 rounded-lg p-4 ${className}`}>
       <button
         onClick={handleConnect}
         disabled={connecting}
-        className={`btn-outline ${getSizeClasses()} flex items-center justify-center w-full`}
+        className={`filter-button-active py-4 ${getSizeClasses()} flex items-center justify-center w-full`}
       >
         {connecting ? (
           <>
@@ -242,10 +242,10 @@ export const GitHubAuthButton: React.FC<GitHubAuthButtonProps> = ({
       </button>
       
       {error && (
-        <p className="text-sm text-red-600">{error}</p>
+        <p className="text-sm text-destructive">{error}</p>
       )}
       
-      <p className="text-xs text-gray-500">
+      <p className="text-xs text-foreground-dim">
         Connect your GitHub account to create issues directly from tasks.
       </p>
     </div>

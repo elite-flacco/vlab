@@ -141,14 +141,14 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
   // If there's already an issue for this task, show the existing issue info
   if (existingIssue) {
     return (
-      <div className={`p-4 bg-green-50 border border-green-200 rounded-md ${className}`}>
+      <div className={`p-4 bg-primary/5 border border-primary/20 rounded-md ${className}`}>
         <div className="flex items-start space-x-3">
-          <Github className="w-5 h-5 text-green-600 mt-0.5" />
+          <Github className="w-5 h-5 text-primary mt-0.5" />
           <div className="flex-1">
-            <h4 className="text-sm font-medium text-green-800">
+            <h4 className="text-sm font-medium text-primary">
               GitHub Issue Created
             </h4>
-            <p className="text-sm text-green-700 mt-1">
+            <p className="text-sm text-primary mt-1">
               This task is linked to GitHub issue #{existingIssue.github_issue_number}
             </p>
             <div className="mt-2">
@@ -156,7 +156,7 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
                 href={existingIssue.github_issue_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center space-x-1 text-sm text-green-600 hover:text-green-700"
+                className="inline-flex items-center space-x-1"
               >
                 <span>View Issue #{existingIssue.github_issue_number}</span>
                 <ExternalLink className="w-3 h-3" />
@@ -169,11 +169,11 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
   }
 
   return (
-    <div className={`space-y-4 ${className}`}>
-      <div className="flex items-center space-x-2">
+    <div className={`space-y-4 bg-secondary rounded-lg ${className}`}>
+      {/* <div className="flex items-center space-x-2">
         <Github className="w-5 h-5" />
         <h3 className="text-lg font-medium">Create GitHub Issue</h3>
-      </div>
+      </div> */}
 
       {/* GitHub Authentication */}
       <GitHubAuthButton
@@ -191,11 +191,11 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
           />
 
           {selectedRepository && (
-            <div className="space-y-4">
+            <div className="space-y-4 border-t pt-4 border-foreground-dim/20">
               {/* Issue Content */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-foreground">
                     Issue Content
                   </label>
                   <label className="flex items-center space-x-2 text-sm">
@@ -203,14 +203,14 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
                       type="checkbox"
                       checked={useCustomContent}
                       onChange={(e) => setUseCustomContent(e.target.checked)}
-                      className="rounded border-gray-300"
+                      className="form-checkbox"
                     />
-                    <span>Customize content</span>
+                    <span className="text-foreground-dim text-xs">Customize content</span>
                   </label>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                  <label className="block text-xs font-medium text-foreground-dim mb-1">
                     Title
                   </label>
                   <input
@@ -224,7 +224,7 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                  <label className="block text-xs font-medium text-foreground-dim mb-1">
                     Description
                   </label>
                   <textarea
@@ -238,7 +238,7 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
                 </div>
 
                 {!useCustomContent && (
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-foreground-dim">
                     Content is automatically generated from task details. Check "Customize content" to edit.
                   </p>
                 )}
@@ -246,8 +246,8 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
 
               {/* Error Display */}
               {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-                  <p className="text-sm text-red-600">{error}</p>
+                <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                  <p className="text-sm text-destructive">{error}</p>
                 </div>
               )}
 
@@ -273,16 +273,16 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
               </div>
 
               {/* Preview */}
-              <div className="border-t pt-4">
-                <h4 className="text-sm font-medium text-gray-700 mb-2">Preview</h4>
-                <div className="bg-gray-50 border border-gray-200 rounded-md p-3">
+              <div className="border-t pt-4 mt-8 border-foreground-dim/20">
+                <h4 className="text-sm font-medium text-foreground mb-2">Preview</h4>
+                <div className="bg-foreground/5 border border-foreground/10 rounded-md p-3">
                   <div className="text-sm">
                     <strong>{selectedRepository.repo_full_name}</strong> → New Issue
                   </div>
                   <div className="mt-2">
                     <div className="font-medium text-sm">{customTitle}</div>
                     {customBody && (
-                      <div className="text-xs text-gray-600 mt-1 line-clamp-3">
+                      <div className="text-xs text-foreground-dim mt-1 line-clamp-3">
                         {customBody}
                       </div>
                     )}

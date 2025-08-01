@@ -272,7 +272,7 @@ export const TasksDetailView: React.FC = () => {
 
   const getStatusIcon = (status: string, completed: boolean = false) => {
     if (status === 'done' || completed) {
-      return <CheckSquare className="w-4 h-4 text-green-600" />;
+      return <CheckSquare className="w-4 h-4 text-primary" />;
     }
     return <Square className="w-4 h-4 text-gray-400 hover:text-gray-600" />;
   };
@@ -289,7 +289,7 @@ export const TasksDetailView: React.FC = () => {
     className?: string;
     showBadgeStyle?: boolean;
   }> = ({ value, onChange, disabled = false, className = "", showBadgeStyle = false }) => {
-    const selectClass = showBadgeStyle 
+    const selectClass = showBadgeStyle
       ? `appearance-none cursor-pointer ${getStatusColor(value)} disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-none`
       : "form-select w-full";
 
@@ -319,7 +319,7 @@ export const TasksDetailView: React.FC = () => {
     showBadgeStyle?: boolean;
     showIcon?: boolean;
   }> = ({ value, onChange, disabled = false, className = "", showBadgeStyle = false, showIcon = false }) => {
-    const selectClass = showBadgeStyle 
+    const selectClass = showBadgeStyle
       ? `appearance-none cursor-pointer ${getPriorityColor(value)} disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-none ${showIcon ? 'pl-7 pr-4' : ''}`
       : "form-select w-full";
 
@@ -360,7 +360,7 @@ export const TasksDetailView: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [newTagInput, setNewTagInput] = useState('');
     const availableTags = getAllTags();
-    
+
     const toggleTag = (tag: string) => {
       if (selectedTags.includes(tag)) {
         onChange(selectedTags.filter(t => t !== tag));
@@ -379,7 +379,7 @@ export const TasksDetailView: React.FC = () => {
 
     return (
       <div className="relative">
-        <div 
+        <div
           className="form-select flex items-center justify-between"
           onClick={() => setIsOpen(!isOpen)}
         >
@@ -440,9 +440,8 @@ export const TasksDetailView: React.FC = () => {
             {availableTags.map(tag => (
               <div
                 key={tag}
-                className={`px-3 py-2 cursor-pointer hover:bg-secondary/50 flex items-center justify-between ${
-                  selectedTags.includes(tag) ? 'bg-primary/10 text-primary' : ''
-                }`}
+                className={`px-3 py-2 cursor-pointer hover:bg-secondary/50 flex items-center justify-between ${selectedTags.includes(tag) ? 'bg-primary/10 text-primary' : ''
+                  }`}
                 onClick={() => toggleTag(tag)}
               >
                 <span className="text-xs">{tag}</span>
@@ -458,8 +457,8 @@ export const TasksDetailView: React.FC = () => {
 
         {/* Click outside to close */}
         {isOpen && (
-          <div 
-            className="fixed inset-0 z-0" 
+          <div
+            className="fixed inset-0 z-0"
             onClick={() => setIsOpen(false)}
           />
         )}
@@ -475,7 +474,7 @@ export const TasksDetailView: React.FC = () => {
           <div className="h-full flex items-center justify-center">
             <div className="text-center">
               <div className="loading-spinner"></div>
-              <p className="mt-4 text-gray-600">Loading tasks...</p>
+              <p className="mt-4 text-foreground-dim">Loading tasks...</p>
             </div>
           </div>
         </ModuleContainer>
@@ -488,8 +487,8 @@ export const TasksDetailView: React.FC = () => {
       <div className="max-w-6xl mx-auto">
         <BackButton onClick={handleReturnToWorkspace} />
         <ModuleContainer title="Tasks" type="tasks">
-          <div className="card bg-red-50 border-red-200 p-4">
-            <p className="card-content text-red-600">{error}</p>
+          <div className="card bg-destructive/10 border-destructive/20 p-4">
+            <p className="card-content text-destructive">{error}</p>
           </div>
         </ModuleContainer>
       </div>
@@ -642,61 +641,61 @@ export const TasksDetailView: React.FC = () => {
           )}
           <div className="flex flex-col lg:flex-row lg:items-center gap-4 mb-6">
             {tasks.length > 0 && (
-            <div className="flex flex-wrap items-center gap-2">
-              {/* Search Bar */}
-              <div className="relative flex-shrink-0">
-                <Search className="search-icon" />
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => updateSearchTerm(e.target.value)}
-                  placeholder="Search tasks..."
-                  className="search-input"
-                />
+              <div className="flex flex-wrap items-center gap-2">
+                {/* Search Bar */}
+                <div className="relative flex-shrink-0">
+                  <Search className="search-icon" />
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => updateSearchTerm(e.target.value)}
+                    placeholder="Search tasks..."
+                    className="search-input"
+                  />
+                </div>
+                <select
+                  value={filter}
+                  onChange={(e) => updateFilter(e.target.value as any)}
+                  className="form-select flex-shrink-0"
+                >
+                  <option value="all">All Tasks</option>
+                  <option value="todo">To Do</option>
+                  <option value="in_progress">In Progress</option>
+                  <option value="done">Completed</option>
+                  <option value="blocked">Blocked</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+                <select
+                  value={priorityFilter}
+                  onChange={(e) => updatePriorityFilter(e.target.value as any)}
+                  className="form-select flex-shrink-0"
+                >
+                  <option value="all">All Priorities</option>
+                  <option value="highest">Highest</option>
+                  <option value="high">High</option>
+                  <option value="medium">Medium</option>
+                  <option value="low">Low</option>
+                </select>
+                <select
+                  value={tagFilter}
+                  onChange={(e) => updateTagFilter(e.target.value)}
+                  className="form-select flex-shrink-0"
+                >
+                  <option value="all">All Tags</option>
+                  {getAllTags().map(tag => (
+                    <option key={tag} value={tag}>{tag}</option>
+                  ))}
+                </select>
+                <button
+                  onClick={() => updateShowCompleted(!showCompleted)}
+                  className={`flex-shrink-0 ${showCompleted
+                    ? 'filter-button-active'
+                    : 'filter-button'
+                    }`}
+                >
+                  {showCompleted ? 'Hide' : 'Show'} Completed
+                </button>
               </div>
-              <select
-                value={filter}
-                onChange={(e) => updateFilter(e.target.value as any)}
-                className="form-select flex-shrink-0"
-              >
-                <option value="all">All Tasks</option>
-                <option value="todo">To Do</option>
-                <option value="in_progress">In Progress</option>
-                <option value="done">Completed</option>
-                <option value="blocked">Blocked</option>
-                <option value="cancelled">Cancelled</option>
-              </select>
-              <select
-                value={priorityFilter}
-                onChange={(e) => updatePriorityFilter(e.target.value as any)}
-                className="form-select flex-shrink-0"
-              >
-                <option value="all">All Priorities</option>
-                <option value="highest">Highest</option>
-                <option value="high">High</option>
-                <option value="medium">Medium</option>
-                <option value="low">Low</option>
-              </select>
-              <select
-                value={tagFilter}
-                onChange={(e) => updateTagFilter(e.target.value)}
-                className="form-select flex-shrink-0"
-              >
-                <option value="all">All Tags</option>
-                {getAllTags().map(tag => (
-                  <option key={tag} value={tag}>{tag}</option>
-                ))}
-              </select>
-              <button
-                onClick={() => updateShowCompleted(!showCompleted)}
-                className={`flex-shrink-0 ${showCompleted
-                  ? 'filter-button-active'
-                  : 'filter-button'
-                  }`}
-              >
-                {showCompleted ? 'Hide' : 'Show'} Completed
-              </button>
-            </div>
             )}
           </div>
 
@@ -848,7 +847,7 @@ export const TasksDetailView: React.FC = () => {
                           <div className="flex items-center space-x-1 opacity-80 group-hover:opacity-100 transition-opacity">
                             <button
                               onClick={() => setShowGitHubModal(task.id)}
-                              className="p-1.5 text-foreground-dim hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                              className="p-1.5 text-foreground-dim hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
                               title="Create GitHub issue"
                             >
                               <Github className="w-3 h-3" />
@@ -863,7 +862,7 @@ export const TasksDetailView: React.FC = () => {
                             <button
                               onClick={() => handleDeleteTask(task.id)}
                               disabled={saving}
-                              className="p-1 text-foreground-dim hover:text-red-600 transition-colors disabled:opacity-50"
+                              className="p-1.5 text-foreground-dim hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors disabled:opacity-50"
                               title="Delete task"
                             >
                               <Trash2 className="w-3 h-3" />
@@ -907,7 +906,7 @@ export const TasksDetailView: React.FC = () => {
 
           {/* Footer */}
           <div className="mt-4 flex items-center justify-between pt-3 border-t border-gray-200">
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-foreground-dim">
               {tasks.filter(t => t.status !== 'done' && t.status !== 'cancelled').length} active • {tasks.filter(t => t.status === 'done').length} completed • {tasks.filter(t => t.status === 'cancelled').length} cancelled
             </div>
           </div>
@@ -917,22 +916,25 @@ export const TasksDetailView: React.FC = () => {
       {/* GitHub Issue Creator Modal */}
       {showGitHubModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-4 border-b flex items-center justify-between">
-              <h3 className="text-lg font-medium">Create GitHub Issue</h3>
+          <div className="bg-secondary border border-foreground-dim/20 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-4 border-b border-foreground-dim/20 flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                < Github className="w-5 h-5" />
+                <h3 className="text-lg font-medium">Create GitHub Issue</h3>
+              </div>
               <button
                 onClick={() => setShowGitHubModal(null)}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-foreground-dim hover:text-foreground"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
-            
+
             <div className="p-6">
               {(() => {
                 const task = tasks.find(t => t.id === showGitHubModal);
                 if (!task || !projectId) return null;
-                
+
                 return (
                   <GitHubIssueCreator
                     task={task}
