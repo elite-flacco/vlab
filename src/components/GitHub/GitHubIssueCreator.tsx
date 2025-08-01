@@ -95,11 +95,19 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
   const checkExistingIssue = async () => {
     try {
       const { data, error } = await db.getGitHubIssueByTask(task.id);
-      if (!error && data) {
+      if (error) {
+        console.log('No existing GitHub issue found for task:', task.id);
+        setExistingIssue(null);
+        return;
+      }
+      
+      if (data) {
         setExistingIssue(data);
+      } else {
+        setExistingIssue(null);
       }
     } catch (err) {
-      // Issue doesn't exist, which is fine
+      console.log('Error checking for existing GitHub issue:', err);
       setExistingIssue(null);
     }
   };

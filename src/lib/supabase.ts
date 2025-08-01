@@ -1158,7 +1158,7 @@ export const db = {
       .from('github_issues')
       .select('*')
       .eq('task_id', taskId)
-      .single();
+      .maybeSingle();
     
     return withTimeout(
       withTiming('DB GetGitHubIssueByTask', operation),
