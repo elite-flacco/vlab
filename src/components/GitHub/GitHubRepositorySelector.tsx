@@ -95,7 +95,7 @@ export const GitHubRepositorySelector: React.FC<GitHubRepositorySelectorProps> =
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      const { data: tokenData } = await db.getGitHubToken(user.id);
+      const { data: tokenData } = await db.getGitHubTokenWithSecret(user.id);
       if (!tokenData) throw new Error('No GitHub token found');
 
       // Decrypt token (simple base64 - in production use proper decryption)

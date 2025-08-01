@@ -115,7 +115,7 @@ export const GitHubAuthButton: React.FC<GitHubAuthButtonProps> = ({
           window.removeEventListener('message', handleMessage);
           popup.close();
           
-          // Refresh auth status
+          // Refresh auth status after successful OAuth
           await checkAuthStatus();
           setConnecting(false);
         } else if (event.data.type === 'GITHUB_OAUTH_ERROR') {

@@ -58,7 +58,7 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
 
   useEffect(() => {
     const initializeComponent = async () => {
-      // Check both existing issue and auth status
+      // Check both existing issue and auth status in parallel
       await Promise.all([
         checkExistingIssue(),
         checkAuthStatus()

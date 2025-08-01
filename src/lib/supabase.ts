@@ -1049,7 +1049,7 @@ export const db = {
   deleteAllUserGitHubRepositories: async (userId: string) => {
     const operation = () => supabase
       .from('github_repositories')
-      .update({ is_active: false })
+      .delete()
       .eq('user_id', userId);
     
     return withTimeout(
@@ -1071,6 +1071,21 @@ export const db = {
       withTiming('DB GetGitHubToken', operation),
       DB_TIMEOUT,
       'Get GitHub token operation timed out'
+    );
+  },
+
+  getGitHubTokenWithSecret: async (userId: string) => {
+    const operation = () => supabase
+      .from('github_tokens')
+      .select('id, encrypted_token, token_scope, github_username, github_user_id, expires_at, is_active, created_at, updated_at')
+      .eq('user_id', userId)
+      .eq('is_active', true)
+      .single();
+    
+    return withTimeout(
+      withTiming('DB GetGitHubTokenWithSecret', operation),
+      DB_TIMEOUT,
+      'Get GitHub token with secret operation timed out'
     );
   },
 
