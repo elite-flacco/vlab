@@ -346,7 +346,7 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
             selectedRepositoryId={selectedRepository?.id}
             onRepositorySelect={setSelectedRepository}
           />
-          <div className="flex items-center justify-end">
+          <div className="flex items-center justify-end mt-4">
             <div className="flex items-center space-x-2 bg-primary/10 p-2 mr-2 rounded-md">
               <Github className="w-4 h-4 text-primary" />
               <span className="text-xs text-primary">Connected</span>
