@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { ArrowDown, ArrowUp, CheckSquare, ChevronDown, Edit3, Github, Loader2, Minus, Plus, Save, Search, Square, Tag, Trash2, X } from 'lucide-react';
+import { ArrowDown, ArrowUp, CheckSquare, ChevronDown, Edit3, ExternalLink, Github, Loader2, Minus, Plus, Save, Search, Square, Tag, Trash2, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { BackButton } from '../../components/common/BackButton';
@@ -23,6 +23,13 @@ interface TaskItem {
   position: number;
   created_at: string;
   updated_at: string;
+  github_issue?: {
+    id: string;
+    github_issue_number: number;
+    github_issue_url: string;
+    issue_title: string;
+    github_issue_state: string;
+  };
 }
 
 export const TasksDetailView: React.FC = () => {
@@ -66,7 +73,24 @@ export const TasksDetailView: React.FC = () => {
     try {
       const { data, error: fetchError } = await db.getTasks(id);
       if (fetchError) throw fetchError;
-      setTasks(data || []);
+      
+      // Fetch GitHub issues for all tasks
+      const tasksWithGitHubIssues = await Promise.all(
+        (data || []).map(async (task) => {
+          try {
+            const { data: githubIssue } = await db.getGitHubIssueByTask(task.id);
+            return {
+              ...task,
+              github_issue: githubIssue || undefined
+            };
+          } catch {
+            // If there's an error fetching GitHub issue, just return task without it
+            return task;
+          }
+        })
+      );
+      
+      setTasks(tasksWithGitHubIssues);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch tasks');
     } finally {
@@ -845,13 +869,25 @@ export const TasksDetailView: React.FC = () => {
                             showIcon={true}
                           />
                           <div className="flex items-center space-x-1 opacity-80 group-hover:opacity-100 transition-opacity">
-                            <button
-                              onClick={() => setShowGitHubModal(task.id)}
-                              className="p-1.5 text-foreground-dim hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
-                              title="Create GitHub issue"
-                            >
-                              <Github className="w-3 h-3" />
-                            </button>
+                            {task.github_issue ? (
+                              <a
+                                href={task.github_issue.github_issue_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-1.5 text-foreground-dim hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                                title={`View GitHub issue #${task.github_issue.github_issue_number}`}
+                              >
+                                <ExternalLink className="w-3 h-3" />
+                              </a>
+                            ) : (
+                              <button
+                                onClick={() => setShowGitHubModal(task.id)}
+                                className="p-1.5 text-foreground-dim hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                                title="Create GitHub issue"
+                              >
+                                <Github className="w-3 h-3" />
+                              </button>
+                            )}
                             <button
                               onClick={() => setEditingTaskId(task.id)}
                               className="p-1.5 text-foreground-dim hover:text-primary hover:bg-foreground-dim/10 rounded-lg transition-colorss"
@@ -885,6 +921,19 @@ export const TasksDetailView: React.FC = () => {
                           <span className="text-xs text-foreground-dim">
                             Due {format(new Date(task.due_date), 'MMM d')}
                           </span>
+                        )}
+
+                        {task.github_issue && (
+                          <a
+                            href={task.github_issue.github_issue_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center space-x-1 text-xs text-primary hover:text-primary/80 transition-colors"
+                            title="Linked to GitHub issue"
+                          >
+                            <Github className="w-3 h-3" />
+                            <span>#{task.github_issue.github_issue_number}</span>
+                          </a>
                         )}
 
                         {task.tags && task.tags.length > 0 && (
@@ -942,7 +991,10 @@ export const TasksDetailView: React.FC = () => {
                     onIssueCreated={(issue) => {
                       console.log('GitHub issue created:', issue);
                       setShowGitHubModal(null);
-                      // Optionally, you could show a success notification here
+                      // Refetch tasks to show the new GitHub issue link
+                      if (projectId) {
+                        fetchTasks(projectId);
+                      }
                     }}
                   />
                 );
