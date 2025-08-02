@@ -987,4 +987,221 @@ export const db = {
       'Delete deployment item operation timed out'
     );
   },
+
+  // GitHub Integration
+  getGitHubRepositories: async (projectId: string) => {
+    const operation = () => supabase
+      .from('github_repositories')
+      .select('*')
+      .eq('project_id', projectId)
+      .eq('is_active', true)
+      .order('updated_at', { ascending: false });
+    
+    return withTimeout(
+      withTiming('DB GetGitHubRepositories', operation),
+      DB_TIMEOUT,
+      'Get GitHub repositories operation timed out'
+    );
+  },
+
+  createGitHubRepository: async (repository: any) => {
+    const operation = () => supabase
+      .from('github_repositories')
+      .upsert(repository, {
+        onConflict: 'project_id,repo_full_name',
+        ignoreDuplicates: false
+      })
+      .select()
+      .single();
+    
+    return withTimeout(
+      withTiming('DB CreateGitHubRepository', operation),
+      DB_TIMEOUT,
+      'Create GitHub repository operation timed out'
+    );
+  },
+
+  updateGitHubRepository: async (id: string, updates: any) => {
+    const operation = () => supabase
+      .from('github_repositories')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
+    
+    return withTimeout(
+      withTiming('DB UpdateGitHubRepository', operation),
+      DB_TIMEOUT,
+      'Update GitHub repository operation timed out'
+    );
+  },
+
+  deleteGitHubRepository: async (id: string) => {
+    const operation = () => supabase
+      .from('github_repositories')
+      .update({ is_active: false })
+      .eq('id', id);
+    
+    return withTimeout(
+      withTiming('DB DeleteGitHubRepository', operation),
+      DB_TIMEOUT,
+      'Delete GitHub repository operation timed out'
+    );
+  },
+
+  deleteAllUserGitHubRepositories: async (userId: string) => {
+    const operation = () => supabase
+      .from('github_repositories')
+      .delete()
+      .eq('user_id', userId);
+    
+    return withTimeout(
+      withTiming('DB DeleteAllUserGitHubRepositories', operation),
+      DB_TIMEOUT,
+      'Delete all user GitHub repositories operation timed out'
+    );
+  },
+
+  getGitHubToken: async (userId: string) => {
+    const operation = () => supabase
+      .from('github_tokens')
+      .select('id, token_scope, github_username, github_user_id, expires_at, is_active, created_at, updated_at')
+      .eq('user_id', userId)
+      .eq('is_active', true)
+      .single();
+    
+    return withTimeout(
+      withTiming('DB GetGitHubToken', operation),
+      DB_TIMEOUT,
+      'Get GitHub token operation timed out'
+    );
+  },
+
+  getGitHubTokenWithSecret: async (userId: string) => {
+    const operation = () => supabase
+      .from('github_tokens')
+      .select('id, encrypted_token, token_scope, github_username, github_user_id, expires_at, is_active, created_at, updated_at')
+      .eq('user_id', userId)
+      .eq('is_active', true)
+      .single();
+    
+    return withTimeout(
+      withTiming('DB GetGitHubTokenWithSecret', operation),
+      DB_TIMEOUT,
+      'Get GitHub token with secret operation timed out'
+    );
+  },
+
+  createGitHubToken: async (token: any) => {
+    const operation = () => supabase
+      .from('github_tokens')
+      .insert(token)
+      .select('id, token_scope, github_username, github_user_id, expires_at, is_active, created_at, updated_at')
+      .single();
+    
+    return withTimeout(
+      withTiming('DB CreateGitHubToken', operation),
+      DB_TIMEOUT,
+      'Create GitHub token operation timed out'
+    );
+  },
+
+  updateGitHubToken: async (id: string, updates: any) => {
+    const operation = () => supabase
+      .from('github_tokens')
+      .update(updates)
+      .eq('id', id)
+      .select('id, token_scope, github_username, github_user_id, expires_at, is_active, created_at, updated_at')
+      .single();
+    
+    return withTimeout(
+      withTiming('DB UpdateGitHubToken', operation),
+      DB_TIMEOUT,
+      'Update GitHub token operation timed out'
+    );
+  },
+
+  revokeGitHubToken: async (userId: string) => {
+    const operation = () => supabase
+      .from('github_tokens')
+      .delete()
+      .eq('user_id', userId)
+      .eq('is_active', true);
+    
+    return withTimeout(
+      withTiming('DB RevokeGitHubToken', operation),
+      DB_TIMEOUT,
+      'Revoke GitHub token operation timed out'
+    );
+  },
+
+  getGitHubIssues: async (projectId: string) => {
+    const operation = () => supabase
+      .from('github_issues')
+      .select(`
+        *,
+        task:tasks(*),
+        repository:github_repositories(*)
+      `)
+      .eq('repository.project_id', projectId)
+      .order('updated_at', { ascending: false });
+    
+    return withTimeout(
+      withTiming('DB GetGitHubIssues', operation),
+      DB_TIMEOUT,
+      'Get GitHub issues operation timed out'
+    );
+  },
+
+  getGitHubIssueByTask: async (taskId: string) => {
+    const operation = () => supabase
+      .from('github_issues')
+      .select(`
+        *,
+        repository:github_repositories(*)
+      `)
+      .eq('task_id', taskId)
+      .maybeSingle();
+    
+    return withTimeout(
+      withTiming('DB GetGitHubIssueByTask', operation),
+      DB_TIMEOUT,
+      'Get GitHub issue by task operation timed out'
+    );
+  },
+
+  createGitHubIssue: async (issue: any) => {
+    const operation = () => supabase
+      .from('github_issues')
+      .insert(issue)
+      .select(`
+        *,
+        repository:github_repositories(*)
+      `)
+      .single();
+    
+    return withTimeout(
+      withTiming('DB CreateGitHubIssue', operation),
+      DB_TIMEOUT,
+      'Create GitHub issue operation timed out'
+    );
+  },
+
+  updateGitHubIssue: async (id: string, updates: any) => {
+    const operation = () => supabase
+      .from('github_issues')
+      .update(updates)
+      .eq('id', id)
+      .select(`
+        *,
+        repository:github_repositories(*)
+      `)
+      .single();
+    
+    return withTimeout(
+      withTiming('DB UpdateGitHubIssue', operation),
+      DB_TIMEOUT,
+      'Update GitHub issue operation timed out'
+    );
+  },
 };

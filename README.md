@@ -7,13 +7,14 @@ VLab is a minimalist workspace platform purpose built for vibe coders. It provid
 ### Core Modules
 - **PRD (Product Requirements Documents)** - Create and manage detailed product specifications with AI assistance
 - **Roadmap** - Visual project planning with phase management
-- **Tasks** - Minimalistic task management with priorities, and progress tracking
+- **Tasks** - Minimalistic task management with priorities, progress tracking, and GitHub issue creation
 - **Scratchpad** - Flexible note-taking and idea capture with tagging and organization
 - **Prompts** - AI prompt library for consistent and effective AI interactions
 
 ### Key Features
 - **AI-Powered Kick-off Flow** - Transform ideas into structured workspaces with AI assistance
 - **Version Control for PRDs** - Complete version history, comparison
+- **GitHub Integration** - Convert tasks directly into GitHub repository issues with OAuth authentication
 - **Community Hub** - Share tools, prompts, and knowledge with other vibe coders
 
 ### Community Features
@@ -82,15 +83,25 @@ Fill in your Supabase credentials:
 ```env
 VITE_SUPABASE_URL=your_supabase_url_here
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key_here
-VITE_OPENAI_API_KEY=your_openai_api_key_here
+VITE_GITHUB_CLIENT_ID=your_github_oauth_app_client_id_here
 ```
 
-4. Run database migrations:
+### GitHub Integration Setup
+
+To enable GitHub integration for task-to-issue creation:
+
+1. Create a GitHub OAuth App at https://github.com/settings/developers
+2. Set the authorization callback URL to `{your-domain}/auth/github/callback`
+3. Copy the Client ID to `VITE_GITHUB_CLIENT_ID` environment variable
+4. Configure `GITHUB_CLIENT_SECRET` in your Supabase Edge Functions environment
+5. Required OAuth scopes: `repo`, `user:email`
+
+6. Run database migrations:
 ```bash
 # Apply the migrations in your Supabase dashboard or using the CLI
 ```
 
-5. Start the development server:
+7. Start the development server:
 ```bash
 npm run dev
 ```
@@ -107,6 +118,8 @@ npm run dev
 - `scratchpad_notes` - Flexible note-taking system
 - `prompts` - AI prompt library and templates
 - `secrets` - Encrypted storage for sensitive data
+- `github_tokens` - Encrypted GitHub OAuth tokens for user authentication
+- `github_repositories` - User's connected GitHub repositories for issue creation
 
 ### Version Control System
 
@@ -126,6 +139,7 @@ The PRD versioning system provides:
 src/
 ├── components/          # Reusable UI components
 │   ├── Auth/           # Authentication components
+│   ├── GitHub/         # GitHub integration components
 │   ├── Kickoff/        # AI-powered project setup
 │   ├── Layout/         # App layout components
 │   ├── PRD/            # PRD-specific components (including versioning)
@@ -133,6 +147,7 @@ src/
 │   ├── Workspace/      # Workspace module components
 │   └── common/         # Shared utility components
 ├── lib/                # Utility libraries
+│   ├── github.ts       # GitHub API integration and OAuth
 │   ├── openai.ts       # OpenAI API integration
 │   ├── supabase.ts     # Database operations
 │   └── utils.ts        # General utilities

@@ -55,6 +55,21 @@ The workspace uses a grid-based layout (12 columns, 8 rows, 16px gap) with modul
 - `Design` (`/workspace/:projectId/design`) - Design documentation and assets
 - `Deployment` (`/workspace/:projectId/deployment`) - Deployment checklists and configurations
 
+### GitHub Integration
+
+#### Task-to-Issue Creation
+- Convert tasks directly into GitHub repository issues
+- OAuth-based authentication with user's GitHub account
+- Supports both personal and organization repositories
+- Issues include task description and `@claude please implement` footer
+- Repository selection and management through UI
+
+#### Authentication Flow
+- Popup-based OAuth flow for seamless user experience  
+- Secure token storage with encryption in `github_tokens` table
+- User authorizes specific GitHub account (no email matching required)
+- Token scoped to `repo` and `user:email` permissions
+
 ### Database Layer & API Integration
 
 #### Supabase Integration (`src/lib/supabase.ts`)
@@ -70,6 +85,8 @@ The workspace uses a grid-based layout (12 columns, 8 rows, 16px gap) with modul
 - `tasks`, `roadmap_items`, `prompts`, `scratchpad_notes` - Module-specific data with project relationships
 - `secrets` - Encrypted storage (values not retrieved in SELECT queries, server-side decryption only)
 - `deployment_items` - Deployment checklists and configuration tracking
+- `github_tokens` - Encrypted GitHub OAuth tokens with user associations
+- `github_repositories` - User's connected GitHub repositories for issue creation
 - Community tables: `posts`, `comments`, `votes` for social features
 
 ### State Management Architecture
@@ -120,6 +137,13 @@ The workspace uses a grid-based layout (12 columns, 8 rows, 16px gap) with modul
 - `VITE_SUPABASE_URL` - Supabase project URL
 - `VITE_SUPABASE_ANON_KEY` - Supabase anonymous key  
 - `VITE_GA_MEASUREMENT_ID` - Google Analytics measurement ID for page tracking (optional)
+- `VITE_GITHUB_CLIENT_ID` - GitHub OAuth client ID for authentication
+
+#### GitHub Integration Setup
+- Create GitHub OAuth app at https://github.com/settings/developers
+- Set authorization callback URL to `{your-domain}/auth/github/callback`
+- Required scopes: `repo`, `user:email`
+- Configure `GITHUB_CLIENT_SECRET` in Supabase Edge Functions environment
 
 ### Testing & Quality
 - ESLint configuration for code quality checks (`npm run lint`)
