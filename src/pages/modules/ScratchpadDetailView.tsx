@@ -1,10 +1,11 @@
 import { format } from 'date-fns';
-import { AlertCircle, Check, CheckCircle2, ChevronDown, ChevronUp, Edit3, Loader2, Pin, Plus, Save, Search, Sparkles, StickyNote, Tag, Trash2, X } from 'lucide-react';
+import { AlertCircle, Check, CheckCircle2, ChevronDown, ChevronUp, Edit3, Loader2, Pin, Plus, Save, Search, Sparkles, StickyNote, Tag, Trash2, X, Image as ImageIcon } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ModuleContainer } from '../../components/Workspace/ModuleContainer';
 import { BackButton } from '../../components/common/BackButton';
 import { MarkdownRenderer, useMarkdownPreprocessing } from '../../components/common/MarkdownRenderer';
+import { ImageUpload, AttachmentView } from '../../components/common/ImageUpload';
 import { generateDesignTasks } from '../../lib/openai';
 import { db, supabase } from '../../lib/supabase';
 
@@ -26,6 +27,17 @@ interface ScratchpadNote {
   tags: string[];
   created_at: string;
   updated_at: string;
+  attachments?: Array<{
+    id: string;
+    file_name: string;
+    file_size: number;
+    mime_type: string;
+    storage_path: string;
+    alt_text?: string | null;
+    caption?: string | null;
+    created_at: string;
+    updated_at: string;
+  }>;
 }
 
 interface GeneratedTask {
@@ -62,6 +74,8 @@ export const ScratchpadDetailView: React.FC = () => {
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [newNote, setNewNote] = useState<Partial<ScratchpadNote> | null>(null);
   const [saving, setSaving] = useState(false);
+  const [showAttachments, setShowAttachments] = useState<Record<string, boolean>>({});
+  const [attachmentErrors, setAttachmentErrors] = useState<Record<string, string>>({});
   const { processContent } = useMarkdownPreprocessing();
 
   const [expandedNotes, setExpandedNotes] = useState<Record<string, boolean>>({});
@@ -87,7 +101,26 @@ export const ScratchpadDetailView: React.FC = () => {
     try {
       const response = await db.getScratchpadNotes(id) as DatabaseResponse<ScratchpadNote[]>;
       if (response.error) throw response.error;
-      setNotes(response.data || []);
+      
+      // Fetch attachments for all notes
+      const notesWithAttachments = await Promise.all(
+        (response.data || []).map(async (note) => {
+          try {
+            const { data: attachments } = await db.getScratchpadNoteAttachments(note.id);
+            return {
+              ...note,
+              attachments: attachments || []
+            };
+          } catch {
+            return {
+              ...note,
+              attachments: []
+            };
+          }
+        })
+      );
+      
+      setNotes(notesWithAttachments);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch notes');
     } finally {
@@ -266,6 +299,76 @@ export const ScratchpadDetailView: React.FC = () => {
     } else {
       setSelectedTaskIds(new Set(generatedTasks.map((_, index) => index)));
     }
+  };
+
+  // Attachment handlers
+  const handleAttachmentUpload = async (noteId: string, attachment: any) => {
+    try {
+      // Update local state immediately to show the new attachment
+      setNotes(prev => prev.map(note => 
+        note.id === noteId 
+          ? { ...note, attachments: [...(note.attachments || []), attachment] }
+          : note
+      ));
+      
+      // Clear any previous error
+      setAttachmentErrors(prev => ({ ...prev, [noteId]: '' }));
+    } catch (err: any) {
+      setAttachmentErrors(prev => ({ 
+        ...prev, 
+        [noteId]: err.message || 'Failed to upload attachment' 
+      }));
+    }
+  };
+
+  const handleAttachmentDelete = async (noteId: string, attachmentId: string) => {
+    try {
+      const { error } = await db.deleteAttachment(attachmentId);
+      if (error) throw error;
+
+      // Update local state
+      setNotes(prev => prev.map(note => 
+        note.id === noteId 
+          ? { 
+              ...note, 
+              attachments: (note.attachments || []).filter(att => att.id !== attachmentId) 
+            }
+          : note
+      ));
+    } catch (err: any) {
+      setAttachmentErrors(prev => ({ 
+        ...prev, 
+        [noteId]: err.message || 'Failed to delete attachment' 
+      }));
+    }
+  };
+
+  const handleAttachmentUpdate = async (noteId: string, attachmentId: string, updates: any) => {
+    try {
+      const { data, error } = await db.updateAttachment(attachmentId, updates);
+      if (error) throw error;
+
+      // Update local state
+      setNotes(prev => prev.map(note => 
+        note.id === noteId 
+          ? { 
+              ...note, 
+              attachments: (note.attachments || []).map(att => 
+                att.id === attachmentId ? { ...att, ...updates } : att
+              )
+            }
+          : note
+      ));
+    } catch (err: any) {
+      setAttachmentErrors(prev => ({ 
+        ...prev, 
+        [noteId]: err.message || 'Failed to update attachment' 
+      }));
+    }
+  };
+
+  const toggleAttachments = (noteId: string) => {
+    setShowAttachments(prev => ({ ...prev, [noteId]: !prev[noteId] }));
   };
 
   const getPriorityBadgeClass = (priority: string) => {
@@ -726,7 +829,7 @@ export const ScratchpadDetailView: React.FC = () => {
                           </div>
                         </div>
 
-                        {/* Direct Edit/Delete/Generate Tasks Icons - Always visible */}
+                        {/* Direct Edit/Delete/Generate Tasks/Attachments Icons - Always visible */}
                         <div className="flex items-center space-x-1 flex-shrink-0 ml-2">
                           <button
                             onClick={() => generateTasksFromNote(note.id)}
@@ -740,6 +843,20 @@ export const ScratchpadDetailView: React.FC = () => {
                               <Sparkles className="w-3 h-3" />
                             )}
                           </button>
+                          <div className="relative">
+                            <button
+                              onClick={() => toggleAttachments(note.id)}
+                              className={`p-1.5 text-foreground-dim hover:text-primary hover:bg-primary/10 rounded-lg transition-colors ${showAttachments[note.id] ? 'bg-primary/10 text-primary' : ''}`}
+                              title="Attachments"
+                            >
+                              <ImageIcon className="w-3 h-3" />
+                            </button>
+                            {(note.attachments?.length || 0) > 0 && (
+                              <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full min-w-[16px] h-4 flex items-center justify-center">
+                                {note.attachments?.length}
+                              </span>
+                            )}
+                          </div>
                           <button
                             onClick={() => setEditingNoteId(note.id)}
                             className="p-1.5 text-foreground-dim hover:text-primary hover:bg-foreground-dim/10 rounded-lg transition-colors"
@@ -755,6 +872,51 @@ export const ScratchpadDetailView: React.FC = () => {
                           >
                             <Trash2 className="w-3 h-3" />
                           </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Attachments Section */}
+                  {showAttachments[note.id] && (
+                    <div className="mt-4 border-t border-foreground-dim/20 pt-4">
+                      <div className="space-y-3">
+                        <h4 className="text-sm font-medium text-foreground flex items-center">
+                          <ImageIcon className="w-4 h-4 mr-2" />
+                          Attachments
+                        </h4>
+                        
+                        {/* Upload Area */}
+                        <ImageUpload
+                          scratchpadNoteId={note.id}
+                          onUploadComplete={(attachment) => handleAttachmentUpload(note.id, attachment)}
+                          onError={(error) => setAttachmentErrors(prev => ({ ...prev, [note.id]: error }))}
+                          className="mb-4"
+                        />
+
+                        {/* Error Display */}
+                        {attachmentErrors[note.id] && (
+                          <div className="text-xs text-red-500 bg-red-50 p-2 rounded border">
+                            {attachmentErrors[note.id]}
+                          </div>
+                        )}
+
+                        {/* Attachment List */}
+                        <div className="space-y-3">
+                          {note.attachments?.map((attachment) => (
+                            <AttachmentView
+                              key={attachment.id}
+                              attachment={attachment}
+                              onDelete={(attachmentId) => handleAttachmentDelete(note.id, attachmentId)}
+                              onUpdate={(attachmentId, updates) => handleAttachmentUpdate(note.id, attachmentId, updates)}
+                              showControls={true}
+                              className="max-w-sm"
+                            />
+                          ))}
+                          
+                          {(!note.attachments || note.attachments.length === 0) && (
+                            <p className="text-xs text-foreground-dim italic">No attachments yet. Upload images or screenshots above.</p>
+                          )}
                         </div>
                       </div>
                     </div>

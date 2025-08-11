@@ -1,9 +1,10 @@
 import { format } from 'date-fns';
-import { ArrowDown, ArrowUp, CheckSquare, ChevronDown, Edit3, ExternalLink, Github, Loader2, Minus, Plus, Save, Search, Square, Tag, Trash2, X } from 'lucide-react';
+import { ArrowDown, ArrowUp, CheckSquare, ChevronDown, Edit3, ExternalLink, Github, Loader2, Minus, Plus, Save, Search, Square, Tag, Trash2, X, Image as ImageIcon } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { BackButton } from '../../components/common/BackButton';
 import { MarkdownRenderer, useMarkdownPreprocessing } from '../../components/common/MarkdownRenderer';
+import { ImageUpload, AttachmentView } from '../../components/common/ImageUpload';
 import { ModuleContainer } from '../../components/Workspace/ModuleContainer';
 import { GitHubIssueCreator } from '../../components/GitHub/GitHubIssueCreator';
 import { db } from '../../lib/supabase';
@@ -23,6 +24,17 @@ interface TaskItem {
   position: number;
   created_at: string;
   updated_at: string;
+  attachments?: Array<{
+    id: string;
+    file_name: string;
+    file_size: number;
+    mime_type: string;
+    storage_path: string;
+    alt_text?: string | null;
+    caption?: string | null;
+    created_at: string;
+    updated_at: string;
+  }>;
   github_issue?: {
     id: string;
     github_issue_number: number;
@@ -59,6 +71,8 @@ export const TasksDetailView: React.FC = () => {
   const [newTask, setNewTask] = useState<Partial<TaskItem> | null>(null);
   const [saving, setSaving] = useState(false);
   const [showGitHubModal, setShowGitHubModal] = useState<string | null>(null);
+  const [showAttachments, setShowAttachments] = useState<Record<string, boolean>>({});
+  const [attachmentErrors, setAttachmentErrors] = useState<Record<string, string>>({});
   const { processContent } = useMarkdownPreprocessing();
 
   useEffect(() => {
@@ -74,23 +88,32 @@ export const TasksDetailView: React.FC = () => {
       const { data, error: fetchError } = await db.getTasks(id);
       if (fetchError) throw fetchError;
       
-      // Fetch GitHub issues for all tasks
-      const tasksWithGitHubIssues = await Promise.all(
+      // Fetch GitHub issues and attachments for all tasks
+      const tasksWithExtendedData = await Promise.all(
         (data || []).map(async (task) => {
           try {
+            // Fetch GitHub issue
             const { data: githubIssue } = await db.getGitHubIssueByTask(task.id);
+            
+            // Fetch attachments
+            const { data: attachments } = await db.getTaskAttachments(task.id);
+            
             return {
               ...task,
-              github_issue: githubIssue || undefined
+              github_issue: githubIssue || undefined,
+              attachments: attachments || []
             };
           } catch {
-            // If there's an error fetching GitHub issue, just return task without it
-            return task;
+            // If there's an error fetching additional data, just return basic task
+            return {
+              ...task,
+              attachments: []
+            };
           }
         })
       );
       
-      setTasks(tasksWithGitHubIssues);
+      setTasks(tasksWithExtendedData);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch tasks');
     } finally {
@@ -184,6 +207,76 @@ export const TasksDetailView: React.FC = () => {
 
   const handleStatusChange = async (taskId: string, newStatus: string) => {
     await handleUpdateTask(taskId, { status: newStatus as TaskItem['status'] });
+  };
+
+  // Attachment handlers
+  const handleAttachmentUpload = async (taskId: string, attachment: any) => {
+    try {
+      // Update local state immediately to show the new attachment
+      setTasks(prev => prev.map(task => 
+        task.id === taskId 
+          ? { ...task, attachments: [...(task.attachments || []), attachment] }
+          : task
+      ));
+      
+      // Clear any previous error
+      setAttachmentErrors(prev => ({ ...prev, [taskId]: '' }));
+    } catch (err: any) {
+      setAttachmentErrors(prev => ({ 
+        ...prev, 
+        [taskId]: err.message || 'Failed to upload attachment' 
+      }));
+    }
+  };
+
+  const handleAttachmentDelete = async (taskId: string, attachmentId: string) => {
+    try {
+      const { error } = await db.deleteAttachment(attachmentId);
+      if (error) throw error;
+
+      // Update local state
+      setTasks(prev => prev.map(task => 
+        task.id === taskId 
+          ? { 
+              ...task, 
+              attachments: (task.attachments || []).filter(att => att.id !== attachmentId) 
+            }
+          : task
+      ));
+    } catch (err: any) {
+      setAttachmentErrors(prev => ({ 
+        ...prev, 
+        [taskId]: err.message || 'Failed to delete attachment' 
+      }));
+    }
+  };
+
+  const handleAttachmentUpdate = async (taskId: string, attachmentId: string, updates: any) => {
+    try {
+      const { data, error } = await db.updateAttachment(attachmentId, updates);
+      if (error) throw error;
+
+      // Update local state
+      setTasks(prev => prev.map(task => 
+        task.id === taskId 
+          ? { 
+              ...task, 
+              attachments: (task.attachments || []).map(att => 
+                att.id === attachmentId ? { ...att, ...updates } : att
+              )
+            }
+          : task
+      ));
+    } catch (err: any) {
+      setAttachmentErrors(prev => ({ 
+        ...prev, 
+        [taskId]: err.message || 'Failed to update attachment' 
+      }));
+    }
+  };
+
+  const toggleAttachments = (taskId: string) => {
+    setShowAttachments(prev => ({ ...prev, [taskId]: !prev[taskId] }));
   };
 
   // Custom setters that persist to localStorage (scoped by project)
@@ -888,6 +981,20 @@ export const TasksDetailView: React.FC = () => {
                                 <Github className="w-3 h-3" />
                               </button>
                             )}
+                            <div className="relative">
+                              <button
+                                onClick={() => toggleAttachments(task.id)}
+                                className={`p-1.5 text-foreground-dim hover:text-primary hover:bg-primary/10 rounded-lg transition-colors ${showAttachments[task.id] ? 'bg-primary/10 text-primary' : ''}`}
+                                title="Attachments"
+                              >
+                                <ImageIcon className="w-3 h-3" />
+                              </button>
+                              {(task.attachments?.length || 0) > 0 && (
+                                <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full min-w-[16px] h-4 flex items-center justify-center">
+                                  {task.attachments?.length}
+                                </span>
+                              )}
+                            </div>
                             <button
                               onClick={() => setEditingTaskId(task.id)}
                               className="p-1.5 text-foreground-dim hover:text-primary hover:bg-foreground-dim/10 rounded-lg transition-colorss"
@@ -946,6 +1053,51 @@ export const TasksDetailView: React.FC = () => {
                           </div>
                         )}
                       </div>
+
+                      {/* Attachments Section */}
+                      {showAttachments[task.id] && (
+                        <div className="mt-4 border-t border-foreground-dim/20 pt-4">
+                          <div className="space-y-3">
+                            <h4 className="text-sm font-medium text-foreground flex items-center">
+                              <ImageIcon className="w-4 h-4 mr-2" />
+                              Attachments
+                            </h4>
+                            
+                            {/* Upload Area */}
+                            <ImageUpload
+                              taskId={task.id}
+                              onUploadComplete={(attachment) => handleAttachmentUpload(task.id, attachment)}
+                              onError={(error) => setAttachmentErrors(prev => ({ ...prev, [task.id]: error }))}
+                              className="mb-4"
+                            />
+
+                            {/* Error Display */}
+                            {attachmentErrors[task.id] && (
+                              <div className="text-xs text-red-500 bg-red-50 p-2 rounded border">
+                                {attachmentErrors[task.id]}
+                              </div>
+                            )}
+
+                            {/* Attachment List */}
+                            <div className="space-y-3">
+                              {task.attachments?.map((attachment) => (
+                                <AttachmentView
+                                  key={attachment.id}
+                                  attachment={attachment}
+                                  onDelete={(attachmentId) => handleAttachmentDelete(task.id, attachmentId)}
+                                  onUpdate={(attachmentId, updates) => handleAttachmentUpdate(task.id, attachmentId, updates)}
+                                  showControls={true}
+                                  className="max-w-sm"
+                                />
+                              ))}
+                              
+                              {(!task.attachments || task.attachments.length === 0) && (
+                                <p className="text-xs text-foreground-dim italic">No attachments yet. Upload images or screenshots above.</p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
