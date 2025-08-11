@@ -1,39 +1,17 @@
--- Create storage bucket and policies for attachments
--- This migration ensures the storage bucket exists and has proper policies
+-- DEPRECATED: This migration requires database owner privileges
+-- 
+-- Storage bucket creation and policies must be configured manually via:
+-- 1. Supabase Dashboard (Storage section)
+-- 2. Supabase CLI commands
+-- 3. Direct admin database access
+--
+-- See 20250811_fix_storage_setup_manual.sql for complete setup instructions
+-- 
+-- This migration is kept for reference but should not be executed
 
--- Create the attachments bucket if it doesn't exist
-INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-VALUES ('attachments', 'attachments', false, 10485760, ARRAY['image/jpeg', 'image/png', 'image/gif', 'image/webp'])
-ON CONFLICT (id) DO NOTHING;
+-- The following commands require elevated privileges and will fail:
+-- INSERT INTO storage.buckets (...)  -- Requires owner privileges
+-- ALTER TABLE storage.objects ...    -- Requires owner privileges  
+-- CREATE POLICY ... ON storage.objects -- Requires owner privileges
 
--- Enable RLS for storage objects
-ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
-
--- Policy: Users can upload attachments to their own folder structure
-CREATE POLICY "Users can upload attachments" ON storage.objects
-    FOR INSERT WITH CHECK (
-        bucket_id = 'attachments' 
-        AND auth.role() = 'authenticated'
-        AND (storage.foldername(name))[1] = 'attachments'
-    );
-
--- Policy: Users can view/download attachments they own
-CREATE POLICY "Users can view attachments" ON storage.objects
-    FOR SELECT USING (
-        bucket_id = 'attachments' 
-        AND auth.role() = 'authenticated'
-    );
-
--- Policy: Users can update attachments they own
-CREATE POLICY "Users can update attachments" ON storage.objects
-    FOR UPDATE USING (
-        bucket_id = 'attachments' 
-        AND auth.role() = 'authenticated'
-    );
-
--- Policy: Users can delete attachments they own  
-CREATE POLICY "Users can delete attachments" ON storage.objects
-    FOR DELETE USING (
-        bucket_id = 'attachments' 
-        AND auth.role() = 'authenticated'
-    );
+SELECT 'This migration has been deprecated - use manual setup instead' as migration_status;
