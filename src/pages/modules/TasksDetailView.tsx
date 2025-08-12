@@ -71,7 +71,6 @@ export const TasksDetailView: React.FC = () => {
   const [newTask, setNewTask] = useState<Partial<TaskItem> | null>(null);
   const [saving, setSaving] = useState(false);
   const [showGitHubModal, setShowGitHubModal] = useState<string | null>(null);
-  const [showAttachments, setShowAttachments] = useState<Record<string, boolean>>({});
   const [attachmentErrors, setAttachmentErrors] = useState<Record<string, string>>({});
   const { processContent } = useMarkdownPreprocessing();
 
@@ -133,9 +132,9 @@ export const TasksDetailView: React.FC = () => {
       const { data, error: updateError } = await db.updateTask(taskId, updates);
       if (updateError) throw updateError;
 
-      // Update local state
+      // Update local state - preserve attachments and github_issue since they're not returned from DB
       const updatedTasks = tasks.map(task =>
-        task.id === taskId ? data : task
+        task.id === taskId ? { ...data, attachments: task.attachments, github_issue: task.github_issue } : task
       );
       setTasks(updatedTasks);
       setEditingTaskId(null);
@@ -275,9 +274,6 @@ export const TasksDetailView: React.FC = () => {
     }
   };
 
-  const toggleAttachments = (taskId: string) => {
-    setShowAttachments(prev => ({ ...prev, [taskId]: !prev[taskId] }));
-  };
 
   // Custom setters that persist to localStorage (scoped by project)
   const updateFilter = (newFilter: typeof filter) => {
@@ -901,9 +897,58 @@ export const TasksDetailView: React.FC = () => {
                       </div>
                     </div>
 
+                    {/* Attachments Management in Edit Mode */}
+                    <div>
+                      <label className="block text-xs font-medium text-foreground mb-2">Attachments</label>
+                      <ImageUpload
+                        taskId={task.id}
+                        onUploadComplete={(attachment) => handleAttachmentUpload(task.id, attachment)}
+                        onError={(error) => setAttachmentErrors(prev => ({ ...prev, [task.id]: error }))}
+                        className="mb-3"
+                      />
+                      
+                      {/* Error Display */}
+                      {attachmentErrors[task.id] && (
+                        <div className="text-xs text-red-500 bg-red-50 p-2 rounded border mb-3">
+                          {attachmentErrors[task.id]}
+                        </div>
+                      )}
+                      
+                      {/* Current Attachments */}
+                      {task.attachments && task.attachments.length > 0 && (
+                        <div className="space-y-2 mb-3">
+                          {task.attachments.map((attachment) => (
+                            <AttachmentView
+                              key={attachment.id}
+                              attachment={attachment}
+                              onDelete={(attachmentId) => handleAttachmentDelete(task.id, attachmentId)}
+                              onUpdate={(attachmentId, updates) => handleAttachmentUpdate(task.id, attachmentId, updates)}
+                              showControls={true}
+                              className="max-w-sm"
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
                     <div className="flex items-center space-x-2">
                       <button
-                        onClick={() => handleUpdateTask(task.id, task)}
+                        onClick={() => {
+                          // Only include database table fields, exclude computed properties
+                          const taskUpdates = {
+                            title: task.title,
+                            description: task.description,
+                            status: task.status,
+                            priority: task.priority,
+                            due_date: task.due_date,
+                            tags: task.tags,
+                            dependencies: task.dependencies,
+                            assignee_id: task.assignee_id,
+                            parent_task_id: task.parent_task_id,
+                            position: task.position
+                          };
+                          handleUpdateTask(task.id, taskUpdates);
+                        }}
                         disabled={saving}
                         className="btn-primary"
                       >
@@ -981,20 +1026,6 @@ export const TasksDetailView: React.FC = () => {
                                 <Github className="w-3 h-3" />
                               </button>
                             )}
-                            <div className="relative">
-                              <button
-                                onClick={() => toggleAttachments(task.id)}
-                                className={`p-1.5 text-foreground-dim hover:text-primary hover:bg-primary/10 rounded-lg transition-colors ${showAttachments[task.id] ? 'bg-primary/10 text-primary' : ''}`}
-                                title="Attachments"
-                              >
-                                <ImageIcon className="w-3 h-3" />
-                              </button>
-                              {(task.attachments?.length || 0) > 0 && (
-                                <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full min-w-[16px] h-4 flex items-center justify-center">
-                                  {task.attachments?.length}
-                                </span>
-                              )}
-                            </div>
                             <button
                               onClick={() => setEditingTaskId(task.id)}
                               className="p-1.5 text-foreground-dim hover:text-primary hover:bg-foreground-dim/10 rounded-lg transition-colorss"
@@ -1054,50 +1085,22 @@ export const TasksDetailView: React.FC = () => {
                         )}
                       </div>
 
-                      {/* Attachments Section */}
-                      {showAttachments[task.id] && (
-                        <div className="mt-4 border-t border-foreground-dim/20 pt-4">
-                          <div className="space-y-3">
-                            <h4 className="text-sm font-medium text-foreground flex items-center">
-                              <ImageIcon className="w-4 h-4 mr-2" />
-                              Attachments
-                            </h4>
-                            
-                            {/* Upload Area */}
-                            <ImageUpload
-                              taskId={task.id}
-                              onUploadComplete={(attachment) => handleAttachmentUpload(task.id, attachment)}
-                              onError={(error) => setAttachmentErrors(prev => ({ ...prev, [task.id]: error }))}
-                              className="mb-4"
+                      {/* Inline Attachments */}
+                      {task.attachments && task.attachments.length > 0 && (
+                        <div className="mt-4 space-y-3">
+                          {task.attachments.map((attachment) => (
+                            <AttachmentView
+                              key={attachment.id}
+                              attachment={attachment}
+                              onDelete={(attachmentId) => handleAttachmentDelete(task.id, attachmentId)}
+                              onUpdate={(attachmentId, updates) => handleAttachmentUpdate(task.id, attachmentId, updates)}
+                              showControls={true}
+                              className="max-w-md"
                             />
-
-                            {/* Error Display */}
-                            {attachmentErrors[task.id] && (
-                              <div className="text-xs text-red-500 bg-red-50 p-2 rounded border">
-                                {attachmentErrors[task.id]}
-                              </div>
-                            )}
-
-                            {/* Attachment List */}
-                            <div className="space-y-3">
-                              {task.attachments?.map((attachment) => (
-                                <AttachmentView
-                                  key={attachment.id}
-                                  attachment={attachment}
-                                  onDelete={(attachmentId) => handleAttachmentDelete(task.id, attachmentId)}
-                                  onUpdate={(attachmentId, updates) => handleAttachmentUpdate(task.id, attachmentId, updates)}
-                                  showControls={true}
-                                  className="max-w-sm"
-                                />
-                              ))}
-                              
-                              {(!task.attachments || task.attachments.length === 0) && (
-                                <p className="text-xs text-foreground-dim italic">No attachments yet. Upload images or screenshots above.</p>
-                              )}
-                            </div>
-                          </div>
+                          ))}
                         </div>
                       )}
+
                     </div>
                   </div>
                 )}

@@ -74,7 +74,6 @@ export const ScratchpadDetailView: React.FC = () => {
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [newNote, setNewNote] = useState<Partial<ScratchpadNote> | null>(null);
   const [saving, setSaving] = useState(false);
-  const [showAttachments, setShowAttachments] = useState<Record<string, boolean>>({});
   const [attachmentErrors, setAttachmentErrors] = useState<Record<string, string>>({});
   const { processContent } = useMarkdownPreprocessing();
 
@@ -140,9 +139,9 @@ export const ScratchpadDetailView: React.FC = () => {
       const response = await db.updateScratchpadNote(noteId, updates) as DatabaseResponse<ScratchpadNote>;
       if (response.error) throw response.error;
 
-      // Update local state
+      // Update local state - preserve attachments since they're not returned from DB
       const updatedNotes = notes.map(note =>
-        note.id === noteId ? { ...note, ...updates } : note
+        note.id === noteId ? { ...response.data!, attachments: note.attachments } : note
       );
       setNotes(updatedNotes);
       setEditingNoteId(null);
@@ -367,9 +366,6 @@ export const ScratchpadDetailView: React.FC = () => {
     }
   };
 
-  const toggleAttachments = (noteId: string) => {
-    setShowAttachments(prev => ({ ...prev, [noteId]: !prev[noteId] }));
-  };
 
   const getPriorityBadgeClass = (priority: string) => {
     switch (priority) {
@@ -698,9 +694,56 @@ export const ScratchpadDetailView: React.FC = () => {
                           </div>
                         </div>
 
+                        {/* Attachments Management in Edit Mode */}
+                        <div>
+                          <label className="block text-xs font-medium text-foreground mb-2">Attachments</label>
+                          <ImageUpload
+                            scratchpadNoteId={note.id}
+                            onUploadComplete={(attachment) => handleAttachmentUpload(note.id, attachment)}
+                            onError={(error) => setAttachmentErrors(prev => ({ ...prev, [note.id]: error }))}
+                            className="mb-3"
+                          />
+                          
+                          {/* Error Display */}
+                          {attachmentErrors[note.id] && (
+                            <div className="text-xs text-red-500 bg-red-50 p-2 rounded border mb-3">
+                              {attachmentErrors[note.id]}
+                            </div>
+                          )}
+                          
+                          {/* Current Attachments */}
+                          {note.attachments && note.attachments.length > 0 && (
+                            <div className="space-y-2 mb-3">
+                              {note.attachments.map((attachment) => (
+                                <AttachmentView
+                                  key={attachment.id}
+                                  attachment={attachment}
+                                  onDelete={(attachmentId) => handleAttachmentDelete(note.id, attachmentId)}
+                                  onUpdate={(attachmentId, updates) => handleAttachmentUpdate(note.id, attachmentId, updates)}
+                                  showControls={true}
+                                  className="max-w-sm"
+                                />
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
                         <div className="flex items-center space-x-3 pt-2">
                           <button
-                            onClick={() => handleUpdateNote(note.id, note)}
+                            onClick={() => {
+                              // Only include database table fields, exclude computed properties
+                              const noteUpdates = {
+                                title: note.title,
+                                content: note.content,
+                                position: note.position,
+                                size: note.size,
+                                color: note.color,
+                                font_size: note.font_size,
+                                is_pinned: note.is_pinned,
+                                tags: note.tags
+                              };
+                              handleUpdateNote(note.id, noteUpdates);
+                            }}
                             disabled={saving}
                             className="btn-primary"
                           >
@@ -824,6 +867,23 @@ export const ScratchpadDetailView: React.FC = () => {
                               )}
                             </button>
                           )}
+                          
+                          {/* Inline Attachments */}
+                          {note.attachments && note.attachments.length > 0 && (
+                            <div className="mt-4 space-y-3">
+                              {note.attachments.map((attachment) => (
+                                <AttachmentView
+                                  key={attachment.id}
+                                  attachment={attachment}
+                                  onDelete={(attachmentId) => handleAttachmentDelete(note.id, attachmentId)}
+                                  onUpdate={(attachmentId, updates) => handleAttachmentUpdate(note.id, attachmentId, updates)}
+                                  showControls={true}
+                                  className="max-w-md"
+                                />
+                              ))}
+                            </div>
+                          )}
+                          
                           <div className="text-xs text-foreground-dim">
                             {format(new Date(note.created_at), 'MMM d, h:mm a')}
                           </div>
@@ -843,20 +903,6 @@ export const ScratchpadDetailView: React.FC = () => {
                               <Sparkles className="w-3 h-3" />
                             )}
                           </button>
-                          <div className="relative">
-                            <button
-                              onClick={() => toggleAttachments(note.id)}
-                              className={`p-1.5 text-foreground-dim hover:text-primary hover:bg-primary/10 rounded-lg transition-colors ${showAttachments[note.id] ? 'bg-primary/10 text-primary' : ''}`}
-                              title="Attachments"
-                            >
-                              <ImageIcon className="w-3 h-3" />
-                            </button>
-                            {(note.attachments?.length || 0) > 0 && (
-                              <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full min-w-[16px] h-4 flex items-center justify-center">
-                                {note.attachments?.length}
-                              </span>
-                            )}
-                          </div>
                           <button
                             onClick={() => setEditingNoteId(note.id)}
                             className="p-1.5 text-foreground-dim hover:text-primary hover:bg-foreground-dim/10 rounded-lg transition-colors"
@@ -877,50 +923,6 @@ export const ScratchpadDetailView: React.FC = () => {
                     </div>
                   )}
 
-                  {/* Attachments Section */}
-                  {showAttachments[note.id] && (
-                    <div className="mt-4 border-t border-foreground-dim/20 pt-4">
-                      <div className="space-y-3">
-                        <h4 className="text-sm font-medium text-foreground flex items-center">
-                          <ImageIcon className="w-4 h-4 mr-2" />
-                          Attachments
-                        </h4>
-                        
-                        {/* Upload Area */}
-                        <ImageUpload
-                          scratchpadNoteId={note.id}
-                          onUploadComplete={(attachment) => handleAttachmentUpload(note.id, attachment)}
-                          onError={(error) => setAttachmentErrors(prev => ({ ...prev, [note.id]: error }))}
-                          className="mb-4"
-                        />
-
-                        {/* Error Display */}
-                        {attachmentErrors[note.id] && (
-                          <div className="text-xs text-red-500 bg-red-50 p-2 rounded border">
-                            {attachmentErrors[note.id]}
-                          </div>
-                        )}
-
-                        {/* Attachment List */}
-                        <div className="space-y-3">
-                          {note.attachments?.map((attachment) => (
-                            <AttachmentView
-                              key={attachment.id}
-                              attachment={attachment}
-                              onDelete={(attachmentId) => handleAttachmentDelete(note.id, attachmentId)}
-                              onUpdate={(attachmentId, updates) => handleAttachmentUpdate(note.id, attachmentId, updates)}
-                              showControls={true}
-                              className="max-w-sm"
-                            />
-                          ))}
-                          
-                          {(!note.attachments || note.attachments.length === 0) && (
-                            <p className="text-xs text-foreground-dim italic">No attachments yet. Upload images or screenshots above.</p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )}
 
                   {/* Show generated tasks immediately below the note that generated them */}
                   {selectedNoteForTasks === note.id && generatedTasks.length > 0 && (
