@@ -729,6 +729,47 @@ export interface Database {
           created_at?: string;
         };
       };
+      attachments: {
+        Row: {
+          id: string;
+          task_id: string | null;
+          scratchpad_note_id: string | null;
+          file_name: string;
+          file_size: number;
+          mime_type: string;
+          storage_path: string;
+          alt_text: string | null;
+          caption: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          task_id?: string | null;
+          scratchpad_note_id?: string | null;
+          file_name: string;
+          file_size: number;
+          mime_type: string;
+          storage_path: string;
+          alt_text?: string | null;
+          caption?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          task_id?: string | null;
+          scratchpad_note_id?: string | null;
+          file_name?: string;
+          file_size?: number;
+          mime_type?: string;
+          storage_path?: string;
+          alt_text?: string | null;
+          caption?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
     };
     Views: {
       [_ in never]: never;

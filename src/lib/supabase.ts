@@ -1204,4 +1204,90 @@ export const db = {
       'Update GitHub issue operation timed out'
     );
   },
+
+  // Attachments
+  getTaskAttachments: async (taskId: string) => {
+    const operation = () => supabase
+      .from('attachments')
+      .select('*')
+      .eq('task_id', taskId)
+      .order('created_at');
+    
+    return withTimeout(
+      withTiming('DB GetTaskAttachments', operation),
+      DB_TIMEOUT,
+      'Get task attachments operation timed out'
+    );
+  },
+
+  getScratchpadNoteAttachments: async (scratchpadNoteId: string) => {
+    const operation = () => supabase
+      .from('attachments')
+      .select('*')
+      .eq('scratchpad_note_id', scratchpadNoteId)
+      .order('created_at');
+    
+    return withTimeout(
+      withTiming('DB GetScratchpadNoteAttachments', operation),
+      DB_TIMEOUT,
+      'Get scratchpad note attachments operation timed out'
+    );
+  },
+
+  createAttachment: async (attachment: any) => {
+    const operation = () => supabase
+      .from('attachments')
+      .insert(attachment)
+      .select()
+      .single();
+    
+    return withTimeout(
+      withTiming('DB CreateAttachment', operation),
+      DB_TIMEOUT,
+      'Create attachment operation timed out'
+    );
+  },
+
+  updateAttachment: async (id: string, updates: any) => {
+    const operation = () => supabase
+      .from('attachments')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
+    
+    return withTimeout(
+      withTiming('DB UpdateAttachment', operation),
+      DB_TIMEOUT,
+      'Update attachment operation timed out'
+    );
+  },
+
+  deleteAttachment: async (id: string) => {
+    // First get the attachment to know the storage path
+    const { data: attachment } = await supabase
+      .from('attachments')
+      .select('storage_path')
+      .eq('id', id)
+      .single();
+
+    if (attachment?.storage_path) {
+      // Delete from storage first
+      await supabase.storage
+        .from('attachments')
+        .remove([attachment.storage_path]);
+    }
+
+    // Then delete from database
+    const operation = () => supabase
+      .from('attachments')
+      .delete()
+      .eq('id', id);
+    
+    return withTimeout(
+      withTiming('DB DeleteAttachment', operation),
+      DB_TIMEOUT,
+      'Delete attachment operation timed out'
+    );
+  },
 };

@@ -1,9 +1,10 @@
 import { format } from 'date-fns';
-import { ArrowDown, ArrowUp, CheckSquare, ChevronDown, Edit3, ExternalLink, Github, Loader2, Minus, Plus, Save, Search, Square, Tag, Trash2, X } from 'lucide-react';
+import { ArrowDown, ArrowUp, CheckSquare, ChevronDown, Edit3, ExternalLink, Github, Loader2, Minus, Plus, Save, Search, Square, Tag, Trash2, X, Image as ImageIcon } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { BackButton } from '../../components/common/BackButton';
 import { MarkdownRenderer, useMarkdownPreprocessing } from '../../components/common/MarkdownRenderer';
+import { ImageUpload, AttachmentView } from '../../components/common/ImageUpload';
 import { ModuleContainer } from '../../components/Workspace/ModuleContainer';
 import { GitHubIssueCreator } from '../../components/GitHub/GitHubIssueCreator';
 import { db } from '../../lib/supabase';
@@ -23,6 +24,17 @@ interface TaskItem {
   position: number;
   created_at: string;
   updated_at: string;
+  attachments?: Array<{
+    id: string;
+    file_name: string;
+    file_size: number;
+    mime_type: string;
+    storage_path: string;
+    alt_text?: string | null;
+    caption?: string | null;
+    created_at: string;
+    updated_at: string;
+  }>;
   github_issue?: {
     id: string;
     github_issue_number: number;
@@ -59,6 +71,7 @@ export const TasksDetailView: React.FC = () => {
   const [newTask, setNewTask] = useState<Partial<TaskItem> | null>(null);
   const [saving, setSaving] = useState(false);
   const [showGitHubModal, setShowGitHubModal] = useState<string | null>(null);
+  const [attachmentErrors, setAttachmentErrors] = useState<Record<string, string>>({});
   const { processContent } = useMarkdownPreprocessing();
 
   useEffect(() => {
@@ -74,23 +87,32 @@ export const TasksDetailView: React.FC = () => {
       const { data, error: fetchError } = await db.getTasks(id);
       if (fetchError) throw fetchError;
       
-      // Fetch GitHub issues for all tasks
-      const tasksWithGitHubIssues = await Promise.all(
+      // Fetch GitHub issues and attachments for all tasks
+      const tasksWithExtendedData = await Promise.all(
         (data || []).map(async (task) => {
           try {
+            // Fetch GitHub issue
             const { data: githubIssue } = await db.getGitHubIssueByTask(task.id);
+            
+            // Fetch attachments
+            const { data: attachments } = await db.getTaskAttachments(task.id);
+            
             return {
               ...task,
-              github_issue: githubIssue || undefined
+              github_issue: githubIssue || undefined,
+              attachments: attachments || []
             };
           } catch {
-            // If there's an error fetching GitHub issue, just return task without it
-            return task;
+            // If there's an error fetching additional data, just return basic task
+            return {
+              ...task,
+              attachments: []
+            };
           }
         })
       );
       
-      setTasks(tasksWithGitHubIssues);
+      setTasks(tasksWithExtendedData);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch tasks');
     } finally {
@@ -110,9 +132,9 @@ export const TasksDetailView: React.FC = () => {
       const { data, error: updateError } = await db.updateTask(taskId, updates);
       if (updateError) throw updateError;
 
-      // Update local state
+      // Update local state - preserve attachments and github_issue since they're not returned from DB
       const updatedTasks = tasks.map(task =>
-        task.id === taskId ? data : task
+        task.id === taskId ? { ...data, attachments: task.attachments, github_issue: task.github_issue } : task
       );
       setTasks(updatedTasks);
       setEditingTaskId(null);
@@ -185,6 +207,73 @@ export const TasksDetailView: React.FC = () => {
   const handleStatusChange = async (taskId: string, newStatus: string) => {
     await handleUpdateTask(taskId, { status: newStatus as TaskItem['status'] });
   };
+
+  // Attachment handlers
+  const handleAttachmentUpload = async (taskId: string, attachment: any) => {
+    try {
+      // Update local state immediately to show the new attachment
+      setTasks(prev => prev.map(task => 
+        task.id === taskId 
+          ? { ...task, attachments: [...(task.attachments || []), attachment] }
+          : task
+      ));
+      
+      // Clear any previous error
+      setAttachmentErrors(prev => ({ ...prev, [taskId]: '' }));
+    } catch (err: any) {
+      setAttachmentErrors(prev => ({ 
+        ...prev, 
+        [taskId]: err.message || 'Failed to upload attachment' 
+      }));
+    }
+  };
+
+  const handleAttachmentDelete = async (taskId: string, attachmentId: string) => {
+    try {
+      const { error } = await db.deleteAttachment(attachmentId);
+      if (error) throw error;
+
+      // Update local state
+      setTasks(prev => prev.map(task => 
+        task.id === taskId 
+          ? { 
+              ...task, 
+              attachments: (task.attachments || []).filter(att => att.id !== attachmentId) 
+            }
+          : task
+      ));
+    } catch (err: any) {
+      setAttachmentErrors(prev => ({ 
+        ...prev, 
+        [taskId]: err.message || 'Failed to delete attachment' 
+      }));
+    }
+  };
+
+  const handleAttachmentUpdate = async (taskId: string, attachmentId: string, updates: any) => {
+    try {
+      const { data, error } = await db.updateAttachment(attachmentId, updates);
+      if (error) throw error;
+
+      // Update local state
+      setTasks(prev => prev.map(task => 
+        task.id === taskId 
+          ? { 
+              ...task, 
+              attachments: (task.attachments || []).map(att => 
+                att.id === attachmentId ? { ...att, ...updates } : att
+              )
+            }
+          : task
+      ));
+    } catch (err: any) {
+      setAttachmentErrors(prev => ({ 
+        ...prev, 
+        [taskId]: err.message || 'Failed to update attachment' 
+      }));
+    }
+  };
+
 
   // Custom setters that persist to localStorage (scoped by project)
   const updateFilter = (newFilter: typeof filter) => {
@@ -808,9 +897,58 @@ export const TasksDetailView: React.FC = () => {
                       </div>
                     </div>
 
+                    {/* Attachments Management in Edit Mode */}
+                    <div>
+                      <label className="block text-xs font-medium text-foreground mb-2">Attachments</label>
+                      <ImageUpload
+                        taskId={task.id}
+                        onUploadComplete={(attachment) => handleAttachmentUpload(task.id, attachment)}
+                        onError={(error) => setAttachmentErrors(prev => ({ ...prev, [task.id]: error }))}
+                        className="mb-3"
+                      />
+                      
+                      {/* Error Display */}
+                      {attachmentErrors[task.id] && (
+                        <div className="text-xs text-red-500 bg-red-50 p-2 rounded border mb-3">
+                          {attachmentErrors[task.id]}
+                        </div>
+                      )}
+                      
+                      {/* Current Attachments */}
+                      {task.attachments && task.attachments.length > 0 && (
+                        <div className="space-y-2 mb-3">
+                          {task.attachments.map((attachment) => (
+                            <AttachmentView
+                              key={attachment.id}
+                              attachment={attachment}
+                              onDelete={(attachmentId) => handleAttachmentDelete(task.id, attachmentId)}
+                              onUpdate={(attachmentId, updates) => handleAttachmentUpdate(task.id, attachmentId, updates)}
+                              showControls={true}
+                              className="max-w-sm"
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
                     <div className="flex items-center space-x-2">
                       <button
-                        onClick={() => handleUpdateTask(task.id, task)}
+                        onClick={() => {
+                          // Only include database table fields, exclude computed properties
+                          const taskUpdates = {
+                            title: task.title,
+                            description: task.description,
+                            status: task.status,
+                            priority: task.priority,
+                            due_date: task.due_date,
+                            tags: task.tags,
+                            dependencies: task.dependencies,
+                            assignee_id: task.assignee_id,
+                            parent_task_id: task.parent_task_id,
+                            position: task.position
+                          };
+                          handleUpdateTask(task.id, taskUpdates);
+                        }}
                         disabled={saving}
                         className="btn-primary"
                       >
@@ -946,6 +1084,23 @@ export const TasksDetailView: React.FC = () => {
                           </div>
                         )}
                       </div>
+
+                      {/* Inline Attachments */}
+                      {task.attachments && task.attachments.length > 0 && (
+                        <div className="mt-4 space-y-3">
+                          {task.attachments.map((attachment) => (
+                            <AttachmentView
+                              key={attachment.id}
+                              attachment={attachment}
+                              onDelete={(attachmentId) => handleAttachmentDelete(task.id, attachmentId)}
+                              onUpdate={(attachmentId, updates) => handleAttachmentUpdate(task.id, attachmentId, updates)}
+                              showControls={true}
+                              className="max-w-md"
+                            />
+                          ))}
+                        </div>
+                      )}
+
                     </div>
                   </div>
                 )}
