@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Upload, X, Image as ImageIcon, Loader2, AlertCircle } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
@@ -32,6 +32,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadAreaRef = useRef<HTMLDivElement>(null);
 
   const validateFile = (file: File): string | null => {
     if (file.size > maxFileSize) {
@@ -139,6 +140,56 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
     }
   };
 
+  const handlePaste = async (e: ClipboardEvent) => {
+    // Only handle paste if the upload area is focused or if we're not in an input field
+    const activeElement = document.activeElement;
+    const isInputField = activeElement instanceof HTMLInputElement || 
+                        activeElement instanceof HTMLTextAreaElement ||
+                        activeElement?.getAttribute('contenteditable') === 'true';
+    
+    // If we're in an input field, don't intercept the paste
+    if (isInputField) {
+      return;
+    }
+
+    const clipboardData = e.clipboardData;
+    if (!clipboardData) return;
+
+    const items = Array.from(clipboardData.items);
+    const imageItem = items.find(item => item.type.startsWith('image/'));
+
+    if (imageItem) {
+      e.preventDefault(); // Prevent default paste behavior for images
+      
+      const file = imageItem.getAsFile();
+      if (file) {
+        // Create a proper File object with a meaningful name
+        const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '');
+        const extension = file.type.split('/')[1] || 'png';
+        const fileName = `pasted-image-${timestamp}.${extension}`;
+        
+        const renamedFile = new File([file], fileName, {
+          type: file.type,
+          lastModified: Date.now()
+        });
+        
+        uploadFile(renamedFile);
+      }
+    }
+  };
+
+  // Set up paste event listener
+  useEffect(() => {
+    const handlePasteEvent = (e: ClipboardEvent) => handlePaste(e);
+    
+    // Add event listener to document to catch paste events globally
+    document.addEventListener('paste', handlePasteEvent);
+    
+    return () => {
+      document.removeEventListener('paste', handlePasteEvent);
+    };
+  }, [uploading]); // Re-setup if uploading state changes
+
   return (
     <div className={`relative ${className}`}>
       <input
@@ -150,6 +201,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
       />
       
       <div
+        ref={uploadAreaRef}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
@@ -176,7 +228,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
               </div>
               <div>
                 <p className="text-sm font-medium text-foreground">
-                  Click to upload or drag & drop
+                  Click to upload, drag & drop, or paste an image
                 </p>
                 <p className="text-xs text-foreground-dim mt-1">
                   PNG, JPG, GIF, WebP up to {Math.round(maxFileSize / 1024 / 1024)}MB
