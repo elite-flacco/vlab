@@ -1,6 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  darkMode: 'class',
   theme: {
     extend: {
       // Custom Color Palette
@@ -12,21 +13,30 @@ export default {
           dark: '#00cc7a',
         },
         background: {
-          DEFAULT: '#0f0f0f',
+          DEFAULT: '#0f0f0f', // Dark mode
         },
         foreground: {
-          DEFAULT: '#ffffff',
-          dim: '#a0a0a0',
+          DEFAULT: '#ffffff', // Dark mode
+          dim: '#a0a0a0',     // Dark mode
           dark: '#707070',
         },
         secondary: {
-          DEFAULT: '#1f1f1f',
+          DEFAULT: '#1f1f1f', // Dark mode
         },
         success: { DEFAULT: '#22c55e' },
         warning: { DEFAULT: '#facc15' },
         error: { DEFAULT: '#ff4b4b' },
         destructive: { DEFAULT: '#ff4b4b' },
         border: { DEFAULT: '#2a2a2a' },
+        
+        // Light mode specific colors
+        light: {
+          background: '#ffffff',
+          foreground: '#1f1f1f',
+          'foreground-dim': '#6b7280',
+          secondary: '#f8fafc',
+          border: '#e5e7eb',
+        },
       },
 
       // Font Families

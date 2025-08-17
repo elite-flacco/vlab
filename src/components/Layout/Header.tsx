@@ -3,6 +3,7 @@ import { useAuthStore } from '../../stores/authStore';
 import { useProjectStore } from '../../stores/projectStore';
 import { LogOut, Plus, Terminal, UserCheck } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { ThemeToggle } from '../common/ThemeToggle';
 
 interface HeaderProps {
   onNewProjectClick: () => void;
@@ -57,6 +58,8 @@ export const Header: React.FC<HeaderProps> = ({ onNewProjectClick }) => {
             <Plus className="w-4 h-4 mr-2" />
             New Project
           </button>
+          
+          <ThemeToggle />
           
           {user?.is_anonymous ? (
             <button

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
+import { useThemeStore } from './stores/themeStore';
 import { trackPageView } from './lib/analytics';
 import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
 import { Landing } from './pages/Landing';
@@ -48,10 +49,17 @@ function LandingWrapper() {
 
 function App() {
   const { user, loading, initialize } = useAuthStore();
+  const { theme } = useThemeStore();
 
   useEffect(() => {
     initialize();
   }, [initialize]);
+
+  // Apply theme class to document on mount and theme change
+  useEffect(() => {
+    document.documentElement.classList.remove('light', 'dark');
+    document.documentElement.classList.add(theme);
+  }, [theme]);
 
   if (loading) {
     return (
