@@ -12,6 +12,19 @@ export default {
           light: '#66ffcc',
           dark: '#00cc7a',
         },
+        // Custom primary shades based on primary-dark (#00cc7a) for light mode
+        'primary-shade': {
+          50: '#f0fdf6',   // Very light tint
+          100: '#dcfce8',  // Light tint  
+          200: '#bbf7d3',  // Medium-light tint
+          300: '#86efb0',  // Medium tint
+          400: '#4ade80',  // Closer to primary-dark
+          500: '#00cc7a',  // Primary-dark base
+          600: '#00b569',  // Slightly darker
+          700: '#009956',  // Darker
+          800: '#007a44',  // Much darker
+          900: '#005c32',  // Very dark
+        },
         background: {
           DEFAULT: '#0f0f0f', // Dark mode
         },
@@ -28,15 +41,6 @@ export default {
         error: { DEFAULT: '#ff4b4b' },
         destructive: { DEFAULT: '#ff4b4b' },
         border: { DEFAULT: '#2a2a2a' },
-        
-        // Light mode specific colors
-        light: {
-          background: '#ffffff',
-          foreground: '#1f1f1f',
-          'foreground-dim': '#6b7280',
-          secondary: '#f8fafc',
-          border: '#e5e7eb',
-        },
       },
 
       // Font Families

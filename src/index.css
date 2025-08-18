@@ -7,23 +7,24 @@
   /* Typography */
   --font-sans: Inter, sans-serif;
   --font-heading: 'Share Tech Mono', monospace;
+  
+  /* Dark mode colors (default) */
+  --color-background: #0f0f0f;
+  --color-foreground: #ffffff;
+  --color-foreground-dim: #a0a0a0;
+  --color-secondary: #1f1f1f;
+  --color-border: #2a2a2a;
+  --color-primary: #00ff9f;
 }
 
 /* Light mode color overrides */
 .light {
-  --tw-bg-opacity: 1;
-  --tw-text-opacity: 1;
-}
-
-/* Light mode color variables */
-.light {
-  /* Define light mode colors as CSS custom properties */
   --color-background: #ffffff;
   --color-foreground: #1f1f1f;
   --color-foreground-dim: #6b7280;
   --color-secondary: #f8fafc;
   --color-border: #e5e7eb;
-  --color-primary: #00ff9f;
+  --color-primary: #00cc7a;
 }
 
 /* Base Layer - Typography & Reset */
@@ -92,6 +93,8 @@
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    background-color: var(--color-background) !important;
+    color: var(--color-foreground) !important;
   }
   
   img,
@@ -803,175 +806,79 @@ body::before {
   z-index: 50;
 }
 
-/* Light mode overrides */
+/* Light mode overrides using Tailwind utilities */
 @layer utilities {
-  /* Light mode base styles - override Tailwind variables */
+  /* Global light mode styling */
   .light {
-    --tw-bg-opacity: 1;
-    --tw-text-opacity: 1;
+    /* Override body background and text colors */
+    @apply !bg-white !text-gray-900;
   }
   
-  /* Light mode body styling */
-  .light body {
-    background-color: #ffffff;
-    color: #1f1f1f;
-  }
+  /* Primary color adjustments for light mode using custom primary-shade palette */
+  .light .text-primary { @apply !text-primary-shade-600; }
+  .light .bg-primary { @apply !bg-primary-shade-600; }
+  .light .border-primary { @apply !border-primary-shade-600; }
+  .light .border-primary\/20 { @apply !border-primary-shade-200; }
+  .light .border-primary\/30 { @apply !border-primary-shade-300; }
+  .light .border-primary\/50 { @apply !border-primary-shade-500; }
+  .light .bg-primary\/10 { @apply !bg-primary-shade-100; }
+  .light .bg-primary\/20 { @apply !bg-primary-shade-200; }
+  .light .hover\:border-primary\/50:hover { @apply !border-primary-shade-500; }
+  .light .hover\:bg-primary\/20:hover { @apply !bg-primary-shade-200; }
+  .light .bg-primary\/5 { @apply !bg-primary-shade-50; }
   
-  .light {
-    background-color: #ffffff;
-    color: #1f1f1f;
-  }
+  /* Primary text color opacity variations for light mode */
+  .light .text-primary\/50 { @apply !text-primary-shade-400; }
+  .light .text-primary\/70 { @apply !text-primary-shade-500; }
+  .light .text-primary\/80 { @apply !text-primary-shade-600; }
+  .light .hover\:text-primary\/80:hover { @apply !text-primary-shade-600; }
   
-  /* Component-specific light mode styles */
-  .light .app-header {
-    background-color: rgba(248, 250, 252, 0.8);
-    border-color: #e5e7eb;
-  }
+  /* Background color overrides for light mode */
+  .light .bg-background { @apply !bg-white; }
+  .light .bg-secondary { @apply !bg-gray-50; }
+  .light .bg-secondary\/30 { @apply !bg-gray-100; }
+  .light .bg-secondary\/50 { @apply !bg-gray-100; }
+  .light .bg-secondary\/80 { @apply !bg-gray-50; }
+  .light .bg-secondary\/90 { @apply !bg-gray-50; }
   
-  .light .sidebar {
-    background-color: rgba(248, 250, 252, 0.8);
-    border-color: #e5e7eb;
-  }
+  /* Text color overrides for light mode */
+  .light .text-foreground { @apply !text-gray-900; }
+  .light .text-foreground-dim { @apply !text-gray-600; }
+  .light .text-foreground\/60 { @apply !text-gray-500; }
+  .light .text-foreground\/70 { @apply !text-gray-600; }
+  .light .text-foreground\/80 { @apply !text-gray-700; }
+  .light .text-foreground\/90 { @apply !text-gray-800; }
   
-  .light .card {
-    background-color: rgba(255, 255, 255, 0.8);
-    border-color: #e5e7eb;
-  }
+  /* Border color overrides for light mode */
+  .light .border-border { @apply !border-gray-300; }
+  .light .border-foreground-dim\/20 { @apply !border-gray-200; }
+  .light .border-foreground-dim\/30 { @apply !border-gray-300; }
+  .light .border-foreground\/10 { @apply !border-gray-200; }
+  .light .border-foreground\/20 { @apply !border-gray-300; }
+  .light .border-foreground\/30 { @apply !border-gray-400; }
+  .light .border-foreground\/40 { @apply !border-gray-400; }
   
-  .light .card:hover {
-    border-color: rgba(0, 255, 159, 0.5);
-  }
+  /* Background opacity overrides for light mode */
+  .light .bg-background\/80 { @apply !bg-white/80; }
+  .light .bg-foreground\/5 { @apply !bg-gray-100; }
+  .light .bg-foreground\/10 { @apply !bg-gray-200; }
+  .light .bg-foreground\/20 { @apply !bg-gray-300; }
   
-  .light .terminal-window {
-    background-color: rgba(255, 255, 255, 0.8);
-    border-color: #e5e7eb;
-  }
-  
-  .light .terminal-header {
-    color: #6b7280;
-    border-color: #e5e7eb;
-  }
-  
-  .light .modal-overlay {
-    background-color: rgba(0, 0, 0, 0.2);
-  }
-  
-  .light .modal-content {
-    background-color: rgba(255, 255, 255, 0.95);
-    border-color: #e5e7eb;
-  }
-  
-  .light .modal-header {
-    border-color: #e5e7eb;
-  }
-  
-  /* Form elements in light mode */
-  .light .form-input,
-  .light .form-textarea,
-  .light .form-select {
-    background-color: #ffffff;
-    border-color: #d1d5db;
-    color: #1f1f1f;
-  }
-  
-  .light .form-input:focus,
-  .light .form-textarea:focus,
-  .light .form-select:focus {
-    border-color: rgba(0, 255, 159, 0.5);
-    box-shadow: 0 0 0 3px rgba(0, 255, 159, 0.1);
-  }
-  
-  /* Button styles in light mode */
-  .light .btn-secondary {
-    background-color: #f3f4f6;
-    color: #1f1f1f;
-    border-color: #d1d5db;
-  }
-  
-  .light .btn-secondary:hover {
-    background-color: #e5e7eb;
-    border-color: #9ca3af;
-  }
-  
-  .light .btn-ghost {
-    background-color: transparent;
-    color: #6b7280;
-    border-color: #d1d5db;
-  }
-  
-  .light .btn-ghost:hover {
-    color: #1f1f1f;
-    border-color: #9ca3af;
-    background-color: #f3f4f6;
-  }
-  
-  .light .btn-outline {
-    border-color: #d1d5db;
-    color: #6b7280;
-  }
-  
-  .light .btn-outline:hover {
-    background-color: #f3f4f6;
-  }
-  
-  /* Navigation in light mode */
-  .light .nav-link {
-    color: #6b7280;
-  }
-  
-  .light .nav-link:hover {
-    background-color: #f3f4f6;
-    color: #1f1f1f;
-  }
-  
-  .light .sidebar-item {
-    color: #6b7280;
-  }
-  
-  .light .sidebar-item:hover {
-    background-color: #f3f4f6;
-    color: #1f1f1f;
-  }
-  
-  /* Grid background for light mode */
-  .light .grid-bg {
-    background-image: 
-      linear-gradient(rgba(0, 255, 159, 0.08) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0, 255, 159, 0.08) 1px, transparent 1px);
-    background-size: 20px 20px;
-  }
+  /* Hover states for light mode */
+  .light .hover\:bg-secondary\/50:hover { @apply !bg-gray-100; }
+  .light .hover\:bg-secondary\/80:hover { @apply !bg-gray-200; }
+  .light .hover\:bg-background\/20:hover { @apply !bg-gray-50; }
+  .light .hover\:bg-background\/50:hover { @apply !bg-gray-100; }
+  .light .hover\:bg-foreground\/5:hover { @apply !bg-gray-100; }
+  .light .hover\:bg-foreground\/10:hover { @apply !bg-gray-200; }
   
   /* Remove scanline effect in light mode */
   .light body::before {
     display: none;
   }
   
-  /* Text colors in light mode */
-  .light .header-title,
-  .light .modal-title,
-  .light .card-title {
-    color: #1f1f1f;
-  }
-  
-  .light .card-content,
-  .light p {
-    color: #6b7280;
-  }
-  
-  /* Ensure dark mode styles are preserved */
-  .dark body {
-    background-color: #0f0f0f;
-    color: #ffffff;
-  }
-  
-  .dark .header-title,
-  .dark .modal-title,
-  .dark .card-title {
-    color: #ffffff;
-  }
-  
-  .dark .card-content,
-  .dark p {
-    color: #a0a0a0;
+  /* Fix button text colors in light mode */
+  .light .btn-primary {
+    @apply !text-white;
   }
 }
