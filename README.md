@@ -5,17 +5,22 @@ VLab is a minimalist workspace platform purpose built for vibe coders. It provid
 ## Features
 
 ### Core Modules
-- **PRD (Product Requirements Documents)** - Create and manage detailed product specifications with AI assistance
-- **Roadmap** - Visual project planning with phase management
+- **PRD (Product Requirements Documents)** - Create and manage detailed product specifications with AI assistance and full version control
+- **Roadmap** - Visual project planning with phase management and milestone tracking
 - **Tasks** - Minimalistic task management with priorities, progress tracking, and GitHub issue creation
-- **Scratchpad** - Flexible note-taking and idea capture with tagging and organization
-- **Prompts** - AI prompt library for consistent and effective AI interactions
+- **Scratchpad** - Flexible note-taking and idea capture with tagging, search, and organization
+- **Prompts** - AI prompt library for consistent and effective AI interactions with categorization
+- **Design** - Design documentation, asset management, and AI-powered design task generation
+- **Deployment** - Deployment checklists, configuration tracking, and platform-specific templates
 
 ### Key Features
 - **AI-Powered Kick-off Flow** - Transform ideas into structured workspaces with AI assistance
-- **Version Control for PRDs** - Complete version history, comparison
+- **Version Control for PRDs** - Complete version history, side-by-side comparison, and change tracking
 - **GitHub Integration** - Convert tasks directly into GitHub repository issues with OAuth authentication
 - **Community Hub** - Share tools, prompts, and knowledge with other vibe coders
+- **Light/Dark Mode** - Comprehensive theme system with automatic persistence
+- **Global Scratchpad** - Cross-project note-taking accessible from anywhere
+- **Anonymous User Support** - Full functionality without registration, with seamless account claiming
 
 ### Community Features
 
@@ -45,14 +50,15 @@ VLab is a minimalist workspace platform purpose built for vibe coders. It provid
 ## Technology Stack
 
 - **Frontend**: React 18 + TypeScript + Vite
-- **Styling**: Tailwind CSS with custom design system
+- **Styling**: Tailwind CSS with custom design system (light/dark themes with neon accents)
 - **Database**: Supabase (PostgreSQL) with Row Level Security
-- **Authentication**: Supabase Auth
+- **Authentication**: Supabase Auth with anonymous user support
 - **Icons**: Lucide React
-- **State Management**: Zustand
+- **State Management**: Zustand with persistence
 - **Form Handling**: React Hook Form
 - **Drag & Drop**: react-beautiful-dnd
 - **Date Handling**: date-fns
+- **Markdown Rendering**: react-markdown
 
 ## Getting Started
 
@@ -66,7 +72,7 @@ VLab is a minimalist workspace platform purpose built for vibe coders. It provid
 1. Clone the repository:
 ```bash
 git clone <repository-url>
-cd viber
+cd vlab
 ```
 
 2. Install dependencies:
@@ -83,6 +89,8 @@ Fill in your Supabase credentials:
 ```env
 VITE_SUPABASE_URL=your_supabase_url_here
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+
+# Optional - for GitHub integration
 VITE_GITHUB_CLIENT_ID=your_github_oauth_app_client_id_here
 ```
 
@@ -117,9 +125,12 @@ npm run dev
 - `roadmap_items` - Project roadmap and milestone tracking
 - `scratchpad_notes` - Flexible note-taking system
 - `prompts` - AI prompt library and templates
-- `secrets` - Encrypted storage for sensitive data
+- `secrets` - Encrypted storage for sensitive data (values never retrieved in SELECT queries)
+- `deployment_items` - Deployment checklists and configuration tracking
+- `design_items` - Design documentation and asset management
 - `github_tokens` - Encrypted GitHub OAuth tokens for user authentication
 - `github_repositories` - User's connected GitHub repositories for issue creation
+- `posts`, `comments`, `votes` - Community features for social interaction
 
 ### Version Control System
 
@@ -160,7 +171,8 @@ src/
 │   └── Settings.tsx    # User settings
 ├── stores/             # State management
 │   ├── authStore.ts    # Authentication state
-│   └── projectStore.ts # Project management state
+│   ├── projectStore.ts # Project management state
+│   └── themeStore.ts   # Theme management state
 └── types/              # TypeScript type definitions
 ```
 
@@ -182,10 +194,12 @@ VLab integrates with OpenAI for:
 ## Development
 
 ### Available Scripts
-- `npm run dev` - Start development server
+- `npm run dev` - Start development server with hot reload
 - `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
+- `npm run preview` - Preview production build locally
+- `npm run lint` - Run ESLint for code quality checks
+- `npm run server` - Run backend Express server only (for API proxying)
+- `npm run dev:full` - Run both frontend dev server and backend server concurrently
 
 ### Code Style
 - TypeScript for type safety
