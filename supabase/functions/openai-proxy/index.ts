@@ -257,7 +257,7 @@ async function generateChatResponse(apiKey: string, messages: ChatMessage[]): Pr
       "Authorization": `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "gpt-3.5-turbo",
+      model: "gpt-5-mini",
       messages: [
         {
           role: "system",
@@ -302,7 +302,7 @@ async function generateIdeaSummary(apiKey: string, chatHistory: ChatMessage[]): 
       "Authorization": `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "gpt-3.5-turbo",
+      model: "gpt-5-mini",
       messages: [
         {
           role: "system",
@@ -337,7 +337,7 @@ async function generatePRD(apiKey: string, ideaSummary: string): Promise<string>
       "Authorization": `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "gpt-3.5-turbo",
+      model: "gpt-5-mini",
       messages: [
         {
           role: "system",
@@ -385,7 +385,7 @@ async function generateRoadmap(apiKey: string, prdContent: string): Promise<any[
       "Authorization": `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "gpt-3.5-turbo",
+      model: "gpt-5-mini",
       messages: [
         {
           role: "system",
@@ -607,7 +607,7 @@ async function generateTasks(apiKey: string, prdContent: string, roadmapItems: a
       "Authorization": `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "gpt-3.5-turbo",
+      model: "gpt-5-mini",
       messages: [
         {
           role: "system",
@@ -744,7 +744,7 @@ async function generateDesignTasks(apiKey: string, feedbackText: string): Promis
       "Authorization": `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "gpt-4o-mini",
+      model: "gpt-5-mini",
       messages: [
         {
           role: "system",
@@ -856,7 +856,7 @@ async function generateDesignTasksFromImage(apiKey: string, imageData: string, m
       "Authorization": `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "gpt-4o",
+      model: "gpt-5-mini",
       messages: [
         {
           role: "system",
@@ -1001,7 +1001,7 @@ async function generateDeploymentChecklist(apiKey: string, platforms: string[], 
       "Authorization": `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "gpt-3.5-turbo",
+      model: "gpt-5-mini",
       messages: [
         {
           role: "system",
