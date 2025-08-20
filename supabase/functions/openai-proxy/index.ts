@@ -243,6 +243,24 @@ function sanitizeInput(input: string): string {
     .trim();
 }
 
+// Function to extract assistant text from OpenAI response
+function getAssistantResponse(responseData: any): string {
+  if (!responseData?.output) return "";
+
+  // Find the first assistant message block
+  const message = responseData.output.find(
+    (item: any) => item.type === "message" && item.role === "assistant"
+  );
+  if (!message?.content) return "";
+
+  // Collect all text segments inside the message
+  const textParts = message.content
+    .filter((c: any) => c.type === "output_text" && c.text)
+    .map((c: any) => c.text);
+
+  return textParts.join(" ");
+}
+
 // Function to generate chat response for idea bouncer
 async function generateChatResponse(apiKey: string, messages: ChatMessage[]): Promise<string> {
   // Sanitize message content
@@ -250,7 +268,7 @@ async function generateChatResponse(apiKey: string, messages: ChatMessage[]): Pr
     ...msg,
     content: sanitizeInput(msg.content)
   }));
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+  const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -258,7 +276,7 @@ async function generateChatResponse(apiKey: string, messages: ChatMessage[]): Pr
     },
     body: JSON.stringify({
       model: "gpt-5-mini",
-      messages: [
+      input: [
         {
           role: "system",
           content: `You are an experienced product manager and startup advisor helping someone refine their project idea. Your goal is to:
@@ -269,14 +287,13 @@ async function generateChatResponse(apiKey: string, messages: ChatMessage[]): Pr
 4. Understand the scope and constraints
 5. Guide them toward a clear, actionable project concept
 
-Be conversational, encouraging, and practical. Ask one focused question at a time. Help them think through the "why" behind their idea, not just the "what". Keep responses concise but insightful.
+Be conversational, encouraging, and practical. Ask one question at a time. Help them think through the "why" behind their idea, not just the "what". Keep responses concise but insightful.
 
 When they seem to have a clear direction, acknowledge it and suggest they're ready to move to the next step.`
         },
         ...sanitizedMessages
       ],
-      max_tokens: 300,
-      temperature: 0.7,
+      max_output_tokens: 30000,
     }),
   });
 
@@ -286,7 +303,7 @@ When they seem to have a clear direction, acknowledge it and suggest they're rea
   }
 
   const data = await response.json();
-  return data.choices[0]?.message?.content || "Sorry, I had trouble generating a response. Please try again.";
+  return getAssistantResponse(data) || "Sorry, I had trouble generating a response. Please try again.";
 }
 
 // Function to generate idea summary
@@ -295,7 +312,7 @@ async function generateIdeaSummary(apiKey: string, chatHistory: ChatMessage[]): 
     .map(msg => `${msg.role === 'user' ? 'User' : 'AI'}: ${sanitizeInput(msg.content)}`)
     .join('\n\n');
 
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+  const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -303,7 +320,7 @@ async function generateIdeaSummary(apiKey: string, chatHistory: ChatMessage[]): 
     },
     body: JSON.stringify({
       model: "gpt-5-mini",
-      messages: [
+      input: [
         {
           role: "system",
           content: "Based on the following conversation, create a clear, concise summary of the project idea that emerged. Focus on: the core concept, target users, main problem being solved, and key features. Keep it to 2-3 sentences."
@@ -313,8 +330,7 @@ async function generateIdeaSummary(apiKey: string, chatHistory: ChatMessage[]): 
           content: `Please summarize this project ideation conversation:\n\n${conversationText}`
         }
       ],
-      max_tokens: 150,
-      temperature: 0.5,
+      max_output_tokens: 30000,
     }),
   });
 
@@ -324,13 +340,13 @@ async function generateIdeaSummary(apiKey: string, chatHistory: ChatMessage[]): 
   }
 
   const data = await response.json();
-  return data.choices[0]?.message?.content || "Unable to generate summary";
+  return getAssistantResponse(data) || "Unable to generate summary";
 }
 
 // Function to generate PRD
 async function generatePRD(apiKey: string, ideaSummary: string): Promise<string> {
   const sanitizedSummary = sanitizeInput(ideaSummary);
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+  const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -338,7 +354,7 @@ async function generatePRD(apiKey: string, ideaSummary: string): Promise<string>
     },
     body: JSON.stringify({
       model: "gpt-5-mini",
-      messages: [
+      input: [
         {
           role: "system",
           content: `You are a senior product manager creating a comprehensive Product Requirements Document (PRD). Based on the project idea provided, generate a well-structured PRD in markdown format.
@@ -361,8 +377,7 @@ Make it practical, actionable, and specific to the idea provided. Use clear head
           content: `Create a PRD for this project idea: ${sanitizedSummary}`
         }
       ],
-      max_tokens: 1500,
-      temperature: 0.6,
+      max_output_tokens: 30000,
     }),
   });
 
@@ -372,13 +387,13 @@ Make it practical, actionable, and specific to the idea provided. Use clear head
   }
 
   const data = await response.json();
-  return data.choices[0]?.message?.content || "Unable to generate PRD";
+  return getAssistantResponse(data) || "Unable to generate PRD";
 }
 
 // Function to generate roadmap
 async function generateRoadmap(apiKey: string, prdContent: string): Promise<any[]> {
   const sanitizedContent = sanitizeInput(prdContent);
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+  const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -386,7 +401,7 @@ async function generateRoadmap(apiKey: string, prdContent: string): Promise<any[
     },
     body: JSON.stringify({
       model: "gpt-5-mini",
-      messages: [
+      input: [
         {
           role: "system",
           content: `You are a senior product manager creating a granular development roadmap. Based on the PRD provided, break down the project into specific, actionable deliverables rather than high-level phases.
@@ -440,8 +455,7 @@ Avoid vague items like:
           content: `Create a granular development roadmap based on this PRD:\n\n${sanitizedContent}`
         }
       ],
-      max_tokens: 1500,
-      temperature: 0.6,
+      max_output_tokens: 30000,
     }),
   });
 
@@ -451,7 +465,7 @@ Avoid vague items like:
   }
 
   const data = await response.json();
-  const content = data.choices[0]?.message?.content;
+  const content = getAssistantResponse(data);
   
   if (!content) {
     throw new Error('No content received from OpenAI');
@@ -600,7 +614,7 @@ async function generateTasks(apiKey: string, prdContent: string, roadmapItems: a
     `${sanitizeInput(item.title)}: ${sanitizeInput(item.description)}`
   ).join('\n');
 
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+  const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -608,7 +622,7 @@ async function generateTasks(apiKey: string, prdContent: string, roadmapItems: a
     },
     body: JSON.stringify({
       model: "gpt-5-mini",
-      messages: [
+      input: [
         {
           role: "system",
           content: `You are a senior project manager breaking down a project into actionable tasks. Based on the PRD and roadmap provided, generate a comprehensive list of development tasks.
@@ -650,8 +664,7 @@ Roadmap:
 ${roadmapSummary}`
         }
       ],
-      max_tokens: 1500,
-      temperature: 0.6,
+      max_output_tokens: 30000,
     }),
   });
 
@@ -661,7 +674,7 @@ ${roadmapSummary}`
   }
 
   const data = await response.json();
-  const content = data.choices[0]?.message?.content;
+  const content = getAssistantResponse(data);
   
   if (!content) {
     throw new Error('No content received from OpenAI');
@@ -737,7 +750,7 @@ ${roadmapSummary}`
 async function generateDesignTasks(apiKey: string, feedbackText: string): Promise<any[]> {
   const sanitizedFeedback = sanitizeInput(feedbackText);
   
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+  const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -745,7 +758,7 @@ async function generateDesignTasks(apiKey: string, feedbackText: string): Promis
     },
     body: JSON.stringify({
       model: "gpt-5-mini",
-      messages: [
+      input: [
         {
           role: "system",
           content: `You are a UI/UX design expert who analyzes design feedback and generates actionable tasks. 
@@ -786,8 +799,7 @@ async function generateDesignTasks(apiKey: string, feedbackText: string): Promis
           content: `Please analyze this design feedback and generate actionable tasks:\n\n${sanitizedFeedback}`
         }
       ],
-      max_tokens: 1500,
-      temperature: 0.3,
+      max_output_tokens: 30000,
     }),
   });
 
@@ -797,7 +809,7 @@ async function generateDesignTasks(apiKey: string, feedbackText: string): Promis
   }
 
   const data = await response.json();
-  const content = data.choices[0]?.message?.content;
+  const content = getAssistantResponse(data);
   
   if (!content) {
     throw new Error('No content received from OpenAI');
@@ -849,7 +861,7 @@ async function generateDesignTasks(apiKey: string, feedbackText: string): Promis
 
 // Function to generate design tasks from image analysis
 async function generateDesignTasksFromImage(apiKey: string, imageData: string, mimeType: string): Promise<any[]> {
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+  const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -857,7 +869,7 @@ async function generateDesignTasksFromImage(apiKey: string, imageData: string, m
     },
     body: JSON.stringify({
       model: "gpt-5-mini",
-      messages: [
+      input: [
         {
           role: "system",
           content: `You are a senior UI/UX designer and expert who analyzes design screenshots to identify issues and improvements. 
@@ -925,8 +937,7 @@ async function generateDesignTasksFromImage(apiKey: string, imageData: string, m
           ]
         }
       ],
-      max_tokens: 1500,
-      temperature: 0.3,
+      max_output_tokens: 30000,
     }),
   });
 
@@ -936,7 +947,7 @@ async function generateDesignTasksFromImage(apiKey: string, imageData: string, m
   }
 
   const data = await response.json();
-  const content = data.choices[0]?.message?.content;
+  const content = getAssistantResponse(data);
   
   if (!content) {
     throw new Error('No content received from OpenAI');
@@ -994,7 +1005,7 @@ async function generateDeploymentChecklist(apiKey: string, platforms: string[], 
     `${sanitizeInput(item.title)}: ${sanitizeInput(item.description)}`
   ).join('\n') : '';
 
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+  const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -1002,7 +1013,7 @@ async function generateDeploymentChecklist(apiKey: string, platforms: string[], 
     },
     body: JSON.stringify({
       model: "gpt-5-mini",
-      messages: [
+      input: [
         {
           role: "system",
           content: `You are a senior DevOps engineer creating PROJECT-SPECIFIC deployment tasks. Platform-specific tasks (like Vercel/Netlify setup) are handled separately. Focus ONLY on tasks that are unique to this specific project based on its features, architecture, and requirements.
@@ -1071,8 +1082,7 @@ ${!sanitizedContent && !roadmapSummary ?
 }`
         }
       ],
-      max_tokens: 2000,
-      temperature: 0.6,
+      max_output_tokens: 30000,
     }),
   });
 
@@ -1082,7 +1092,7 @@ ${!sanitizedContent && !roadmapSummary ?
   }
 
   const data = await response.json();
-  const content = data.choices[0]?.message?.content;
+  const content = getAssistantResponse(data);
   
   if (!content) {
     throw new Error('No content received from OpenAI');
