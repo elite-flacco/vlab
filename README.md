@@ -1,10 +1,12 @@
-# VLab - AI-Powered Vibe Coder Workspace
+# VLab - AI-Powered Workspace for Solo Builders
 
-VLab is a minimalist workspace platform purpose built for vibe coders. It provides an integrated environment for project ideation, planning, and development tracking.
+VLab is a minimalist workspace platform purpose built for solo builders. It provides an integrated environment for project ideation, planning, and development tracking.
 
-## Features
+Check it out at [https://v-lab.dev](https://v-lab.dev).
 
-### Core Modules
+## 🚀 Features
+
+### 📦 Core Modules
 - **PRD (Product Requirements Documents)** - Create and manage detailed product specifications with AI assistance and full version control
 - **Roadmap** - Visual project planning with phase management and milestone tracking
 - **Tasks** - Minimalistic task management with priorities, progress tracking, and GitHub issue creation
@@ -13,41 +15,41 @@ VLab is a minimalist workspace platform purpose built for vibe coders. It provid
 - **Design** - Design documentation, asset management, and AI-powered design task generation
 - **Deployment** - Deployment checklists, configuration tracking, and platform-specific templates
 
-### Key Features
+### ⚡ Key Features
 - **AI-Powered Kick-off Flow** - Transform ideas into structured workspaces with AI assistance
 - **Version Control for PRDs** - Complete version history, side-by-side comparison, and change tracking
 - **GitHub Integration** - Convert tasks directly into GitHub repository issues with OAuth authentication
-- **Community Hub** - Share tools, prompts, and knowledge with other vibe coders
+- **Community Hub** - Share tools, prompts, and knowledge with other solo builders
 - **Light/Dark Mode** - Comprehensive theme system with automatic persistence
 - **Global Scratchpad** - Cross-project note-taking accessible from anywhere
 - **Anonymous User Support** - Full functionality without registration, with seamless account claiming
 
-### Community Features
+### 🌟 Community Features
 
-#### Posts & Discussions
+#### 💬 Posts & Discussions
 - **Create and Share** - Share your tips, tricks, and experiences with the community
 - **Rich Text Formatting** - Use Markdown to format your posts with headers, lists, bold/italic text, and links
 - **Image Support** - Include images in your posts to better illustrate your points
 - **Tagging System** - Add tags to make your posts more discoverable
 
-#### Engagement Tools
+#### 👍 Engagement Tools
 - **Voting System** - Upvote/downvote posts and comments to highlight valuable content
 - **Comments & Replies** - Engage in threaded discussions with other community members
 - **Save Posts** - Bookmark posts to easily find them later
 
-#### Discovery & Filtering
+#### 🔍 Discovery & Filtering
 - **Advanced Search** - Find relevant content with powerful search capabilities
 - **Filter by Tools** - Browse content specific to tools like Bolt, Loveable, Replit, and V0
 - **Category Filtering** - Filter by tip categories including Prompt Tricks, Integrations, Authentication, and more
 - **Tag Filtering** - Discover content through topic-specific tags
 - **Sorting Options** - Sort by newest, most popular, or trending content
 
-#### User Profiles
+#### 👤 User Profiles
 - **Personalized Feed** - View your contributed and saved posts
 - **Activity Tracking** - Keep track of your interactions and contributions
 - **Profile Customization** - Personalize your community presence
 
-## Technology Stack
+## 🛠️ Technology Stack
 
 - **Frontend**: React 18 + TypeScript + Vite
 - **Styling**: Tailwind CSS with custom design system (light/dark themes with neon accents)
@@ -60,14 +62,14 @@ VLab is a minimalist workspace platform purpose built for vibe coders. It provid
 - **Date Handling**: date-fns
 - **Markdown Rendering**: react-markdown
 
-## Getting Started
+## 🎯 Getting Started
 
-### Prerequisites
+### 📋 Prerequisites
 - Node.js 18+ 
 - npm or yarn
 - Supabase account
 
-### Installation
+### 🛠️ Installation
 
 1. Clone the repository:
 ```bash
@@ -94,7 +96,7 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key_here
 VITE_GITHUB_CLIENT_ID=your_github_oauth_app_client_id_here
 ```
 
-### GitHub Integration Setup
+### 🛠️ GitHub Integration Setup
 
 To enable GitHub integration for task-to-issue creation:
 
@@ -114,9 +116,9 @@ To enable GitHub integration for task-to-issue creation:
 npm run dev
 ```
 
-## Database Schema
+## 🗄️ Database Schema
 
-### Core Tables
+### 📊 Core Tables
 - `profiles` - User profile information
 - `projects` - Project containers
 - `prds` - Product Requirements Documents with versioning
@@ -132,7 +134,7 @@ npm run dev
 - `github_repositories` - User's connected GitHub repositories for issue creation
 - `posts`, `comments`, `votes` - Community features for social interaction
 
-### Version Control System
+### 📝 Version Control System
 
 The PRD versioning system provides:
 - **Automatic Version Tracking** - Every PRD update creates a new version
@@ -140,11 +142,11 @@ The PRD versioning system provides:
 - **Version Comparison** - Side-by-side comparison of any two versions
 - **Change Descriptions** - Optional descriptions for each version update
 
-#### Database Functions
+#### ⚙️ Database Functions
 - `create_prd_version()` - Automatically creates version snapshots
 - `get_prd_version_comparison()` - Returns comparison data for two versions
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 src/
@@ -176,24 +178,24 @@ src/
 └── types/              # TypeScript type definitions
 ```
 
-## API Integration
+## 🔌 API Integration
 
-### OpenAI Integration
+### 🤖 OpenAI Integration
 VLab integrates with OpenAI for:
 - Idea refinement and PRD generation
 - Roadmap creation from PRDs
 - Task breakdown from roadmaps
 - Prompt suggestions and optimization
 
-### Supabase Integration
+### 📡 Supabase Integration
 - Real-time data synchronization
 - Row Level Security for multi-tenant data isolation
 - Automatic user profile creation
 - Encrypted secret storage
 
-## Development
+## 💻 Development
 
-### Available Scripts
+### 📝 Available Scripts
 - `npm run dev` - Start development server with hot reload
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build locally
@@ -201,13 +203,13 @@ VLab integrates with OpenAI for:
 - `npm run server` - Run backend Express server only (for API proxying)
 - `npm run dev:full` - Run both frontend dev server and backend server concurrently
 
-### Code Style
+### 🎨 Code Style
 - TypeScript for type safety
 - ESLint for code quality
 - Tailwind CSS for styling
 - Component-based architecture
 
-## Deployment
+## 🚢 Deployment
 
 The application is designed to be deployed on modern hosting platforms:
 
@@ -220,7 +222,7 @@ npm run build
 3. Ensure environment variables are configured in your hosting environment
 4. Set up your Supabase database with the provided migrations
 
-## Contributing
+## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch
@@ -228,11 +230,11 @@ npm run build
 4. Add tests if applicable
 5. Submit a pull request
 
-## License
+## 📜 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Support
+## 🆘 Support
 
 For support and questions:
 - Create an issue in the repository
@@ -241,4 +243,4 @@ For support and questions:
 
 ---
 
-Built with ❤️ for the vibe coder community.
+Built with ❤️ for the solo builder community.
