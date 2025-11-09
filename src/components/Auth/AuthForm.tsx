@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
-import { useAuthStore } from '../../stores/authStore';
-import { ErrorMessage } from './ErrorMessage';
-import { Eye, EyeOff } from 'lucide-react';
+import React, { useState } from "react";
+import { useAuthStore } from "../../stores/authStore";
+import { ErrorMessage } from "./ErrorMessage";
+import { Eye, EyeOff } from "lucide-react";
 
 export const AuthForm: React.FC = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    name: '',
+    email: "",
+    password: "",
+    name: "",
   });
 
   const { signIn, signUp, loading, error, clearError } = useAuthStore();
@@ -26,7 +26,7 @@ export const AuthForm: React.FC = () => {
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
@@ -35,7 +35,7 @@ export const AuthForm: React.FC = () => {
   const handleSwitchToLogin = () => {
     setIsSignUp(false);
     clearError();
-    setFormData({ email: formData.email, password: '', name: '' });
+    setFormData({ email: formData.email, password: "", name: "" });
   };
 
   const handleRetry = () => {
@@ -45,7 +45,7 @@ export const AuthForm: React.FC = () => {
   const handleModeSwitch = () => {
     setIsSignUp(!isSignUp);
     clearError();
-    setFormData({ email: '', password: '', name: '' });
+    setFormData({ email: "", password: "", name: "" });
   };
 
   return (
@@ -53,13 +53,13 @@ export const AuthForm: React.FC = () => {
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            {isSignUp ? 'Create your account' : 'Sign in to your account'}
+            {isSignUp ? "Create your account" : "Sign in to your account"}
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             Welcome to VLab - Your Solo Vibe Coder Workspace
           </p>
         </div>
-        
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
             {isSignUp && (
@@ -80,7 +80,7 @@ export const AuthForm: React.FC = () => {
                 />
               </div>
             )}
-            
+
             <div className="form-field">
               <label htmlFor="email" className="form-label">
                 Email Address
@@ -97,7 +97,7 @@ export const AuthForm: React.FC = () => {
                 aria-label="Email address"
               />
             </div>
-            
+
             <div className="form-field">
               <label htmlFor="password" className="form-label">
                 Password
@@ -106,7 +106,7 @@ export const AuthForm: React.FC = () => {
                 <input
                   id="password"
                   name="password"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   required
                   value={formData.password}
                   onChange={handleInputChange}
@@ -118,7 +118,7 @@ export const AuthForm: React.FC = () => {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? (
                     <EyeOff className="h-4 w-4 text-gray-400" />
@@ -144,9 +144,9 @@ export const AuthForm: React.FC = () => {
               type="submit"
               disabled={loading}
               className="btn btn-primary btn-full"
-              aria-label={isSignUp ? 'Create account' : 'Sign in'}
+              aria-label={isSignUp ? "Create account" : "Sign in"}
             >
-              {loading ? 'Loading...' : (isSignUp ? 'Sign up' : 'Sign in')}
+              {loading ? "Loading..." : isSignUp ? "Sign up" : "Sign in"}
             </button>
           </div>
 
@@ -155,12 +155,11 @@ export const AuthForm: React.FC = () => {
               type="button"
               onClick={handleModeSwitch}
               className="text-blue-600 hover:text-blue-500 text-sm"
-              aria-label={isSignUp ? 'Switch to login' : 'Switch to sign up'}
+              aria-label={isSignUp ? "Switch to login" : "Switch to sign up"}
             >
-              {isSignUp 
-                ? 'Already have an account? Sign in' 
-                : "Don't have an account? Sign up"
-              }
+              {isSignUp
+                ? "Already have an account? Sign in"
+                : "Don't have an account? Sign up"}
             </button>
           </div>
         </form>

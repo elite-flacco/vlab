@@ -1,13 +1,14 @@
-import React from 'react';
-import { ArrowLeft } from 'lucide-react';
+import React from "react";
+import { ArrowLeft } from "lucide-react";
 
-interface BackButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface BackButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children?: React.ReactNode;
 }
 
 export const BackButton: React.FC<BackButtonProps> = ({
-  children = 'Return to Workspace',
-  className = '',
+  children = "Return to Workspace",
+  className = "",
   ...props
 }) => {
   return (

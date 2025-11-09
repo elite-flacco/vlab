@@ -1,17 +1,39 @@
-import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { ModuleContainer } from '../../components/Workspace/ModuleContainer';
-import { BackButton } from '../../components/common/BackButton';
-import { Palette, Sparkles, Zap, Layers, PenTool, Loader2, CheckCircle2, AlertCircle, Plus, Check, Edit2, Save, X, Upload, Image, FileText, Trash2, Tag } from 'lucide-react';
-import { db, supabase } from '../../lib/supabase';
-import { generateDesignTasks, generateDesignTasksFromImage } from '../../lib/openai';
-import { v4 as uuidv4 } from 'uuid';
+import React, { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { ModuleContainer } from "../../components/Workspace/ModuleContainer";
+import { BackButton } from "../../components/common/BackButton";
+import {
+  Palette,
+  Sparkles,
+  Zap,
+  Layers,
+  PenTool,
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
+  Plus,
+  Check,
+  Edit2,
+  Save,
+  X,
+  Upload,
+  Image,
+  FileText,
+  Trash2,
+  Tag,
+} from "lucide-react";
+import { db, supabase } from "../../lib/supabase";
+import {
+  generateDesignTasks,
+  generateDesignTasksFromImage,
+} from "../../lib/openai";
+import { v4 as uuidv4 } from "uuid";
 
 interface GeneratedTask {
   title: string;
   description: string;
-  status: 'todo' | 'in_progress' | 'done' | 'blocked';
-  priority: 'low' | 'medium' | 'high' | 'highest';
+  status: "todo" | "in_progress" | "done" | "blocked";
+  priority: "low" | "medium" | "high" | "highest";
   estimated_hours?: number;
   due_date?: string;
   tags: string[];
@@ -22,15 +44,19 @@ interface GeneratedTask {
 export const DesignDetailView: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
-  const [feedbackText, setFeedbackText] = useState('');
+  const [feedbackText, setFeedbackText] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedTasks, setGeneratedTasks] = useState<GeneratedTask[]>([]);
-  const [selectedTaskIds, setSelectedTaskIds] = useState<Set<number>>(new Set());
+  const [selectedTaskIds, setSelectedTaskIds] = useState<Set<number>>(
+    new Set(),
+  );
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
-  const [editingField, setEditingField] = useState<'title' | 'description' | null>(null);
+  const [editingField, setEditingField] = useState<
+    "title" | "description" | null
+  >(null);
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [analysisMode, setAnalysisMode] = useState<'text' | 'image'>('image');
+  const [analysisMode, setAnalysisMode] = useState<"text" | "image">("image");
   const [isDragOver, setIsDragOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -40,13 +66,13 @@ export const DesignDetailView: React.FC = () => {
   };
 
   const generateTasks = async () => {
-    if (analysisMode === 'text' && !feedbackText.trim()) {
-      setError('Please enter some design feedback text');
+    if (analysisMode === "text" && !feedbackText.trim()) {
+      setError("Please enter some design feedback text");
       return;
     }
 
-    if (analysisMode === 'image' && !uploadedImage) {
-      setError('Please upload a screenshot to analyze');
+    if (analysisMode === "image" && !uploadedImage) {
+      setError("Please upload a screenshot to analyze");
       return;
     }
 
@@ -56,7 +82,7 @@ export const DesignDetailView: React.FC = () => {
 
     try {
       let tasks;
-      if (analysisMode === 'text') {
+      if (analysisMode === "text") {
         tasks = await generateDesignTasks(feedbackText);
       } else {
         // TODO: Implement image analysis
@@ -67,32 +93,34 @@ export const DesignDetailView: React.FC = () => {
       // Select all tasks by default
       setSelectedTaskIds(new Set(tasks.map((_, index) => index)));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to generate tasks');
+      setError(err instanceof Error ? err.message : "Failed to generate tasks");
     } finally {
       setIsGenerating(false);
     }
   };
 
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     // Validate file type
-    if (!file.type.startsWith('image/')) {
-      setError('Please upload a valid image file');
+    if (!file.type.startsWith("image/")) {
+      setError("Please upload a valid image file");
       return;
     }
 
     // Validate file size (max 10MB)
     if (file.size > 10 * 1024 * 1024) {
-      setError('Image size must be less than 10MB');
+      setError("Image size must be less than 10MB");
       return;
     }
 
     try {
       // Compress image to reduce payload size
       const compressedFile = await compressImage(file, 0.8, 1200); // 80% quality, max 1200px width
-      
+
       // Set the compressed file for API use
       setUploadedImage(compressedFile);
 
@@ -102,27 +130,31 @@ export const DesignDetailView: React.FC = () => {
         setImagePreview(e.target?.result as string);
       };
       reader.onerror = (e) => {
-        setError('Failed to create image preview');
+        setError("Failed to create image preview");
       };
       reader.readAsDataURL(file);
       setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to process image');
+      setError(err instanceof Error ? err.message : "Failed to process image");
     }
   };
 
   // Compress image to reduce API payload size
-  const compressImage = (file: File, quality: number, maxWidth: number): Promise<File> => {
+  const compressImage = (
+    file: File,
+    quality: number,
+    maxWidth: number,
+  ): Promise<File> => {
     return new Promise((resolve, reject) => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
 
       if (!ctx) {
-        reject(new Error('Canvas context not available'));
+        reject(new Error("Canvas context not available"));
         return;
       }
 
-      const img = document.createElement('img');
+      const img = document.createElement("img");
 
       img.onload = () => {
         try {
@@ -141,18 +173,18 @@ export const DesignDetailView: React.FC = () => {
           canvas.toBlob(
             (blob) => {
               if (!blob) {
-                reject(new Error('Failed to compress image'));
+                reject(new Error("Failed to compress image"));
                 return;
               }
 
               const compressedFile = new File([blob], file.name, {
                 type: file.type,
-                lastModified: Date.now()
+                lastModified: Date.now(),
               });
               resolve(compressedFile);
             },
             file.type,
-            quality
+            quality,
           );
         } catch (error) {
           reject(error);
@@ -160,7 +192,7 @@ export const DesignDetailView: React.FC = () => {
       };
 
       img.onerror = () => {
-        reject(new Error('Failed to load image'));
+        reject(new Error("Failed to load image"));
       };
 
       img.src = URL.createObjectURL(file);
@@ -196,23 +228,23 @@ export const DesignDetailView: React.FC = () => {
     setIsDragOver(false);
 
     const files = Array.from(e.dataTransfer.files);
-    const imageFile = files.find(file => file.type.startsWith('image/'));
+    const imageFile = files.find((file) => file.type.startsWith("image/"));
 
     if (!imageFile) {
-      setError('Please drop a valid image file');
+      setError("Please drop a valid image file");
       return;
     }
 
     // Validate file size (max 10MB)
     if (imageFile.size > 10 * 1024 * 1024) {
-      setError('Image size must be less than 10MB');
+      setError("Image size must be less than 10MB");
       return;
     }
 
     try {
       // Compress image to reduce payload size
       const compressedFile = await compressImage(imageFile, 0.8, 1200);
-      
+
       // Set the compressed file for API use
       setUploadedImage(compressedFile);
 
@@ -222,18 +254,19 @@ export const DesignDetailView: React.FC = () => {
         setImagePreview(e.target?.result as string);
       };
       reader.onerror = (e) => {
-        setError('Failed to create image preview');
+        setError("Failed to create image preview");
       };
       reader.readAsDataURL(imageFile);
       setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to process image');
+      setError(err instanceof Error ? err.message : "Failed to process image");
     }
   };
 
-
   const addTasksToProject = async () => {
-    const selectedTasks = generatedTasks.filter((_, index) => selectedTaskIds.has(index));
+    const selectedTasks = generatedTasks.filter((_, index) =>
+      selectedTaskIds.has(index),
+    );
     if (!projectId || selectedTasks.length === 0) return;
 
     setIsGenerating(true);
@@ -241,9 +274,11 @@ export const DesignDetailView: React.FC = () => {
 
     try {
       // Get current user
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
-        setError('You must be logged in to add tasks');
+        setError("You must be logged in to add tasks");
         return;
       }
 
@@ -268,13 +303,14 @@ export const DesignDetailView: React.FC = () => {
         }
       }
 
-      setSuccess(`Successfully added ${selectedTasks.length} tasks to your project!`);
+      setSuccess(
+        `Successfully added ${selectedTasks.length} tasks to your project!`,
+      );
       setGeneratedTasks([]);
       setSelectedTaskIds(new Set());
-      setFeedbackText('');
-
+      setFeedbackText("");
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to add tasks');
+      setError(err instanceof Error ? err.message : "Failed to add tasks");
     } finally {
       setIsGenerating(false);
     }
@@ -300,13 +336,17 @@ export const DesignDetailView: React.FC = () => {
     }
   };
 
-  const updateTask = (taskIndex: number, field: keyof GeneratedTask, value: any) => {
+  const updateTask = (
+    taskIndex: number,
+    field: keyof GeneratedTask,
+    value: any,
+  ) => {
     const updatedTasks = [...generatedTasks];
     updatedTasks[taskIndex] = { ...updatedTasks[taskIndex], [field]: value };
     setGeneratedTasks(updatedTasks);
   };
 
-  const startEditing = (taskIndex: number, field: 'title' | 'description') => {
+  const startEditing = (taskIndex: number, field: "title" | "description") => {
     setEditingTaskId(taskIndex);
     setEditingField(field);
   };
@@ -316,17 +356,22 @@ export const DesignDetailView: React.FC = () => {
     setEditingField(null);
   };
 
-  const isEditing = (taskIndex: number, field: 'title' | 'description') => {
+  const isEditing = (taskIndex: number, field: "title" | "description") => {
     return editingTaskId === taskIndex && editingField === field;
   };
 
   const getPriorityBadgeClass = (priority: string) => {
     switch (priority) {
-      case 'highest': return 'badge-priority-urgent';   // Red for critical/highest
-      case 'high': return 'badge-priority-high';       // Orange for high
-      case 'medium': return 'badge-priority-medium';   // Yellow for medium  
-      case 'low': return 'badge-priority-low';         // Green for low
-      default: return 'badge-priority-low';            // Default to low
+      case "highest":
+        return "badge-priority-urgent"; // Red for critical/highest
+      case "high":
+        return "badge-priority-high"; // Orange for high
+      case "medium":
+        return "badge-priority-medium"; // Yellow for medium
+      case "low":
+        return "badge-priority-low"; // Green for low
+      default:
+        return "badge-priority-low"; // Default to low
     }
   };
 
@@ -350,34 +395,38 @@ export const DesignDetailView: React.FC = () => {
           <div className="flex items-center justify-center mb-6">
             <div className="flex bg-background border border-border rounded-lg p-1">
               <button
-                onClick={() => setAnalysisMode('image')}
-                className={`flex items-center gap-2 px-4 py-2 text-base rounded-md transition-all ${analysisMode === 'image'
-                  ? 'filter-button-active'
-                  : 'filter-button'
-                  }`}
+                onClick={() => setAnalysisMode("image")}
+                className={`flex items-center gap-2 px-4 py-2 text-base rounded-md transition-all ${
+                  analysisMode === "image"
+                    ? "filter-button-active"
+                    : "filter-button"
+                }`}
               >
                 <Image className="w-4 h-4" />
                 Upload Screenshot
               </button>
               <button
-                onClick={() => setAnalysisMode('text')}
-                className={`flex items-center gap-2 px-4 py-2 text-base rounded-md transition-all ${analysisMode === 'text'
-                  ? 'filter-button-active'
-                  : 'filter-button'
-                  }`}
+                onClick={() => setAnalysisMode("text")}
+                className={`flex items-center gap-2 px-4 py-2 text-base rounded-md transition-all ${
+                  analysisMode === "text"
+                    ? "filter-button-active"
+                    : "filter-button"
+                }`}
               >
                 <FileText className="w-4 h-4" />
                 Paste Text
               </button>
-
             </div>
           </div>
 
           {/* Input Section */}
           <div className="space-y-4">
-            {analysisMode === 'text' ? (
+            {analysisMode === "text" ? (
               <div>
-                <label htmlFor="feedback" className="block text-sm font-medium text-foreground mb-2">
+                <label
+                  htmlFor="feedback"
+                  className="block text-sm font-medium text-foreground mb-2"
+                >
                   Design Feedback
                 </label>
                 <textarea
@@ -397,10 +446,11 @@ export const DesignDetailView: React.FC = () => {
 
                 {!imagePreview ? (
                   <div
-                    className={`border-2 border-dashed rounded-lg p-8 text-center transition-all ${isDragOver
-                      ? 'border-primary bg-primary/5 scale-105'
-                      : 'border-border hover:border-primary/50'
-                      }`}
+                    className={`border-2 border-dashed rounded-lg p-8 text-center transition-all ${
+                      isDragOver
+                        ? "border-primary bg-primary/5 scale-105"
+                        : "border-border hover:border-primary/50"
+                    }`}
                     onDragOver={handleDragOver}
                     onDragEnter={handleDragEnter}
                     onDragLeave={handleDragLeave}
@@ -414,12 +464,25 @@ export const DesignDetailView: React.FC = () => {
                       id="image-upload"
                       disabled={isGenerating}
                     />
-                    <label htmlFor="image-upload" className="cursor-pointer block">
-                      <Upload className={`w-10 h-10 mx-auto mb-4 transition-colors ${isDragOver ? 'text-primary' : 'text-foreground-dim'
-                        }`} />
-                      <p className={`mb-2 transition-colors ${isDragOver ? 'text-primary font-medium' : 'text-foreground-dim'
-                        }`}>
-                        {isDragOver ? 'Drop your screenshot here!' : 'Click to upload a screenshot or drag and drop'}
+                    <label
+                      htmlFor="image-upload"
+                      className="cursor-pointer block"
+                    >
+                      <Upload
+                        className={`w-10 h-10 mx-auto mb-4 transition-colors ${
+                          isDragOver ? "text-primary" : "text-foreground-dim"
+                        }`}
+                      />
+                      <p
+                        className={`mb-2 transition-colors ${
+                          isDragOver
+                            ? "text-primary font-medium"
+                            : "text-foreground-dim"
+                        }`}
+                      >
+                        {isDragOver
+                          ? "Drop your screenshot here!"
+                          : "Click to upload a screenshot or drag and drop"}
                       </p>
                       <p className="text-sm text-foreground-dim/70">
                         PNG, JPG, or WebP up to 10MB
@@ -454,8 +517,8 @@ export const DesignDetailView: React.FC = () => {
               onClick={generateTasks}
               disabled={
                 isGenerating ||
-                (analysisMode === 'text' && !feedbackText.trim()) ||
-                (analysisMode === 'image' && !uploadedImage)
+                (analysisMode === "text" && !feedbackText.trim()) ||
+                (analysisMode === "image" && !uploadedImage)
               }
               className="btn-primary w-full flex items-center justify-center gap-2"
             >
@@ -465,11 +528,10 @@ export const DesignDetailView: React.FC = () => {
                 <Sparkles className="w-4 h-4" />
               )}
               {isGenerating
-                ? 'Analyzing...'
-                : analysisMode === 'text'
-                  ? 'Generate Tasks'
-                  : 'Analyze Screenshot'
-              }
+                ? "Analyzing..."
+                : analysisMode === "text"
+                  ? "Generate Tasks"
+                  : "Analyze Screenshot"}
             </button>
           </div>
 
@@ -496,12 +558,15 @@ export const DesignDetailView: React.FC = () => {
                   <h3>Generated Tasks</h3>
                   <button
                     onClick={toggleAllTasks}
-                    className={`${selectedTaskIds.size === generatedTasks.length
-                      ? 'filter-button'
-                      : 'filter-button-active'
-                      }`}
+                    className={`${
+                      selectedTaskIds.size === generatedTasks.length
+                        ? "filter-button"
+                        : "filter-button-active"
+                    }`}
                   >
-                    {selectedTaskIds.size === generatedTasks.length ? 'Deselect All' : 'Select All'}
+                    {selectedTaskIds.size === generatedTasks.length
+                      ? "Deselect All"
+                      : "Select All"}
                   </button>
                 </div>
                 <button
@@ -510,24 +575,31 @@ export const DesignDetailView: React.FC = () => {
                   className="btn-primary flex items-center gap-2"
                 >
                   <Plus className="w-4 h-4" />
-                  Add {selectedTaskIds.size} Task{selectedTaskIds.size !== 1 ? 's' : ''}
+                  Add {selectedTaskIds.size} Task
+                  {selectedTaskIds.size !== 1 ? "s" : ""}
                 </button>
               </div>
 
               <div className="space-y-3">
                 {generatedTasks.map((task, index) => (
-                  <div key={index} className="bg-card border border-border rounded-lg p-4">
+                  <div
+                    key={index}
+                    className="bg-card border border-border rounded-lg p-4"
+                  >
                     <div className="flex items-start gap-3">
                       {/* Checkbox */}
                       <div className="flex-shrink-0 pt-1">
                         <button
                           onClick={() => toggleTaskSelection(index)}
-                          className={`w-4 h-4 rounded border flex items-center justify-center transition-all duration-200 ${selectedTaskIds.has(index)
-                            ? 'bg-background border-foreground/40 text-primary'
-                            : 'border-foreground/40 hover:border-primary/50 bg-background'
-                            }`}
+                          className={`w-4 h-4 rounded border flex items-center justify-center transition-all duration-200 ${
+                            selectedTaskIds.has(index)
+                              ? "bg-background border-foreground/40 text-primary"
+                              : "border-foreground/40 hover:border-primary/50 bg-background"
+                          }`}
                         >
-                          {selectedTaskIds.has(index) && <Check className="w-3 h-3" />}
+                          {selectedTaskIds.has(index) && (
+                            <Check className="w-3 h-3" />
+                          )}
                         </button>
                       </div>
 
@@ -535,23 +607,25 @@ export const DesignDetailView: React.FC = () => {
                       <div className="flex-1">
                         <div className="flex items-start justify-between mb-2">
                           <div className="flex-1 mr-3">
-                            {isEditing(index, 'title') ? (
+                            {isEditing(index, "title") ? (
                               <input
                                 type="text"
                                 value={task.title}
-                                onChange={(e) => updateTask(index, 'title', e.target.value)}
+                                onChange={(e) =>
+                                  updateTask(index, "title", e.target.value)
+                                }
                                 className="form-input"
                                 onBlur={stopEditing}
                                 onKeyDown={(e) => {
-                                  if (e.key === 'Enter') stopEditing();
-                                  if (e.key === 'Escape') stopEditing();
+                                  if (e.key === "Enter") stopEditing();
+                                  if (e.key === "Escape") stopEditing();
                                 }}
                                 autoFocus
                               />
                             ) : (
                               <h4
                                 className="text-base cursor-pointer hover:bg-background/50 rounded px-1 py-0.5 -mx-1 -my-0.5 transition-colors"
-                                onClick={() => startEditing(index, 'title')}
+                                onClick={() => startEditing(index, "title")}
                               >
                                 {task.title}
                               </h4>
@@ -559,41 +633,89 @@ export const DesignDetailView: React.FC = () => {
                           </div>
                           <div className="flex items-center gap-2">
                             <button
-                              onClick={() => editingTaskId === index ? stopEditing() : startEditing(index, 'title')}
+                              onClick={() =>
+                                editingTaskId === index
+                                  ? stopEditing()
+                                  : startEditing(index, "title")
+                              }
                               className="p-1 text-foreground-dim hover:text-foreground transition-colors"
-                              title={editingTaskId === index ? "Stop editing" : "Edit task"}
+                              title={
+                                editingTaskId === index
+                                  ? "Stop editing"
+                                  : "Edit task"
+                              }
                             >
-                              {editingTaskId === index ? <Save className="w-4 h-4" /> : <Edit2 className="w-4 h-4" />}
+                              {editingTaskId === index ? (
+                                <Save className="w-4 h-4" />
+                              ) : (
+                                <Edit2 className="w-4 h-4" />
+                              )}
                             </button>
                             <select
                               value={task.priority}
-                              onChange={(e) => updateTask(index, 'priority', e.target.value)}
+                              onChange={(e) =>
+                                updateTask(index, "priority", e.target.value)
+                              }
                               className={`badge ${getPriorityBadgeClass(task.priority)} appearance-none cursor-pointer border-none outline-none`}
                             >
-                              <option value="low" style={{ backgroundColor: '#1a1a1a', color: '#e0e0e0' }}>low</option>
-                              <option value="medium" style={{ backgroundColor: '#1a1a1a', color: '#e0e0e0' }}>medium</option>
-                              <option value="high" style={{ backgroundColor: '#1a1a1a', color: '#e0e0e0' }}>high</option>
-                              <option value="highest" style={{ backgroundColor: '#1a1a1a', color: '#e0e0e0' }}>highest</option>
+                              <option
+                                value="low"
+                                style={{
+                                  backgroundColor: "#1a1a1a",
+                                  color: "#e0e0e0",
+                                }}
+                              >
+                                low
+                              </option>
+                              <option
+                                value="medium"
+                                style={{
+                                  backgroundColor: "#1a1a1a",
+                                  color: "#e0e0e0",
+                                }}
+                              >
+                                medium
+                              </option>
+                              <option
+                                value="high"
+                                style={{
+                                  backgroundColor: "#1a1a1a",
+                                  color: "#e0e0e0",
+                                }}
+                              >
+                                high
+                              </option>
+                              <option
+                                value="highest"
+                                style={{
+                                  backgroundColor: "#1a1a1a",
+                                  color: "#e0e0e0",
+                                }}
+                              >
+                                highest
+                              </option>
                             </select>
                           </div>
                         </div>
 
-                        {isEditing(index, 'description') ? (
+                        {isEditing(index, "description") ? (
                           <textarea
                             value={task.description}
-                            onChange={(e) => updateTask(index, 'description', e.target.value)}
+                            onChange={(e) =>
+                              updateTask(index, "description", e.target.value)
+                            }
                             className="form-textarea"
                             rows={3}
                             onBlur={stopEditing}
                             onKeyDown={(e) => {
-                              if (e.key === 'Escape') stopEditing();
+                              if (e.key === "Escape") stopEditing();
                             }}
                             autoFocus
                           />
                         ) : (
                           <p
                             className="text-foreground-dim text-sm mb-3 cursor-pointer hover:bg-background/50 rounded px-1 py-0.5 -mx-1 -my-0.5 transition-colors"
-                            onClick={() => startEditing(index, 'description')}
+                            onClick={() => startEditing(index, "description")}
                           >
                             {task.description}
                           </p>
@@ -604,8 +726,9 @@ export const DesignDetailView: React.FC = () => {
                             <div className="flex items-center space-x-1">
                               <Tag className="w-3 h-3 text-foreground-dim" />
                               <span className="text-xs text-foreground-dim">
-                                {task.tags.slice(0, 2).join(', ')}
-                                {task.tags.length > 2 && ` +${task.tags.length - 2}`}
+                                {task.tags.slice(0, 2).join(", ")}
+                                {task.tags.length > 2 &&
+                                  ` +${task.tags.length - 2}`}
                               </span>
                             </div>
                           )}

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { X, Folder, Sparkles } from 'lucide-react';
+import React, { useState } from "react";
+import { X, Folder, Sparkles } from "lucide-react";
 
 interface NewProjectModalProps {
   isOpen: boolean;
@@ -15,20 +15,20 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
   loading = false,
 }) => {
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
+    name: "",
+    description: "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.name.trim()) {
       onCreate(formData.name.trim(), formData.description.trim() || undefined);
-      setFormData({ name: '', description: '' });
+      setFormData({ name: "", description: "" });
     }
   };
 
   const handleClose = () => {
-    setFormData({ name: '', description: '' });
+    setFormData({ name: "", description: "" });
     onClose();
   };
 
@@ -61,7 +61,9 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
               id="project-name"
               type="text"
               value={formData.name}
-              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, name: e.target.value }))
+              }
               placeholder="Enter your project name"
               className="form-input"
               required
@@ -76,7 +78,12 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
             <textarea
               id="project-description"
               value={formData.description}
-              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  description: e.target.value,
+                }))
+              }
               placeholder="Briefly describe what you're building..."
               rows={3}
               className="form-textarea"
@@ -87,9 +94,13 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
             <div className="flex items-start space-x-3">
               <Sparkles className="w-5 h-5 text-primary mt-0.5" />
               <div>
-                <h3 className="text-sm font-medium text-foreground mb-1">AI-Powered Kick-off</h3>
+                <h3 className="text-sm font-medium text-foreground mb-1">
+                  AI-Powered Kick-off
+                </h3>
                 <p className="text-sm text-foreground-dim">
-                  After creating your project, we'll guide you through an AI-powered setup to transform your idea into a structured workspace with PRDs, roadmaps, and tasks.
+                  After creating your project, we'll guide you through an
+                  AI-powered setup to transform your idea into a structured
+                  workspace with PRDs, roadmaps, and tasks.
                 </p>
               </div>
             </div>

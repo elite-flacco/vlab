@@ -1,30 +1,44 @@
-import React, { useState, useEffect } from 'react';
-import { Map, Sparkles, Save, Edit3, Plus, Trash2, Loader2, RefreshCw, Calendar, Target } from 'lucide-react';
-import { generateRoadmap } from '../../lib/openai';
-import { db } from '../../lib/supabase';
+import React, { useState, useEffect } from "react";
+import {
+  Map,
+  Sparkles,
+  Save,
+  Edit3,
+  Plus,
+  Trash2,
+  Loader2,
+  RefreshCw,
+  Calendar,
+  Target,
+} from "lucide-react";
+import { generateRoadmap } from "../../lib/openai";
+import { db } from "../../lib/supabase";
 
 interface RoadmapItem {
   title: string;
   description: string;
-  status: 'planned' | 'in_progress' | 'completed';
+  status: "planned" | "in_progress" | "completed";
   start_date?: string;
   end_date?: string;
   milestone: boolean;
   color: string;
   position: number;
-  phase: 'mvp' | 'phase_2' | 'backlog';
+  phase: "mvp" | "phase_2" | "backlog";
 }
 
 interface RoadmapGeneratorProps {
   projectId: string;
   prdContent: string;
-  onRoadmapGenerated: (roadmapData: { items: RoadmapItem[]; count: number }) => void;
+  onRoadmapGenerated: (roadmapData: {
+    items: RoadmapItem[];
+    count: number;
+  }) => void;
 }
 
-export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({ 
-  projectId, 
-  prdContent, 
-  onRoadmapGenerated 
+export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
+  projectId,
+  prdContent,
+  onRoadmapGenerated,
 }) => {
   const [roadmapItems, setRoadmapItems] = useState<RoadmapItem[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -50,8 +64,10 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
       setRoadmapItems(generatedItems);
       setHasGenerated(true);
     } catch (error) {
-      console.error('Error generating roadmap:', error);
-      setError(error instanceof Error ? error.message : 'Failed to generate roadmap');
+      console.error("Error generating roadmap:", error);
+      setError(
+        error instanceof Error ? error.message : "Failed to generate roadmap",
+      );
     } finally {
       setIsGenerating(false);
     }
@@ -67,18 +83,19 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
       // Save each roadmap item to database
       const savedItems = [];
       for (const item of roadmapItems) {
-        const { data: roadmapItem, error: saveError } = await db.createRoadmapItem({
-          project_id: projectId,
-          title: item.title,
-          description: item.description,
-          status: item.status,
-          start_date: item.start_date || null,
-          end_date: item.end_date || null,
-          milestone: item.milestone,
-          color: item.color,
-          position: item.position,
-          phase: item.phase, // Include the phase property when saving to database
-        });
+        const { data: roadmapItem, error: saveError } =
+          await db.createRoadmapItem({
+            project_id: projectId,
+            title: item.title,
+            description: item.description,
+            status: item.status,
+            start_date: item.start_date || null,
+            end_date: item.end_date || null,
+            milestone: item.milestone,
+            color: item.color,
+            position: item.position,
+            phase: item.phase, // Include the phase property when saving to database
+          });
 
         if (saveError) throw saveError;
         savedItems.push(roadmapItem);
@@ -90,8 +107,10 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
         count: roadmapItems.length,
       });
     } catch (error) {
-      console.error('Error saving roadmap:', error);
-      setError(error instanceof Error ? error.message : 'Failed to save roadmap');
+      console.error("Error saving roadmap:", error);
+      setError(
+        error instanceof Error ? error.message : "Failed to save roadmap",
+      );
     } finally {
       setIsSaving(false);
     }
@@ -99,21 +118,21 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
 
   const handleAddItem = () => {
     const newItem: RoadmapItem = {
-      title: 'New Roadmap Item',
-      description: 'Add description here...',
-      status: 'planned',
+      title: "New Roadmap Item",
+      description: "Add description here...",
+      status: "planned",
       milestone: false,
-      color: '#3b82f6',
+      color: "#3b82f6",
       position: roadmapItems.length,
-      phase: 'backlog', // Default to backlog for new items
+      phase: "backlog", // Default to backlog for new items
     };
     setRoadmapItems([...roadmapItems, newItem]);
     setEditingIndex(roadmapItems.length);
   };
 
   const handleUpdateItem = (index: number, updates: Partial<RoadmapItem>) => {
-    const updatedItems = roadmapItems.map((item, i) => 
-      i === index ? { ...item, ...updates } : item
+    const updatedItems = roadmapItems.map((item, i) =>
+      i === index ? { ...item, ...updates } : item,
     );
     setRoadmapItems(updatedItems);
   };
@@ -121,32 +140,43 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
   const handleDeleteItem = (index: number) => {
     const updatedItems = roadmapItems.filter((_, i) => i !== index);
     // Update positions
-    const reorderedItems = updatedItems.map((item, i) => ({ ...item, position: i }));
+    const reorderedItems = updatedItems.map((item, i) => ({
+      ...item,
+      position: i,
+    }));
     setRoadmapItems(reorderedItems);
     setEditingIndex(null);
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'bg-green-500/10 text-green-400 border border-green-500/20 hover:bg-green-500/20 hover:border-green-500/30';
-      case 'in_progress': return 'bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500/20 hover:border-blue-500/30';
-      case 'cancelled': return 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 hover:bg-yellow-500/20 hover:border-yellow-500/30';
-      default: return 'bg-secondary text-foreground-dim border border-foreground-dim/20 hover:bg-secondary/80 hover:border-foreground-dim/30';
+      case "completed":
+        return "bg-green-500/10 text-green-400 border border-green-500/20 hover:bg-green-500/20 hover:border-green-500/30";
+      case "in_progress":
+        return "bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500/20 hover:border-blue-500/30";
+      case "cancelled":
+        return "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 hover:bg-yellow-500/20 hover:border-yellow-500/30";
+      default:
+        return "bg-secondary text-foreground-dim border border-foreground-dim/20 hover:bg-secondary/80 hover:border-foreground-dim/30";
     }
   };
   const getPhaseLabel = (phase: string) => {
-    if (phase === 'mvp') return 'MVP';
-    if (phase === 'phase_2') return 'Phase 2';
-    if (phase === 'backlog') return 'Backlog';
+    if (phase === "mvp") return "MVP";
+    if (phase === "phase_2") return "Phase 2";
+    if (phase === "backlog") return "Backlog";
     return phase;
   };
 
   const getPhaseColor = (phase: string) => {
     switch (phase) {
-      case 'mvp': return 'bg-red-500/10 text-red-400 border-red-500/20';
-      case 'phase_2': return 'bg-purple-500/10 text-purple-400 border-purple-500/20';
-      case 'backlog': return 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20';
-      default: return 'bg-gray-500/10 text-gray-400 border-gray-500/20';
+      case "mvp":
+        return "bg-red-500/10 text-red-400 border-red-500/20";
+      case "phase_2":
+        return "bg-purple-500/10 text-purple-400 border-purple-500/20";
+      case "backlog":
+        return "bg-yellow-500/10 text-yellow-400 border-yellow-500/20";
+      default:
+        return "bg-gray-500/10 text-gray-400 border-gray-500/20";
     }
   };
 
@@ -166,17 +196,19 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
               className="btn-secondary"
             >
               <Edit3 className="w-4 h-4 mr-2" />
-              {isEditing ? 'Done Editing' : 'Edit Items'}
+              {isEditing ? "Done Editing" : "Edit Items"}
             </button>
           )}
-          
+
           {hasGenerated && (
             <button
               onClick={handleGenerateRoadmap}
               disabled={isGenerating}
               className="btn-secondary"
             >
-              <RefreshCw className={`w-4 h-4 mr-2 ${isGenerating ? 'animate-spin' : ''}`} />
+              <RefreshCw
+                className={`w-4 h-4 mr-2 ${isGenerating ? "animate-spin" : ""}`}
+              />
               Regenerate
             </button>
           )}
@@ -197,7 +229,8 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
             <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-4" />
             <h3 className="mb-2">Generating Your Roadmap</h3>
             <p className="text-foreground-dim">
-              AI is analyzing your PRD and creating a phased development roadmap...
+              AI is analyzing your PRD and creating a phased development
+              roadmap...
             </p>
           </div>
         </div>
@@ -212,7 +245,9 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
                 <div key={index} className="relative">
                   {/* Phase Label */}
                   <div className="flex items-center gap-2 mb-3">
-                    <div className={`px-3 py-1 rounded-md text-xs font-medium ${getPhaseColor(item.phase)}`}>
+                    <div
+                      className={`px-3 py-1 rounded-md text-xs font-medium ${getPhaseColor(item.phase)}`}
+                    >
                       {getPhaseLabel(item.phase)}
                     </div>
                   </div>
@@ -223,20 +258,30 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
                         <input
                           type="text"
                           value={item.title}
-                          onChange={(e) => handleUpdateItem(index, { title: e.target.value })}
+                          onChange={(e) =>
+                            handleUpdateItem(index, { title: e.target.value })
+                          }
                           className="form-input"
                           placeholder="Roadmap item title"
                         />
                         <textarea
                           value={item.description}
-                          onChange={(e) => handleUpdateItem(index, { description: e.target.value })}
+                          onChange={(e) =>
+                            handleUpdateItem(index, {
+                              description: e.target.value,
+                            })
+                          }
                           className="form-textarea min-h-[100px]"
                           placeholder="Description of this phase..."
                         />
                         <div className="flex flex-wrap gap-4">
                           <select
                             value={item.status}
-                            onChange={(e) => handleUpdateItem(index, { status: e.target.value as any })}
+                            onChange={(e) =>
+                              handleUpdateItem(index, {
+                                status: e.target.value as any,
+                              })
+                            }
                             className="form-select flex-1 min-w-[150px]"
                           >
                             <option value="planned">Planned</option>
@@ -245,7 +290,11 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
                           </select>
                           <select
                             value={item.phase}
-                            onChange={(e) => handleUpdateItem(index, { phase: e.target.value as any })}
+                            onChange={(e) =>
+                              handleUpdateItem(index, {
+                                phase: e.target.value as any,
+                              })
+                            }
                             className="form-select flex-1 min-w-[150px]"
                           >
                             <option value="mvp">MVP</option>
@@ -274,8 +323,10 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
                         <div className="flex items-start justify-between gap-4 mb-2">
                           <h5>{item.title}</h5>
                           <div className="flex items-center gap-2">
-                            <span className={`px-2.5 py-1 rounded-md text-2xs border ${getStatusColor(item.status)}`}>
-                              {item.status.replace('_', ' ')}
+                            <span
+                              className={`px-2.5 py-1 rounded-md text-2xs border ${getStatusColor(item.status)}`}
+                            >
+                              {item.status.replace("_", " ")}
                             </span>
                             {isEditing && (
                               <button
@@ -287,19 +338,29 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
                             )}
                           </div>
                         </div>
-                        <p className="text-foreground-dim text-sm leading-relaxed">{item.description}</p>
+                        <p className="text-foreground-dim text-sm leading-relaxed">
+                          {item.description}
+                        </p>
                         {(item.start_date || item.end_date) && (
                           <div className="flex flex-wrap gap-4 mt-3 text-xs text-muted-foreground">
                             {item.start_date && (
                               <div className="flex items-center gap-1">
                                 <Calendar className="w-3.5 h-3.5" />
-                                <span>Start: {new Date(item.start_date).toLocaleDateString()}</span>
+                                <span>
+                                  Start:{" "}
+                                  {new Date(
+                                    item.start_date,
+                                  ).toLocaleDateString()}
+                                </span>
                               </div>
                             )}
                             {item.end_date && (
                               <div className="flex items-center gap-1">
                                 <Calendar className="w-3.5 h-3.5" />
-                                <span>End: {new Date(item.end_date).toLocaleDateString()}</span>
+                                <span>
+                                  End:{" "}
+                                  {new Date(item.end_date).toLocaleDateString()}
+                                </span>
                               </div>
                             )}
                           </div>
@@ -319,10 +380,7 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
 
               {/* Add Item Button */}
               {isEditing && (
-                <button
-                  onClick={handleAddItem}
-                  className="btn-add w-full"
-                >
+                <button onClick={handleAddItem} className="btn-add w-full">
                   <Plus className="w-5 h-5" />
                   <span className="font-medium">Add Roadmap Item</span>
                 </button>
@@ -341,7 +399,7 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
               <span>Review your roadmap phases, then save to continue</span>
             </span>
           </div>
-          
+
           <button
             onClick={handleSaveRoadmap}
             disabled={roadmapItems.length === 0 || isSaving}
@@ -367,9 +425,12 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
         <div className="bg-card border border-border rounded-lg flex-1 p-8 flex items-center justify-center">
           <div className="text-center max-w-md">
             <Map className="w-12 h-12 text-primary/50 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-foreground mb-2">Ready to Generate Your Roadmap</h3>
+            <h3 className="text-xl font-semibold text-foreground mb-2">
+              Ready to Generate Your Roadmap
+            </h3>
             <p className="text-foreground-dim mb-6">
-              I'll create a phased development roadmap based on your PRD, breaking down the work into manageable phases.
+              I'll create a phased development roadmap based on your PRD,
+              breaking down the work into manageable phases.
             </p>
             <button
               onClick={handleGenerateRoadmap}

@@ -1,10 +1,10 @@
-import { Loader2, MessageCircle, Save, Send, Sparkles } from 'lucide-react';
-import React, { useEffect, useRef, useState } from 'react';
-import { generateIdeaResponse, generateIdeaSummary } from '../../lib/openai';
-import { db } from '../../lib/supabase';
+import { Loader2, MessageCircle, Save, Send, Sparkles } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import { generateIdeaResponse, generateIdeaSummary } from "../../lib/openai";
+import { db } from "../../lib/supabase";
 
 interface ChatMessage {
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: string;
   timestamp: Date;
 }
@@ -14,15 +14,19 @@ interface IdeaBouncerProps {
   onIdeaSelected: (ideaSummary: string) => void;
 }
 
-export const IdeaBouncer: React.FC<IdeaBouncerProps> = ({ projectId, onIdeaSelected }) => {
+export const IdeaBouncer: React.FC<IdeaBouncerProps> = ({
+  projectId,
+  onIdeaSelected,
+}) => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
-      role: 'assistant',
-      content: "Hi! I'm here to help you refine your project idea. What are you thinking of building? Don't worry about having all the details figured out - let's explore it together! 🚀",
+      role: "assistant",
+      content:
+        "Hi! I'm here to help you refine your project idea. What are you thinking of building? Don't worry about having all the details figured out - let's explore it together! 🚀",
       timestamp: new Date(),
     },
   ]);
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -30,7 +34,7 @@ export const IdeaBouncer: React.FC<IdeaBouncerProps> = ({ projectId, onIdeaSelec
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
@@ -41,18 +45,18 @@ export const IdeaBouncer: React.FC<IdeaBouncerProps> = ({ projectId, onIdeaSelec
     if (!inputValue.trim() || isLoading) return;
 
     const userMessage: ChatMessage = {
-      role: 'user',
+      role: "user",
       content: inputValue.trim(),
       timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, userMessage]);
-    setInputValue('');
+    setMessages((prev) => [...prev, userMessage]);
+    setInputValue("");
     setIsLoading(true);
     setError(null);
 
     try {
-      const chatHistory = [...messages, userMessage].map(msg => ({
+      const chatHistory = [...messages, userMessage].map((msg) => ({
         role: msg.role,
         content: msg.content,
       }));
@@ -60,30 +64,33 @@ export const IdeaBouncer: React.FC<IdeaBouncerProps> = ({ projectId, onIdeaSelec
       const aiResponse = await generateIdeaResponse(chatHistory);
 
       const assistantMessage: ChatMessage = {
-        role: 'assistant',
+        role: "assistant",
         content: aiResponse,
         timestamp: new Date(),
       };
 
-      setMessages(prev => [...prev, assistantMessage]);
+      setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
-      console.error('Error getting AI response:', error);
-      setError(error instanceof Error ? error.message : 'Failed to get AI response');
+      console.error("Error getting AI response:", error);
+      setError(
+        error instanceof Error ? error.message : "Failed to get AI response",
+      );
 
       // Add error message to chat
       const errorMessage: ChatMessage = {
-        role: 'assistant',
-        content: "I'm having trouble connecting right now. Could you try rephrasing your message? In the meantime, feel free to continue describing your idea!",
+        role: "assistant",
+        content:
+          "I'm having trouble connecting right now. Could you try rephrasing your message? In the meantime, feel free to continue describing your idea!",
         timestamp: new Date(),
       };
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
@@ -95,7 +102,7 @@ export const IdeaBouncer: React.FC<IdeaBouncerProps> = ({ projectId, onIdeaSelec
 
     try {
       // Generate a summary of the conversation
-      const chatHistory = messages.map(msg => ({
+      const chatHistory = messages.map((msg) => ({
         role: msg.role,
         content: msg.content,
       }));
@@ -104,16 +111,19 @@ export const IdeaBouncer: React.FC<IdeaBouncerProps> = ({ projectId, onIdeaSelec
 
       // Save the full conversation to scratchpad
       const conversationText = messages
-        .map(msg => `**${msg.role === 'user' ? 'You' : 'AI Assistant'}** (${msg.timestamp.toLocaleTimeString()}):\n${msg.content}`)
-        .join('\n\n---\n\n');
+        .map(
+          (msg) =>
+            `**${msg.role === "user" ? "You" : "AI Assistant"}** (${msg.timestamp.toLocaleTimeString()}):\n${msg.content}`,
+        )
+        .join("\n\n---\n\n");
 
       const noteContent = `# Project Idea Discussion\n\n## Summary\n${ideaSummary}\n\n## Full Conversation\n\n${conversationText}`;
 
       await db.createScratchpadNote({
         project_id: projectId,
         content: noteContent,
-        tags: ['Project Notes', 'Ideas', 'AI Discussion'],
-        color: '#fef3c7', // Yellow color for idea notes
+        tags: ["Project Notes", "Ideas", "AI Discussion"],
+        color: "#fef3c7", // Yellow color for idea notes
         position: { x: 0, y: 0 },
         size: { width: 400, height: 300 },
       });
@@ -121,8 +131,8 @@ export const IdeaBouncer: React.FC<IdeaBouncerProps> = ({ projectId, onIdeaSelec
       // Call the callback with the summary
       onIdeaSelected(ideaSummary);
     } catch (error) {
-      console.error('Error saving idea:', error);
-      setError(error instanceof Error ? error.message : 'Failed to save idea');
+      console.error("Error saving idea:", error);
+      setError(error instanceof Error ? error.message : "Failed to save idea");
     } finally {
       setIsSaving(false);
     }
@@ -156,19 +166,35 @@ export const IdeaBouncer: React.FC<IdeaBouncerProps> = ({ projectId, onIdeaSelec
           {messages.map((message, index) => (
             <div
               key={index}
-              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
             >
               <div
-                className={`max-w-[80%] rounded-xl px-4 py-3 ${message.role === 'user'
-                    ? 'bg-foreground-dark/30 text-foreground'
-                    : 'bg-muted/30'
-                  }`}
+                className={`max-w-[80%] rounded-xl px-4 py-3 ${
+                  message.role === "user"
+                    ? "bg-foreground-dark/30 text-foreground"
+                    : "bg-muted/30"
+                }`}
               >
-                <p className={`text-sm leading-relaxed whitespace-pre-wrap ${message.role === 'user' ? 'text-foreground/60' : 'text-muted-foreground'
-                  }`}>{message.content}</p>
-                <p className={`text-xs mt-1.5 ${message.role === 'user' ? 'text-foreground/60' : 'text-muted-foreground'
-                  }`}>
-                  {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                <p
+                  className={`text-sm leading-relaxed whitespace-pre-wrap ${
+                    message.role === "user"
+                      ? "text-foreground/60"
+                      : "text-muted-foreground"
+                  }`}
+                >
+                  {message.content}
+                </p>
+                <p
+                  className={`text-xs mt-1.5 ${
+                    message.role === "user"
+                      ? "text-foreground/60"
+                      : "text-muted-foreground"
+                  }`}
+                >
+                  {message.timestamp.toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </p>
               </div>
             </div>
@@ -221,7 +247,9 @@ export const IdeaBouncer: React.FC<IdeaBouncerProps> = ({ projectId, onIdeaSelec
                 <span>Ready to save your idea and continue?</span>
               </span>
             ) : (
-              <span>Chat a bit more to develop your idea, then save and continue</span>
+              <span>
+                Chat a bit more to develop your idea, then save and continue
+              </span>
             )}
           </div>
 

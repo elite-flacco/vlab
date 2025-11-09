@@ -1,7 +1,7 @@
-import { withTimeout, withTiming } from './utils';
+import { withTimeout, withTiming } from "./utils";
 
 // GitHub API configuration
-const GITHUB_API_BASE_URL = 'https://api.github.com';
+const GITHUB_API_BASE_URL = "https://api.github.com";
 const API_TIMEOUT = 10000; // 10 seconds
 
 export interface GitHubRepository {
@@ -28,7 +28,7 @@ export interface GitHubIssue {
   title: string;
   body?: string;
   html_url: string;
-  state: 'open' | 'closed';
+  state: "open" | "closed";
   created_at: string;
   updated_at: string;
 }
@@ -48,17 +48,20 @@ class GitHubAPIClient {
     this.token = token;
   }
 
-  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  private async request<T>(
+    endpoint: string,
+    options: RequestInit = {},
+  ): Promise<T> {
     const url = `${GITHUB_API_BASE_URL}${endpoint}`;
-    
+
     const operation = async () => {
       const response = await fetch(url, {
         ...options,
         headers: {
-          'Authorization': `Bearer ${this.token}`,
-          'Accept': 'application/vnd.github.v3+json',
-          'Content-Type': 'application/json',
-          'User-Agent': 'VLab-GitHub-Integration/1.0',
+          Authorization: `Bearer ${this.token}`,
+          Accept: "application/vnd.github.v3+json",
+          "Content-Type": "application/json",
+          "User-Agent": "VLab-GitHub-Integration/1.0",
           ...options.headers,
         },
       });
@@ -67,8 +70,8 @@ class GitHubAPIClient {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(
           `GitHub API error: ${response.status} ${response.statusText}. ${
-            errorData.message || 'Unknown error'
-          }`
+            errorData.message || "Unknown error"
+          }`,
         );
       }
 
@@ -78,26 +81,38 @@ class GitHubAPIClient {
     return withTimeout(
       withTiming(`GitHub API ${endpoint}`, operation),
       API_TIMEOUT,
-      `GitHub API request to ${endpoint} timed out`
+      `GitHub API request to ${endpoint} timed out`,
     );
   }
 
   // Get authenticated user information
   async getUser() {
-    return this.request<{ login: string; id: number; name: string; email: string }>('/user');
+    return this.request<{
+      login: string;
+      id: number;
+      name: string;
+      email: string;
+    }>("/user");
   }
 
   // Get user's repositories
-  async getUserRepositories(page: number = 1, perPage: number = 30): Promise<GitHubRepository[]> {
+  async getUserRepositories(
+    page: number = 1,
+    perPage: number = 30,
+  ): Promise<GitHubRepository[]> {
     return this.request<GitHubRepository[]>(
-      `/user/repos?sort=updated&direction=desc&page=${page}&per_page=${perPage}`
+      `/user/repos?sort=updated&direction=desc&page=${page}&per_page=${perPage}`,
     );
   }
 
   // Get repositories for an organization
-  async getOrgRepositories(org: string, page: number = 1, perPage: number = 30): Promise<GitHubRepository[]> {
+  async getOrgRepositories(
+    org: string,
+    page: number = 1,
+    perPage: number = 30,
+  ): Promise<GitHubRepository[]> {
     return this.request<GitHubRepository[]>(
-      `/orgs/${org}/repos?sort=updated&direction=desc&page=${page}&per_page=${perPage}`
+      `/orgs/${org}/repos?sort=updated&direction=desc&page=${page}&per_page=${perPage}`,
     );
   }
 
@@ -107,24 +122,42 @@ class GitHubAPIClient {
   }
 
   // Create an issue in a repository
-  async createIssue(owner: string, repo: string, issue: CreateIssueRequest): Promise<GitHubIssue> {
+  async createIssue(
+    owner: string,
+    repo: string,
+    issue: CreateIssueRequest,
+  ): Promise<GitHubIssue> {
     return this.request<GitHubIssue>(`/repos/${owner}/${repo}/issues`, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify(issue),
     });
   }
 
   // Get an issue from a repository
-  async getIssue(owner: string, repo: string, issueNumber: number): Promise<GitHubIssue> {
-    return this.request<GitHubIssue>(`/repos/${owner}/${repo}/issues/${issueNumber}`);
+  async getIssue(
+    owner: string,
+    repo: string,
+    issueNumber: number,
+  ): Promise<GitHubIssue> {
+    return this.request<GitHubIssue>(
+      `/repos/${owner}/${repo}/issues/${issueNumber}`,
+    );
   }
 
   // Update an issue in a repository
-  async updateIssue(owner: string, repo: string, issueNumber: number, updates: Partial<CreateIssueRequest>): Promise<GitHubIssue> {
-    return this.request<GitHubIssue>(`/repos/${owner}/${repo}/issues/${issueNumber}`, {
-      method: 'PATCH',
-      body: JSON.stringify(updates),
-    });
+  async updateIssue(
+    owner: string,
+    repo: string,
+    issueNumber: number,
+    updates: Partial<CreateIssueRequest>,
+  ): Promise<GitHubIssue> {
+    return this.request<GitHubIssue>(
+      `/repos/${owner}/${repo}/issues/${issueNumber}`,
+      {
+        method: "PATCH",
+        body: JSON.stringify(updates),
+      },
+    );
   }
 
   // Check if token is valid
@@ -133,7 +166,7 @@ class GitHubAPIClient {
       await this.getUser();
       return true;
     } catch (error) {
-      console.error('GitHub token validation failed:', error);
+      console.error("GitHub token validation failed:", error);
       return false;
     }
   }
@@ -147,8 +180,10 @@ export const createGitHubClient = (token: string): GitHubAPIClient => {
 };
 
 // Parse repository full name into owner and repo
-export const parseRepoFullName = (fullName: string): { owner: string; repo: string } => {
-  const [owner, repo] = fullName.split('/');
+export const parseRepoFullName = (
+  fullName: string,
+): { owner: string; repo: string } => {
+  const [owner, repo] = fullName.split("/");
   if (!owner || !repo) {
     throw new Error(`Invalid repository full name: ${fullName}`);
   }
@@ -164,12 +199,12 @@ export const formatTaskAsIssue = (task: {
   status?: string;
   due_date?: string;
 }): CreateIssueRequest => {
-  let body = '';
-  
+  let body = "";
+
   if (task.description) {
     body += `${task.description}`;
   }
-  
+
   body += `\n\n*@claude please implement*`;
 
   return {
@@ -181,17 +216,17 @@ export const formatTaskAsIssue = (task: {
 // GitHub OAuth configuration
 export const GITHUB_OAUTH_CONFIG = {
   clientId: import.meta.env.VITE_GITHUB_CLIENT_ID,
-  scopes: ['repo', 'user:email'], // Required scopes for creating issues
+  scopes: ["repo", "user:email"], // Required scopes for creating issues
   redirectUri: `${window.location.origin}/auth/github/callback`,
-  
+
   getAuthUrl(): string {
     const params = new URLSearchParams({
       client_id: this.clientId,
       redirect_uri: this.redirectUri,
-      scope: this.scopes.join(' '),
+      scope: this.scopes.join(" "),
       state: crypto.randomUUID(), // CSRF protection
     });
-    
+
     return `https://github.com/login/oauth/authorize?${params.toString()}`;
   },
 };

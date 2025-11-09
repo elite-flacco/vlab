@@ -1,8 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useOutletContext } from 'react-router-dom';
-import { useAuthStore } from '../stores/authStore';
-import { useProjectStore } from '../stores/projectStore';
-import { Plus, Calendar, Users, Star, Archive, RotateCcw, Trash2, ChevronDown, ChevronRight } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import { useNavigate, useOutletContext } from "react-router-dom";
+import { useAuthStore } from "../stores/authStore";
+import { useProjectStore } from "../stores/projectStore";
+import {
+  Plus,
+  Calendar,
+  Users,
+  Star,
+  Archive,
+  RotateCcw,
+  Trash2,
+  ChevronDown,
+  ChevronRight,
+} from "lucide-react";
 
 interface OutletContext {
   onNewProjectClick: () => void;
@@ -11,14 +21,14 @@ interface OutletContext {
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuthStore();
-  const { 
-    activeProjects, 
-    archivedProjects, 
-    loading, 
-    fetchProjects, 
-    archiveProject, 
-    restoreProject, 
-    deleteProjectPermanently 
+  const {
+    activeProjects,
+    archivedProjects,
+    loading,
+    fetchProjects,
+    archiveProject,
+    restoreProject,
+    deleteProjectPermanently,
   } = useProjectStore();
   const { onNewProjectClick } = useOutletContext<OutletContext>();
   const [showArchived, setShowArchived] = useState(false);
@@ -35,21 +45,27 @@ export const Dashboard: React.FC = () => {
     navigate(`/workspace/${projectId}`);
   };
 
-  const handleArchiveProject = async (projectId: string, e: React.MouseEvent) => {
+  const handleArchiveProject = async (
+    projectId: string,
+    e: React.MouseEvent,
+  ) => {
     e.stopPropagation();
     try {
       await archiveProject(projectId);
     } catch (error) {
-      console.error('Failed to archive project:', error);
+      console.error("Failed to archive project:", error);
     }
   };
 
-  const handleRestoreProject = async (projectId: string, e: React.MouseEvent) => {
+  const handleRestoreProject = async (
+    projectId: string,
+    e: React.MouseEvent,
+  ) => {
     e.stopPropagation();
     try {
       await restoreProject(projectId);
     } catch (error) {
-      console.error('Failed to restore project:', error);
+      console.error("Failed to restore project:", error);
     }
   };
 
@@ -58,7 +74,7 @@ export const Dashboard: React.FC = () => {
       await deleteProjectPermanently(projectId);
       setDeleteConfirm(null);
     } catch (error) {
-      console.error('Failed to delete project:', error);
+      console.error("Failed to delete project:", error);
     }
   };
 
@@ -71,7 +87,7 @@ export const Dashboard: React.FC = () => {
   }
 
   const totalProjects = activeProjects.length + archivedProjects.length;
-  const recentlyActive = activeProjects.filter(p => {
+  const recentlyActive = activeProjects.filter((p) => {
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
     return new Date(p.updated_at) > weekAgo;
@@ -95,8 +111,12 @@ export const Dashboard: React.FC = () => {
               <Users className="w-6 h-6 text-primary" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-foreground-dim">Total Projects</p>
-              <p className="text-2xl font-bold text-foreground">{totalProjects}</p>
+              <p className="text-sm font-medium text-foreground-dim">
+                Total Projects
+              </p>
+              <p className="text-2xl font-bold text-foreground">
+                {totalProjects}
+              </p>
             </div>
           </div>
         </div>
@@ -107,8 +127,12 @@ export const Dashboard: React.FC = () => {
               <Calendar className="w-6 h-6 text-primary" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-foreground-dim">Active This Week</p>
-              <p className="text-2xl font-bold text-foreground">{recentlyActive}</p>
+              <p className="text-sm font-medium text-foreground-dim">
+                Active This Week
+              </p>
+              <p className="text-2xl font-bold text-foreground">
+                {recentlyActive}
+              </p>
             </div>
           </div>
         </div>
@@ -119,8 +143,12 @@ export const Dashboard: React.FC = () => {
               <Archive className="w-6 h-6 text-primary" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-foreground-dim">Archived</p>
-              <p className="text-2xl font-bold text-foreground">{archivedProjects.length}</p>
+              <p className="text-sm font-medium text-foreground-dim">
+                Archived
+              </p>
+              <p className="text-2xl font-bold text-foreground">
+                {archivedProjects.length}
+              </p>
             </div>
           </div>
         </div>
@@ -140,7 +168,9 @@ export const Dashboard: React.FC = () => {
 
       {/* Active Projects */}
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-foreground font-mono">Your Projects</h2>
+        <h2 className="text-xl font-semibold text-foreground font-mono">
+          Your Projects
+        </h2>
       </div>
 
       {activeProjects.length === 0 ? (
@@ -148,14 +178,13 @@ export const Dashboard: React.FC = () => {
           <div className="mx-auto h-24 w-24 text-foreground-dim">
             <Plus className="w-full h-full" />
           </div>
-          <h3 className="mt-4 text-lg font-medium text-foreground">No active projects yet</h3>
+          <h3 className="mt-4 text-lg font-medium text-foreground">
+            No active projects yet
+          </h3>
           <p className="mt-2 text-foreground-dim">
             Get started by creating your first project.
           </p>
-          <button
-            onClick={onNewProjectClick}
-            className="btn-primary mt-4"
-          >
+          <button onClick={onNewProjectClick} className="btn-primary mt-4">
             <Plus className="w-4 h-4 mr-2" />
             Create Project
           </button>
@@ -180,13 +209,13 @@ export const Dashboard: React.FC = () => {
                   <Archive className="w-4 h-4" />
                 </button>
               </div>
-              
+
               {project.description && (
                 <p className="text-foreground-dim text-sm mb-4 line-clamp-2">
                   {project.description}
                 </p>
               )}
-              
+
               <div className="flex items-center justify-between text-xs text-foreground-dim/70">
                 <span>
                   Updated {new Date(project.updated_at).toLocaleDateString()}
@@ -245,16 +274,17 @@ export const Dashboard: React.FC = () => {
                       </button>
                     </div>
                   </div>
-                  
+
                   {project.description && (
                     <p className="text-foreground-dim/70 text-sm mb-4 line-clamp-2">
                       {project.description}
                     </p>
                   )}
-                  
+
                   <div className="flex items-center justify-between text-sm text-foreground-dim/70">
                     <span>
-                      Archived {new Date(project.updated_at).toLocaleDateString()}
+                      Archived{" "}
+                      {new Date(project.updated_at).toLocaleDateString()}
                     </span>
                   </div>
                 </div>
@@ -275,14 +305,17 @@ export const Dashboard: React.FC = () => {
                 </div>
                 <h2 className="modal-title">Permanently Delete Project</h2>
               </div>
-              
+
               <div className="mb-6">
                 <p className="text-foreground-dim mb-3">
                   Are you sure you want to permanently delete this project?
                 </p>
                 <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
                   <p className="text-sm text-red-400">
-                    <strong>Warning:</strong> This action cannot be undone. All project data including PRDs, tasks, roadmaps, notes, prompts, and secrets will be permanently deleted from the database.
+                    <strong>Warning:</strong> This action cannot be undone. All
+                    project data including PRDs, tasks, roadmaps, notes,
+                    prompts, and secrets will be permanently deleted from the
+                    database.
                   </p>
                 </div>
               </div>

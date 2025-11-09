@@ -1,12 +1,27 @@
-import { format } from 'date-fns';
-import { ChevronDown, Clock, Edit3, Eye, FileText, GitBranch, History, Plus, Save, User, X } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { BackButton } from '../../components/common/BackButton';
-import { MarkdownRenderer, useMarkdownPreprocessing } from '../../components/common/MarkdownRenderer';
-import { VersionHistory } from '../../components/PRD/VersionHistory';
-import { ModuleContainer } from '../../components/Workspace/ModuleContainer';
-import { db } from '../../lib/supabase';
+import { format } from "date-fns";
+import {
+  ChevronDown,
+  Clock,
+  Edit3,
+  Eye,
+  FileText,
+  GitBranch,
+  History,
+  Plus,
+  Save,
+  User,
+  X,
+} from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { BackButton } from "../../components/common/BackButton";
+import {
+  MarkdownRenderer,
+  useMarkdownPreprocessing,
+} from "../../components/common/MarkdownRenderer";
+import { VersionHistory } from "../../components/PRD/VersionHistory";
+import { ModuleContainer } from "../../components/Workspace/ModuleContainer";
+import { db } from "../../lib/supabase";
 
 export const PRDDetailView: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
@@ -50,7 +65,7 @@ export const PRDDetailView: React.FC = () => {
         await fetchAllVersionsForPRD(latestPRD);
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to fetch PRDs');
+      setError(err.message || "Failed to fetch PRDs");
     } finally {
       setLoading(false);
     }
@@ -59,7 +74,8 @@ export const PRDDetailView: React.FC = () => {
   const fetchAllVersionsForPRD = async (prd: any) => {
     try {
       // Fetch historical versions
-      const { data: historicalVersions, error: versionsError } = await db.getPRDVersions(prd.id);
+      const { data: historicalVersions, error: versionsError } =
+        await db.getPRDVersions(prd.id);
       if (versionsError) throw versionsError;
 
       // Combine current PRD with historical versions
@@ -74,14 +90,14 @@ export const PRDDetailView: React.FC = () => {
         created_at: prd.created_at,
         updated_at: prd.updated_at,
         status: prd.status,
-        is_current: true
+        is_current: true,
       };
 
       const allVersions = [currentVersionData, ...(historicalVersions || [])];
       setAllPRDVersions(allVersions);
       setSelectedVersionData(currentVersionData); // Initially show current version
     } catch (err: any) {
-      setError(err.message || 'Failed to fetch PRD versions');
+      setError(err.message || "Failed to fetch PRD versions");
     }
   };
 
@@ -89,11 +105,14 @@ export const PRDDetailView: React.FC = () => {
     if (!selectedPRD) return;
 
     try {
-      const versionData = await db.getSpecificPRDVersion(selectedPRD.id, versionNumber);
+      const versionData = await db.getSpecificPRDVersion(
+        selectedPRD.id,
+        versionNumber,
+      );
       setSelectedVersionData(versionData);
       setIsEditing(false); // Exit edit mode when switching versions
     } catch (err: any) {
-      setError(err.message || 'Failed to load version data');
+      setError(err.message || "Failed to load version data");
     }
   };
 
@@ -114,8 +133,8 @@ export const PRDDetailView: React.FC = () => {
       if (updateError) throw updateError;
 
       // Update local state
-      const updatedPRDs = prds.map(prd =>
-        prd.id === selectedPRD.id ? data : prd
+      const updatedPRDs = prds.map((prd) =>
+        prd.id === selectedPRD.id ? data : prd,
       );
       setPrds(updatedPRDs);
       setSelectedPRD(data);
@@ -124,7 +143,7 @@ export const PRDDetailView: React.FC = () => {
       await fetchAllVersionsForPRD(data);
       setIsEditing(false);
     } catch (err: any) {
-      setError(err.message || 'Failed to save PRD');
+      setError(err.message || "Failed to save PRD");
     } finally {
       setSaving(false);
     }
@@ -136,7 +155,10 @@ export const PRDDetailView: React.FC = () => {
     setError(null);
   };
 
-  const handleVersionRestore = async (versionNumber: number, changeDescription?: string) => {
+  const handleVersionRestore = async (
+    versionNumber: number,
+    changeDescription?: string,
+  ) => {
     if (!selectedPRD) return;
 
     setSaving(true);
@@ -146,14 +168,14 @@ export const PRDDetailView: React.FC = () => {
       const { data, error: restoreError } = await db.restorePRDVersion(
         selectedPRD.id,
         versionNumber,
-        changeDescription
+        changeDescription,
       );
 
       if (restoreError) throw restoreError;
 
       // Update local state
-      const updatedPRDs = prds.map(prd =>
-        prd.id === selectedPRD.id ? data : prd
+      const updatedPRDs = prds.map((prd) =>
+        prd.id === selectedPRD.id ? data : prd,
       );
       setPrds(updatedPRDs);
       setSelectedPRD(data);
@@ -162,7 +184,7 @@ export const PRDDetailView: React.FC = () => {
       await fetchAllVersionsForPRD(data);
       setShowVersionHistory(false);
     } catch (err: any) {
-      setError(err.message || 'Failed to restore version');
+      setError(err.message || "Failed to restore version");
     } finally {
       setSaving(false);
     }
@@ -184,7 +206,9 @@ export const PRDDetailView: React.FC = () => {
     );
   };
 
-  const isCurrentVersion = selectedVersionData?.is_current || selectedVersionData?.version_number === selectedPRD?.version;
+  const isCurrentVersion =
+    selectedVersionData?.is_current ||
+    selectedVersionData?.version_number === selectedPRD?.version;
 
   if (loading) {
     return (
@@ -251,14 +275,20 @@ export const PRDDetailView: React.FC = () => {
               {allPRDVersions.length > 0 && (
                 <div className="relative">
                   <select
-                    value={selectedVersionData?.version_number || ''}
-                    onChange={(e) => handleVersionSelect(Number(e.target.value))}
+                    value={selectedVersionData?.version_number || ""}
+                    onChange={(e) =>
+                      handleVersionSelect(Number(e.target.value))
+                    }
                     disabled={isEditing}
                     className="form-select"
                   >
                     {allPRDVersions.map((version) => (
-                      <option key={version.version_number} value={version.version_number}>
-                        v{version.version_number}{version.is_current ? ' (Current)' : ''}
+                      <option
+                        key={version.version_number}
+                        value={version.version_number}
+                      >
+                        v{version.version_number}
+                        {version.is_current ? " (Current)" : ""}
                       </option>
                     ))}
                   </select>
@@ -266,15 +296,11 @@ export const PRDDetailView: React.FC = () => {
               )}
 
               {selectedPRD?.ai_generated && (
-                <span className="filter-button-active">
-                  AI Generated
-                </span>
+                <span className="filter-button-active">AI Generated</span>
               )}
 
               {!isCurrentVersion && (
-                <span className="filter-button">
-                  Historical Version
-                </span>
+                <span className="filter-button">Historical Version</span>
               )}
             </div>
 
@@ -323,7 +349,11 @@ export const PRDDetailView: React.FC = () => {
                   onClick={() => setIsEditing(true)}
                   disabled={!isCurrentVersion}
                   className="btn-secondary"
-                  title={!isCurrentVersion ? 'Can only edit the current version' : 'Edit PRD'}
+                  title={
+                    !isCurrentVersion
+                      ? "Can only edit the current version"
+                      : "Edit PRD"
+                  }
                 >
                   <Edit3 className="w-3 h-3 mr-1" />
                   Edit
@@ -346,16 +376,24 @@ export const PRDDetailView: React.FC = () => {
                           Version {selectedVersionData.version_number}
                         </p>
                         <p className="text-xs text-foreground-dim">
-                          {isCurrentVersion ? 'Current' : 'Historical'}
+                          {isCurrentVersion ? "Current" : "Historical"}
                         </p>
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Clock className="w-4 h-4 text-gray-500" />
                       <div>
-                        <p className="text-sm font-medium text-foreground">Last Modified</p>
+                        <p className="text-sm font-medium text-foreground">
+                          Last Modified
+                        </p>
                         <p className="text-xs text-foreground-dim">
-                          {format(new Date(selectedVersionData.updated_at || selectedVersionData.created_at), 'MMM d, yyyy h:mm a')}
+                          {format(
+                            new Date(
+                              selectedVersionData.updated_at ||
+                                selectedVersionData.created_at,
+                            ),
+                            "MMM d, yyyy h:mm a",
+                          )}
                         </p>
                       </div>
                     </div>
@@ -363,10 +401,12 @@ export const PRDDetailView: React.FC = () => {
                       <User className="w-4 h-4 text-gray-500" />
                       <div>
                         <p className="text-sm font-medium text-foreground">
-                          {isCurrentVersion ? 'Updated By' : 'Created By'}
+                          {isCurrentVersion ? "Updated By" : "Created By"}
                         </p>
                         <p className="text-xs text-foreground-dim">
-                          {(selectedVersionData.updated_by_profile?.name || selectedVersionData.created_by_profile?.name) || 'Unknown'}
+                          {selectedVersionData.updated_by_profile?.name ||
+                            selectedVersionData.created_by_profile?.name ||
+                            "Unknown"}
                         </p>
                       </div>
                     </div>
@@ -375,9 +415,13 @@ export const PRDDetailView: React.FC = () => {
                   {selectedVersionData.change_description && (
                     <div className="mt-3 pt-3 border-t border-foreground-dim/20">
                       <p className="text-xs font-medium text-foreground mb-1">
-                        {isCurrentVersion ? 'Latest Changes:' : 'Changes in this version:'}
+                        {isCurrentVersion
+                          ? "Latest Changes:"
+                          : "Changes in this version:"}
                       </p>
-                      <p className="text-xs text-foreground-dim">{selectedVersionData.change_description}</p>
+                      <p className="text-xs text-foreground-dim">
+                        {selectedVersionData.change_description}
+                      </p>
                     </div>
                   )}
                 </div>
@@ -385,11 +429,18 @@ export const PRDDetailView: React.FC = () => {
                 {/* PRD Title */}
                 {isEditing ? (
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">Title</label>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      Title
+                    </label>
                     <input
                       type="text"
-                      value={editedPRD?.title || ''}
-                      onChange={(e) => setEditedPRD(prev => ({ ...prev, title: e.target.value }))}
+                      value={editedPRD?.title || ""}
+                      onChange={(e) =>
+                        setEditedPRD((prev) => ({
+                          ...prev,
+                          title: e.target.value,
+                        }))
+                      }
                       className="form-input"
                       placeholder="PRD Title"
                     />
@@ -406,8 +457,13 @@ export const PRDDetailView: React.FC = () => {
                     </label>
                     <input
                       type="text"
-                      value={editedPRD?.change_description || ''}
-                      onChange={(e) => setEditedPRD(prev => ({ ...prev, change_description: e.target.value }))}
+                      value={editedPRD?.change_description || ""}
+                      onChange={(e) =>
+                        setEditedPRD((prev) => ({
+                          ...prev,
+                          change_description: e.target.value,
+                        }))
+                      }
                       className="form-input"
                       placeholder="Briefly describe what changed in this version..."
                     />
@@ -418,15 +474,23 @@ export const PRDDetailView: React.FC = () => {
                 <div className="card">
                   {isEditing ? (
                     <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">Content</label>
+                      <label className="block text-sm font-medium text-foreground mb-2">
+                        Content
+                      </label>
                       <textarea
-                        value={editedPRD?.content || ''}
-                        onChange={(e) => setEditedPRD(prev => ({ ...prev, content: e.target.value }))}
+                        value={editedPRD?.content || ""}
+                        onChange={(e) =>
+                          setEditedPRD((prev) => ({
+                            ...prev,
+                            content: e.target.value,
+                          }))
+                        }
                         className="form-textarea"
                         placeholder="Edit your PRD content here..."
                       />
                       <p className="text-xs text-foreground-dim mt-2">
-                        Tip: Use markdown formatting (# for headings, - for bullets, **bold**)
+                        Tip: Use markdown formatting (# for headings, - for
+                        bullets, **bold**)
                       </p>
                     </div>
                   ) : isPreviewMode ? (
@@ -448,11 +512,12 @@ export const PRDDetailView: React.FC = () => {
           {/* Footer Actions */}
           <div className="mt-4 flex items-center justify-between pt-3 border-t border-gray-200">
             <div className="text-xs text-gray-500">
-              {prds.length} PRD{prds.length !== 1 ? 's' : ''} total
+              {prds.length} PRD{prds.length !== 1 ? "s" : ""} total
               {selectedVersionData && (
                 <span className="ml-2">
-                  • Version {selectedVersionData.version_number}
-                  • {allPRDVersions.length} version{allPRDVersions.length !== 1 ? 's' : ''} available
+                  • Version {selectedVersionData.version_number}•{" "}
+                  {allPRDVersions.length} version
+                  {allPRDVersions.length !== 1 ? "s" : ""} available
                 </span>
               )}
             </div>

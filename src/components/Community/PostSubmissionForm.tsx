@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { X, Upload, Tag, Loader2, Plus, AlertCircle } from 'lucide-react';
-import { communityApi } from '../../lib/communityApi';
+import React, { useState } from "react";
+import { X, Upload, Tag, Loader2, Plus, AlertCircle } from "lucide-react";
+import { communityApi } from "../../lib/communityApi";
 
 interface PostSubmissionFormProps {
   isOpen: boolean;
@@ -10,50 +10,50 @@ interface PostSubmissionFormProps {
 
 // Tool options for the dropdown
 const TOOL_OPTIONS = [
-  { value: 'bolt', label: 'Bolt' },
-  { value: 'loveable', label: 'Loveable' },
-  { value: 'replit', label: 'Replit' },
-  { value: 'v0', label: 'V0' },
-  { value: 'other', label: 'Other' },
+  { value: "bolt", label: "Bolt" },
+  { value: "loveable", label: "Loveable" },
+  { value: "replit", label: "Replit" },
+  { value: "v0", label: "V0" },
+  { value: "other", label: "Other" },
 ];
 
 // Category options for tips
 const TIP_CATEGORY_OPTIONS = [
-  { value: 'prompt_tricks', label: 'Prompt Tricks' },
-  { value: 'integrations', label: 'Integrations' },
-  { value: 'authentication', label: 'Authentication' },
-  { value: 'payment', label: 'Payment' },
-  { value: 'documentation', label: 'Documentation' },
-  { value: 'other', label: 'Other' },
+  { value: "prompt_tricks", label: "Prompt Tricks" },
+  { value: "integrations", label: "Integrations" },
+  { value: "authentication", label: "Authentication" },
+  { value: "payment", label: "Payment" },
+  { value: "documentation", label: "Documentation" },
+  { value: "other", label: "Other" },
 ];
 
 export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
   isOpen,
   onClose,
-  onSuccess
+  onSuccess,
 }) => {
   const [formData, setFormData] = useState({
-    title: '',
-    content: '',
-    tool: '',
-    tip_category: '',
+    title: "",
+    content: "",
+    tool: "",
+    tip_category: "",
     tags: [] as string[],
-    image_url: '',
+    image_url: "",
   });
-  const [newTag, setNewTag] = useState('');
+  const [newTag, setNewTag] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title.trim() || !formData.content.trim()) {
-      setError('Title and content are required');
+      setError("Title and content are required");
       return;
     }
 
     // Validate that at least one category is selected
     if (!formData.tool && !formData.tip_category) {
-      setError('Please select at least one category (tool or tip)');
+      setError("Please select at least one category (tool or tip)");
       return;
     }
 
@@ -66,15 +66,15 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
       onClose();
       // Reset form
       setFormData({
-        title: '',
-        content: '',
-        tool: '',
-        tip_category: '',
+        title: "",
+        content: "",
+        tool: "",
+        tip_category: "",
         tags: [],
-        image_url: '',
+        image_url: "",
       });
     } catch (err: any) {
-      setError(err.message || 'Failed to create post');
+      setError(err.message || "Failed to create post");
     } finally {
       setLoading(false);
     }
@@ -82,23 +82,23 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
 
   const handleAddTag = () => {
     if (newTag.trim() && !formData.tags.includes(newTag.trim().toLowerCase())) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        tags: [...prev.tags, newTag.trim().toLowerCase()]
+        tags: [...prev.tags, newTag.trim().toLowerCase()],
       }));
-      setNewTag('');
+      setNewTag("");
     }
   };
 
   const handleRemoveTag = (tagToRemove: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      tags: prev.tags.filter(tag => tag !== tagToRemove)
+      tags: prev.tags.filter((tag) => tag !== tagToRemove),
     }));
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       e.preventDefault();
       handleAddTag();
     }
@@ -111,9 +111,7 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
       <div className="bg-secondary border border-foreground-dim/20 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl transform transition-all duration-200">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-foreground-dim/10">
-          <h2 className="text-xl font-medium text-foreground">
-            Share a Tip
-          </h2>
+          <h2 className="text-xl font-medium text-foreground">Share a Tip</h2>
           <button
             onClick={onClose}
             className="p-1.5 rounded-full text-foreground-dim hover:bg-foreground-dim/10 hover:text-foreground transition-colors"
@@ -124,7 +122,10 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+        <form
+          onSubmit={handleSubmit}
+          className="p-6 space-y-6 overflow-y-auto max-h-[calc(90vh-120px)]"
+        >
           {/* Error Display */}
           {error && (
             <div className="bg-red-900/20 border border-red-800/50 rounded-lg p-4 flex items-start space-x-3">
@@ -135,14 +136,19 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
 
           {/* Title */}
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-foreground-dim mb-2">
+            <label
+              htmlFor="title"
+              className="block text-sm font-medium text-foreground-dim mb-2"
+            >
               Title <span className="text-red-400">*</span>
             </label>
             <input
               type="text"
               id="title"
               value={formData.title}
-              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, title: e.target.value }))
+              }
               className="w-full px-3 py-2.5 bg-secondary border border-foreground-dim/20 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-foreground placeholder-foreground-dim/50 text-sm transition-colors"
               placeholder="Enter a descriptive title for your post..."
               required
@@ -151,13 +157,18 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
 
           {/* Content */}
           <div>
-            <label htmlFor="content" className="block text-sm font-medium text-foreground-dim mb-2">
+            <label
+              htmlFor="content"
+              className="block text-sm font-medium text-foreground-dim mb-2"
+            >
               Content <span className="text-red-400">*</span>
             </label>
             <textarea
               id="content"
               value={formData.content}
-              onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, content: e.target.value }))
+              }
               rows={8}
               className="w-full px-3 py-2.5 bg-secondary border border-foreground-dim/20 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-foreground placeholder-foreground-dim/50 resize-none text-sm transition-colors"
               placeholder="Describe your tip in detail. Include information like:
@@ -178,13 +189,18 @@ Markdown formatting is supported!"
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Tool Selection */}
             <div>
-              <label htmlFor="tool" className="block text-sm font-medium text-foreground-dim mb-2">
+              <label
+                htmlFor="tool"
+                className="block text-sm font-medium text-foreground-dim mb-2"
+              >
                 Tool (Optional)
               </label>
               <select
                 id="tool"
                 value={formData.tool}
-                onChange={(e) => setFormData(prev => ({ ...prev, tool: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, tool: e.target.value }))
+                }
                 className="w-full px-3 py-2.5 bg-secondary border border-foreground-dim/20 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-foreground placeholder-foreground-dim/50 text-sm transition-colors"
               >
                 <option value="">Select a tool (optional)</option>
@@ -201,13 +217,21 @@ Markdown formatting is supported!"
 
             {/* Tip Category Selection */}
             <div>
-              <label htmlFor="tip_category" className="block text-sm font-medium text-foreground-dim mb-2">
+              <label
+                htmlFor="tip_category"
+                className="block text-sm font-medium text-foreground-dim mb-2"
+              >
                 Tip Category (Optional)
               </label>
               <select
                 id="tip_category"
                 value={formData.tip_category}
-                onChange={(e) => setFormData(prev => ({ ...prev, tip_category: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    tip_category: e.target.value,
+                  }))
+                }
                 className="w-full px-3 py-2.5 bg-secondary border border-foreground-dim/20 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-foreground placeholder-foreground-dim/50 text-sm transition-colors"
               >
                 <option value="">Select a tip category (optional)</option>
@@ -226,13 +250,17 @@ Markdown formatting is supported!"
           {/* Category Requirement Note */}
           <div className="bg-warning/10 border border-warning/20 rounded-lg p-3">
             <p className="text-sm text-warning">
-              <strong>Note:</strong> Please select at least one category (tool or tip) to help others discover your post.
+              <strong>Note:</strong> Please select at least one category (tool
+              or tip) to help others discover your post.
             </p>
           </div>
 
           {/* Image URL */}
           <div>
-            <label htmlFor="image_url" className="block text-sm font-medium text-foreground-dim mb-2">
+            <label
+              htmlFor="image_url"
+              className="block text-sm font-medium text-foreground-dim mb-2"
+            >
               Image URL (Optional)
             </label>
             <div className="flex space-x-2">
@@ -240,7 +268,12 @@ Markdown formatting is supported!"
                 type="url"
                 id="image_url"
                 value={formData.image_url}
-                onChange={(e) => setFormData(prev => ({ ...prev, image_url: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    image_url: e.target.value,
+                  }))
+                }
                 className="flex-1 px-3 py-2.5 bg-secondary border border-foreground-dim/20 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-foreground placeholder-foreground-dim/50 text-sm transition-colors"
                 placeholder="https://example.com/image.jpg"
               />
@@ -302,16 +335,14 @@ Markdown formatting is supported!"
 
           {/* Submit Button */}
           <div className="flex items-center justify-end space-x-3 pt-4 border-t border-foreground-dim/10">
-            <button
-              type="button"
-              onClick={onClose}
-              className="btn-secondary"
-            >
+            <button type="button" onClick={onClose} className="btn-secondary">
               Cancel
             </button>
             <button
               type="submit"
-              disabled={loading || !formData.title.trim() || !formData.content.trim()}
+              disabled={
+                loading || !formData.title.trim() || !formData.content.trim()
+              }
               className="btn-primary"
             >
               {loading ? (

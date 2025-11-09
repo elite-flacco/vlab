@@ -1,6 +1,12 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Upload, X, Image as ImageIcon, Loader2, AlertCircle } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
+import React, { useState, useRef, useEffect } from "react";
+import {
+  Upload,
+  X,
+  Image as ImageIcon,
+  Loader2,
+  AlertCircle,
+} from "lucide-react";
+import { supabase } from "../../lib/supabase";
 
 interface ImageUploadProps {
   onUploadComplete: (attachment: {
@@ -26,8 +32,8 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
   taskId,
   scratchpadNoteId,
   maxFileSize = 5 * 1024 * 1024, // 5MB default
-  acceptedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
-  className = ''
+  acceptedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"],
+  className = "",
 }) => {
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
@@ -54,12 +60,12 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
     }
 
     if (!taskId && !scratchpadNoteId) {
-      onError('Either taskId or scratchpadNoteId must be provided');
+      onError("Either taskId or scratchpadNoteId must be provided");
       return;
     }
 
     if (taskId && scratchpadNoteId) {
-      onError('Cannot attach to both task and scratchpad note');
+      onError("Cannot attach to both task and scratchpad note");
       return;
     }
 
@@ -67,13 +73,13 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
 
     try {
       // Generate unique filename
-      const fileExt = file.name.split('.').pop();
+      const fileExt = file.name.split(".").pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
       const filePath = `attachments/${fileName}`;
 
       // Upload to Supabase Storage
       const { error: storageError } = await supabase.storage
-        .from('attachments')
+        .from("attachments")
         .upload(filePath, file);
 
       if (storageError) {
@@ -82,7 +88,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
 
       // Create attachment record in database
       const { data: attachment, error: dbError } = await supabase
-        .from('attachments')
+        .from("attachments")
         .insert({
           task_id: taskId || null,
           scratchpad_note_id: scratchpadNoteId || null,
@@ -96,16 +102,14 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
 
       if (dbError) {
         // Clean up the uploaded file if database insert fails
-        await supabase.storage
-          .from('attachments')
-          .remove([filePath]);
+        await supabase.storage.from("attachments").remove([filePath]);
         throw new Error(`Database error: ${dbError.message}`);
       }
 
       onUploadComplete(attachment);
     } catch (error) {
-      console.error('Upload failed:', error);
-      onError(error instanceof Error ? error.message : 'Upload failed');
+      console.error("Upload failed:", error);
+      onError(error instanceof Error ? error.message : "Upload failed");
     } finally {
       setUploading(false);
     }
@@ -117,7 +121,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
       uploadFile(files[0]);
     }
     // Reset input value to allow same file to be selected again
-    e.target.value = '';
+    e.target.value = "";
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -133,7 +137,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(false);
-    
+
     const files = e.dataTransfer.files;
     if (files && files.length > 0) {
       uploadFile(files[0]);
@@ -143,10 +147,11 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
   const handlePaste = async (e: ClipboardEvent) => {
     // Only handle paste if the upload area is focused or if we're not in an input field
     const activeElement = document.activeElement;
-    const isInputField = activeElement instanceof HTMLInputElement || 
-                        activeElement instanceof HTMLTextAreaElement ||
-                        activeElement?.getAttribute('contenteditable') === 'true';
-    
+    const isInputField =
+      activeElement instanceof HTMLInputElement ||
+      activeElement instanceof HTMLTextAreaElement ||
+      activeElement?.getAttribute("contenteditable") === "true";
+
     // If we're in an input field, don't intercept the paste
     if (isInputField) {
       return;
@@ -156,23 +161,26 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
     if (!clipboardData) return;
 
     const items = Array.from(clipboardData.items);
-    const imageItem = items.find(item => item.type.startsWith('image/'));
+    const imageItem = items.find((item) => item.type.startsWith("image/"));
 
     if (imageItem) {
       e.preventDefault(); // Prevent default paste behavior for images
-      
+
       const file = imageItem.getAsFile();
       if (file) {
         // Create a proper File object with a meaningful name
-        const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '');
-        const extension = file.type.split('/')[1] || 'png';
+        const timestamp = new Date()
+          .toISOString()
+          .slice(0, 19)
+          .replace(/[:-]/g, "");
+        const extension = file.type.split("/")[1] || "png";
         const fileName = `pasted-image-${timestamp}.${extension}`;
-        
+
         const renamedFile = new File([file], fileName, {
           type: file.type,
-          lastModified: Date.now()
+          lastModified: Date.now(),
         });
-        
+
         uploadFile(renamedFile);
       }
     }
@@ -181,12 +189,12 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
   // Set up paste event listener
   useEffect(() => {
     const handlePasteEvent = (e: ClipboardEvent) => handlePaste(e);
-    
+
     // Add event listener to document to catch paste events globally
-    document.addEventListener('paste', handlePasteEvent);
-    
+    document.addEventListener("paste", handlePasteEvent);
+
     return () => {
-      document.removeEventListener('paste', handlePasteEvent);
+      document.removeEventListener("paste", handlePasteEvent);
     };
   }, [uploading]); // Re-setup if uploading state changes
 
@@ -195,11 +203,11 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
       <input
         ref={fileInputRef}
         type="file"
-        accept={acceptedTypes.join(',')}
+        accept={acceptedTypes.join(",")}
         onChange={handleFileSelect}
         className="hidden"
       />
-      
+
       <div
         ref={uploadAreaRef}
         onDragOver={handleDragOver}
@@ -208,11 +216,12 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
         onClick={() => fileInputRef.current?.click()}
         className={`
           border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-all
-          ${dragOver 
-            ? 'border-primary bg-primary/5' 
-            : 'border-foreground-dim/30 hover:border-primary/50 hover:bg-primary/5'
+          ${
+            dragOver
+              ? "border-primary bg-primary/5"
+              : "border-foreground-dim/30 hover:border-primary/50 hover:bg-primary/5"
           }
-          ${uploading ? 'pointer-events-none opacity-50' : ''}
+          ${uploading ? "pointer-events-none opacity-50" : ""}
         `}
       >
         <div className="flex flex-col items-center space-y-2">
@@ -231,7 +240,8 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
                   Click to upload, drag & drop, or paste an image
                 </p>
                 <p className="text-xs text-foreground-dim mt-1">
-                  PNG, JPG, GIF, WebP up to {Math.round(maxFileSize / 1024 / 1024)}MB
+                  PNG, JPG, GIF, WebP up to{" "}
+                  {Math.round(maxFileSize / 1024 / 1024)}MB
                 </p>
               </div>
             </>
@@ -254,7 +264,10 @@ interface AttachmentViewProps {
     created_at: string;
   };
   onDelete?: (attachmentId: string) => void;
-  onUpdate?: (attachmentId: string, updates: { alt_text?: string; caption?: string }) => void;
+  onUpdate?: (
+    attachmentId: string,
+    updates: { alt_text?: string; caption?: string },
+  ) => void;
   showControls?: boolean;
   className?: string;
 }
@@ -264,27 +277,27 @@ export const AttachmentView: React.FC<AttachmentViewProps> = ({
   onDelete,
   onUpdate,
   showControls = false,
-  className = ''
+  className = "",
 }) => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
-  const [altText, setAltText] = useState(attachment.alt_text || '');
-  const [caption, setCaption] = useState(attachment.caption || '');
+  const [altText, setAltText] = useState(attachment.alt_text || "");
+  const [caption, setCaption] = useState(attachment.caption || "");
 
   React.useEffect(() => {
     const loadImage = async () => {
       try {
         const { data, error } = await supabase.storage
-          .from('attachments')
+          .from("attachments")
           .createSignedUrl(attachment.storage_path, 3600); // 1 hour expiry
 
         if (error) throw error;
         setImageUrl(data.signedUrl);
       } catch (err) {
-        console.error('Failed to load image:', err);
-        setError('Failed to load image');
+        console.error("Failed to load image:", err);
+        setError("Failed to load image");
       } finally {
         setLoading(false);
       }
@@ -301,16 +314,18 @@ export const AttachmentView: React.FC<AttachmentViewProps> = ({
   };
 
   const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
+    if (bytes === 0) return "0 Bytes";
     const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
   if (loading) {
     return (
-      <div className={`flex items-center justify-center p-8 border border-foreground-dim/20 rounded-lg bg-foreground-dim/5 ${className}`}>
+      <div
+        className={`flex items-center justify-center p-8 border border-foreground-dim/20 rounded-lg bg-foreground-dim/5 ${className}`}
+      >
         <Loader2 className="w-6 h-6 animate-spin text-foreground-dim" />
       </div>
     );
@@ -318,10 +333,14 @@ export const AttachmentView: React.FC<AttachmentViewProps> = ({
 
   if (error || !imageUrl) {
     return (
-      <div className={`flex items-center justify-center p-8 border border-foreground-dim/20 rounded-lg bg-foreground-dim/5 ${className}`}>
+      <div
+        className={`flex items-center justify-center p-8 border border-foreground-dim/20 rounded-lg bg-foreground-dim/5 ${className}`}
+      >
         <div className="text-center">
           <AlertCircle className="w-8 h-8 text-foreground-dim mx-auto mb-2" />
-          <p className="text-sm text-foreground-dim">{error || 'Failed to load image'}</p>
+          <p className="text-sm text-foreground-dim">
+            {error || "Failed to load image"}
+          </p>
         </div>
       </div>
     );
@@ -336,7 +355,7 @@ export const AttachmentView: React.FC<AttachmentViewProps> = ({
             alt={attachment.alt_text || attachment.file_name}
             className="w-full h-auto max-h-96 object-contain"
           />
-          
+
           {showControls && (
             <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
               <div className="flex space-x-1">
@@ -360,13 +379,15 @@ export const AttachmentView: React.FC<AttachmentViewProps> = ({
             </div>
           )}
         </div>
-        
+
         <div className="p-3 space-y-2">
           <div className="flex items-center justify-between text-xs text-foreground-dim">
             <span className="truncate flex-1">{attachment.file_name}</span>
-            <span className="ml-2 flex-shrink-0">{formatFileSize(attachment.file_size)}</span>
+            <span className="ml-2 flex-shrink-0">
+              {formatFileSize(attachment.file_size)}
+            </span>
           </div>
-          
+
           {(attachment.caption || editMode) && (
             <div>
               {editMode ? (

@@ -1,101 +1,125 @@
-import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../stores/authStore';
-import { ErrorMessage } from '../components/Auth/ErrorMessage';
-import { Terminal, Code, Zap, Shield, ArrowRight, Eye, EyeOff, X, Mail } from 'lucide-react';
-import { createPortal } from 'react-dom';
-import { ErrorBoundary } from '../components/ErrorBoundary/ErrorBoundary';
+import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../stores/authStore";
+import { ErrorMessage } from "../components/Auth/ErrorMessage";
+import {
+  Terminal,
+  Code,
+  Zap,
+  Shield,
+  ArrowRight,
+  Eye,
+  EyeOff,
+  X,
+  Mail,
+} from "lucide-react";
+import { createPortal } from "react-dom";
+import { ErrorBoundary } from "../components/ErrorBoundary/ErrorBoundary";
 
 interface LandingProps {
   showForAuthenticated?: boolean;
 }
 
-export const Landing: React.FC<LandingProps> = ({ showForAuthenticated = false }) => {
+export const Landing: React.FC<LandingProps> = ({
+  showForAuthenticated = false,
+}) => {
   const navigate = useNavigate();
-  const { signUp, signIn, signInAnonymously, loading, error, clearError, user } = useAuthStore();
-  
+  const {
+    signUp,
+    signIn,
+    signInAnonymously,
+    loading,
+    error,
+    clearError,
+    user,
+  } = useAuthStore();
+
   // Check if we're being opened for signup from anonymous user
   const urlParams = new URLSearchParams(window.location.search);
-  const isSignupMode = urlParams.has('signup');
+  const isSignupMode = urlParams.has("signup");
   const [isSignUp, setIsSignUp] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    name: '',
-    message: ''
+    email: "",
+    password: "",
+    name: "",
+    message: "",
   });
-  const [terminalText, setTerminalText] = useState('');
+  const [terminalText, setTerminalText] = useState("");
   const [showCursor, setShowCursor] = useState(true);
   const [showContactModal, setShowContactModal] = useState(false);
-  const [visibleFeatures, setVisibleFeatures] = useState<Set<number>>(new Set());
-  const [animatedFeatures, setAnimatedFeatures] = useState<Set<number>>(new Set());
+  const [visibleFeatures, setVisibleFeatures] = useState<Set<number>>(
+    new Set(),
+  );
+  const [animatedFeatures, setAnimatedFeatures] = useState<Set<number>>(
+    new Set(),
+  );
   const featureRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const features = [
     {
-      code: 'project.create()',
-      desc: 'Kickstart with AI',
-      info: 'Brainstorm with AI to spark ideas and set a strong foundation for your next build.',
-      staticImage: '/screenshots/ideate-static.png',
-      gifImage: '/gifs/ideate-demo.gif',
-      alt: 'Ideation Demo'
+      code: "project.create()",
+      desc: "Kickstart with AI",
+      info: "Brainstorm with AI to spark ideas and set a strong foundation for your next build.",
+      staticImage: "/screenshots/ideate-static.png",
+      gifImage: "/gifs/ideate-demo.gif",
+      alt: "Ideation Demo",
     },
     {
-      code: 'prd.generate()',
-      desc: 'From ideas to PRD in seconds',
-      info: 'Turn your messy thoughts into a clean, structured Product Requirements Document — powered by AI and ready to guide your build.',
-      staticImage: '/screenshots/prd-static.png',
-      gifImage: '/gifs/prd-demo.gif',
-      alt: 'PRD Generation Demo'
+      code: "prd.generate()",
+      desc: "From ideas to PRD in seconds",
+      info: "Turn your messy thoughts into a clean, structured Product Requirements Document — powered by AI and ready to guide your build.",
+      staticImage: "/screenshots/prd-static.png",
+      gifImage: "/gifs/prd-demo.gif",
+      alt: "PRD Generation Demo",
     },
     {
-      code: 'roadmap.plan()',
-      desc: 'Plan smart, move fast',
-      info: 'Instantly generate multi-phase roadmaps from your PRD. Stay focused, see the big picture, and build in clear steps.',
-      staticImage: '/screenshots/roadmap-static.png',
-      gifImage: '/gifs/roadmap-demo.gif',
-      alt: 'Roadmap Planning Demo'
+      code: "roadmap.plan()",
+      desc: "Plan smart, move fast",
+      info: "Instantly generate multi-phase roadmaps from your PRD. Stay focused, see the big picture, and build in clear steps.",
+      staticImage: "/screenshots/roadmap-static.png",
+      gifImage: "/gifs/roadmap-demo.gif",
+      alt: "Roadmap Planning Demo",
     },
     {
-      code: 'tasks.automate()',
-      desc: 'Auto-task your roadmap',
-      info: 'Convert each roadmap phase into clear, actionable tasks — complete with priorities, tags, and no mental load.',
-      staticImage: '/screenshots/tasks-static.png',
-      gifImage: '/gifs/tasks-demo.gif',
-      alt: 'Task Automation Demo'
+      code: "tasks.automate()",
+      desc: "Auto-task your roadmap",
+      info: "Convert each roadmap phase into clear, actionable tasks — complete with priorities, tags, and no mental load.",
+      staticImage: "/screenshots/tasks-static.png",
+      gifImage: "/gifs/tasks-demo.gif",
+      alt: "Task Automation Demo",
     },
     {
-      code: 'workspace.sync()',
-      desc: 'One workspace to rule it all',
-      info: 'All your tools — PRDs, roadmaps, tasks, notes, and designs — synced in a single, streamlined dashboard.',
-      staticImage: '/screenshots/workspace-static.png',
-      gifImage: '/gifs/workspace-demo.gif',
-      alt: 'Unified Workspace Demo'
+      code: "workspace.sync()",
+      desc: "One workspace to rule it all",
+      info: "All your tools — PRDs, roadmaps, tasks, notes, and designs — synced in a single, streamlined dashboard.",
+      staticImage: "/screenshots/workspace-static.png",
+      gifImage: "/gifs/workspace-demo.gif",
+      alt: "Unified Workspace Demo",
     },
     {
-      code: 'scratchpad.ideate()',
-      desc: 'Jot now, code later',
-      info: 'Drop your ideas, thoughts, or random sparks in a clean space. Turn them into tasks anytime with text-to-task conversion.',
-      staticImage: '/screenshots/scratchpad-static.png',
-      gifImage: '/gifs/scratchpad-demo.gif',
-      alt: 'Scratchpad Demo'
+      code: "scratchpad.ideate()",
+      desc: "Jot now, code later",
+      info: "Drop your ideas, thoughts, or random sparks in a clean space. Turn them into tasks anytime with text-to-task conversion.",
+      staticImage: "/screenshots/scratchpad-static.png",
+      gifImage: "/gifs/scratchpad-demo.gif",
+      alt: "Scratchpad Demo",
     },
     {
-      code: 'design.copilot()',
-      desc: 'Design with an AI partner',
-      info: 'Upload a screenshot, get instant UX feedback, and generate design tasks — your AI co-designer’s got your back.',
-      staticImage: '/screenshots/design-static.png',
-      gifImage: '/gifs/design-demo.gif',
-      alt: 'Design Assistant Demo'
+      code: "design.copilot()",
+      desc: "Design with an AI partner",
+      info: "Upload a screenshot, get instant UX feedback, and generate design tasks — your AI co-designer’s got your back.",
+      staticImage: "/screenshots/design-static.png",
+      gifImage: "/gifs/design-demo.gif",
+      alt: "Design Assistant Demo",
     },
     {
-      code: 'community.join()',
-      desc: 'Build with your people',
-      info: 'Swap tips, workflows, and lessons learned with other builders mastering the vibe coding way. Learn faster, ship smarter.',
-      staticImage: '/screenshots/community-static.png',
+      code: "community.join()",
+      desc: "Build with your people",
+      info: "Swap tips, workflows, and lessons learned with other builders mastering the vibe coding way. Learn faster, ship smarter.",
+      staticImage: "/screenshots/community-static.png",
       // gifImage: '/gifs/community-demo.gif',
-      alt: 'Community Demo'
+      alt: "Community Demo",
     },
   ];
 
@@ -103,8 +127,8 @@ export const Landing: React.FC<LandingProps> = ({ showForAuthenticated = false }
   useEffect(() => {
     if (user && !showForAuthenticated && !isSignupMode) {
       // Get the intended destination from sessionStorage or use dashboard as default
-      const returnUrl = sessionStorage.getItem('returnUrl') || '/';
-      sessionStorage.removeItem('returnUrl'); // Clean up
+      const returnUrl = sessionStorage.getItem("returnUrl") || "/";
+      sessionStorage.removeItem("returnUrl"); // Clean up
       navigate(returnUrl);
     }
   }, [user, navigate, showForAuthenticated, isSignupMode]);
@@ -112,8 +136,8 @@ export const Landing: React.FC<LandingProps> = ({ showForAuthenticated = false }
   // Terminal animation effect
   useEffect(() => {
     const text = showForAuthenticated
-      ? '> displaying VLab features...'
-      : '> initializing project workspace...';
+      ? "> displaying VLab features..."
+      : "> initializing project workspace...";
     let index = 0;
 
     const typeWriter = () => {
@@ -128,7 +152,7 @@ export const Landing: React.FC<LandingProps> = ({ showForAuthenticated = false }
 
     // Cursor blink effect
     const cursorInterval = setInterval(() => {
-      setShowCursor(prev => !prev);
+      setShowCursor((prev) => !prev);
     }, 500);
 
     return () => clearInterval(cursorInterval);
@@ -138,7 +162,7 @@ export const Landing: React.FC<LandingProps> = ({ showForAuthenticated = false }
   useEffect(() => {
     if (isSignupMode) {
       setTimeout(() => {
-        scrollToSection('signup');
+        scrollToSection("signup");
       }, 500);
     }
   }, [isSignupMode]);
@@ -152,20 +176,20 @@ export const Landing: React.FC<LandingProps> = ({ showForAuthenticated = false }
         const observer = new IntersectionObserver(
           ([entry]) => {
             if (entry.isIntersecting) {
-              setVisibleFeatures(prev => new Set([...prev, index]));
+              setVisibleFeatures((prev) => new Set([...prev, index]));
               // Start GIF animation after 1.5 seconds only if GIF exists
               if (features[index]?.gifImage) {
                 setTimeout(() => {
-                  setAnimatedFeatures(prev => new Set([...prev, index]));
+                  setAnimatedFeatures((prev) => new Set([...prev, index]));
                 }, 1500);
               }
             } else {
-              setVisibleFeatures(prev => {
+              setVisibleFeatures((prev) => {
                 const newSet = new Set(prev);
                 newSet.delete(index);
                 return newSet;
               });
-              setAnimatedFeatures(prev => {
+              setAnimatedFeatures((prev) => {
                 const newSet = new Set(prev);
                 newSet.delete(index);
                 return newSet;
@@ -174,8 +198,8 @@ export const Landing: React.FC<LandingProps> = ({ showForAuthenticated = false }
           },
           {
             threshold: 0.3,
-            rootMargin: '-100px 0px'
-          }
+            rootMargin: "-100px 0px",
+          },
         );
 
         observer.observe(ref);
@@ -184,7 +208,7 @@ export const Landing: React.FC<LandingProps> = ({ showForAuthenticated = false }
     });
 
     return () => {
-      observers.forEach(observer => observer.disconnect());
+      observers.forEach((observer) => observer.disconnect());
     };
   }, [features.length]);
 
@@ -199,7 +223,7 @@ export const Landing: React.FC<LandingProps> = ({ showForAuthenticated = false }
       // Restore scroll position after signup to prevent unwanted scroll-to-top
       // Only restore if we actually jumped to top and have form data
       if (window.scrollY === 0 && initialScrollY > 0 && formData.email) {
-        window.scrollTo({ top: initialScrollY, behavior: 'instant' });
+        window.scrollTo({ top: initialScrollY, behavior: "instant" });
       }
     } else {
       await signIn(formData.email, formData.password);
@@ -207,7 +231,7 @@ export const Landing: React.FC<LandingProps> = ({ showForAuthenticated = false }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
@@ -216,7 +240,7 @@ export const Landing: React.FC<LandingProps> = ({ showForAuthenticated = false }
   const handleSwitchToLogin = () => {
     setIsSignUp(false);
     clearError();
-    setFormData({ ...formData, password: '', name: '', message: '' });
+    setFormData({ ...formData, password: "", name: "", message: "" });
   };
 
   const handleRetry = () => {
@@ -226,22 +250,22 @@ export const Landing: React.FC<LandingProps> = ({ showForAuthenticated = false }
   const handleModeSwitch = () => {
     setIsSignUp(!isSignUp);
     clearError();
-    setFormData({ email: '', password: '', name: '', message: '' });
+    setFormData({ email: "", password: "", name: "", message: "" });
   };
 
   const scrollToSection = (elementId: string) => {
     const element = document.getElementById(elementId);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
 
   const handleTryItNow = async () => {
     try {
       await signInAnonymously();
-      navigate('/');
+      navigate("/");
     } catch (error) {
-      console.error('Anonymous sign in failed:', error);
+      console.error("Anonymous sign in failed:", error);
     }
   };
 
@@ -250,13 +274,16 @@ export const Landing: React.FC<LandingProps> = ({ showForAuthenticated = false }
       <div className="min-h-screen bg-background text-foreground font-mono overflow-hidden">
         {/* Subtle grid pattern background */}
         <div className="absolute inset-0 opacity-5">
-          <div className="absolute inset-0" style={{
-            backgroundImage: `
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `
               linear-gradient(rgba(0, 255, 159, 0.1) 1px, transparent 1px),
               linear-gradient(90deg, rgba(0, 255, 159, 0.1) 1px, transparent 1px)
             `,
-            backgroundSize: '20px 20px'
-          }} />
+              backgroundSize: "20px 20px",
+            }}
+          />
         </div>
 
         <div className="relative z-10">
@@ -269,9 +296,17 @@ export const Landing: React.FC<LandingProps> = ({ showForAuthenticated = false }
                   <span className="text-xl font-bold">VLab</span>
                 </div>
                 <nav className="hidden md:flex items-center space-x-6 text-sm">
-                  <button onClick={() => scrollToSection('features')} className="hover:text-primary transition-colors">Core Modules</button>
+                  <button
+                    onClick={() => scrollToSection("features")}
+                    className="hover:text-primary transition-colors"
+                  >
+                    Core Modules
+                  </button>
                   {!showForAuthenticated && (
-                    <button onClick={() => scrollToSection('signup')} className="hover:text-primary transition-colors flex items-center space-x-1">
+                    <button
+                      onClick={() => scrollToSection("signup")}
+                      className="hover:text-primary transition-colors flex items-center space-x-1"
+                    >
                       <span>Start Vib'ing</span>
                       <ArrowRight className="w-4 h-4" />
                     </button>
@@ -294,30 +329,35 @@ export const Landing: React.FC<LandingProps> = ({ showForAuthenticated = false }
                 </div>
                 <div className="text-left text-sm">
                   <span className="text-primary">{terminalText}</span>
-                  <span className={`text-primary ${showCursor ? 'opacity-100' : 'opacity-0'} transition-opacity`}>_</span>
+                  <span
+                    className={`text-primary ${showCursor ? "opacity-100" : "opacity-0"} transition-opacity`}
+                  >
+                    _
+                  </span>
                 </div>
               </div>
 
               {/* Main Headline */}
               <h1 className="text-4xl md:text-6xl font-bold mb-6 mt-16 leading-tight">
-                <span className="text-foreground">Build</span>{' '}
+                <span className="text-foreground">Build</span>{" "}
                 <span className="text-primary glow">Smarter</span>
                 <br />
-                <span className="text-foreground">Ship</span>{' '}
+                <span className="text-foreground">Ship</span>{" "}
                 <span className="text-primary glow">Faster</span>
               </h1>
 
               {/* Value Proposition */}
               <p className="text-lg md:text-xl text-foreground-dim mb-8 max-w-2xl mx-auto leading-relaxed">
-                // built_for_(<span className="text-primary">solo_vibe_coders</span>)
-                <br />
-                A minimalist, AI-powered all-in-one workspace for chaotic builders.
+                // built_for_(
+                <span className="text-primary">solo_vibe_coders</span>)
+                <br />A minimalist, AI-powered all-in-one workspace for chaotic
+                builders.
               </p>
 
               {/* CTA Button - only show for unauthenticated users (not on /about page) */}
               {!user && !showForAuthenticated && (
                 <button
-                  onClick={() => scrollToSection('signup')}
+                  onClick={() => scrollToSection("signup")}
                   className="inline-flex items-center px-8 py-4 bg-primary text-background font-semibold rounded-lg hover:bg-primary/90 transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-primary/25 hover:text-background"
                 >
                   <span>&gt;_ Start Vib'ing</span>
@@ -333,7 +373,10 @@ export const Landing: React.FC<LandingProps> = ({ showForAuthenticated = false }
                 <h2 className="text-3xl md:text-4xl font-bold mb-4">
                   <span className="text-primary">//</span> Core Modules
                 </h2>
-                <p className="text-foreground-dim text-lg max-w-2xl mx-auto">Essential tools designed to help you level up your vibe coding — from idea spark to shipping in flow.</p>
+                <p className="text-foreground-dim text-lg max-w-2xl mx-auto">
+                  Essential tools designed to help you level up your vibe coding
+                  — from idea spark to shipping in flow.
+                </p>
               </div>
 
               <div className="space-y-16 md:space-y-24 lg:space-y-32">
@@ -345,26 +388,37 @@ export const Landing: React.FC<LandingProps> = ({ showForAuthenticated = false }
                   return (
                     <div
                       key={index}
-                      ref={el => featureRefs.current[index] = el}
-                      className={`flex flex-col ${isEven ? 'lg:flex-row' : 'lg:flex-row-reverse'
-                        } items-center gap-8 md:gap-12 lg:gap-20 transition-all duration-1000 ${isVisible
-                          ? 'opacity-100 translate-y-0'
-                          : 'opacity-0 translate-y-8 md:translate-y-16'
-                        }`}
+                      ref={(el) => (featureRefs.current[index] = el)}
+                      className={`flex flex-col ${
+                        isEven ? "lg:flex-row" : "lg:flex-row-reverse"
+                      } items-center gap-8 md:gap-12 lg:gap-20 transition-all duration-1000 ${
+                        isVisible
+                          ? "opacity-100 translate-y-0"
+                          : "opacity-0 translate-y-8 md:translate-y-16"
+                      }`}
                     >
                       {/* Content Side */}
-                      <div className={`flex-1 space-y-6 transition-all duration-1000 delay-200 ${isEven ? 'lg:text-right text-left' : 'text-left'
-                        } ${isVisible
-                          ? 'opacity-100 translate-x-0'
-                          : `opacity-0 lg:${isEven ? '-translate-x-8' : 'translate-x-8'}`
-                        }`}>
-                        <div className={`flex items-center space-x-3 ${isEven ? 'lg:flex-row-reverse lg:space-x-reverse' : ''
-                          }`}>
+                      <div
+                        className={`flex-1 space-y-6 transition-all duration-1000 delay-200 ${
+                          isEven ? "lg:text-right text-left" : "text-left"
+                        } ${
+                          isVisible
+                            ? "opacity-100 translate-x-0"
+                            : `opacity-0 lg:${isEven ? "-translate-x-8" : "translate-x-8"}`
+                        }`}
+                      >
+                        <div
+                          className={`flex items-center space-x-3 ${
+                            isEven
+                              ? "lg:flex-row-reverse lg:space-x-reverse"
+                              : ""
+                          }`}
+                        >
                           <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
                             <Code className="w-6 h-6 text-primary" />
                           </div>
                           <span className="text-sm text-foreground-dim font-mono">
-                            {feature.code.split('.')[0]}.module
+                            {feature.code.split(".")[0]}.module
                           </span>
                         </div>
 
@@ -378,8 +432,13 @@ export const Landing: React.FC<LandingProps> = ({ showForAuthenticated = false }
                           <p className="text-foreground-dim text-base leading-relaxed mb-6 opacity-90">
                             {feature.info}
                           </p>
-                          <div className={`flex items-center space-x-2 text-sm text-primary ${isEven ? 'lg:flex-row-reverse lg:space-x-reverse' : ''
-                            }`}>
+                          <div
+                            className={`flex items-center space-x-2 text-sm text-primary ${
+                              isEven
+                                ? "lg:flex-row-reverse lg:space-x-reverse"
+                                : ""
+                            }`}
+                          >
                             {/* <ArrowRight className="w-4 h-4" />
                             <span>Explore {feature.code.split('.')[0]}</span> */}
                           </div>
@@ -387,10 +446,13 @@ export const Landing: React.FC<LandingProps> = ({ showForAuthenticated = false }
                       </div>
 
                       {/* Visual Side */}
-                      <div className={`flex-1 max-w-2xl transition-all duration-1000 delay-400 ${isVisible
-                        ? 'opacity-100 translate-x-0'
-                        : `opacity-0 lg:${isEven ? 'translate-x-8' : '-translate-x-8'}`
-                        }`}>
+                      <div
+                        className={`flex-1 max-w-2xl transition-all duration-1000 delay-400 ${
+                          isVisible
+                            ? "opacity-100 translate-x-0"
+                            : `opacity-0 lg:${isEven ? "translate-x-8" : "-translate-x-8"}`
+                        }`}
+                      >
                         <div className="group relative">
                           {/* Terminal Window */}
                           <div className="bg-secondary/80 border border-foreground-dim/20 rounded-xl overflow-hidden backdrop-blur-sm shadow-2xl">
@@ -402,7 +464,7 @@ export const Landing: React.FC<LandingProps> = ({ showForAuthenticated = false }
                                 <div className="w-3 h-3 rounded-full bg-green-500"></div>
                               </div>
                               <span className="text-xs text-foreground-dim font-mono">
-                                {feature.code.split('.')[0]}.preview
+                                {feature.code.split(".")[0]}.preview
                               </span>
                               <div className="w-16"></div>
                             </div>
@@ -413,9 +475,15 @@ export const Landing: React.FC<LandingProps> = ({ showForAuthenticated = false }
                               <img
                                 src={feature.staticImage}
                                 alt={feature.alt}
-                                className={`w-full h-auto max-h-80 md:max-h-96 object-contain ${hasGif ? 'transition-opacity duration-700' : ''
-                                  } ${hasGif && isAnimated ? 'opacity-0' : 'opacity-100'
-                                  }`}
+                                className={`w-full h-auto max-h-80 md:max-h-96 object-contain ${
+                                  hasGif
+                                    ? "transition-opacity duration-700"
+                                    : ""
+                                } ${
+                                  hasGif && isAnimated
+                                    ? "opacity-0"
+                                    : "opacity-100"
+                                }`}
                                 loading="lazy"
                               />
 
@@ -424,16 +492,20 @@ export const Landing: React.FC<LandingProps> = ({ showForAuthenticated = false }
                                 <img
                                   src={feature.gifImage}
                                   alt={`${feature.alt} - Interactive Demo`}
-                                  className={`absolute inset-4 w-[calc(100%-2rem)] h-auto max-h-80 md:max-h-96 object-contain transition-opacity duration-700 ${isAnimated ? 'opacity-100' : 'opacity-0'
-                                    }`}
+                                  className={`absolute inset-4 w-[calc(100%-2rem)] h-auto max-h-80 md:max-h-96 object-contain transition-opacity duration-700 ${
+                                    isAnimated ? "opacity-100" : "opacity-0"
+                                  }`}
                                   loading="lazy"
                                 />
                               )}
 
                               {/* Live indicator - only show if GIF exists and is playing */}
                               {hasGif && (
-                                <div className={`absolute top-6 right-6 transition-all duration-500 ${isAnimated ? 'opacity-100' : 'opacity-0'
-                                  }`}>
+                                <div
+                                  className={`absolute top-6 right-6 transition-all duration-500 ${
+                                    isAnimated ? "opacity-100" : "opacity-0"
+                                  }`}
+                                >
                                   <div className="bg-primary/90 text-background px-2 py-1 rounded-full text-xs font-medium flex items-center space-x-1">
                                     <div className="w-1.5 h-1.5 bg-background rounded-full animate-pulse"></div>
                                     <span>LIVE</span>
@@ -465,7 +537,8 @@ export const Landing: React.FC<LandingProps> = ({ showForAuthenticated = false }
                   </div>
 
                   <h3 className="text-2xl font-bold mb-4 text-center">
-                    <span className="text-primary">$</span> {isSignUp ? 'create_account' : 'login'}
+                    <span className="text-primary">$</span>{" "}
+                    {isSignUp ? "create_account" : "login"}
                   </h3>
 
                   {/* {isSignUp && (
@@ -489,7 +562,7 @@ export const Landing: React.FC<LandingProps> = ({ showForAuthenticated = false }
                             Loading...
                           </span>
                         ) : (
-                          '🚀 Try It Now - No Sign Up Required'
+                          "🚀 Try It Now - No Sign Up Required"
                         )}
                       </button>
                       <p className="text-xs text-foreground-dim mt-4">
@@ -499,30 +572,29 @@ export const Landing: React.FC<LandingProps> = ({ showForAuthenticated = false }
                         Ready to commit? Sign up below!
                       </p>
                     </div>
-                  )}                  
+                  )}
 
                   <form onSubmit={handleSubmit} className="space-y-4">
                     {isSignUp && (
-                    <>
-                      <div>
-                        <label className="block text-sm text-foreground-dim mb-2">
-                          --name
-                        </label>
-                        <input
-                          type="text"
-                          name="name"
-                          value={formData.name}
-                          onChange={handleInputChange}
-                          className="form-input"
-                          placeholder="Enter your name"
-                          required={isSignUp}
-                          aria-label="Full name"
-                          autoComplete="name"
-                        />
-                      </div>
-                      
-                    </>
-                  )}
+                      <>
+                        <div>
+                          <label className="block text-sm text-foreground-dim mb-2">
+                            --name
+                          </label>
+                          <input
+                            type="text"
+                            name="name"
+                            value={formData.name}
+                            onChange={handleInputChange}
+                            className="form-input"
+                            placeholder="Enter your name"
+                            required={isSignUp}
+                            aria-label="Full name"
+                            autoComplete="name"
+                          />
+                        </div>
+                      </>
+                    )}
 
                     {true && (
                       <>
@@ -553,7 +625,7 @@ export const Landing: React.FC<LandingProps> = ({ showForAuthenticated = false }
                           </label>
                           <div className="relative">
                             <input
-                              type={showPassword ? 'text' : 'password'}
+                              type={showPassword ? "text" : "password"}
                               name="password"
                               value={formData.password}
                               onChange={handleInputChange}
@@ -561,15 +633,23 @@ export const Landing: React.FC<LandingProps> = ({ showForAuthenticated = false }
                               placeholder="••••••••"
                               required
                               aria-label="Password"
-                              autoComplete={isSignUp ? "new-password" : "current-password"}
+                              autoComplete={
+                                isSignUp ? "new-password" : "current-password"
+                              }
                             />
                             <button
                               type="button"
                               onClick={() => setShowPassword(!showPassword)}
                               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-foreground-dim hover:text-foreground transition-colors"
-                              aria-label={showPassword ? 'Hide password' : 'Show password'}
+                              aria-label={
+                                showPassword ? "Hide password" : "Show password"
+                              }
                             >
-                              {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                              {showPassword ? (
+                                <EyeOff className="w-5 h-5" />
+                              ) : (
+                                <Eye className="w-5 h-5" />
+                              )}
                             </button>
                           </div>
                         </div>
@@ -581,17 +661,18 @@ export const Landing: React.FC<LandingProps> = ({ showForAuthenticated = false }
                       <ErrorMessage
                         error={error}
                         onRetry={handleRetry}
-                        onSwitchToLogin={isSignUp ? handleSwitchToLogin : undefined}
+                        onSwitchToLogin={
+                          isSignUp ? handleSwitchToLogin : undefined
+                        }
                         className="mt-4"
                       />
                     )}
 
-                    
                     <button
                       type="submit"
                       disabled={loading}
                       className="w-full py-3 bg-primary text-background font-semibold rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:shadow-lg hover:shadow-primary/25"
-                      aria-label={isSignUp ? 'Create account' : 'Sign in'}
+                      aria-label={isSignUp ? "Create account" : "Sign in"}
                     >
                       {loading ? (
                         <span className="flex items-center justify-center">
@@ -599,7 +680,7 @@ export const Landing: React.FC<LandingProps> = ({ showForAuthenticated = false }
                           Processing...
                         </span>
                       ) : (
-                        `${isSignUp ? 'deploy_user()' : 'authenticate_user()'}`
+                        `${isSignUp ? "deploy_user()" : "authenticate_user()"}`
                       )}
                     </button>
                   </form>
@@ -632,12 +713,13 @@ export const Landing: React.FC<LandingProps> = ({ showForAuthenticated = false }
                       <button
                         onClick={handleModeSwitch}
                         className="text-foreground-dim hover:text-primary transition-colors text-sm"
-                        aria-label={isSignUp ? 'Switch to login' : 'Switch to sign up'}
+                        aria-label={
+                          isSignUp ? "Switch to login" : "Switch to sign up"
+                        }
                       >
                         {isSignUp
-                          ? '// Already have an account? Login'
-                          : '// Need an account? Sign up'
-                        }
+                          ? "// Already have an account? Login"
+                          : "// Need an account? Sign up"}
                       </button>
                     </div>
                   </div>
@@ -652,7 +734,9 @@ export const Landing: React.FC<LandingProps> = ({ showForAuthenticated = false }
               <div className="flex flex-col md:flex-row items-center justify-between">
                 <div className="flex items-center space-x-2 mb-4 md:mb-0">
                   <Terminal className="w-5 h-5 text-primary" />
-                  <span className="text-foreground-dim">© 2025 VLab. All rights reserved.</span>
+                  <span className="text-foreground-dim">
+                    © 2025 VLab. All rights reserved.
+                  </span>
                 </div>
                 <div className="flex items-center space-x-6 text-foreground-dim">
                   <button
@@ -671,38 +755,46 @@ export const Landing: React.FC<LandingProps> = ({ showForAuthenticated = false }
                     <span>AI-powered</span>
                   </span>
                 </div>
-
               </div>
             </div>
 
             {/* Contact Modal */}
-            {showContactModal && createPortal(
-              <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-                {/* Backdrop */}
-                <div
-                  className="fixed inset-0 bg-black/50 backdrop-blur-sm"
-                  onClick={() => setShowContactModal(false)}
-                />
-
-                {/* Modal Content */}
-                <div className="relative w-full max-w-md bg-background rounded-xl border border-foreground-dim/20 shadow-xl">
-                  <button
+            {showContactModal &&
+              createPortal(
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+                  {/* Backdrop */}
+                  <div
+                    className="fixed inset-0 bg-black/50 backdrop-blur-sm"
                     onClick={() => setShowContactModal(false)}
-                    className="absolute right-4 top-4 text-foreground-dim hover:text-foreground transition-colors"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
+                  />
 
-                  <div className="p-6">
-                    <h3 className="mb-2">Get in Touch</h3>
-                    <p className="text-foreground-dim mb-6">
-                      Have questions, feedback or want to learn more? Drop us a message at <a href="mailto:vibelab.feedback@gmail.com" className="text-primary hover:underline">vibelab.feedback@gmail.com</a>, let's chat!
-                    </p>
+                  {/* Modal Content */}
+                  <div className="relative w-full max-w-md bg-background rounded-xl border border-foreground-dim/20 shadow-xl">
+                    <button
+                      onClick={() => setShowContactModal(false)}
+                      className="absolute right-4 top-4 text-foreground-dim hover:text-foreground transition-colors"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+
+                    <div className="p-6">
+                      <h3 className="mb-2">Get in Touch</h3>
+                      <p className="text-foreground-dim mb-6">
+                        Have questions, feedback or want to learn more? Drop us
+                        a message at{" "}
+                        <a
+                          href="mailto:vibelab.feedback@gmail.com"
+                          className="text-primary hover:underline"
+                        >
+                          vibelab.feedback@gmail.com
+                        </a>
+                        , let's chat!
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </div>,
-              document.body
-            )}
+                </div>,
+                document.body,
+              )}
           </footer>
         </div>
       </div>

@@ -1,13 +1,37 @@
-import { format } from 'date-fns';
-import { AlertCircle, Check, CheckCircle2, ChevronDown, ChevronUp, Edit3, Loader2, Pin, Plus, Save, Search, Sparkles, StickyNote, Tag, Trash2, X, Image as ImageIcon } from 'lucide-react';
-import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { ModuleContainer } from '../../components/Workspace/ModuleContainer';
-import { BackButton } from '../../components/common/BackButton';
-import { MarkdownRenderer, useMarkdownPreprocessing } from '../../components/common/MarkdownRenderer';
-import { ImageUpload, AttachmentView } from '../../components/common/ImageUpload';
-import { generateDesignTasks } from '../../lib/openai';
-import { db, supabase } from '../../lib/supabase';
+import { format } from "date-fns";
+import {
+  AlertCircle,
+  Check,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Edit3,
+  Loader2,
+  Pin,
+  Plus,
+  Save,
+  Search,
+  Sparkles,
+  StickyNote,
+  Tag,
+  Trash2,
+  X,
+  Image as ImageIcon,
+} from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { ModuleContainer } from "../../components/Workspace/ModuleContainer";
+import { BackButton } from "../../components/common/BackButton";
+import {
+  MarkdownRenderer,
+  useMarkdownPreprocessing,
+} from "../../components/common/MarkdownRenderer";
+import {
+  ImageUpload,
+  AttachmentView,
+} from "../../components/common/ImageUpload";
+import { generateDesignTasks } from "../../lib/openai";
+import { db, supabase } from "../../lib/supabase";
 
 interface DatabaseResponse<T> {
   data: T | null;
@@ -43,8 +67,8 @@ interface ScratchpadNote {
 interface GeneratedTask {
   title: string;
   description: string;
-  status: 'todo' | 'in_progress' | 'done' | 'blocked';
-  priority: 'low' | 'medium' | 'high' | 'highest';
+  status: "todo" | "in_progress" | "done" | "blocked";
+  priority: "low" | "medium" | "high" | "highest";
   estimated_hours?: number;
   due_date?: string;
   tags: string[];
@@ -54,14 +78,14 @@ interface GeneratedTask {
 
 // Define tag options as specified
 const TAG_OPTIONS = [
-  'Project Notes',
-  'Ideas',
-  'Links & Resources',
-  'AI Discussion'
+  "Project Notes",
+  "Ideas",
+  "Links & Resources",
+  "AI Discussion",
 ];
 
 // Use consistent tag styling across all modules
-const getTagClass = () => 'badge-tag';
+const getTagClass = () => "badge-tag";
 
 export const ScratchpadDetailView: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
@@ -69,22 +93,30 @@ export const ScratchpadDetailView: React.FC = () => {
   const [notes, setNotes] = useState<ScratchpadNote[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [newNote, setNewNote] = useState<Partial<ScratchpadNote> | null>(null);
   const [saving, setSaving] = useState(false);
-  const [attachmentErrors, setAttachmentErrors] = useState<Record<string, string>>({});
+  const [attachmentErrors, setAttachmentErrors] = useState<
+    Record<string, string>
+  >({});
   const { processContent } = useMarkdownPreprocessing();
 
-  const [expandedNotes, setExpandedNotes] = useState<Record<string, boolean>>({});
+  const [expandedNotes, setExpandedNotes] = useState<Record<string, boolean>>(
+    {},
+  );
   const contentRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // Task generation state
   const [isGeneratingTasks, setIsGeneratingTasks] = useState(false);
   const [generatedTasks, setGeneratedTasks] = useState<GeneratedTask[]>([]);
-  const [selectedTaskIds, setSelectedTaskIds] = useState<Set<number>>(new Set());
-  const [selectedNoteForTasks, setSelectedNoteForTasks] = useState<string | null>(null);
+  const [selectedTaskIds, setSelectedTaskIds] = useState<Set<number>>(
+    new Set(),
+  );
+  const [selectedNoteForTasks, setSelectedNoteForTasks] = useState<
+    string | null
+  >(null);
   const [taskSuccess, setTaskSuccess] = useState<string | null>(null);
   const [taskError, setTaskError] = useState<string | null>(null);
 
@@ -98,30 +130,34 @@ export const ScratchpadDetailView: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await db.getScratchpadNotes(id) as DatabaseResponse<ScratchpadNote[]>;
+      const response = (await db.getScratchpadNotes(id)) as DatabaseResponse<
+        ScratchpadNote[]
+      >;
       if (response.error) throw response.error;
-      
+
       // Fetch attachments for all notes
       const notesWithAttachments = await Promise.all(
         (response.data || []).map(async (note) => {
           try {
-            const { data: attachments } = await db.getScratchpadNoteAttachments(note.id);
+            const { data: attachments } = await db.getScratchpadNoteAttachments(
+              note.id,
+            );
             return {
               ...note,
-              attachments: attachments || []
+              attachments: attachments || [],
             };
           } catch {
             return {
               ...note,
-              attachments: []
+              attachments: [],
             };
           }
-        })
+        }),
       );
-      
+
       setNotes(notesWithAttachments);
     } catch (err: any) {
-      setError(err.message || 'Failed to fetch notes');
+      setError(err.message || "Failed to fetch notes");
     } finally {
       setLoading(false);
     }
@@ -131,31 +167,39 @@ export const ScratchpadDetailView: React.FC = () => {
     navigate(`/workspace/${projectId}`);
   };
 
-  const handleUpdateNote = async (noteId: string, updates: Partial<ScratchpadNote>) => {
+  const handleUpdateNote = async (
+    noteId: string,
+    updates: Partial<ScratchpadNote>,
+  ) => {
     setSaving(true);
     setError(null);
 
     try {
-      const response = await db.updateScratchpadNote(noteId, updates) as DatabaseResponse<ScratchpadNote>;
+      const response = (await db.updateScratchpadNote(
+        noteId,
+        updates,
+      )) as DatabaseResponse<ScratchpadNote>;
       if (response.error) throw response.error;
 
       // Update local state - preserve attachments since they're not returned from DB
-      const updatedNotes = notes.map(note =>
-        note.id === noteId ? { ...response.data!, attachments: note.attachments } : note
+      const updatedNotes = notes.map((note) =>
+        note.id === noteId
+          ? { ...response.data!, attachments: note.attachments }
+          : note,
       );
       setNotes(updatedNotes);
       setEditingNoteId(null);
     } catch (err: any) {
-      setError(err.message || 'Failed to update note');
+      setError(err.message || "Failed to update note");
     } finally {
       setSaving(false);
     }
   };
 
   const toggleNoteExpansion = (noteId: string) => {
-    setExpandedNotes(prev => ({
+    setExpandedNotes((prev) => ({
       ...prev,
-      [noteId]: !prev[noteId]
+      [noteId]: !prev[noteId],
     }));
   };
 
@@ -168,24 +212,26 @@ export const ScratchpadDetailView: React.FC = () => {
     try {
       const newNoteData = {
         project_id: projectId,
-        title: noteData.title || '',
-        content: noteData.content || 'New note',
+        title: noteData.title || "",
+        content: noteData.content || "New note",
         position: noteData.position || { x: 0, y: 0 },
         size: noteData.size || { width: 300, height: 200 },
-        color: noteData.color || '#fef3c7',
+        color: noteData.color || "#fef3c7",
         font_size: noteData.font_size || 14,
         is_pinned: noteData.is_pinned || false,
         tags: noteData.tags || [],
       };
 
-      const response = await db.createScratchpadNote(newNoteData) as DatabaseResponse<ScratchpadNote>;
+      const response = (await db.createScratchpadNote(
+        newNoteData,
+      )) as DatabaseResponse<ScratchpadNote>;
       if (response.error) throw response.error;
 
       // Add to local state
-      setNotes(prev => response.data ? [response.data, ...prev] : prev);
+      setNotes((prev) => (response.data ? [response.data, ...prev] : prev));
       setNewNote(null);
     } catch (err: any) {
-      setError(err.message || 'Failed to create note');
+      setError(err.message || "Failed to create note");
     } finally {
       setSaving(false);
     }
@@ -196,14 +242,16 @@ export const ScratchpadDetailView: React.FC = () => {
     setError(null);
 
     try {
-      const response = await db.deleteScratchpadNote(noteId) as DatabaseResponse<void>;
+      const response = (await db.deleteScratchpadNote(
+        noteId,
+      )) as DatabaseResponse<void>;
       if (response.error) throw response.error;
 
       // Remove from local state
-      setNotes(prev => prev.filter(note => note.id !== noteId));
+      setNotes((prev) => prev.filter((note) => note.id !== noteId));
       setEditingNoteId(null);
     } catch (err: any) {
-      setError(err.message || 'Failed to delete note');
+      setError(err.message || "Failed to delete note");
     } finally {
       setSaving(false);
     }
@@ -211,9 +259,9 @@ export const ScratchpadDetailView: React.FC = () => {
 
   // Task generation functions
   const generateTasksFromNote = async (noteId: string) => {
-    const note = notes.find(n => n.id === noteId);
+    const note = notes.find((n) => n.id === noteId);
     if (!note || !note.content.trim()) {
-      setTaskError('Please select a note with content to generate tasks from');
+      setTaskError("Please select a note with content to generate tasks from");
       return;
     }
 
@@ -228,14 +276,18 @@ export const ScratchpadDetailView: React.FC = () => {
       // Select all tasks by default
       setSelectedTaskIds(new Set(tasks.map((_, index) => index)));
     } catch (err) {
-      setTaskError(err instanceof Error ? err.message : 'Failed to generate tasks');
+      setTaskError(
+        err instanceof Error ? err.message : "Failed to generate tasks",
+      );
     } finally {
       setIsGeneratingTasks(false);
     }
   };
 
   const addTasksToProject = async () => {
-    const selectedTasks = generatedTasks.filter((_, index) => selectedTaskIds.has(index));
+    const selectedTasks = generatedTasks.filter((_, index) =>
+      selectedTaskIds.has(index),
+    );
     if (!projectId || selectedTasks.length === 0) return;
 
     setIsGeneratingTasks(true);
@@ -243,9 +295,11 @@ export const ScratchpadDetailView: React.FC = () => {
 
     try {
       // Get current user
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
-        setTaskError('You must be logged in to add tasks');
+        setTaskError("You must be logged in to add tasks");
         return;
       }
 
@@ -270,13 +324,14 @@ export const ScratchpadDetailView: React.FC = () => {
         }
       }
 
-      setTaskSuccess(`Successfully added ${selectedTasks.length} tasks to your project!`);
+      setTaskSuccess(
+        `Successfully added ${selectedTasks.length} tasks to your project!`,
+      );
       setGeneratedTasks([]);
       setSelectedTaskIds(new Set());
       setSelectedNoteForTasks(null);
-
     } catch (err) {
-      setTaskError(err instanceof Error ? err.message : 'Failed to add tasks');
+      setTaskError(err instanceof Error ? err.message : "Failed to add tasks");
     } finally {
       setIsGeneratingTasks(false);
     }
@@ -304,91 +359,118 @@ export const ScratchpadDetailView: React.FC = () => {
   const handleAttachmentUpload = async (noteId: string, attachment: any) => {
     try {
       // Update local state immediately to show the new attachment
-      setNotes(prev => prev.map(note => 
-        note.id === noteId 
-          ? { ...note, attachments: [...(note.attachments || []), attachment] }
-          : note
-      ));
-      
+      setNotes((prev) =>
+        prev.map((note) =>
+          note.id === noteId
+            ? {
+                ...note,
+                attachments: [...(note.attachments || []), attachment],
+              }
+            : note,
+        ),
+      );
+
       // Clear any previous error
-      setAttachmentErrors(prev => ({ ...prev, [noteId]: '' }));
+      setAttachmentErrors((prev) => ({ ...prev, [noteId]: "" }));
     } catch (err: any) {
-      setAttachmentErrors(prev => ({ 
-        ...prev, 
-        [noteId]: err.message || 'Failed to upload attachment' 
+      setAttachmentErrors((prev) => ({
+        ...prev,
+        [noteId]: err.message || "Failed to upload attachment",
       }));
     }
   };
 
-  const handleAttachmentDelete = async (noteId: string, attachmentId: string) => {
+  const handleAttachmentDelete = async (
+    noteId: string,
+    attachmentId: string,
+  ) => {
     try {
       const { error } = await db.deleteAttachment(attachmentId);
       if (error) throw error;
 
       // Update local state
-      setNotes(prev => prev.map(note => 
-        note.id === noteId 
-          ? { 
-              ...note, 
-              attachments: (note.attachments || []).filter(att => att.id !== attachmentId) 
-            }
-          : note
-      ));
+      setNotes((prev) =>
+        prev.map((note) =>
+          note.id === noteId
+            ? {
+                ...note,
+                attachments: (note.attachments || []).filter(
+                  (att) => att.id !== attachmentId,
+                ),
+              }
+            : note,
+        ),
+      );
     } catch (err: any) {
-      setAttachmentErrors(prev => ({ 
-        ...prev, 
-        [noteId]: err.message || 'Failed to delete attachment' 
+      setAttachmentErrors((prev) => ({
+        ...prev,
+        [noteId]: err.message || "Failed to delete attachment",
       }));
     }
   };
 
-  const handleAttachmentUpdate = async (noteId: string, attachmentId: string, updates: any) => {
+  const handleAttachmentUpdate = async (
+    noteId: string,
+    attachmentId: string,
+    updates: any,
+  ) => {
     try {
       const { data, error } = await db.updateAttachment(attachmentId, updates);
       if (error) throw error;
 
       // Update local state
-      setNotes(prev => prev.map(note => 
-        note.id === noteId 
-          ? { 
-              ...note, 
-              attachments: (note.attachments || []).map(att => 
-                att.id === attachmentId ? { ...att, ...updates } : att
-              )
-            }
-          : note
-      ));
+      setNotes((prev) =>
+        prev.map((note) =>
+          note.id === noteId
+            ? {
+                ...note,
+                attachments: (note.attachments || []).map((att) =>
+                  att.id === attachmentId ? { ...att, ...updates } : att,
+                ),
+              }
+            : note,
+        ),
+      );
     } catch (err: any) {
-      setAttachmentErrors(prev => ({ 
-        ...prev, 
-        [noteId]: err.message || 'Failed to update attachment' 
+      setAttachmentErrors((prev) => ({
+        ...prev,
+        [noteId]: err.message || "Failed to update attachment",
       }));
     }
   };
 
-
   const getPriorityBadgeClass = (priority: string) => {
     switch (priority) {
-      case 'highest': return 'badge-priority-urgent';
-      case 'high': return 'badge-priority-high';
-      case 'medium': return 'badge-priority-medium';
-      case 'low': return 'badge-priority-low';
-      default: return 'badge-priority-low';
+      case "highest":
+        return "badge-priority-urgent";
+      case "high":
+        return "badge-priority-high";
+      case "medium":
+        return "badge-priority-medium";
+      case "low":
+        return "badge-priority-low";
+      default:
+        return "badge-priority-low";
     }
   };
 
-  const allTags = Array.from(new Set(notes.flatMap(note => note.tags || [])));
+  const allTags = Array.from(new Set(notes.flatMap((note) => note.tags || [])));
 
   const filteredNotes = notes
-    .filter(note => {
-      const matchesSearch = note.content.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesTag = !selectedTag || (note.tags && note.tags.includes(selectedTag));
+    .filter((note) => {
+      const matchesSearch = note.content
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      const matchesTag =
+        !selectedTag || (note.tags && note.tags.includes(selectedTag));
       return matchesSearch && matchesTag;
     })
     .sort((a, b) => {
       // Sort pinned notes first, then by most recently updated
       if (a.is_pinned === b.is_pinned) {
-        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+        return (
+          new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+        );
       }
       return a.is_pinned ? -1 : 1;
     });
@@ -436,14 +518,16 @@ export const ScratchpadDetailView: React.FC = () => {
                 Create notes to capture ideas and important information.
               </p>
               <button
-                onClick={() => setNewNote({
-                  title: '',
-                  content: '',
-                  color: '#fef3c7',
-                  font_size: 14,
-                  is_pinned: false,
-                  tags: [],
-                })}
+                onClick={() =>
+                  setNewNote({
+                    title: "",
+                    content: "",
+                    color: "#fef3c7",
+                    font_size: 14,
+                    is_pinned: false,
+                    tags: [],
+                  })
+                }
                 className="btn-add mb-6"
               >
                 <Plus className="w-4 h-4 mr-2" />
@@ -464,13 +548,15 @@ export const ScratchpadDetailView: React.FC = () => {
           {/* Add New Note Button - Always visible at the top */}
           {!newNote && (
             <button
-              onClick={() => setNewNote({
-                content: '',
-                color: '#fef3c7',
-                font_size: 14,
-                is_pinned: false,
-                tags: ['Project Notes'],
-              })}
+              onClick={() =>
+                setNewNote({
+                  content: "",
+                  color: "#fef3c7",
+                  font_size: 14,
+                  is_pinned: false,
+                  tags: ["Project Notes"],
+                })
+              }
               className="btn-add transition-colors mb-6"
             >
               <Plus className="w-4 h-4 mr-2" />
@@ -492,15 +578,22 @@ export const ScratchpadDetailView: React.FC = () => {
                 <div>
                   <input
                     type="text"
-                    value={newNote.title || ''}
-                    onChange={(e) => setNewNote(prev => ({ ...prev, title: e.target.value }))}
+                    value={newNote.title || ""}
+                    onChange={(e) =>
+                      setNewNote((prev) => ({ ...prev, title: e.target.value }))
+                    }
                     className="form-input mb-3 w-full"
                     placeholder="Note title"
                     autoFocus
                   />
                   <textarea
-                    value={newNote.content || ''}
-                    onChange={(e) => setNewNote(prev => ({ ...prev, content: e.target.value }))}
+                    value={newNote.content || ""}
+                    onChange={(e) =>
+                      setNewNote((prev) => ({
+                        ...prev,
+                        content: e.target.value,
+                      }))
+                    }
                     className="form-textarea w-full"
                     rows={6}
                     placeholder="Start writing your note here..."
@@ -509,10 +602,17 @@ export const ScratchpadDetailView: React.FC = () => {
 
                 <div className="flex space-x-3 items-start">
                   <div>
-                    <label className="block text-xs font-medium text-foreground mb-2">Tag</label>
+                    <label className="block text-xs font-medium text-foreground mb-2">
+                      Tag
+                    </label>
                     <select
                       value={newNote.tags?.[0] || TAG_OPTIONS[0]}
-                      onChange={(e) => setNewNote(prev => ({ ...prev, tags: [e.target.value] }))}
+                      onChange={(e) =>
+                        setNewNote((prev) => ({
+                          ...prev,
+                          tags: [e.target.value],
+                        }))
+                      }
                       className="form-select"
                     >
                       {TAG_OPTIONS.map((tag) => (
@@ -523,17 +623,26 @@ export const ScratchpadDetailView: React.FC = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-foreground mb-2">Options</label>
+                    <label className="block text-xs font-medium text-foreground mb-2">
+                      Options
+                    </label>
                     <label className="flex items-center space-x-2 text-xs cursor-pointer group">
                       <div className="relative">
                         <input
                           type="checkbox"
                           checked={newNote.is_pinned || false}
-                          onChange={(e) => setNewNote(prev => ({ ...prev, is_pinned: e.target.checked }))}
+                          onChange={(e) =>
+                            setNewNote((prev) => ({
+                              ...prev,
+                              is_pinned: e.target.checked,
+                            }))
+                          }
                           className="form-checkbox"
                         />
                       </div>
-                      <span className="text-foreground/80 group-hover:text-foreground transition-colors">Pin this note</span>
+                      <span className="text-foreground/80 group-hover:text-foreground transition-colors">
+                        Pin this note
+                      </span>
                     </label>
                   </div>
                 </div>
@@ -571,26 +680,25 @@ export const ScratchpadDetailView: React.FC = () => {
           <div className="flex flex-col lg:flex-row lg:items-center gap-4 mb-6">
             {/* Search and Filter Controls */}
             {notes.length > 0 && (
-            <div className="relative w-full lg:w-64 flex-shrink-0">
-              <Search className="search-icon" />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search notes..."
-                className="search-input w-full"
-              />
-            </div>
+              <div className="relative w-full lg:w-64 flex-shrink-0">
+                <Search className="search-icon" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search notes..."
+                  className="search-input w-full"
+                />
+              </div>
             )}
             {/* Tags Filter */}
             {allTags.length > 0 && (
               <div className="flex flex-wrap items-center gap-2 overflow-x-auto w-full lg:w-auto pb-1">
                 <button
                   onClick={() => setSelectedTag(null)}
-                  className={`whitespace-nowrap ${!selectedTag
-                    ? 'filter-button-active'
-                    : 'filter-button'
-                    }`}
+                  className={`whitespace-nowrap ${
+                    !selectedTag ? "filter-button-active" : "filter-button"
+                  }`}
                 >
                   All Notes
                 </button>
@@ -598,10 +706,11 @@ export const ScratchpadDetailView: React.FC = () => {
                   <button
                     key={tag}
                     onClick={() => setSelectedTag(tag)}
-                    className={`whitespace-nowrap ${selectedTag === tag
-                      ? 'filter-button-active'
-                      : 'filter-button'
-                      }`}
+                    className={`whitespace-nowrap ${
+                      selectedTag === tag
+                        ? "filter-button-active"
+                        : "filter-button"
+                    }`}
                   >
                     {tag}
                   </button>
@@ -612,14 +721,9 @@ export const ScratchpadDetailView: React.FC = () => {
           {/* Notes List */}
           <div className="flex-1 overflow-y-auto">
             <div className="space-y-4">
-
-
               {/* Individual Note Cards with Direct Edit/Delete Icons */}
               {filteredNotes.map((note) => (
-                <div
-                  key={note.id}
-                  className="card"
-                >
+                <div key={note.id} className="card">
                   {editingNoteId === note.id ? (
                     // Edit Form
                     <div>
@@ -629,8 +733,10 @@ export const ScratchpadDetailView: React.FC = () => {
                             type="text"
                             value={note.title}
                             onChange={(e) => {
-                              const updatedNotes = notes.map(n =>
-                                n.id === note.id ? { ...n, title: e.target.value } : n
+                              const updatedNotes = notes.map((n) =>
+                                n.id === note.id
+                                  ? { ...n, title: e.target.value }
+                                  : n,
                               );
                               setNotes(updatedNotes);
                             }}
@@ -641,8 +747,10 @@ export const ScratchpadDetailView: React.FC = () => {
                           <textarea
                             value={note.content}
                             onChange={(e) => {
-                              const updatedNotes = notes.map(n =>
-                                n.id === note.id ? { ...n, content: e.target.value } : n
+                              const updatedNotes = notes.map((n) =>
+                                n.id === note.id
+                                  ? { ...n, content: e.target.value }
+                                  : n,
                               );
                               setNotes(updatedNotes);
                             }}
@@ -654,12 +762,16 @@ export const ScratchpadDetailView: React.FC = () => {
 
                         <div className="flex space-x-3 items-start">
                           <div>
-                            <label className="block text-xs font-medium text-foreground mb-2">Tag</label>
+                            <label className="block text-xs font-medium text-foreground mb-2">
+                              Tag
+                            </label>
                             <select
                               value={note.tags?.[0] || TAG_OPTIONS[0]}
                               onChange={(e) => {
-                                const updatedNotes = notes.map(n =>
-                                  n.id === note.id ? { ...n, tags: [e.target.value] } : n
+                                const updatedNotes = notes.map((n) =>
+                                  n.id === note.id
+                                    ? { ...n, tags: [e.target.value] }
+                                    : n,
                                 );
                                 setNotes(updatedNotes);
                               }}
@@ -674,43 +786,58 @@ export const ScratchpadDetailView: React.FC = () => {
                           </div>
 
                           <div>
-                            <label className="block text-xs font-medium text-foreground mb-2">Options</label>
+                            <label className="block text-xs font-medium text-foreground mb-2">
+                              Options
+                            </label>
                             <label className="flex items-center space-x-2 text-xs">
                               <div className="flex items-center">
                                 <input
                                   type="checkbox"
                                   checked={note.is_pinned}
                                   onChange={(e) => {
-                                    const updatedNotes = notes.map(n =>
-                                      n.id === note.id ? { ...n, is_pinned: e.target.checked } : n
+                                    const updatedNotes = notes.map((n) =>
+                                      n.id === note.id
+                                        ? { ...n, is_pinned: e.target.checked }
+                                        : n,
                                     );
                                     setNotes(updatedNotes);
                                   }}
                                   className="form-checkbox"
                                 />
                               </div>
-                              <span className="text-foreground">Pin this note</span>
+                              <span className="text-foreground">
+                                Pin this note
+                              </span>
                             </label>
                           </div>
                         </div>
 
                         {/* Attachments Management in Edit Mode */}
                         <div>
-                          <label className="block text-xs font-medium text-foreground mb-2">Attachments</label>
+                          <label className="block text-xs font-medium text-foreground mb-2">
+                            Attachments
+                          </label>
                           <ImageUpload
                             scratchpadNoteId={note.id}
-                            onUploadComplete={(attachment) => handleAttachmentUpload(note.id, attachment)}
-                            onError={(error) => setAttachmentErrors(prev => ({ ...prev, [note.id]: error }))}
+                            onUploadComplete={(attachment) =>
+                              handleAttachmentUpload(note.id, attachment)
+                            }
+                            onError={(error) =>
+                              setAttachmentErrors((prev) => ({
+                                ...prev,
+                                [note.id]: error,
+                              }))
+                            }
                             className="mb-3"
                           />
-                          
+
                           {/* Error Display */}
                           {attachmentErrors[note.id] && (
                             <div className="text-xs text-red-500 bg-red-50 p-2 rounded border mb-3">
                               {attachmentErrors[note.id]}
                             </div>
                           )}
-                          
+
                           {/* Current Attachments */}
                           {note.attachments && note.attachments.length > 0 && (
                             <div className="space-y-2 mb-3">
@@ -718,8 +845,19 @@ export const ScratchpadDetailView: React.FC = () => {
                                 <AttachmentView
                                   key={attachment.id}
                                   attachment={attachment}
-                                  onDelete={(attachmentId) => handleAttachmentDelete(note.id, attachmentId)}
-                                  onUpdate={(attachmentId, updates) => handleAttachmentUpdate(note.id, attachmentId, updates)}
+                                  onDelete={(attachmentId) =>
+                                    handleAttachmentDelete(
+                                      note.id,
+                                      attachmentId,
+                                    )
+                                  }
+                                  onUpdate={(attachmentId, updates) =>
+                                    handleAttachmentUpdate(
+                                      note.id,
+                                      attachmentId,
+                                      updates,
+                                    )
+                                  }
                                   showControls={true}
                                   className="max-w-sm"
                                 />
@@ -740,7 +878,7 @@ export const ScratchpadDetailView: React.FC = () => {
                                 color: note.color,
                                 font_size: note.font_size,
                                 is_pinned: note.is_pinned,
-                                tags: note.tags
+                                tags: note.tags,
                               };
                               handleUpdateNote(note.id, noteUpdates);
                             }}
@@ -778,7 +916,9 @@ export const ScratchpadDetailView: React.FC = () => {
                           <div className="space-y-2">
                             <div className="flex items-center justify-between">
                               {note.title && (
-                                <h3 className="font-semibold text-foreground truncate pr-2">{note.title}</h3>
+                                <h3 className="font-semibold text-foreground truncate pr-2">
+                                  {note.title}
+                                </h3>
                               )}
                               {note.is_pinned && (
                                 <span className="inline-flex items-center text-xs text-foreground/60">
@@ -786,21 +926,25 @@ export const ScratchpadDetailView: React.FC = () => {
                                 </span>
                               )}
                             </div>
-                            {note.title && <div className="h-px bg-foreground/20 w-full"></div>}
+                            {note.title && (
+                              <div className="h-px bg-foreground/20 w-full"></div>
+                            )}
                           </div>
                           <div
-                            ref={el => contentRefs.current[note.id] = el}
-                            className={`overflow-hidden transition-all duration-300 ease-in-out ${expandedNotes[note.id] ? '' : 'max-h-32'}`}
+                            ref={(el) => (contentRefs.current[note.id] = el)}
+                            className={`overflow-hidden transition-all duration-300 ease-in-out ${expandedNotes[note.id] ? "" : "max-h-32"}`}
                           >
                             <div
                               className="prose prose-sm max-w-none mt-4 break-words overflow-hidden"
                               style={{
                                 fontSize: `${Math.max(12, note.font_size - 2)}px`,
-                                color: 'inherit' // Ensure text color is inherited
+                                color: "inherit", // Ensure text color is inherited
                               }}
                             >
                               <MarkdownRenderer
-                                content={processContent(note.content, { convertUrls: true })}
+                                content={processContent(note.content, {
+                                  convertUrls: true,
+                                })}
                                 enableAutoLinks={true}
                               />
                               {/* <ReactMarkdown
@@ -846,7 +990,8 @@ export const ScratchpadDetailView: React.FC = () => {
                               </ReactMarkdown> */}
                             </div>
                           </div>
-                          {(note.content.length > 100 || expandedNotes[note.id]) && (
+                          {(note.content.length > 100 ||
+                            expandedNotes[note.id]) && (
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -867,7 +1012,7 @@ export const ScratchpadDetailView: React.FC = () => {
                               )}
                             </button>
                           )}
-                          
+
                           {/* Inline Attachments */}
                           {note.attachments && note.attachments.length > 0 && (
                             <div className="mt-4 space-y-3">
@@ -875,17 +1020,28 @@ export const ScratchpadDetailView: React.FC = () => {
                                 <AttachmentView
                                   key={attachment.id}
                                   attachment={attachment}
-                                  onDelete={(attachmentId) => handleAttachmentDelete(note.id, attachmentId)}
-                                  onUpdate={(attachmentId, updates) => handleAttachmentUpdate(note.id, attachmentId, updates)}
+                                  onDelete={(attachmentId) =>
+                                    handleAttachmentDelete(
+                                      note.id,
+                                      attachmentId,
+                                    )
+                                  }
+                                  onUpdate={(attachmentId, updates) =>
+                                    handleAttachmentUpdate(
+                                      note.id,
+                                      attachmentId,
+                                      updates,
+                                    )
+                                  }
                                   showControls={true}
                                   className="max-w-md"
                                 />
                               ))}
                             </div>
                           )}
-                          
+
                           <div className="text-xs text-foreground-dim">
-                            {format(new Date(note.created_at), 'MMM d, h:mm a')}
+                            {format(new Date(note.created_at), "MMM d, h:mm a")}
                           </div>
                         </div>
 
@@ -897,7 +1053,8 @@ export const ScratchpadDetailView: React.FC = () => {
                             className="p-1.5 text-foreground-dim hover:text-primary hover:bg-foreground-dim/10 rounded-lg transition-colors disabled:opacity-50"
                             title="Generate tasks from this note"
                           >
-                            {isGeneratingTasks && selectedNoteForTasks === note.id ? (
+                            {isGeneratingTasks &&
+                            selectedNoteForTasks === note.id ? (
                               <Loader2 className="w-3 h-3 animate-spin" />
                             ) : (
                               <Sparkles className="w-3 h-3" />
@@ -923,116 +1080,138 @@ export const ScratchpadDetailView: React.FC = () => {
                     </div>
                   )}
 
-
                   {/* Show generated tasks immediately below the note that generated them */}
-                  {selectedNoteForTasks === note.id && generatedTasks.length > 0 && (
-                    <div className="mt-4">
-                      <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="flex items-center gap-3">
-                            <h4 className="text-base font-medium text-primary">Generated Tasks from this Note</h4>
-                            <button
-                              onClick={toggleAllTasks}
-                              className={`text-xs px-2 py-1 rounded ${selectedTaskIds.size === generatedTasks.length
-                                ? 'bg-primary/10 text-primary border border-primary/20'
-                                : 'bg-primary text-white border border-primary'
+                  {selectedNoteForTasks === note.id &&
+                    generatedTasks.length > 0 && (
+                      <div className="mt-4">
+                        <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-3">
+                              <h4 className="text-base font-medium text-primary">
+                                Generated Tasks from this Note
+                              </h4>
+                              <button
+                                onClick={toggleAllTasks}
+                                className={`text-xs px-2 py-1 rounded ${
+                                  selectedTaskIds.size === generatedTasks.length
+                                    ? "bg-primary/10 text-primary border border-primary/20"
+                                    : "bg-primary text-white border border-primary"
                                 }`}
-                            >
-                              {selectedTaskIds.size === generatedTasks.length ? 'Deselect All' : 'Select All'}
-                            </button>
+                              >
+                                {selectedTaskIds.size === generatedTasks.length
+                                  ? "Deselect All"
+                                  : "Select All"}
+                              </button>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => {
+                                  setGeneratedTasks([]);
+                                  setSelectedTaskIds(new Set());
+                                  setSelectedNoteForTasks(null);
+                                }}
+                                className="btn-secondary text-xs px-3 py-1 flex items-center gap-1"
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                onClick={addTasksToProject}
+                                disabled={
+                                  isGeneratingTasks ||
+                                  selectedTaskIds.size === 0
+                                }
+                                className="btn-primary text-xs px-3 py-1 flex items-center gap-1"
+                              >
+                                <Plus className="w-3 h-3" />
+                                Add {selectedTaskIds.size} Task
+                                {selectedTaskIds.size !== 1 ? "s" : ""}
+                              </button>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => {
-                                setGeneratedTasks([]);
-                                setSelectedTaskIds(new Set());
-                                setSelectedNoteForTasks(null);
-                              }}
-                              className="btn-secondary text-xs px-3 py-1 flex items-center gap-1"
-                            >
-                              Cancel
-                            </button>
-                            <button
-                              onClick={addTasksToProject}
-                              disabled={isGeneratingTasks || selectedTaskIds.size === 0}
-                              className="btn-primary text-xs px-3 py-1 flex items-center gap-1"
-                            >
-                              <Plus className="w-3 h-3" />
-                              Add {selectedTaskIds.size} Task{selectedTaskIds.size !== 1 ? 's' : ''}
-                            </button>
-                          </div>
-                        </div>
 
-                        <div className="space-y-2">
-                          {generatedTasks.map((task, index) => (
-                            <div key={index} className="bg-background border border-border rounded-lg p-3">
-                              <div className="flex items-start gap-3">
-                                {/* Checkbox */}
-                                <div className="flex-shrink-0 pt-1">
-                                  <button
-                                    onClick={() => toggleTaskSelection(index)}
-                                    className={`w-4 h-4 rounded border flex items-center justify-center transition-all duration-200 ${selectedTaskIds.has(index)
-                                      ? 'bg-background border-foreground/40 text-primary'
-                                      : 'border-foreground/40 hover:border-primary/50 bg-background'
+                          <div className="space-y-2">
+                            {generatedTasks.map((task, index) => (
+                              <div
+                                key={index}
+                                className="bg-background border border-border rounded-lg p-3"
+                              >
+                                <div className="flex items-start gap-3">
+                                  {/* Checkbox */}
+                                  <div className="flex-shrink-0 pt-1">
+                                    <button
+                                      onClick={() => toggleTaskSelection(index)}
+                                      className={`w-4 h-4 rounded border flex items-center justify-center transition-all duration-200 ${
+                                        selectedTaskIds.has(index)
+                                          ? "bg-background border-foreground/40 text-primary"
+                                          : "border-foreground/40 hover:border-primary/50 bg-background"
                                       }`}
-                                  >
-                                    {selectedTaskIds.has(index) && <Check className="w-3 h-3" />}
-                                  </button>
-                                </div>
-
-                                {/* Task Content */}
-                                <div className="flex-1">
-                                  <div className="flex items-start justify-between mb-1">
-                                    <div className="flex-1 mr-3">
-                                      <h5 className="text-sm font-medium text-foreground">
-                                        {task.title}
-                                      </h5>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                      <span className={`badge text-xs ${getPriorityBadgeClass(task.priority)}`}>
-                                        {task.priority}
-                                      </span>
-                                    </div>
+                                    >
+                                      {selectedTaskIds.has(index) && (
+                                        <Check className="w-3 h-3" />
+                                      )}
+                                    </button>
                                   </div>
 
-                                  <p className="text-foreground-dim text-sm mb-2">
-                                    {task.description}
-                                  </p>
-
-                                  <div className="flex items-center gap-1 flex-wrap">
-                                    {task.tags && task.tags.length > 0 && (
-                                      <div className="flex items-center space-x-1">
-                                        <Tag className="w-3 h-3 text-foreground-dim" />
-                                        <span className="text-xs text-foreground-dim">
-                                          {task.tags.slice(0, 2).join(', ')}
-                                          {task.tags.length > 2 && ` +${task.tags.length - 2}`}
+                                  {/* Task Content */}
+                                  <div className="flex-1">
+                                    <div className="flex items-start justify-between mb-1">
+                                      <div className="flex-1 mr-3">
+                                        <h5 className="text-sm font-medium text-foreground">
+                                          {task.title}
+                                        </h5>
+                                      </div>
+                                      <div className="flex items-center gap-2">
+                                        <span
+                                          className={`badge text-xs ${getPriorityBadgeClass(task.priority)}`}
+                                        >
+                                          {task.priority}
                                         </span>
                                       </div>
-                                    )}
+                                    </div>
+
+                                    <p className="text-foreground-dim text-sm mb-2">
+                                      {task.description}
+                                    </p>
+
+                                    <div className="flex items-center gap-1 flex-wrap">
+                                      {task.tags && task.tags.length > 0 && (
+                                        <div className="flex items-center space-x-1">
+                                          <Tag className="w-3 h-3 text-foreground-dim" />
+                                          <span className="text-xs text-foreground-dim">
+                                            {task.tags.slice(0, 2).join(", ")}
+                                            {task.tags.length > 2 &&
+                                              ` +${task.tags.length - 2}`}
+                                          </span>
+                                        </div>
+                                      )}
+                                    </div>
                                   </div>
                                 </div>
                               </div>
+                            ))}
+                          </div>
+
+                          {/* Task Error/Success Messages within the card */}
+                          {taskError && (
+                            <div className="mt-3 bg-destructive/10 border border-destructive/20 rounded p-2 flex items-center gap-2">
+                              <AlertCircle className="w-4 h-4 text-destructive" />
+                              <span className="text-destructive text-xs">
+                                {taskError}
+                              </span>
                             </div>
-                          ))}
+                          )}
+
+                          {taskSuccess && (
+                            <div className="mt-3 bg-green-500/10 border border-green-500/20 rounded p-2 flex items-center gap-2">
+                              <CheckCircle2 className="w-4 h-4 text-green-600" />
+                              <span className="text-green-600 text-xs">
+                                {taskSuccess}
+                              </span>
+                            </div>
+                          )}
                         </div>
-
-                        {/* Task Error/Success Messages within the card */}
-                        {taskError && (
-                          <div className="mt-3 bg-destructive/10 border border-destructive/20 rounded p-2 flex items-center gap-2">
-                            <AlertCircle className="w-4 h-4 text-destructive" />
-                            <span className="text-destructive text-xs">{taskError}</span>
-                          </div>
-                        )}
-
-                        {taskSuccess && (
-                          <div className="mt-3 bg-green-500/10 border border-green-500/20 rounded p-2 flex items-center gap-2">
-                            <CheckCircle2 className="w-4 h-4 text-green-600" />
-                            <span className="text-green-600 text-xs">{taskSuccess}</span>
-                          </div>
-                        )}
                       </div>
-                    </div>
-                  )}
+                    )}
                 </div>
               ))}
 
@@ -1042,7 +1221,9 @@ export const ScratchpadDetailView: React.FC = () => {
                   <Search className="w-12 h-12 text-foreground-dim/50 mx-auto mb-4" />
                   <h3 className="card-title mb-2">No notes found</h3>
                   <p className="card-content">
-                    {searchTerm ? `No notes match "${searchTerm}"` : `No notes with tag "${selectedTag}"`}
+                    {searchTerm
+                      ? `No notes match "${searchTerm}"`
+                      : `No notes with tag "${selectedTag}"`}
                   </p>
                 </div>
               )}
@@ -1053,7 +1234,9 @@ export const ScratchpadDetailView: React.FC = () => {
           {isGeneratingTasks && selectedNoteForTasks && (
             <div className="mt-4 bg-primary/5 border border-primary/20 rounded-lg p-4 flex items-center gap-3">
               <Loader2 className="w-5 h-5 text-primary animate-spin" />
-              <span className="text-primary font-medium">Generating tasks from your note...</span>
+              <span className="text-primary font-medium">
+                Generating tasks from your note...
+              </span>
             </div>
           )}
 
@@ -1063,7 +1246,10 @@ export const ScratchpadDetailView: React.FC = () => {
               {filteredNotes.length} of {notes.length} notes
               {selectedTag && (
                 <span className="ml-2">
-                  • Filtered by: <span className="font-medium text-foreground">{selectedTag}</span>
+                  • Filtered by:{" "}
+                  <span className="font-medium text-foreground">
+                    {selectedTag}
+                  </span>
                 </span>
               )}
             </div>

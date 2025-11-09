@@ -1,7 +1,14 @@
-import { ChevronDown, ExternalLink, Github, Loader2, Plus, Search } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
-import { supabase, db } from '../../lib/supabase';
-import { createGitHubClient, GitHubRepository } from '../../lib/github';
+import {
+  ChevronDown,
+  ExternalLink,
+  Github,
+  Loader2,
+  Plus,
+  Search,
+} from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { supabase, db } from "../../lib/supabase";
+import { createGitHubClient, GitHubRepository } from "../../lib/github";
 
 interface GitHubRepo {
   id: string;
@@ -22,19 +29,21 @@ interface GitHubRepositorySelectorProps {
   className?: string;
 }
 
-export const GitHubRepositorySelector: React.FC<GitHubRepositorySelectorProps> = ({
+export const GitHubRepositorySelector: React.FC<
+  GitHubRepositorySelectorProps
+> = ({
   projectId,
   selectedRepositoryId,
   onRepositorySelect,
-  className = '',
+  className = "",
 }) => {
   const [repositories, setRepositories] = useState<GitHubRepo[]>([]);
   const [availableRepos, setAvailableRepos] = useState<GitHubRepository[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingAvailable, setLoadingAvailable] = useState(false);
   const [showAddRepo, setShowAddRepo] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [error, setError] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [error, setError] = useState<string>("");
   const [hasGitHubAuth, setHasGitHubAuth] = useState(false);
   const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
@@ -57,7 +66,9 @@ export const GitHubRepositorySelector: React.FC<GitHubRepositorySelectorProps> =
   const checkGitHubAuth = async () => {
     setCheckingAuth(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         setHasGitHubAuth(false);
         return;
@@ -66,7 +77,7 @@ export const GitHubRepositorySelector: React.FC<GitHubRepositorySelectorProps> =
       const { data: tokenData } = await db.getGitHubToken(user.id);
       setHasGitHubAuth(!!tokenData);
     } catch (err) {
-      console.error('Error checking GitHub auth:', err);
+      console.error("Error checking GitHub auth:", err);
       setHasGitHubAuth(false);
     } finally {
       setCheckingAuth(false);
@@ -78,7 +89,7 @@ export const GitHubRepositorySelector: React.FC<GitHubRepositorySelectorProps> =
     if (force || !hasInitiallyLoaded) {
       setLoading(true);
     }
-    setError('');
+    setError("");
 
     try {
       const { data, error } = await db.getGitHubRepositories(projectId);
@@ -91,8 +102,8 @@ export const GitHubRepositorySelector: React.FC<GitHubRepositorySelectorProps> =
         onRepositorySelect(data[0]);
       }
     } catch (err: any) {
-      console.error('Error fetching repositories:', err);
-      setError('Failed to load GitHub repositories');
+      console.error("Error fetching repositories:", err);
+      setError("Failed to load GitHub repositories");
     } finally {
       setLoading(false);
       setHasInitiallyLoaded(true);
@@ -103,46 +114,50 @@ export const GitHubRepositorySelector: React.FC<GitHubRepositorySelectorProps> =
     if (!hasGitHubAuth) return;
 
     setLoadingAvailable(true);
-    setError('');
+    setError("");
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
 
       const { data: tokenData } = await db.getGitHubTokenWithSecret(user.id);
-      if (!tokenData) throw new Error('No GitHub token found');
+      if (!tokenData) throw new Error("No GitHub token found");
 
       // Decrypt token (simple base64 - in production use proper decryption)
       if (!tokenData.encrypted_token) {
-        throw new Error('No encrypted token found');
+        throw new Error("No encrypted token found");
       }
       const accessToken = atob(tokenData.encrypted_token);
       const githubClient = createGitHubClient(accessToken);
 
       const repos = await githubClient.getUserRepositories(1, 100);
-      
+
       // Filter out repositories that are already added to this project
-      const existingRepoNames = repositories.map(r => r.repo_full_name);
-      const availableRepos = repos.filter(repo => 
-        !existingRepoNames.includes(repo.full_name) &&
-        repo.permissions.push // Only show repos where user has push access
+      const existingRepoNames = repositories.map((r) => r.repo_full_name);
+      const availableRepos = repos.filter(
+        (repo) =>
+          !existingRepoNames.includes(repo.full_name) && repo.permissions.push, // Only show repos where user has push access
       );
 
       setAvailableRepos(availableRepos);
     } catch (err: any) {
-      console.error('Error fetching available repositories:', err);
-      setError('Failed to load available repositories from GitHub');
+      console.error("Error fetching available repositories:", err);
+      setError("Failed to load available repositories from GitHub");
     } finally {
       setLoadingAvailable(false);
     }
   };
 
   const handleAddRepository = async (githubRepo: GitHubRepository) => {
-    setError('');
+    setError("");
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
 
       const repoData = {
         project_id: projectId,
@@ -160,38 +175,43 @@ export const GitHubRepositorySelector: React.FC<GitHubRepositorySelectorProps> =
 
       // Refresh the repositories list
       await fetchRepositories(true);
-      
+
       // Select the newly added repository
       onRepositorySelect(data);
-      
+
       // Close the add dialog
       setShowAddRepo(false);
     } catch (err: any) {
-      console.error('Error adding repository:', err);
-      setError(err.message || 'Failed to add repository');
+      console.error("Error adding repository:", err);
+      setError(err.message || "Failed to add repository");
     }
   };
 
-  const filteredAvailableRepos = availableRepos.filter(repo =>
-    repo.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    repo.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredAvailableRepos = availableRepos.filter(
+    (repo) =>
+      repo.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      repo.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  const selectedRepo = repositories.find(r => r.id === selectedRepositoryId);
+  const selectedRepo = repositories.find((r) => r.id === selectedRepositoryId);
 
   // Show loading while checking authentication
   if (checkingAuth) {
     return (
       <div className={`flex items-center space-x-2 ${className}`}>
         <Loader2 className="w-4 h-4 animate-spin" />
-        <span className="text-sm text-foreground-dim">Checking GitHub connection...</span>
+        <span className="text-sm text-foreground-dim">
+          Checking GitHub connection...
+        </span>
       </div>
     );
   }
 
   if (!hasGitHubAuth) {
     return (
-      <div className={`p-4 bg-secondary border border-foreground-dim/20 rounded-md ${className}`}>
+      <div
+        className={`p-4 bg-secondary border border-foreground-dim/20 rounded-md ${className}`}
+      >
         <p className="text-sm text-foreground-dim mb-2">
           Connect your GitHub account to link repositories to this project.
         </p>
@@ -203,7 +223,9 @@ export const GitHubRepositorySelector: React.FC<GitHubRepositorySelectorProps> =
     return (
       <div className={`flex items-center space-x-2 ${className}`}>
         <Loader2 className="w-4 h-4 animate-spin" />
-        <span className="text-sm text-foreground-dim">Loading repositories...</span>
+        <span className="text-sm text-foreground-dim">
+          Loading repositories...
+        </span>
       </div>
     );
   }
@@ -219,7 +241,9 @@ export const GitHubRepositorySelector: React.FC<GitHubRepositorySelectorProps> =
       {repositories.length === 0 ? (
         <div className="text-center p-4 bg-secondary border-2 border-dashed border-foreground/20 rounded-md">
           <Github className="w-8 h-8 text-foreground-dim mx-auto mb-2" />
-          <p className="text-sm text-foreground-dim mb-3">No repositories linked to this project</p>
+          <p className="text-sm text-foreground-dim mb-3">
+            No repositories linked to this project
+          </p>
           <button
             onClick={() => {
               setShowAddRepo(true);
@@ -251,9 +275,9 @@ export const GitHubRepositorySelector: React.FC<GitHubRepositorySelectorProps> =
 
           <div className="relative">
             <select
-              value={selectedRepositoryId || ''}
+              value={selectedRepositoryId || ""}
               onChange={(e) => {
-                const repo = repositories.find(r => r.id === e.target.value);
+                const repo = repositories.find((r) => r.id === e.target.value);
                 onRepositorySelect(repo || null);
               }}
               className="form-select w-full pr-10"
@@ -313,13 +337,17 @@ export const GitHubRepositorySelector: React.FC<GitHubRepositorySelectorProps> =
               {loadingAvailable ? (
                 <div className="flex items-center justify-center py-8">
                   <Loader2 className="w-6 h-6 animate-spin text-foreground-dim" />
-                  <span className="ml-2 text-sm text-foreground-dim">Loading repositories...</span>
+                  <span className="ml-2 text-sm text-foreground-dim">
+                    Loading repositories...
+                  </span>
                 </div>
               ) : filteredAvailableRepos.length === 0 ? (
                 <div className="text-center py-8">
                   <Github className="w-8 h-8 text-foreground-dim mx-auto mb-2" />
                   <p className="text-sm text-foreground-dim">
-                    {searchTerm ? 'No repositories match your search' : 'No repositories available'}
+                    {searchTerm
+                      ? "No repositories match your search"
+                      : "No repositories available"}
                   </p>
                 </div>
               ) : (
@@ -334,7 +362,7 @@ export const GitHubRepositorySelector: React.FC<GitHubRepositorySelectorProps> =
                           {repo.full_name}
                         </p>
                         <div className="flex items-center space-x-2 text-xs text-foreground/40">
-                          <span>{repo.private ? 'Private' : 'Public'}</span>
+                          <span>{repo.private ? "Private" : "Public"}</span>
                           <span>•</span>
                           <span>{repo.default_branch}</span>
                         </div>

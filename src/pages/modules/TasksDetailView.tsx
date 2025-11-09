@@ -1,21 +1,45 @@
-import { format } from 'date-fns';
-import { ArrowDown, ArrowUp, CheckSquare, ChevronDown, Edit3, ExternalLink, Github, Loader2, Minus, Plus, Save, Search, Square, Tag, Trash2, X, Image as ImageIcon } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { BackButton } from '../../components/common/BackButton';
-import { MarkdownRenderer, useMarkdownPreprocessing } from '../../components/common/MarkdownRenderer';
-import { ImageUpload, AttachmentView } from '../../components/common/ImageUpload';
-import { ModuleContainer } from '../../components/Workspace/ModuleContainer';
-import { GitHubIssueCreator } from '../../components/GitHub/GitHubIssueCreator';
-import { db } from '../../lib/supabase';
+import { format } from "date-fns";
+import {
+  ArrowDown,
+  ArrowUp,
+  CheckSquare,
+  ChevronDown,
+  Edit3,
+  ExternalLink,
+  Github,
+  Loader2,
+  Minus,
+  Plus,
+  Save,
+  Search,
+  Square,
+  Tag,
+  Trash2,
+  X,
+  Image as ImageIcon,
+} from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { BackButton } from "../../components/common/BackButton";
+import {
+  MarkdownRenderer,
+  useMarkdownPreprocessing,
+} from "../../components/common/MarkdownRenderer";
+import {
+  ImageUpload,
+  AttachmentView,
+} from "../../components/common/ImageUpload";
+import { ModuleContainer } from "../../components/Workspace/ModuleContainer";
+import { GitHubIssueCreator } from "../../components/GitHub/GitHubIssueCreator";
+import { db } from "../../lib/supabase";
 
 interface TaskItem {
   id: string;
   project_id: string;
   title: string;
   description: string;
-  status: 'todo' | 'in_progress' | 'done' | 'blocked' | 'cancelled';
-  priority: 'low' | 'medium' | 'high' | 'highest';
+  status: "todo" | "in_progress" | "done" | "blocked" | "cancelled";
+  priority: "low" | "medium" | "high" | "highest";
   due_date?: string;
   tags: string[];
   dependencies: string[];
@@ -51,17 +75,26 @@ export const TasksDetailView: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   // Initialize filters from localStorage or defaults (scoped by project)
-  const [filter, setFilter] = useState<'all' | 'todo' | 'in_progress' | 'done' | 'blocked' | 'cancelled'>(() => {
-    return (localStorage.getItem(`tasks-status-filter-${projectId}`) as any) || 'all';
+  const [filter, setFilter] = useState<
+    "all" | "todo" | "in_progress" | "done" | "blocked" | "cancelled"
+  >(() => {
+    return (
+      (localStorage.getItem(`tasks-status-filter-${projectId}`) as any) || "all"
+    );
   });
-  const [priorityFilter, setPriorityFilter] = useState<'all' | 'highest' | 'high' | 'medium' | 'low'>(() => {
-    return (localStorage.getItem(`tasks-priority-filter-${projectId}`) as any) || 'all';
+  const [priorityFilter, setPriorityFilter] = useState<
+    "all" | "highest" | "high" | "medium" | "low"
+  >(() => {
+    return (
+      (localStorage.getItem(`tasks-priority-filter-${projectId}`) as any) ||
+      "all"
+    );
   });
   const [tagFilter, setTagFilter] = useState<string>(() => {
-    return localStorage.getItem(`tasks-tag-filter-${projectId}`) || 'all';
+    return localStorage.getItem(`tasks-tag-filter-${projectId}`) || "all";
   });
   const [searchTerm, setSearchTerm] = useState(() => {
-    return localStorage.getItem(`tasks-search-term-${projectId}`) || '';
+    return localStorage.getItem(`tasks-search-term-${projectId}`) || "";
   });
   const [showCompleted, setShowCompleted] = useState(() => {
     const saved = localStorage.getItem(`tasks-show-completed-${projectId}`);
@@ -71,7 +104,9 @@ export const TasksDetailView: React.FC = () => {
   const [newTask, setNewTask] = useState<Partial<TaskItem> | null>(null);
   const [saving, setSaving] = useState(false);
   const [showGitHubModal, setShowGitHubModal] = useState<string | null>(null);
-  const [attachmentErrors, setAttachmentErrors] = useState<Record<string, string>>({});
+  const [attachmentErrors, setAttachmentErrors] = useState<
+    Record<string, string>
+  >({});
   const { processContent } = useMarkdownPreprocessing();
 
   useEffect(() => {
@@ -86,35 +121,37 @@ export const TasksDetailView: React.FC = () => {
     try {
       const { data, error: fetchError } = await db.getTasks(id);
       if (fetchError) throw fetchError;
-      
+
       // Fetch GitHub issues and attachments for all tasks
       const tasksWithExtendedData = await Promise.all(
         (data || []).map(async (task) => {
           try {
             // Fetch GitHub issue
-            const { data: githubIssue } = await db.getGitHubIssueByTask(task.id);
-            
+            const { data: githubIssue } = await db.getGitHubIssueByTask(
+              task.id,
+            );
+
             // Fetch attachments
             const { data: attachments } = await db.getTaskAttachments(task.id);
-            
+
             return {
               ...task,
               github_issue: githubIssue || undefined,
-              attachments: attachments || []
+              attachments: attachments || [],
             };
           } catch {
             // If there's an error fetching additional data, just return basic task
             return {
               ...task,
-              attachments: []
+              attachments: [],
             };
           }
-        })
+        }),
       );
-      
+
       setTasks(tasksWithExtendedData);
     } catch (err: any) {
-      setError(err.message || 'Failed to fetch tasks');
+      setError(err.message || "Failed to fetch tasks");
     } finally {
       setLoading(false);
     }
@@ -124,7 +161,10 @@ export const TasksDetailView: React.FC = () => {
     navigate(`/workspace/${projectId}`);
   };
 
-  const handleUpdateTask = async (taskId: string, updates: Partial<TaskItem>) => {
+  const handleUpdateTask = async (
+    taskId: string,
+    updates: Partial<TaskItem>,
+  ) => {
     setSaving(true);
     setError(null);
 
@@ -133,13 +173,19 @@ export const TasksDetailView: React.FC = () => {
       if (updateError) throw updateError;
 
       // Update local state - preserve attachments and github_issue since they're not returned from DB
-      const updatedTasks = tasks.map(task =>
-        task.id === taskId ? { ...data, attachments: task.attachments, github_issue: task.github_issue } : task
+      const updatedTasks = tasks.map((task) =>
+        task.id === taskId
+          ? {
+              ...data,
+              attachments: task.attachments,
+              github_issue: task.github_issue,
+            }
+          : task,
       );
       setTasks(updatedTasks);
       setEditingTaskId(null);
     } catch (err: any) {
-      setError(err.message || 'Failed to update task');
+      setError(err.message || "Failed to update task");
     } finally {
       setSaving(false);
     }
@@ -154,10 +200,10 @@ export const TasksDetailView: React.FC = () => {
     try {
       const newTaskData = {
         project_id: projectId,
-        title: taskData.title || 'New Task',
-        description: taskData.description || '',
-        status: taskData.status || 'todo',
-        priority: taskData.priority || 'medium',
+        title: taskData.title || "New Task",
+        description: taskData.description || "",
+        status: taskData.status || "todo",
+        priority: taskData.priority || "medium",
         due_date: taskData.due_date,
         tags: taskData.tags || [],
         dependencies: taskData.dependencies || [],
@@ -168,10 +214,10 @@ export const TasksDetailView: React.FC = () => {
       if (createError) throw createError;
 
       // Add to local state
-      setTasks(prev => [...prev, data]);
+      setTasks((prev) => [...prev, data]);
       setNewTask(null);
     } catch (err: any) {
-      setError(err.message || 'Failed to create task');
+      setError(err.message || "Failed to create task");
     } finally {
       setSaving(false);
     }
@@ -186,94 +232,116 @@ export const TasksDetailView: React.FC = () => {
       if (deleteError) throw deleteError;
 
       // Remove from local state
-      setTasks(prev => prev.filter(task => task.id !== taskId));
+      setTasks((prev) => prev.filter((task) => task.id !== taskId));
       setEditingTaskId(null);
     } catch (err: any) {
-      setError(err.message || 'Failed to delete task');
+      setError(err.message || "Failed to delete task");
     } finally {
       setSaving(false);
     }
   };
 
-  const handleToggleTaskCompletion = async (taskId: string, currentStatus: string) => {
-    const newStatus = currentStatus === 'done' ? 'todo' : 'done';
+  const handleToggleTaskCompletion = async (
+    taskId: string,
+    currentStatus: string,
+  ) => {
+    const newStatus = currentStatus === "done" ? "todo" : "done";
     await handleUpdateTask(taskId, { status: newStatus });
   };
 
   const handlePriorityChange = async (taskId: string, newPriority: string) => {
-    await handleUpdateTask(taskId, { priority: newPriority as TaskItem['priority'] });
+    await handleUpdateTask(taskId, {
+      priority: newPriority as TaskItem["priority"],
+    });
   };
 
   const handleStatusChange = async (taskId: string, newStatus: string) => {
-    await handleUpdateTask(taskId, { status: newStatus as TaskItem['status'] });
+    await handleUpdateTask(taskId, { status: newStatus as TaskItem["status"] });
   };
 
   // Attachment handlers
   const handleAttachmentUpload = async (taskId: string, attachment: any) => {
     try {
       // Update local state immediately to show the new attachment
-      setTasks(prev => prev.map(task => 
-        task.id === taskId 
-          ? { ...task, attachments: [...(task.attachments || []), attachment] }
-          : task
-      ));
-      
+      setTasks((prev) =>
+        prev.map((task) =>
+          task.id === taskId
+            ? {
+                ...task,
+                attachments: [...(task.attachments || []), attachment],
+              }
+            : task,
+        ),
+      );
+
       // Clear any previous error
-      setAttachmentErrors(prev => ({ ...prev, [taskId]: '' }));
+      setAttachmentErrors((prev) => ({ ...prev, [taskId]: "" }));
     } catch (err: any) {
-      setAttachmentErrors(prev => ({ 
-        ...prev, 
-        [taskId]: err.message || 'Failed to upload attachment' 
+      setAttachmentErrors((prev) => ({
+        ...prev,
+        [taskId]: err.message || "Failed to upload attachment",
       }));
     }
   };
 
-  const handleAttachmentDelete = async (taskId: string, attachmentId: string) => {
+  const handleAttachmentDelete = async (
+    taskId: string,
+    attachmentId: string,
+  ) => {
     try {
       const { error } = await db.deleteAttachment(attachmentId);
       if (error) throw error;
 
       // Update local state
-      setTasks(prev => prev.map(task => 
-        task.id === taskId 
-          ? { 
-              ...task, 
-              attachments: (task.attachments || []).filter(att => att.id !== attachmentId) 
-            }
-          : task
-      ));
+      setTasks((prev) =>
+        prev.map((task) =>
+          task.id === taskId
+            ? {
+                ...task,
+                attachments: (task.attachments || []).filter(
+                  (att) => att.id !== attachmentId,
+                ),
+              }
+            : task,
+        ),
+      );
     } catch (err: any) {
-      setAttachmentErrors(prev => ({ 
-        ...prev, 
-        [taskId]: err.message || 'Failed to delete attachment' 
+      setAttachmentErrors((prev) => ({
+        ...prev,
+        [taskId]: err.message || "Failed to delete attachment",
       }));
     }
   };
 
-  const handleAttachmentUpdate = async (taskId: string, attachmentId: string, updates: any) => {
+  const handleAttachmentUpdate = async (
+    taskId: string,
+    attachmentId: string,
+    updates: any,
+  ) => {
     try {
       const { data, error } = await db.updateAttachment(attachmentId, updates);
       if (error) throw error;
 
       // Update local state
-      setTasks(prev => prev.map(task => 
-        task.id === taskId 
-          ? { 
-              ...task, 
-              attachments: (task.attachments || []).map(att => 
-                att.id === attachmentId ? { ...att, ...updates } : att
-              )
-            }
-          : task
-      ));
+      setTasks((prev) =>
+        prev.map((task) =>
+          task.id === taskId
+            ? {
+                ...task,
+                attachments: (task.attachments || []).map((att) =>
+                  att.id === attachmentId ? { ...att, ...updates } : att,
+                ),
+              }
+            : task,
+        ),
+      );
     } catch (err: any) {
-      setAttachmentErrors(prev => ({ 
-        ...prev, 
-        [taskId]: err.message || 'Failed to update attachment' 
+      setAttachmentErrors((prev) => ({
+        ...prev,
+        [taskId]: err.message || "Failed to update attachment",
       }));
     }
   };
-
 
   // Custom setters that persist to localStorage (scoped by project)
   const updateFilter = (newFilter: typeof filter) => {
@@ -283,7 +351,10 @@ export const TasksDetailView: React.FC = () => {
 
   const updatePriorityFilter = (newPriorityFilter: typeof priorityFilter) => {
     setPriorityFilter(newPriorityFilter);
-    localStorage.setItem(`tasks-priority-filter-${projectId}`, newPriorityFilter);
+    localStorage.setItem(
+      `tasks-priority-filter-${projectId}`,
+      newPriorityFilter,
+    );
   };
 
   const updateTagFilter = (newTagFilter: string) => {
@@ -298,28 +369,37 @@ export const TasksDetailView: React.FC = () => {
 
   const updateShowCompleted = (newShowCompleted: boolean) => {
     setShowCompleted(newShowCompleted);
-    localStorage.setItem(`tasks-show-completed-${projectId}`, JSON.stringify(newShowCompleted));
+    localStorage.setItem(
+      `tasks-show-completed-${projectId}`,
+      JSON.stringify(newShowCompleted),
+    );
   };
 
   // Get all unique tags from existing tasks
   const getAllTags = () => {
-    const allTags = tasks.flatMap(task => task.tags || []);
+    const allTags = tasks.flatMap((task) => task.tags || []);
     return Array.from(new Set(allTags)).sort();
   };
 
   const filteredTasks = tasks
-    .filter(task => {
-      const matchesStatus = filter === 'all'
-        ? (showCompleted || (task.status !== 'done' && task.status !== 'cancelled'))
-        : task.status === filter;
+    .filter((task) => {
+      const matchesStatus =
+        filter === "all"
+          ? showCompleted ||
+            (task.status !== "done" && task.status !== "cancelled")
+          : task.status === filter;
 
-      const matchesPriority = priorityFilter === 'all' || task.priority === priorityFilter;
+      const matchesPriority =
+        priorityFilter === "all" || task.priority === priorityFilter;
 
-      const matchesTag = tagFilter === 'all' || (task.tags && task.tags.includes(tagFilter));
+      const matchesTag =
+        tagFilter === "all" || (task.tags && task.tags.includes(tagFilter));
 
-      const matchesSearch = searchTerm === '' ||
+      const matchesSearch =
+        searchTerm === "" ||
         task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (task.description && task.description.toLowerCase().includes(searchTerm.toLowerCase()));
+        (task.description &&
+          task.description.toLowerCase().includes(searchTerm.toLowerCase()));
 
       return matchesStatus && matchesPriority && matchesTag && matchesSearch;
     })
@@ -343,56 +423,77 @@ export const TasksDetailView: React.FC = () => {
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'highest': return 'badge-priority-urgent';   // Red for critical/highest
-      case 'high': return 'badge-priority-high';       // Orange for high
-      case 'medium': return 'badge-priority-medium';   // Yellow for medium  
-      default: return 'badge-priority-low';            // Gray for low
+      case "highest":
+        return "badge-priority-urgent"; // Red for critical/highest
+      case "high":
+        return "badge-priority-high"; // Orange for high
+      case "medium":
+        return "badge-priority-medium"; // Yellow for medium
+      default:
+        return "badge-priority-low"; // Gray for low
     }
   };
 
   const getPriorityIcon = (priority: string) => {
     switch (priority) {
-      case 'highest': return <ArrowUp className="w-3 h-3" />;     // Up arrow for highest
-      case 'high': return <ArrowUp className="w-3 h-3" />;       // Up arrow for high
-      case 'medium': return <Minus className="w-3 h-3" />;       // Dash for medium
-      default: return <ArrowDown className="w-3 h-3" />;         // Down arrow for low
+      case "highest":
+        return <ArrowUp className="w-3 h-3" />; // Up arrow for highest
+      case "high":
+        return <ArrowUp className="w-3 h-3" />; // Up arrow for high
+      case "medium":
+        return <Minus className="w-3 h-3" />; // Dash for medium
+      default:
+        return <ArrowDown className="w-3 h-3" />; // Down arrow for low
     }
   };
-
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'todo': return 'badge-secondary';   // Gray for to-do
-      case 'in_progress': return 'badge-info'; // Blue for in progress
-      case 'done': return 'badge-success';     // Green for completed
-      case 'blocked': return 'badge-danger';   // Red for blocked
-      case 'cancelled': return 'badge-warning'; // Orange for cancelled
-      default: return 'badge-secondary';
+      case "todo":
+        return "badge-secondary"; // Gray for to-do
+      case "in_progress":
+        return "badge-info"; // Blue for in progress
+      case "done":
+        return "badge-success"; // Green for completed
+      case "blocked":
+        return "badge-danger"; // Red for blocked
+      case "cancelled":
+        return "badge-warning"; // Orange for cancelled
+      default:
+        return "badge-secondary";
     }
   };
 
-
   const getStatusDisplayName = (status: string) => {
     switch (status) {
-      case 'todo': return 'To Do';
-      case 'in_progress': return 'In Progress';
-      case 'done': return 'Done';
-      case 'blocked': return 'Blocked';
-      case 'cancelled': return 'Cancelled';
-      default: return status;
+      case "todo":
+        return "To Do";
+      case "in_progress":
+        return "In Progress";
+      case "done":
+        return "Done";
+      case "blocked":
+        return "Blocked";
+      case "cancelled":
+        return "Cancelled";
+      default:
+        return status;
     }
   };
 
   const getStatusIcon = (status: string, completed: boolean = false) => {
-    if (status === 'done' || completed) {
+    if (status === "done" || completed) {
       return <CheckSquare className="w-4 h-4 text-primary" />;
     }
     return <Square className="w-4 h-4 text-gray-400 hover:text-gray-600" />;
   };
 
-  const formatTagsInput = (tags: string[]) => tags.join(', ');
+  const formatTagsInput = (tags: string[]) => tags.join(", ");
   const parseTagsInput = (input: string) =>
-    input.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+    input
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter((tag) => tag.length > 0);
 
   // Reusable Status Select Component
   const StatusSelect: React.FC<{
@@ -401,7 +502,13 @@ export const TasksDetailView: React.FC = () => {
     disabled?: boolean;
     className?: string;
     showBadgeStyle?: boolean;
-  }> = ({ value, onChange, disabled = false, className = "", showBadgeStyle = false }) => {
+  }> = ({
+    value,
+    onChange,
+    disabled = false,
+    className = "",
+    showBadgeStyle = false,
+  }) => {
     const selectClass = showBadgeStyle
       ? `appearance-none cursor-pointer ${getStatusColor(value)} disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-none`
       : "form-select w-full";
@@ -414,11 +521,56 @@ export const TasksDetailView: React.FC = () => {
         className={`${selectClass} ${className}`}
         style={showBadgeStyle ? {} : {}}
       >
-        <option value="todo" style={showBadgeStyle ? { backgroundColor: '#1a1a1a', color: '#e0e0e0' } : {}}>To Do</option>
-        <option value="in_progress" style={showBadgeStyle ? { backgroundColor: '#1a1a1a', color: '#e0e0e0' } : {}}>In Progress</option>
-        <option value="done" style={showBadgeStyle ? { backgroundColor: '#1a1a1a', color: '#e0e0e0' } : {}}>Done</option>
-        <option value="blocked" style={showBadgeStyle ? { backgroundColor: '#1a1a1a', color: '#e0e0e0' } : {}}>Blocked</option>
-        <option value="cancelled" style={showBadgeStyle ? { backgroundColor: '#1a1a1a', color: '#e0e0e0' } : {}}>Cancelled</option>
+        <option
+          value="todo"
+          style={
+            showBadgeStyle
+              ? { backgroundColor: "#1a1a1a", color: "#e0e0e0" }
+              : {}
+          }
+        >
+          To Do
+        </option>
+        <option
+          value="in_progress"
+          style={
+            showBadgeStyle
+              ? { backgroundColor: "#1a1a1a", color: "#e0e0e0" }
+              : {}
+          }
+        >
+          In Progress
+        </option>
+        <option
+          value="done"
+          style={
+            showBadgeStyle
+              ? { backgroundColor: "#1a1a1a", color: "#e0e0e0" }
+              : {}
+          }
+        >
+          Done
+        </option>
+        <option
+          value="blocked"
+          style={
+            showBadgeStyle
+              ? { backgroundColor: "#1a1a1a", color: "#e0e0e0" }
+              : {}
+          }
+        >
+          Blocked
+        </option>
+        <option
+          value="cancelled"
+          style={
+            showBadgeStyle
+              ? { backgroundColor: "#1a1a1a", color: "#e0e0e0" }
+              : {}
+          }
+        >
+          Cancelled
+        </option>
       </select>
     );
   };
@@ -431,9 +583,16 @@ export const TasksDetailView: React.FC = () => {
     className?: string;
     showBadgeStyle?: boolean;
     showIcon?: boolean;
-  }> = ({ value, onChange, disabled = false, className = "", showBadgeStyle = false, showIcon = false }) => {
+  }> = ({
+    value,
+    onChange,
+    disabled = false,
+    className = "",
+    showBadgeStyle = false,
+    showIcon = false,
+  }) => {
     const selectClass = showBadgeStyle
-      ? `appearance-none cursor-pointer ${getPriorityColor(value)} disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-none ${showIcon ? 'pl-7 pr-4' : ''}`
+      ? `appearance-none cursor-pointer ${getPriorityColor(value)} disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-none ${showIcon ? "pl-7 pr-4" : ""}`
       : "form-select w-full";
 
     const content = (
@@ -443,10 +602,46 @@ export const TasksDetailView: React.FC = () => {
         disabled={disabled}
         className={`${selectClass} ${className}`}
       >
-        <option value="low" style={showBadgeStyle ? { backgroundColor: '#1a1a1a', color: '#e0e0e0' } : {}}>Low</option>
-        <option value="medium" style={showBadgeStyle ? { backgroundColor: '#1a1a1a', color: '#e0e0e0' } : {}}>Medium</option>
-        <option value="high" style={showBadgeStyle ? { backgroundColor: '#1a1a1a', color: '#e0e0e0' } : {}}>High</option>
-        <option value="highest" style={showBadgeStyle ? { backgroundColor: '#1a1a1a', color: '#e0e0e0' } : {}}>Highest</option>
+        <option
+          value="low"
+          style={
+            showBadgeStyle
+              ? { backgroundColor: "#1a1a1a", color: "#e0e0e0" }
+              : {}
+          }
+        >
+          Low
+        </option>
+        <option
+          value="medium"
+          style={
+            showBadgeStyle
+              ? { backgroundColor: "#1a1a1a", color: "#e0e0e0" }
+              : {}
+          }
+        >
+          Medium
+        </option>
+        <option
+          value="high"
+          style={
+            showBadgeStyle
+              ? { backgroundColor: "#1a1a1a", color: "#e0e0e0" }
+              : {}
+          }
+        >
+          High
+        </option>
+        <option
+          value="highest"
+          style={
+            showBadgeStyle
+              ? { backgroundColor: "#1a1a1a", color: "#e0e0e0" }
+              : {}
+          }
+        >
+          Highest
+        </option>
       </select>
     );
 
@@ -471,12 +666,12 @@ export const TasksDetailView: React.FC = () => {
     placeholder?: string;
   }> = ({ selectedTags, onChange, placeholder = "Select tags..." }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [newTagInput, setNewTagInput] = useState('');
+    const [newTagInput, setNewTagInput] = useState("");
     const availableTags = getAllTags();
 
     const toggleTag = (tag: string) => {
       if (selectedTags.includes(tag)) {
-        onChange(selectedTags.filter(t => t !== tag));
+        onChange(selectedTags.filter((t) => t !== tag));
       } else {
         onChange([...selectedTags, tag]);
       }
@@ -484,9 +679,13 @@ export const TasksDetailView: React.FC = () => {
 
     const addNewTag = () => {
       const trimmedTag = newTagInput.trim();
-      if (trimmedTag && !availableTags.includes(trimmedTag) && !selectedTags.includes(trimmedTag)) {
+      if (
+        trimmedTag &&
+        !availableTags.includes(trimmedTag) &&
+        !selectedTags.includes(trimmedTag)
+      ) {
         onChange([...selectedTags, trimmedTag]);
-        setNewTagInput('');
+        setNewTagInput("");
       }
     };
 
@@ -500,7 +699,7 @@ export const TasksDetailView: React.FC = () => {
             {selectedTags.length === 0 ? (
               <span className="text-foreground-dim">{placeholder}</span>
             ) : (
-              selectedTags.map(tag => (
+              selectedTags.map((tag) => (
                 <span key={tag} className="badge-tag flex items-center">
                   {tag}
                   <button
@@ -530,7 +729,7 @@ export const TasksDetailView: React.FC = () => {
                   value={newTagInput}
                   onChange={(e) => setNewTagInput(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
+                    if (e.key === "Enter") {
                       e.preventDefault();
                       addNewTag();
                     }
@@ -550,30 +749,32 @@ export const TasksDetailView: React.FC = () => {
             </div>
 
             {/* Existing tags */}
-            {availableTags.map(tag => (
+            {availableTags.map((tag) => (
               <div
                 key={tag}
-                className={`px-3 py-2 cursor-pointer hover:bg-secondary/50 flex items-center justify-between ${selectedTags.includes(tag) ? 'bg-primary/10 text-primary' : ''
-                  }`}
+                className={`px-3 py-2 cursor-pointer hover:bg-secondary/50 flex items-center justify-between ${
+                  selectedTags.includes(tag) ? "bg-primary/10 text-primary" : ""
+                }`}
                 onClick={() => toggleTag(tag)}
               >
                 <span className="text-xs">{tag}</span>
-                {selectedTags.includes(tag) && <CheckSquare className="w-4 h-4" />}
+                {selectedTags.includes(tag) && (
+                  <CheckSquare className="w-4 h-4" />
+                )}
               </div>
             ))}
 
             {availableTags.length === 0 && (
-              <div className="p-3 text-xs text-foreground-dim">No existing tags. Add a new one above.</div>
+              <div className="p-3 text-xs text-foreground-dim">
+                No existing tags. Add a new one above.
+              </div>
             )}
           </div>
         )}
 
         {/* Click outside to close */}
         {isOpen && (
-          <div
-            className="fixed inset-0 z-0"
-            onClick={() => setIsOpen(false)}
-          />
+          <div className="fixed inset-0 z-0" onClick={() => setIsOpen(false)} />
         )}
       </div>
     );
@@ -621,14 +822,16 @@ export const TasksDetailView: React.FC = () => {
                 Create tasks to track your development progress.
               </p>
               <button
-                onClick={() => setNewTask({
-                  title: '',
-                  description: '',
-                  status: 'todo',
-                  priority: 'medium',
-                  tags: [],
-                  dependencies: [],
-                })}
+                onClick={() =>
+                  setNewTask({
+                    title: "",
+                    description: "",
+                    status: "todo",
+                    priority: "medium",
+                    tags: [],
+                    dependencies: [],
+                  })
+                }
                 className="btn-add mb-6"
               >
                 <Plus className="w-4 h-4 mr-2" />
@@ -650,15 +853,17 @@ export const TasksDetailView: React.FC = () => {
           {/* Add New Task Button - Always visible at the top */}
           {!newTask && (
             <button
-              onClick={() => setNewTask({
-                title: '',
-                description: '',
-                status: 'todo',
-                priority: 'medium',
-                tags: [],
-                dependencies: [],
-                position: tasks.length
-              })}
+              onClick={() =>
+                setNewTask({
+                  title: "",
+                  description: "",
+                  status: "todo",
+                  priority: "medium",
+                  tags: [],
+                  dependencies: [],
+                  position: tasks.length,
+                })
+              }
               className="btn-add mb-6"
             >
               <Plus className="w-4 h-4" />
@@ -676,13 +881,17 @@ export const TasksDetailView: React.FC = () => {
               </div>
               <div className="space-y-3">
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1">Task Title</label>
+                  <label className="block text-xs font-medium text-foreground mb-1">
+                    Task Title
+                  </label>
                   <input
                     type="text"
                     value={newTask.title}
-                    onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                    onChange={(e) =>
+                      setNewTask({ ...newTask, title: e.target.value })
+                    }
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter' && newTask.title?.trim()) {
+                      if (e.key === "Enter" && newTask.title?.trim()) {
                         e.preventDefault();
                         handleAddTask(newTask);
                       }
@@ -694,10 +903,14 @@ export const TasksDetailView: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1">Description</label>
+                  <label className="block text-xs font-medium text-foreground mb-1">
+                    Description
+                  </label>
                   <textarea
                     value={newTask.description}
-                    onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                    onChange={(e) =>
+                      setNewTask({ ...newTask, description: e.target.value })
+                    }
                     className="form-textarea"
                     rows={3}
                     placeholder="Enter task description"
@@ -706,14 +919,20 @@ export const TasksDetailView: React.FC = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-medium text-foreground mb-1">Priority</label>
+                    <label className="block text-xs font-medium text-foreground mb-1">
+                      Priority
+                    </label>
                     <PrioritySelect
-                      value={newTask.priority || 'medium'}
-                      onChange={(priority) => setNewTask({ ...newTask, priority: priority as any })}
+                      value={newTask.priority || "medium"}
+                      onChange={(priority) =>
+                        setNewTask({ ...newTask, priority: priority as any })
+                      }
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-foreground mb-1">Tags</label>
+                    <label className="block text-xs font-medium text-foreground mb-1">
+                      Tags
+                    </label>
                     <TagMultiSelect
                       selectedTags={newTask.tags || []}
                       onChange={(tags) => setNewTask({ ...newTask, tags })}
@@ -795,18 +1014,19 @@ export const TasksDetailView: React.FC = () => {
                   className="form-select flex-shrink-0"
                 >
                   <option value="all">All Tags</option>
-                  {getAllTags().map(tag => (
-                    <option key={tag} value={tag}>{tag}</option>
+                  {getAllTags().map((tag) => (
+                    <option key={tag} value={tag}>
+                      {tag}
+                    </option>
                   ))}
                 </select>
                 <button
                   onClick={() => updateShowCompleted(!showCompleted)}
-                  className={`flex-shrink-0 ${showCompleted
-                    ? 'filter-button-active'
-                    : 'filter-button'
-                    }`}
+                  className={`flex-shrink-0 ${
+                    showCompleted ? "filter-button-active" : "filter-button"
+                  }`}
                 >
-                  {showCompleted ? 'Hide' : 'Show'} Completed
+                  {showCompleted ? "Hide" : "Show"} Completed
                 </button>
               </div>
             )}
@@ -814,24 +1034,27 @@ export const TasksDetailView: React.FC = () => {
 
           {/* Tasks List */}
           <div className="flex-1 space-y-3">
-
             {/* Existing Tasks */}
             {filteredTasks.map((task) => (
               <div
                 key={task.id}
-                className={`card ${task.status === 'done' ? 'opacity-75' : ''}`}
+                className={`card ${task.status === "done" ? "opacity-75" : ""}`}
               >
                 {editingTaskId === task.id ? (
                   // Edit Form
                   <div className="space-y-3">
                     <div>
-                      <label className="block text-xs font-medium text-foreground mb-1">Title</label>
+                      <label className="block text-xs font-medium text-foreground mb-1">
+                        Title
+                      </label>
                       <input
                         type="text"
                         value={task.title}
                         onChange={(e) => {
-                          const updatedTasks = tasks.map(t =>
-                            t.id === task.id ? { ...t, title: e.target.value } : t
+                          const updatedTasks = tasks.map((t) =>
+                            t.id === task.id
+                              ? { ...t, title: e.target.value }
+                              : t,
                           );
                           setTasks(updatedTasks);
                         }}
@@ -841,12 +1064,16 @@ export const TasksDetailView: React.FC = () => {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-foreground mb-1">Description</label>
+                      <label className="block text-xs font-medium text-foreground mb-1">
+                        Description
+                      </label>
                       <textarea
                         value={task.description}
                         onChange={(e) => {
-                          const updatedTasks = tasks.map(t =>
-                            t.id === task.id ? { ...t, description: e.target.value } : t
+                          const updatedTasks = tasks.map((t) =>
+                            t.id === task.id
+                              ? { ...t, description: e.target.value }
+                              : t,
                           );
                           setTasks(updatedTasks);
                         }}
@@ -858,12 +1085,16 @@ export const TasksDetailView: React.FC = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                       <div>
-                        <label className="block text-xs font-medium text-foreground mb-1">Status</label>
+                        <label className="block text-xs font-medium text-foreground mb-1">
+                          Status
+                        </label>
                         <StatusSelect
                           value={task.status}
                           onChange={(status) => {
-                            const updatedTasks = tasks.map(t =>
-                              t.id === task.id ? { ...t, status: status as any } : t
+                            const updatedTasks = tasks.map((t) =>
+                              t.id === task.id
+                                ? { ...t, status: status as any }
+                                : t,
                             );
                             setTasks(updatedTasks);
                           }}
@@ -871,24 +1102,30 @@ export const TasksDetailView: React.FC = () => {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-medium text-foreground mb-1">Priority</label>
+                        <label className="block text-xs font-medium text-foreground mb-1">
+                          Priority
+                        </label>
                         <PrioritySelect
                           value={task.priority}
                           onChange={(priority) => {
-                            const updatedTasks = tasks.map(t =>
-                              t.id === task.id ? { ...t, priority: priority as any } : t
+                            const updatedTasks = tasks.map((t) =>
+                              t.id === task.id
+                                ? { ...t, priority: priority as any }
+                                : t,
                             );
                             setTasks(updatedTasks);
                           }}
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-foreground mb-1">Tags</label>
+                        <label className="block text-xs font-medium text-foreground mb-1">
+                          Tags
+                        </label>
                         <TagMultiSelect
                           selectedTags={task.tags || []}
                           onChange={(tags) => {
-                            const updatedTasks = tasks.map(t =>
-                              t.id === task.id ? { ...t, tags } : t
+                            const updatedTasks = tasks.map((t) =>
+                              t.id === task.id ? { ...t, tags } : t,
                             );
                             setTasks(updatedTasks);
                           }}
@@ -899,21 +1136,30 @@ export const TasksDetailView: React.FC = () => {
 
                     {/* Attachments Management in Edit Mode */}
                     <div>
-                      <label className="block text-xs font-medium text-foreground mb-2">Attachments</label>
+                      <label className="block text-xs font-medium text-foreground mb-2">
+                        Attachments
+                      </label>
                       <ImageUpload
                         taskId={task.id}
-                        onUploadComplete={(attachment) => handleAttachmentUpload(task.id, attachment)}
-                        onError={(error) => setAttachmentErrors(prev => ({ ...prev, [task.id]: error }))}
+                        onUploadComplete={(attachment) =>
+                          handleAttachmentUpload(task.id, attachment)
+                        }
+                        onError={(error) =>
+                          setAttachmentErrors((prev) => ({
+                            ...prev,
+                            [task.id]: error,
+                          }))
+                        }
                         className="mb-3"
                       />
-                      
+
                       {/* Error Display */}
                       {attachmentErrors[task.id] && (
                         <div className="text-xs text-red-500 bg-red-50 p-2 rounded border mb-3">
                           {attachmentErrors[task.id]}
                         </div>
                       )}
-                      
+
                       {/* Current Attachments */}
                       {task.attachments && task.attachments.length > 0 && (
                         <div className="space-y-2 mb-3">
@@ -921,8 +1167,16 @@ export const TasksDetailView: React.FC = () => {
                             <AttachmentView
                               key={attachment.id}
                               attachment={attachment}
-                              onDelete={(attachmentId) => handleAttachmentDelete(task.id, attachmentId)}
-                              onUpdate={(attachmentId, updates) => handleAttachmentUpdate(task.id, attachmentId, updates)}
+                              onDelete={(attachmentId) =>
+                                handleAttachmentDelete(task.id, attachmentId)
+                              }
+                              onUpdate={(attachmentId, updates) =>
+                                handleAttachmentUpdate(
+                                  task.id,
+                                  attachmentId,
+                                  updates,
+                                )
+                              }
                               showControls={true}
                               className="max-w-sm"
                             />
@@ -945,7 +1199,7 @@ export const TasksDetailView: React.FC = () => {
                             dependencies: task.dependencies,
                             assignee_id: task.assignee_id,
                             parent_task_id: task.parent_task_id,
-                            position: task.position
+                            position: task.position,
                           };
                           handleUpdateTask(task.id, taskUpdates);
                         }}
@@ -979,7 +1233,9 @@ export const TasksDetailView: React.FC = () => {
                   <div className="flex items-start space-x-3 group">
                     <button
                       className="mt-0.5 flex-shrink-0 opacity-80 group-hover:opacity-100 transition-opacity"
-                      onClick={() => handleToggleTaskCompletion(task.id, task.status)}
+                      onClick={() =>
+                        handleToggleTaskCompletion(task.id, task.status)
+                      }
                       disabled={saving}
                     >
                       {getStatusIcon(task.status)}
@@ -987,21 +1243,27 @@ export const TasksDetailView: React.FC = () => {
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between">
-                        <h4 className={`text-sm ${task.status === 'done' ? 'line-through text-foreground-dim' : 'text-foreground'}`}>
+                        <h4
+                          className={`text-sm ${task.status === "done" ? "line-through text-foreground-dim" : "text-foreground"}`}
+                        >
                           {task.title}
                         </h4>
                         <div className="flex items-center space-x-2 ml-2">
                           {/* Interactive Status Dropdown */}
                           <StatusSelect
                             value={task.status}
-                            onChange={(status) => handleStatusChange(task.id, status)}
+                            onChange={(status) =>
+                              handleStatusChange(task.id, status)
+                            }
                             disabled={saving}
                             showBadgeStyle={true}
                           />
                           {/* Interactive Priority Dropdown */}
                           <PrioritySelect
                             value={task.priority}
-                            onChange={(priority) => handlePriorityChange(task.id, priority)}
+                            onChange={(priority) =>
+                              handlePriorityChange(task.id, priority)
+                            }
                             disabled={saving}
                             showBadgeStyle={true}
                             showIcon={true}
@@ -1048,7 +1310,9 @@ export const TasksDetailView: React.FC = () => {
                       {task.description && (
                         <div className="mt-1 text-sm prose prose-sm max-w-none">
                           <MarkdownRenderer
-                            content={processContent(task.description, { convertUrls: true })}
+                            content={processContent(task.description, {
+                              convertUrls: true,
+                            })}
                             enableAutoLinks={true}
                           />
                         </div>
@@ -1057,7 +1321,7 @@ export const TasksDetailView: React.FC = () => {
                       <div className="flex items-center flex-wrap gap-2 mt-2">
                         {task.due_date && (
                           <span className="text-xs text-foreground-dim">
-                            Due {format(new Date(task.due_date), 'MMM d')}
+                            Due {format(new Date(task.due_date), "MMM d")}
                           </span>
                         )}
 
@@ -1070,7 +1334,9 @@ export const TasksDetailView: React.FC = () => {
                             title="Linked to GitHub issue"
                           >
                             <Github className="w-3 h-3" />
-                            <span>#{task.github_issue.github_issue_number}</span>
+                            <span>
+                              #{task.github_issue.github_issue_number}
+                            </span>
                           </a>
                         )}
 
@@ -1078,8 +1344,9 @@ export const TasksDetailView: React.FC = () => {
                           <div className="flex items-center space-x-1">
                             <Tag className="w-3 h-3 text-foreground-dim" />
                             <span className="text-xs text-foreground-dim">
-                              {task.tags.slice(0, 2).join(', ')}
-                              {task.tags.length > 2 && ` +${task.tags.length - 2}`}
+                              {task.tags.slice(0, 2).join(", ")}
+                              {task.tags.length > 2 &&
+                                ` +${task.tags.length - 2}`}
                             </span>
                           </div>
                         )}
@@ -1092,15 +1359,22 @@ export const TasksDetailView: React.FC = () => {
                             <AttachmentView
                               key={attachment.id}
                               attachment={attachment}
-                              onDelete={(attachmentId) => handleAttachmentDelete(task.id, attachmentId)}
-                              onUpdate={(attachmentId, updates) => handleAttachmentUpdate(task.id, attachmentId, updates)}
+                              onDelete={(attachmentId) =>
+                                handleAttachmentDelete(task.id, attachmentId)
+                              }
+                              onUpdate={(attachmentId, updates) =>
+                                handleAttachmentUpdate(
+                                  task.id,
+                                  attachmentId,
+                                  updates,
+                                )
+                              }
                               showControls={true}
                               className="max-w-md"
                             />
                           ))}
                         </div>
                       )}
-
                     </div>
                   </div>
                 )}
@@ -1111,7 +1385,14 @@ export const TasksDetailView: React.FC = () => {
           {/* Footer */}
           <div className="mt-4 flex items-center justify-between pt-3 border-t border-gray-200">
             <div className="text-xs text-foreground-dim">
-              {tasks.filter(t => t.status !== 'done' && t.status !== 'cancelled').length} active • {tasks.filter(t => t.status === 'done').length} completed • {tasks.filter(t => t.status === 'cancelled').length} cancelled
+              {
+                tasks.filter(
+                  (t) => t.status !== "done" && t.status !== "cancelled",
+                ).length
+              }{" "}
+              active • {tasks.filter((t) => t.status === "done").length}{" "}
+              completed • {tasks.filter((t) => t.status === "cancelled").length}{" "}
+              cancelled
             </div>
           </div>
         </div>
@@ -1123,7 +1404,7 @@ export const TasksDetailView: React.FC = () => {
           <div className="bg-secondary border border-foreground-dim/20 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-4 border-b border-foreground-dim/20 flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                < Github className="w-5 h-5" />
+                <Github className="w-5 h-5" />
                 <h3 className="text-lg font-medium">Create GitHub Issue</h3>
               </div>
               <button
@@ -1136,7 +1417,7 @@ export const TasksDetailView: React.FC = () => {
 
             <div className="p-6">
               {(() => {
-                const task = tasks.find(t => t.id === showGitHubModal);
+                const task = tasks.find((t) => t.id === showGitHubModal);
                 if (!task || !projectId) return null;
 
                 return (
@@ -1144,7 +1425,7 @@ export const TasksDetailView: React.FC = () => {
                     task={task}
                     projectId={projectId}
                     onIssueCreated={(issue) => {
-                      console.log('GitHub issue created:', issue);
+                      console.log("GitHub issue created:", issue);
                       setShowGitHubModal(null);
                       // Refetch tasks to show the new GitHub issue link
                       if (projectId) {

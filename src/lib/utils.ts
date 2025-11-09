@@ -12,11 +12,13 @@
 export function withTimeout<T>(
   promise: Promise<T>,
   timeoutMs: number,
-  timeoutMessage?: string
+  timeoutMessage?: string,
 ): Promise<T> {
   return new Promise((resolve, reject) => {
     const timeoutId = setTimeout(() => {
-      reject(new Error(timeoutMessage || `Operation timed out after ${timeoutMs}ms`));
+      reject(
+        new Error(timeoutMessage || `Operation timed out after ${timeoutMs}ms`),
+      );
     }, timeoutMs);
 
     promise
@@ -39,10 +41,10 @@ export function withTimeout<T>(
  */
 export async function withTiming<T>(
   label: string,
-  operation: () => Promise<T>
+  operation: () => Promise<T>,
 ): Promise<T> {
   const startTime = performance.now();
-  
+
   try {
     const result = await operation();
     const endTime = performance.now();
@@ -61,10 +63,10 @@ export async function withTiming<T>(
  */
 export function debounce<T extends (...args: any[]) => any>(
   func: T,
-  wait: number
+  wait: number,
 ): (...args: Parameters<T>) => void {
   let timeout: NodeJS.Timeout;
-  
+
   return (...args: Parameters<T>) => {
     clearTimeout(timeout);
     timeout = setTimeout(() => func(...args), wait);

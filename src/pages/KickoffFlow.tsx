@@ -1,54 +1,72 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useProjectStore } from '../stores/projectStore';
-import { Sparkles, ArrowRight, CheckCircle, Circle, Brain, FileText, Map, ListTodo, Rocket, Check, ClipboardList } from 'lucide-react';
-import { IdeaBouncer } from '../components/Kickoff/IdeaBouncer';
-import { PRDGenerator } from '../components/Kickoff/PRDGenerator';
-import { RoadmapGenerator } from '../components/Kickoff/RoadmapGenerator';
-import { TaskGenerator } from '../components/Kickoff/TaskGenerator';
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useProjectStore } from "../stores/projectStore";
+import {
+  Sparkles,
+  ArrowRight,
+  CheckCircle,
+  Circle,
+  Brain,
+  FileText,
+  Map,
+  ListTodo,
+  Rocket,
+  Check,
+  ClipboardList,
+} from "lucide-react";
+import { IdeaBouncer } from "../components/Kickoff/IdeaBouncer";
+import { PRDGenerator } from "../components/Kickoff/PRDGenerator";
+import { RoadmapGenerator } from "../components/Kickoff/RoadmapGenerator";
+import { TaskGenerator } from "../components/Kickoff/TaskGenerator";
 
 const KICKOFF_STEPS = [
   {
-    id: 'ideas',
-    title: 'Bounce Ideas with AI',
-    description: 'Let\'s explore and refine your project concept together',
+    id: "ideas",
+    title: "Bounce Ideas with AI",
+    description: "Let's explore and refine your project concept together",
     icon: Brain,
-    color: 'text-primary',
+    color: "text-primary",
   },
   {
-    id: 'summary',
-    title: 'Create PRD',
-    description: 'Structure your idea into a Product Requirements Document',
+    id: "summary",
+    title: "Create PRD",
+    description: "Structure your idea into a Product Requirements Document",
     icon: FileText,
-    color: 'blue',
+    color: "blue",
   },
   {
-    id: 'roadmap',
-    title: 'Create Roadmap',
-    description: 'Plan your phases - AI-generated roadmap based on your PRD',
+    id: "roadmap",
+    title: "Create Roadmap",
+    description: "Plan your phases - AI-generated roadmap based on your PRD",
     icon: Map,
-    color: 'green',
+    color: "green",
   },
   {
-    id: 'tasks',
-    title: 'Task Breakdown',
-    description: 'Break down the work - AI-generated tasks based on your roadmap',
+    id: "tasks",
+    title: "Task Breakdown",
+    description:
+      "Break down the work - AI-generated tasks based on your roadmap",
     icon: ListTodo,
-    color: 'orange',
+    color: "orange",
   },
   {
-    id: 'complete',
-    title: 'Ready to Roll!',
-    description: 'Ready to start building',
+    id: "complete",
+    title: "Ready to Roll!",
+    description: "Ready to start building",
     icon: Rocket,
-    color: 'indigo',
+    color: "indigo",
   },
 ];
 
 export const KickoffFlow: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
-  const { activeProjects, archivedProjects, currentProject, setCurrentProject } = useProjectStore();
+  const {
+    activeProjects,
+    archivedProjects,
+    currentProject,
+    setCurrentProject,
+  } = useProjectStore();
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
   const [stepData, setStepData] = useState<Record<string, any>>({});
@@ -62,29 +80,26 @@ export const KickoffFlow: React.FC = () => {
       if (currentProject && currentProject.id === projectId) {
         return;
       }
-      
-      const project = allProjects.find(p => p.id === projectId);
+
+      const project = allProjects.find((p) => p.id === projectId);
       if (project) {
         setCurrentProject(project);
       } else {
         // Project not found, redirect to dashboard
-        navigate('/');
+        navigate("/");
       }
     }
   }, [projectId, allProjects, currentProject, setCurrentProject, navigate]);
 
   // Debug logging for step data
   useEffect(() => {
-    
     if (currentStep === 3) {
-      
     }
   }, [currentStep, stepData, projectId]);
 
   const handleStepComplete = (data?: any) => {
-    
     if (data) {
-      setStepData(prev => {
+      setStepData((prev) => {
         const newStepData = {
           ...prev,
           [KICKOFF_STEPS[currentStep].id]: data,
@@ -93,7 +108,7 @@ export const KickoffFlow: React.FC = () => {
       });
     }
 
-    setCompletedSteps(prev => new Set([...prev, currentStep]));
+    setCompletedSteps((prev) => new Set([...prev, currentStep]));
     if (currentStep < KICKOFF_STEPS.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
@@ -110,12 +125,19 @@ export const KickoffFlow: React.FC = () => {
     handleStepComplete({ ideaSummary });
   };
 
-  const handlePRDCreated = (prdData: { title: string; content: string; id: string }) => {
+  const handlePRDCreated = (prdData: {
+    title: string;
+    content: string;
+    id: string;
+  }) => {
     handleStepComplete({ prd: prdData });
   };
 
-  const handleRoadmapGenerated = (roadmapData: { items: any[]; count: number }) => {
-    handleStepComplete( roadmapData );
+  const handleRoadmapGenerated = (roadmapData: {
+    items: any[];
+    count: number;
+  }) => {
+    handleStepComplete(roadmapData);
   };
 
   const handleTasksGenerated = (tasksData: { tasks: any[]; count: number }) => {
@@ -166,32 +188,33 @@ export const KickoffFlow: React.FC = () => {
             const isCurrent = index === currentStep;
             const StepIconComponent = step.icon;
             const isLast = index === KICKOFF_STEPS.length - 1;
-            
+
             return (
               <React.Fragment key={step.id}>
                 <div className="flex flex-col items-center z-10 px-4">
-                  <div className={`kickoff-step ${
-                    isCompleted ? 'kickoff-step-completed' : 
-                    isCurrent ? 'kickoff-step-current' : 'kickoff-step-upcoming'
-                  }`}>
+                  <div
+                    className={`kickoff-step ${
+                      isCompleted
+                        ? "kickoff-step-completed"
+                        : isCurrent
+                          ? "kickoff-step-current"
+                          : "kickoff-step-upcoming"
+                    }`}
+                  >
                     <div className="kickoff-step-icon">
-                      {isCompleted ? (
-                        <CheckCircle />
-                      ) : (
-                        <StepIconComponent />
-                      )}
+                      {isCompleted ? <CheckCircle /> : <StepIconComponent />}
                     </div>
-                    <p className="kickoff-step-title">
-                      {step.title}
-                    </p>
+                    <p className="kickoff-step-title">{step.title}</p>
                   </div>
                 </div>
-                
+
                 {/* Connector line (except for the last step) */}
                 {!isLast && (
-                  <div className={`kickoff-step-connector ${
-                    isCompleted ? 'kickoff-step-connector-completed' : ''
-                  }`} />
+                  <div
+                    className={`kickoff-step-connector ${
+                      isCompleted ? "kickoff-step-connector-completed" : ""
+                    }`}
+                  />
                 )}
               </React.Fragment>
             );
@@ -235,22 +258,27 @@ export const KickoffFlow: React.FC = () => {
               />
             )}
 
-            {currentStep === 2 && projectId && stepData.summary?.prd?.content && (
-              <RoadmapGenerator
-                projectId={projectId}
-                prdContent={stepData.summary.prd.content}
-                onRoadmapGenerated={handleRoadmapGenerated}
-              />
-            )}
+            {currentStep === 2 &&
+              projectId &&
+              stepData.summary?.prd?.content && (
+                <RoadmapGenerator
+                  projectId={projectId}
+                  prdContent={stepData.summary.prd.content}
+                  onRoadmapGenerated={handleRoadmapGenerated}
+                />
+              )}
 
-            {currentStep === 3 && projectId && stepData.summary?.prd?.content && stepData.roadmap?.items && (
-              <TaskGenerator
-                projectId={projectId}
-                prdContent={stepData.summary.prd.content}
-                roadmapItems={stepData.roadmap.items}
-                onTasksGenerated={handleTasksGenerated}
-              />
-            )}
+            {currentStep === 3 &&
+              projectId &&
+              stepData.summary?.prd?.content &&
+              stepData.roadmap?.items && (
+                <TaskGenerator
+                  projectId={projectId}
+                  prdContent={stepData.summary.prd.content}
+                  roadmapItems={stepData.roadmap.items}
+                  onTasksGenerated={handleTasksGenerated}
+                />
+              )}
 
             {currentStep === 4 && stepData.tasks?.tasks && (
               <div className="h-full flex flex-col">
@@ -322,8 +350,11 @@ export const KickoffFlow: React.FC = () => {
                     <div>
                       <h4 className="mb-2">🎉 Your Project is Ready!</h4>
                       <p className="text-foreground-dim text-sm">
-                        You now have a complete project setup with PRD, roadmap, and development tasks. 
-                        Everything will be available in your workspace for ongoing development. You can also set up your deployment checklist from the deployment module when you're ready to go live.
+                        You now have a complete project setup with PRD, roadmap,
+                        and development tasks. Everything will be available in
+                        your workspace for ongoing development. You can also set
+                        up your deployment checklist from the deployment module
+                        when you're ready to go live.
                       </p>
                     </div>
                   </div>
@@ -350,36 +381,54 @@ export const KickoffFlow: React.FC = () => {
                   Step {currentStep + 1} Coming Soon
                 </h3>
                 <p className="text-gray-600 mb-6">
-                  This step will guide you through {currentStepData.description.toLowerCase()} with AI assistance.
+                  This step will guide you through{" "}
+                  {currentStepData.description.toLowerCase()} with AI
+                  assistance.
                 </p>
-                
+
                 {/* Show data from previous steps if available */}
                 <div className="space-y-4 max-w-md mx-auto">
                   {stepData.ideas && (
                     <div className="bg-white p-4 rounded-lg border text-left">
-                      <h4 className="font-medium text-gray-900 mb-2">Your Idea Summary:</h4>
-                      <p className="text-sm text-gray-600">{stepData.ideas.ideaSummary}</p>
+                      <h4 className="font-medium text-gray-900 mb-2">
+                        Your Idea Summary:
+                      </h4>
+                      <p className="text-sm text-gray-600">
+                        {stepData.ideas.ideaSummary}
+                      </p>
                     </div>
                   )}
-                  
+
                   {stepData.summary?.prd && (
                     <div className="bg-white p-4 rounded-lg border text-left">
-                      <h4 className="font-medium text-gray-900 mb-2">PRD Created:</h4>
-                      <p className="text-sm text-gray-600">{stepData.summary.prd.title}</p>
+                      <h4 className="font-medium text-gray-900 mb-2">
+                        PRD Created:
+                      </h4>
+                      <p className="text-sm text-gray-600">
+                        {stepData.summary.prd.title}
+                      </p>
                     </div>
                   )}
 
                   {stepData.roadmap && (
                     <div className="bg-white p-4 rounded-lg border text-left">
-                      <h4 className="font-medium text-gray-900 mb-2">Roadmap Generated:</h4>
-                      <p className="text-sm text-gray-600">{stepData.roadmap.count} phases planned</p>
+                      <h4 className="font-medium text-gray-900 mb-2">
+                        Roadmap Generated:
+                      </h4>
+                      <p className="text-sm text-gray-600">
+                        {stepData.roadmap.count} phases planned
+                      </p>
                     </div>
                   )}
 
                   {stepData.tasks && (
                     <div className="bg-white p-4 rounded-lg border text-left">
-                      <h4 className="font-medium text-gray-900 mb-2">Tasks Generated:</h4>
-                      <p className="text-sm text-gray-600">{stepData.tasks.count} development tasks created</p>
+                      <h4 className="font-medium text-gray-900 mb-2">
+                        Tasks Generated:
+                      </h4>
+                      <p className="text-sm text-gray-600">
+                        {stepData.tasks.count} development tasks created
+                      </p>
                     </div>
                   )}
                 </div>
@@ -408,7 +457,10 @@ export const KickoffFlow: React.FC = () => {
 
       {/* Project Info */}
       <div className="mt-6 text-center text-sm text-foreground-dim">
-        Working on: <span className="font-medium text-foreground">{currentProject.name}</span>
+        Working on:{" "}
+        <span className="font-medium text-foreground">
+          {currentProject.name}
+        </span>
         {currentProject.description && (
           <span> • {currentProject.description}</span>
         )}

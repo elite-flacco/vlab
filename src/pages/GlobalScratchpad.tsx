@@ -1,13 +1,33 @@
-import { format } from 'date-fns';
-import { AlertCircle, Check, CheckCircle2, ChevronDown, ChevronUp, Edit3, Loader2, Pin, Plus, Save, Search, Sparkles, StickyNote, Tag, Trash2, X } from 'lucide-react';
-import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ModuleContainer } from '../components/Workspace/ModuleContainer';
-import { BackButton } from '../components/common/BackButton';
-import { MarkdownRenderer, useMarkdownPreprocessing } from '../components/common/MarkdownRenderer';
-import { generateDesignTasks } from '../lib/openai';
-import { db, supabase } from '../lib/supabase';
-import { useAuthStore } from '../stores/authStore';
+import { format } from "date-fns";
+import {
+  AlertCircle,
+  Check,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Edit3,
+  Loader2,
+  Pin,
+  Plus,
+  Save,
+  Search,
+  Sparkles,
+  StickyNote,
+  Tag,
+  Trash2,
+  X,
+} from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ModuleContainer } from "../components/Workspace/ModuleContainer";
+import { BackButton } from "../components/common/BackButton";
+import {
+  MarkdownRenderer,
+  useMarkdownPreprocessing,
+} from "../components/common/MarkdownRenderer";
+import { generateDesignTasks } from "../lib/openai";
+import { db, supabase } from "../lib/supabase";
+import { useAuthStore } from "../stores/authStore";
 
 interface DatabaseResponse<T> {
   data: T | null;
@@ -32,8 +52,8 @@ interface GlobalNote {
 interface GeneratedTask {
   title: string;
   description: string;
-  status: 'todo' | 'in_progress' | 'done' | 'blocked';
-  priority: 'low' | 'medium' | 'high' | 'highest';
+  status: "todo" | "in_progress" | "done" | "blocked";
+  priority: "low" | "medium" | "high" | "highest";
   estimated_hours?: number;
   due_date?: string;
   tags: string[];
@@ -43,14 +63,14 @@ interface GeneratedTask {
 
 // Define tag options as specified
 const TAG_OPTIONS = [
-  'General Notes',
-  'Ideas',
-  'Links & Resources',
-  'AI Discussion'
+  "General Notes",
+  "Ideas",
+  "Links & Resources",
+  "AI Discussion",
 ];
 
 // Use consistent tag styling across all modules
-const getTagClass = () => 'badge-tag';
+const getTagClass = () => "badge-tag";
 
 export const GlobalScratchpad: React.FC = () => {
   const navigate = useNavigate();
@@ -58,21 +78,27 @@ export const GlobalScratchpad: React.FC = () => {
   const [notes, setNotes] = useState<GlobalNote[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [newNote, setNewNote] = useState<Partial<GlobalNote> | null>(null);
   const [saving, setSaving] = useState(false);
   const { processContent } = useMarkdownPreprocessing();
 
-  const [expandedNotes, setExpandedNotes] = useState<Record<string, boolean>>({});
+  const [expandedNotes, setExpandedNotes] = useState<Record<string, boolean>>(
+    {},
+  );
   const contentRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // Task generation state (disabled for global notes initially)
   const [isGeneratingTasks, setIsGeneratingTasks] = useState(false);
   const [generatedTasks, setGeneratedTasks] = useState<GeneratedTask[]>([]);
-  const [selectedTaskIds, setSelectedTaskIds] = useState<Set<number>>(new Set());
-  const [selectedNoteForTasks, setSelectedNoteForTasks] = useState<string | null>(null);
+  const [selectedTaskIds, setSelectedTaskIds] = useState<Set<number>>(
+    new Set(),
+  );
+  const [selectedNoteForTasks, setSelectedNoteForTasks] = useState<
+    string | null
+  >(null);
   const [taskSuccess, setTaskSuccess] = useState<string | null>(null);
   const [taskError, setTaskError] = useState<string | null>(null);
 
@@ -86,45 +112,53 @@ export const GlobalScratchpad: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await db.getGlobalNotes(userId) as DatabaseResponse<GlobalNote[]>;
+      const response = (await db.getGlobalNotes(userId)) as DatabaseResponse<
+        GlobalNote[]
+      >;
       if (response.error) throw response.error;
       setNotes(response.data || []);
     } catch (err: any) {
-      setError(err.message || 'Failed to fetch notes');
+      setError(err.message || "Failed to fetch notes");
     } finally {
       setLoading(false);
     }
   };
 
   const handleReturnToDashboard = () => {
-    navigate('/');
+    navigate("/");
   };
 
-  const handleUpdateNote = async (noteId: string, updates: Partial<GlobalNote>) => {
+  const handleUpdateNote = async (
+    noteId: string,
+    updates: Partial<GlobalNote>,
+  ) => {
     setSaving(true);
     setError(null);
 
     try {
-      const response = await db.updateGlobalNote(noteId, updates) as DatabaseResponse<GlobalNote>;
+      const response = (await db.updateGlobalNote(
+        noteId,
+        updates,
+      )) as DatabaseResponse<GlobalNote>;
       if (response.error) throw response.error;
 
       // Update local state
-      const updatedNotes = notes.map(note =>
-        note.id === noteId ? { ...note, ...updates } : note
+      const updatedNotes = notes.map((note) =>
+        note.id === noteId ? { ...note, ...updates } : note,
       );
       setNotes(updatedNotes);
       setEditingNoteId(null);
     } catch (err: any) {
-      setError(err.message || 'Failed to update note');
+      setError(err.message || "Failed to update note");
     } finally {
       setSaving(false);
     }
   };
 
   const toggleNoteExpansion = (noteId: string) => {
-    setExpandedNotes(prev => ({
+    setExpandedNotes((prev) => ({
       ...prev,
-      [noteId]: !prev[noteId]
+      [noteId]: !prev[noteId],
     }));
   };
 
@@ -138,23 +172,25 @@ export const GlobalScratchpad: React.FC = () => {
       const newNoteData = {
         user_id: user.id,
         title: noteData.title || null,
-        content: noteData.content || 'New note',
+        content: noteData.content || "New note",
         position: noteData.position || { x: 0, y: 0 },
         size: noteData.size || { width: 300, height: 200 },
-        color: noteData.color || '#fef3c7',
+        color: noteData.color || "#fef3c7",
         font_size: noteData.font_size || 14,
         is_pinned: noteData.is_pinned || false,
         tags: noteData.tags || [],
       };
 
-      const response = await db.createGlobalNote(newNoteData) as DatabaseResponse<GlobalNote>;
+      const response = (await db.createGlobalNote(
+        newNoteData,
+      )) as DatabaseResponse<GlobalNote>;
       if (response.error) throw response.error;
 
       // Add to local state
-      setNotes(prev => response.data ? [response.data, ...prev] : prev);
+      setNotes((prev) => (response.data ? [response.data, ...prev] : prev));
       setNewNote(null);
     } catch (err: any) {
-      setError(err.message || 'Failed to create note');
+      setError(err.message || "Failed to create note");
     } finally {
       setSaving(false);
     }
@@ -165,14 +201,16 @@ export const GlobalScratchpad: React.FC = () => {
     setError(null);
 
     try {
-      const response = await db.deleteGlobalNote(noteId) as DatabaseResponse<void>;
+      const response = (await db.deleteGlobalNote(
+        noteId,
+      )) as DatabaseResponse<void>;
       if (response.error) throw response.error;
 
       // Remove from local state
-      setNotes(prev => prev.filter(note => note.id !== noteId));
+      setNotes((prev) => prev.filter((note) => note.id !== noteId));
       setEditingNoteId(null);
     } catch (err: any) {
-      setError(err.message || 'Failed to delete note');
+      setError(err.message || "Failed to delete note");
     } finally {
       setSaving(false);
     }
@@ -180,22 +218,29 @@ export const GlobalScratchpad: React.FC = () => {
 
   // Note: Task generation disabled for global notes since they're not project-specific
   const generateTasksFromNote = async (noteId: string) => {
-    setTaskError('Task generation is not available for global notes. Create tasks within specific projects.');
+    setTaskError(
+      "Task generation is not available for global notes. Create tasks within specific projects.",
+    );
   };
 
-  const allTags = Array.from(new Set(notes.flatMap(note => note.tags || [])));
+  const allTags = Array.from(new Set(notes.flatMap((note) => note.tags || [])));
 
   const filteredNotes = notes
-    .filter(note => {
-      const matchesSearch = note.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           (note.title && note.title.toLowerCase().includes(searchTerm.toLowerCase()));
-      const matchesTag = !selectedTag || (note.tags && note.tags.includes(selectedTag));
+    .filter((note) => {
+      const matchesSearch =
+        note.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (note.title &&
+          note.title.toLowerCase().includes(searchTerm.toLowerCase()));
+      const matchesTag =
+        !selectedTag || (note.tags && note.tags.includes(selectedTag));
       return matchesSearch && matchesTag;
     })
     .sort((a, b) => {
       // Sort pinned notes first, then by most recently updated
       if (a.is_pinned === b.is_pinned) {
-        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+        return (
+          new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+        );
       }
       return a.is_pinned ? -1 : 1;
     });
@@ -240,17 +285,20 @@ export const GlobalScratchpad: React.FC = () => {
               <StickyNote className="w-12 h-12 text-gray-300 mx-auto mb-4" />
               <h3 className="mb-2">No Notes Yet</h3>
               <p className="mb-4 text-sm">
-                Create project-agnostic notes to capture ideas and important information.
+                Create project-agnostic notes to capture ideas and important
+                information.
               </p>
               <button
-                onClick={() => setNewNote({
-                  title: '',
-                  content: '',
-                  color: '#fef3c7',
-                  font_size: 14,
-                  is_pinned: false,
-                  tags: [],
-                })}
+                onClick={() =>
+                  setNewNote({
+                    title: "",
+                    content: "",
+                    color: "#fef3c7",
+                    font_size: 14,
+                    is_pinned: false,
+                    tags: [],
+                  })
+                }
                 className="btn-add mb-6"
               >
                 <Plus className="w-4 h-4 mr-2" />
@@ -271,13 +319,15 @@ export const GlobalScratchpad: React.FC = () => {
           {/* Add New Note Button - Always visible at the top */}
           {!newNote && (
             <button
-              onClick={() => setNewNote({
-                content: '',
-                color: '#fef3c7',
-                font_size: 14,
-                is_pinned: false,
-                tags: ['General Notes'],
-              })}
+              onClick={() =>
+                setNewNote({
+                  content: "",
+                  color: "#fef3c7",
+                  font_size: 14,
+                  is_pinned: false,
+                  tags: ["General Notes"],
+                })
+              }
               className="btn-add transition-colors mb-6"
             >
               <Plus className="w-4 h-4 mr-2" />
@@ -299,15 +349,22 @@ export const GlobalScratchpad: React.FC = () => {
                 <div>
                   <input
                     type="text"
-                    value={newNote.title || ''}
-                    onChange={(e) => setNewNote(prev => ({ ...prev, title: e.target.value }))}
+                    value={newNote.title || ""}
+                    onChange={(e) =>
+                      setNewNote((prev) => ({ ...prev, title: e.target.value }))
+                    }
                     className="form-input mb-3 w-full"
                     placeholder="Note title (optional)"
                     autoFocus
                   />
                   <textarea
-                    value={newNote.content || ''}
-                    onChange={(e) => setNewNote(prev => ({ ...prev, content: e.target.value }))}
+                    value={newNote.content || ""}
+                    onChange={(e) =>
+                      setNewNote((prev) => ({
+                        ...prev,
+                        content: e.target.value,
+                      }))
+                    }
                     className="form-textarea w-full"
                     rows={6}
                     placeholder="Start writing your note here..."
@@ -316,10 +373,17 @@ export const GlobalScratchpad: React.FC = () => {
 
                 <div className="flex space-x-3 items-start">
                   <div>
-                    <label className="block text-xs font-medium text-foreground mb-2">Tag</label>
+                    <label className="block text-xs font-medium text-foreground mb-2">
+                      Tag
+                    </label>
                     <select
                       value={newNote.tags?.[0] || TAG_OPTIONS[0]}
-                      onChange={(e) => setNewNote(prev => ({ ...prev, tags: [e.target.value] }))}
+                      onChange={(e) =>
+                        setNewNote((prev) => ({
+                          ...prev,
+                          tags: [e.target.value],
+                        }))
+                      }
                       className="form-select"
                     >
                       {TAG_OPTIONS.map((tag) => (
@@ -330,17 +394,26 @@ export const GlobalScratchpad: React.FC = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-foreground mb-2">Options</label>
+                    <label className="block text-xs font-medium text-foreground mb-2">
+                      Options
+                    </label>
                     <label className="flex items-center space-x-2 text-xs cursor-pointer group">
                       <div className="relative">
                         <input
                           type="checkbox"
                           checked={newNote.is_pinned || false}
-                          onChange={(e) => setNewNote(prev => ({ ...prev, is_pinned: e.target.checked }))}
+                          onChange={(e) =>
+                            setNewNote((prev) => ({
+                              ...prev,
+                              is_pinned: e.target.checked,
+                            }))
+                          }
                           className="form-checkbox"
                         />
                       </div>
-                      <span className="text-foreground/80 group-hover:text-foreground transition-colors">Pin this note</span>
+                      <span className="text-foreground/80 group-hover:text-foreground transition-colors">
+                        Pin this note
+                      </span>
                     </label>
                   </div>
                 </div>
@@ -378,26 +451,25 @@ export const GlobalScratchpad: React.FC = () => {
           <div className="flex flex-col lg:flex-row lg:items-center gap-4 mb-6">
             {/* Search and Filter Controls */}
             {notes.length > 0 && (
-            <div className="relative w-full lg:w-64 flex-shrink-0">
-              <Search className="search-icon" />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search notes..."
-                className="search-input w-full"
-              />
-            </div>
+              <div className="relative w-full lg:w-64 flex-shrink-0">
+                <Search className="search-icon" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search notes..."
+                  className="search-input w-full"
+                />
+              </div>
             )}
             {/* Tags Filter */}
             {allTags.length > 0 && (
               <div className="flex flex-wrap items-center gap-2 overflow-x-auto w-full lg:w-auto pb-1">
                 <button
                   onClick={() => setSelectedTag(null)}
-                  className={`whitespace-nowrap ${!selectedTag
-                    ? 'filter-button-active'
-                    : 'filter-button'
-                    }`}
+                  className={`whitespace-nowrap ${
+                    !selectedTag ? "filter-button-active" : "filter-button"
+                  }`}
                 >
                   All Notes
                 </button>
@@ -405,10 +477,11 @@ export const GlobalScratchpad: React.FC = () => {
                   <button
                     key={tag}
                     onClick={() => setSelectedTag(tag)}
-                    className={`whitespace-nowrap ${selectedTag === tag
-                      ? 'filter-button-active'
-                      : 'filter-button'
-                      }`}
+                    className={`whitespace-nowrap ${
+                      selectedTag === tag
+                        ? "filter-button-active"
+                        : "filter-button"
+                    }`}
                   >
                     {tag}
                   </button>
@@ -419,13 +492,9 @@ export const GlobalScratchpad: React.FC = () => {
           {/* Notes List */}
           <div className="flex-1 overflow-y-auto">
             <div className="space-y-4">
-
               {/* Individual Note Cards with Direct Edit/Delete Icons */}
               {filteredNotes.map((note) => (
-                <div
-                  key={note.id}
-                  className="card"
-                >
+                <div key={note.id} className="card">
                   {editingNoteId === note.id ? (
                     // Edit Form
                     <div>
@@ -433,10 +502,12 @@ export const GlobalScratchpad: React.FC = () => {
                         <div>
                           <input
                             type="text"
-                            value={note.title || ''}
+                            value={note.title || ""}
                             onChange={(e) => {
-                              const updatedNotes = notes.map(n =>
-                                n.id === note.id ? { ...n, title: e.target.value } : n
+                              const updatedNotes = notes.map((n) =>
+                                n.id === note.id
+                                  ? { ...n, title: e.target.value }
+                                  : n,
                               );
                               setNotes(updatedNotes);
                             }}
@@ -447,8 +518,10 @@ export const GlobalScratchpad: React.FC = () => {
                           <textarea
                             value={note.content}
                             onChange={(e) => {
-                              const updatedNotes = notes.map(n =>
-                                n.id === note.id ? { ...n, content: e.target.value } : n
+                              const updatedNotes = notes.map((n) =>
+                                n.id === note.id
+                                  ? { ...n, content: e.target.value }
+                                  : n,
                               );
                               setNotes(updatedNotes);
                             }}
@@ -460,12 +533,16 @@ export const GlobalScratchpad: React.FC = () => {
 
                         <div className="flex space-x-3 items-start">
                           <div>
-                            <label className="block text-xs font-medium text-foreground mb-2">Tag</label>
+                            <label className="block text-xs font-medium text-foreground mb-2">
+                              Tag
+                            </label>
                             <select
                               value={note.tags?.[0] || TAG_OPTIONS[0]}
                               onChange={(e) => {
-                                const updatedNotes = notes.map(n =>
-                                  n.id === note.id ? { ...n, tags: [e.target.value] } : n
+                                const updatedNotes = notes.map((n) =>
+                                  n.id === note.id
+                                    ? { ...n, tags: [e.target.value] }
+                                    : n,
                                 );
                                 setNotes(updatedNotes);
                               }}
@@ -480,22 +557,28 @@ export const GlobalScratchpad: React.FC = () => {
                           </div>
 
                           <div>
-                            <label className="block text-xs font-medium text-foreground mb-2">Options</label>
+                            <label className="block text-xs font-medium text-foreground mb-2">
+                              Options
+                            </label>
                             <label className="flex items-center space-x-2 text-xs">
                               <div className="flex items-center">
                                 <input
                                   type="checkbox"
                                   checked={note.is_pinned}
                                   onChange={(e) => {
-                                    const updatedNotes = notes.map(n =>
-                                      n.id === note.id ? { ...n, is_pinned: e.target.checked } : n
+                                    const updatedNotes = notes.map((n) =>
+                                      n.id === note.id
+                                        ? { ...n, is_pinned: e.target.checked }
+                                        : n,
                                     );
                                     setNotes(updatedNotes);
                                   }}
                                   className="form-checkbox"
                                 />
                               </div>
-                              <span className="text-foreground">Pin this note</span>
+                              <span className="text-foreground">
+                                Pin this note
+                              </span>
                             </label>
                           </div>
                         </div>
@@ -537,7 +620,9 @@ export const GlobalScratchpad: React.FC = () => {
                           <div className="space-y-2">
                             <div className="flex items-center justify-between">
                               {note.title && (
-                                <h3 className="font-semibold text-foreground truncate pr-2">{note.title}</h3>
+                                <h3 className="font-semibold text-foreground truncate pr-2">
+                                  {note.title}
+                                </h3>
                               )}
                               {note.is_pinned && (
                                 <span className="inline-flex items-center text-xs text-foreground/60">
@@ -545,26 +630,31 @@ export const GlobalScratchpad: React.FC = () => {
                                 </span>
                               )}
                             </div>
-                            {note.title && <div className="h-px bg-foreground/20 w-full"></div>}
+                            {note.title && (
+                              <div className="h-px bg-foreground/20 w-full"></div>
+                            )}
                           </div>
                           <div
-                            ref={el => contentRefs.current[note.id] = el}
-                            className={`overflow-hidden transition-all duration-300 ease-in-out ${expandedNotes[note.id] ? '' : 'max-h-32'}`}
+                            ref={(el) => (contentRefs.current[note.id] = el)}
+                            className={`overflow-hidden transition-all duration-300 ease-in-out ${expandedNotes[note.id] ? "" : "max-h-32"}`}
                           >
                             <div
                               className="prose prose-sm max-w-none mt-4 break-words overflow-hidden"
                               style={{
                                 fontSize: `${Math.max(12, note.font_size - 2)}px`,
-                                color: 'inherit' // Ensure text color is inherited
+                                color: "inherit", // Ensure text color is inherited
                               }}
                             >
                               <MarkdownRenderer
-                                content={processContent(note.content, { convertUrls: true })}
+                                content={processContent(note.content, {
+                                  convertUrls: true,
+                                })}
                                 enableAutoLinks={true}
                               />
                             </div>
                           </div>
-                          {(note.content.length > 100 || expandedNotes[note.id]) && (
+                          {(note.content.length > 100 ||
+                            expandedNotes[note.id]) && (
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -586,7 +676,7 @@ export const GlobalScratchpad: React.FC = () => {
                             </button>
                           )}
                           <div className="text-xs text-foreground-dim">
-                            {format(new Date(note.created_at), 'MMM d, h:mm a')}
+                            {format(new Date(note.created_at), "MMM d, h:mm a")}
                           </div>
                         </div>
 
@@ -620,7 +710,9 @@ export const GlobalScratchpad: React.FC = () => {
                   <Search className="w-12 h-12 text-foreground-dim/50 mx-auto mb-4" />
                   <h3 className="card-title mb-2">No notes found</h3>
                   <p className="card-content">
-                    {searchTerm ? `No notes match "${searchTerm}"` : `No notes with tag "${selectedTag}"`}
+                    {searchTerm
+                      ? `No notes match "${searchTerm}"`
+                      : `No notes with tag "${selectedTag}"`}
                   </p>
                 </div>
               )}
@@ -633,7 +725,10 @@ export const GlobalScratchpad: React.FC = () => {
               {filteredNotes.length} of {notes.length} notes
               {selectedTag && (
                 <span className="ml-2">
-                  • Filtered by: <span className="font-medium text-foreground">{selectedTag}</span>
+                  • Filtered by:{" "}
+                  <span className="font-medium text-foreground">
+                    {selectedTag}
+                  </span>
                 </span>
               )}
             </div>

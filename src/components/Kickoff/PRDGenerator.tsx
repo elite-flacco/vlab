@@ -1,21 +1,33 @@
-import React, { useState, useEffect } from 'react';
-import { FileText, Sparkles, Save, Edit3, Eye, Loader2, RefreshCw } from 'lucide-react';
-import { generatePRD } from '../../lib/openai';
-import { db } from '../../lib/supabase';
-import { MarkdownRenderer } from '../common/MarkdownRenderer';
+import React, { useState, useEffect } from "react";
+import {
+  FileText,
+  Sparkles,
+  Save,
+  Edit3,
+  Eye,
+  Loader2,
+  RefreshCw,
+} from "lucide-react";
+import { generatePRD } from "../../lib/openai";
+import { db } from "../../lib/supabase";
+import { MarkdownRenderer } from "../common/MarkdownRenderer";
 
 interface PRDGeneratorProps {
   projectId: string;
   ideaSummary: string;
-  onPRDCreated: (prdData: { title: string; content: string; id: string }) => void;
+  onPRDCreated: (prdData: {
+    title: string;
+    content: string;
+    id: string;
+  }) => void;
 }
 
-export const PRDGenerator: React.FC<PRDGeneratorProps> = ({ 
-  projectId, 
-  ideaSummary, 
-  onPRDCreated 
+export const PRDGenerator: React.FC<PRDGeneratorProps> = ({
+  projectId,
+  ideaSummary,
+  onPRDCreated,
 }) => {
-  const [prdContent, setPrdContent] = useState('');
+  const [prdContent, setPrdContent] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -38,8 +50,10 @@ export const PRDGenerator: React.FC<PRDGeneratorProps> = ({
       setPrdContent(generatedPRD);
       setHasGenerated(true);
     } catch (error) {
-      console.error('Error generating PRD:', error);
-      setError(error instanceof Error ? error.message : 'Failed to generate PRD');
+      console.error("Error generating PRD:", error);
+      setError(
+        error instanceof Error ? error.message : "Failed to generate PRD",
+      );
     } finally {
       setIsGenerating(false);
     }
@@ -54,14 +68,16 @@ export const PRDGenerator: React.FC<PRDGeneratorProps> = ({
     try {
       // Extract title from the first heading in the PRD or use a default
       const titleMatch = prdContent.match(/^#\s+(.+)$/m);
-      const title = titleMatch ? titleMatch[1] : 'Product Requirements Document';
+      const title = titleMatch
+        ? titleMatch[1]
+        : "Product Requirements Document";
 
       // Save PRD to database
       const { data: prd, error: saveError } = await db.createPRD({
         project_id: projectId,
         title,
         content: prdContent,
-        status: 'draft',
+        status: "draft",
         ai_generated: true,
       });
 
@@ -74,13 +90,12 @@ export const PRDGenerator: React.FC<PRDGeneratorProps> = ({
         id: prd.id,
       });
     } catch (error) {
-      console.error('Error saving PRD:', error);
-      setError(error instanceof Error ? error.message : 'Failed to save PRD');
+      console.error("Error saving PRD:", error);
+      setError(error instanceof Error ? error.message : "Failed to save PRD");
     } finally {
       setIsSaving(false);
     }
   };
-
 
   return (
     <div className="h-full flex flex-col">
@@ -112,14 +127,16 @@ export const PRDGenerator: React.FC<PRDGeneratorProps> = ({
               )}
             </button>
           )}
-          
+
           {hasGenerated && (
             <button
               onClick={handleGeneratePRD}
               disabled={isGenerating}
               className="btn-secondary"
             >
-              <RefreshCw className={`w-4 h-4 mr-2 ${isGenerating ? 'animate-spin' : ''}`} />
+              <RefreshCw
+                className={`w-4 h-4 mr-2 ${isGenerating ? "animate-spin" : ""}`}
+              />
               Regenerate
             </button>
           )}
@@ -146,7 +163,8 @@ export const PRDGenerator: React.FC<PRDGeneratorProps> = ({
             <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-4" />
             <h3 className="mb-2">Generating Your PRD</h3>
             <p className="text-foreground-dim">
-              AI is analyzing your idea and creating a comprehensive Product Requirements Document...
+              AI is analyzing your idea and creating a comprehensive Product
+              Requirements Document...
             </p>
           </div>
         </div>
@@ -164,12 +182,13 @@ export const PRDGenerator: React.FC<PRDGeneratorProps> = ({
                 placeholder="Edit your PRD content here..."
               />
               <p className="text-xs text-muted-foreground mt-2">
-                Tip: Use markdown formatting (# for headings, - for bullets, **bold**)
+                Tip: Use markdown formatting (# for headings, - for bullets,
+                **bold**)
               </p>
             </div>
           ) : (
             <div className="card flex-1 p-6 overflow-y-auto">
-              <MarkdownRenderer 
+              <MarkdownRenderer
                 content={prdContent}
                 variant="default"
                 className="card-content"
@@ -188,7 +207,7 @@ export const PRDGenerator: React.FC<PRDGeneratorProps> = ({
               <span>Review and edit your PRD, then save to continue</span>
             </span>
           </div>
-          
+
           <button
             onClick={handleSavePRD}
             disabled={!prdContent.trim() || isSaving}
@@ -216,12 +235,10 @@ export const PRDGenerator: React.FC<PRDGeneratorProps> = ({
             <FileText className="w-12 h-12 text-primary/50 mx-auto mb-4" />
             <h3 className="mb-2">Ready to Generate Your PRD</h3>
             <p className="text-foreground-dim mb-6">
-              I'll create a comprehensive Product Requirements Document based on your idea summary.
+              I'll create a comprehensive Product Requirements Document based on
+              your idea summary.
             </p>
-            <button
-              onClick={handleGeneratePRD}
-              className="btn-primary"
-            >
+            <button onClick={handleGeneratePRD} className="btn-primary">
               <Sparkles className="w-4 h-4 mr-2" />
               Generate PRD
             </button>

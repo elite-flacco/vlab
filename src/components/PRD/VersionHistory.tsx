@@ -1,7 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { format } from 'date-fns';
-import { History, RotateCcw, GitCompare, Clock, User, FileText, X, Loader2, Check } from 'lucide-react';
-import { MarkdownRenderer } from '../common/MarkdownRenderer';
+import React, { useState, useEffect } from "react";
+import { format } from "date-fns";
+import {
+  History,
+  RotateCcw,
+  GitCompare,
+  Clock,
+  User,
+  FileText,
+  X,
+  Loader2,
+  Check,
+} from "lucide-react";
+import { MarkdownRenderer } from "../common/MarkdownRenderer";
 
 // Component styles
 const styles = `
@@ -57,11 +67,11 @@ const styles = `
 `;
 
 // Add styles to the document head
-const styleElement = document.createElement('style');
+const styleElement = document.createElement("style");
 styleElement.textContent = styles;
 document.head.appendChild(styleElement);
 
-import { db } from '../../lib/supabase';
+import { db } from "../../lib/supabase";
 
 interface PRDVersion {
   id: string;
@@ -76,7 +86,10 @@ interface PRDVersion {
 interface VersionHistoryProps {
   prdId: string;
   currentVersion: number;
-  onVersionRestore: (versionNumber: number, changeDescription?: string) => Promise<void>;
+  onVersionRestore: (
+    versionNumber: number,
+    changeDescription?: string,
+  ) => Promise<void>;
   onClose: () => void;
 }
 
@@ -84,7 +97,7 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
   prdId,
   currentVersion,
   onVersionRestore,
-  onClose
+  onClose,
 }) => {
   const [versions, setVersions] = useState<PRDVersion[]>([]);
   const [loading, setLoading] = useState(true);
@@ -106,7 +119,7 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
       if (fetchError) throw fetchError;
       setVersions(data || []);
     } catch (err: any) {
-      setError(err.message || 'Failed to fetch version history');
+      setError(err.message || "Failed to fetch version history");
     } finally {
       setLoading(false);
     }
@@ -114,7 +127,7 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
 
   const handleVersionSelect = (versionNumber: number) => {
     if (selectedVersions.includes(versionNumber)) {
-      setSelectedVersions(selectedVersions.filter(v => v !== versionNumber));
+      setSelectedVersions(selectedVersions.filter((v) => v !== versionNumber));
     } else if (selectedVersions.length < 2) {
       setSelectedVersions([...selectedVersions, versionNumber]);
     } else {
@@ -132,14 +145,14 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
       const { data, error: compareError } = await db.getPRDVersionComparison(
         prdId,
         versionA,
-        versionB
+        versionB,
       );
-      
+
       if (compareError) throw compareError;
       setComparisonData(data[0]);
       setShowComparison(true);
     } catch (err: any) {
-      setError(err.message || 'Failed to compare versions');
+      setError(err.message || "Failed to compare versions");
     } finally {
       setLoading(false);
     }
@@ -147,9 +160,9 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
 
   const handleRestoreVersion = async (versionNumber: number) => {
     const changeDescription = prompt(
-      `Describe the reason for restoring to version ${versionNumber}:`
+      `Describe the reason for restoring to version ${versionNumber}:`,
     );
-    
+
     if (changeDescription === null) return; // User cancelled
 
     setRestoring(versionNumber);
@@ -157,7 +170,7 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
       await onVersionRestore(versionNumber, changeDescription || undefined);
       onClose();
     } catch (err: any) {
-      setError(err.message || 'Failed to restore version');
+      setError(err.message || "Failed to restore version");
     } finally {
       setRestoring(null);
     }
@@ -167,22 +180,19 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
     if (isComparison) {
       // Full content for comparison view
       return (
-        <MarkdownRenderer 
+        <MarkdownRenderer
           content={content}
           variant="default"
           className="text-foreground/80"
         />
       );
     }
-    
+
     // For preview mode, show limited content (first 10 lines)
-    const previewContent = content
-      .split('\n')
-      .slice(0, 10)
-      .join('\n');
-    
+    const previewContent = content.split("\n").slice(0, 10).join("\n");
+
     return (
-      <MarkdownRenderer 
+      <MarkdownRenderer
         content={previewContent}
         variant="compact"
         className="text-foreground/80"
@@ -197,7 +207,9 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
 
     const VersionCard = ({ versionData, isCurrent, isLeft = true }) => (
       <div className="space-y-4">
-        <div className={`bg-foreground/5 border-l-4 ${isLeft ? 'border-primary/30' : 'border-secondary/30'} rounded-lg p-5`}>
+        <div
+          className={`bg-foreground/5 border-l-4 ${isLeft ? "border-primary/30" : "border-secondary/30"} rounded-lg p-5`}
+        >
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-semibold text-foreground flex items-center">
@@ -210,7 +222,7 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
               </h3>
               <p className="text-sm text-foreground/60 mt-1">
                 <Clock className="inline w-3.5 h-3.5 mr-1.5 -mt-0.5" />
-                {format(new Date(versionData.created_at), 'MMM d, yyyy h:mm a')}
+                {format(new Date(versionData.created_at), "MMM d, yyyy h:mm a")}
               </p>
             </div>
             <div className="p-1.5 bg-foreground/10 rounded-md">
@@ -218,8 +230,13 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
             </div>
           </div>
         </div>
-        <div className="bg-foreground/5 rounded-lg p-5 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 220px)' }}>
-          <h4 className="font-semibold text-foreground mb-3">{versionData.title}</h4>
+        <div
+          className="bg-foreground/5 rounded-lg p-5 overflow-y-auto"
+          style={{ maxHeight: "calc(90vh - 220px)" }}
+        >
+          <h4 className="font-semibold text-foreground mb-3">
+            {versionData.title}
+          </h4>
           {renderMarkdownPreview(versionData.content, true)}
         </div>
       </div>
@@ -243,15 +260,15 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
           </div>
 
           <div className="grid grid-cols-2 gap-6 p-6 overflow-hidden">
-            <VersionCard 
-              versionData={version_a_data} 
-              isCurrent={version_a_data.version === currentVersion} 
-              isLeft={true} 
+            <VersionCard
+              versionData={version_a_data}
+              isCurrent={version_a_data.version === currentVersion}
+              isLeft={true}
             />
-            <VersionCard 
-              versionData={version_b_data} 
-              isCurrent={version_b_data.version === currentVersion} 
-              isLeft={false} 
+            <VersionCard
+              versionData={version_b_data}
+              isCurrent={version_b_data.version === currentVersion}
+              isLeft={false}
             />
           </div>
         </div>
@@ -265,7 +282,9 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
         <div className="bg-background rounded-xl shadow-2xl p-8">
           <div className="flex items-center space-x-3">
             <Loader2 className="w-6 h-6 animate-spin text-primary" />
-            <span className="text-foreground-dim">Loading version history...</span>
+            <span className="text-foreground-dim">
+              Loading version history...
+            </span>
           </div>
         </div>
       </div>
@@ -283,9 +302,12 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
                 <History className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-foreground">Version History</h2>
+                <h2 className="text-2xl font-bold text-foreground">
+                  Version History
+                </h2>
                 <p className="text-sm text-foreground/60 mt-1">
-                  {versions.length} version{versions.length !== 1 ? 's' : ''} available
+                  {versions.length} version{versions.length !== 1 ? "s" : ""}{" "}
+                  available
                 </p>
               </div>
             </div>
@@ -320,10 +342,23 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
           {/* Instructions */}
           <div className="px-6 py-3 bg-foreground/5 border-b border-border">
             <div className="flex items-center text-sm text-foreground/80">
-              <svg className="w-4 h-4 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <svg
+                className="w-4 h-4 mr-2 text-primary"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
-              <p className="text-foreground-dim text-sm">Select up to 2 versions to compare, or restore a previous version</p>
+              <p className="text-foreground-dim text-sm">
+                Select up to 2 versions to compare, or restore a previous
+                version
+              </p>
             </div>
           </div>
 
@@ -355,7 +390,8 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
                           <FileText className="w-4 h-4 text-primary" />
                         </div>
                         <h3 className="text-lg font-semibold text-foreground">
-                          Version {currentVersion} <span className="text-primary">(Current)</span>
+                          Version {currentVersion}{" "}
+                          <span className="text-primary">(Current)</span>
                         </h3>
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
                           Active
@@ -363,7 +399,13 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
                       </div>
                       <div className="mt-2 flex items-center text-sm text-foreground/60">
                         <Clock className="w-3.5 h-3.5 mr-1.5" />
-                        <span>Last updated {format(new Date(versions[0]?.created_at || new Date()), 'MMM d, yyyy')}</span>
+                        <span>
+                          Last updated{" "}
+                          {format(
+                            new Date(versions[0]?.created_at || new Date()),
+                            "MMM d, yyyy",
+                          )}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -376,8 +418,8 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
                   key={version.id}
                   className={`border rounded-lg p-5 transition-all duration-200 bg-foreground/5 hover:bg-foreground/10 ${
                     selectedVersions.includes(version.version_number)
-                      ? 'border-primary/30 shadow-sm'
-                      : 'border-foreground/10 hover:border-foreground/20'
+                      ? "border-primary/30 shadow-sm"
+                      : "border-foreground/10 hover:border-foreground/20"
                   }`}
                 >
                   <div className="flex items-start justify-between">
@@ -386,12 +428,18 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
                         <div className="relative flex items-center h-5 group">
                           <input
                             type="checkbox"
-                            checked={selectedVersions.includes(version.version_number)}
-                            onChange={() => handleVersionSelect(version.version_number)}
+                            checked={selectedVersions.includes(
+                              version.version_number,
+                            )}
+                            onChange={() =>
+                              handleVersionSelect(version.version_number)
+                            }
                             className="form-checkbox"
                             aria-label={`Select version ${version.version_number}`}
                           />
-                          {selectedVersions.includes(version.version_number) && (
+                          {selectedVersions.includes(
+                            version.version_number,
+                          ) && (
                             <Check className="w-3 h-3 absolute left-0.5 top-0.5 text-background pointer-events-none" />
                           )}
                           <div className="absolute inset-0 rounded pointer-events-none border-2 border-transparent group-hover:border-primary/30 transition-colors" />
@@ -409,7 +457,12 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
                           </div>
                           <div className="flex items-center text-xs text-foreground/60">
                             <Clock className="w-3.5 h-3.5 mr-1.5 flex-shrink-0" />
-                            <span>{format(new Date(version.created_at), 'MMM d, yyyy · h:mm a')}</span>
+                            <span>
+                              {format(
+                                new Date(version.created_at),
+                                "MMM d, yyyy · h:mm a",
+                              )}
+                            </span>
                           </div>
                         </div>
 
@@ -427,7 +480,9 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
                           <div className="flex items-center text-sm text-foreground/70 mt-2">
                             <div className="flex items-center bg-foreground/5 px-2.5 py-1 rounded-full border border-foreground/10">
                               <User className="w-3.5 h-3.5 mr-1.5 text-foreground/60" />
-                              <span className="text-xs font-medium">{version.created_by_profile.name}</span>
+                              <span className="text-xs font-medium">
+                                {version.created_by_profile.name}
+                              </span>
                             </div>
                           </div>
                         )}
@@ -435,7 +490,10 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
                         {/* Content Preview */}
                         <div className="mt-3 p-3 bg-foreground/5 rounded-md border border-foreground/10">
                           <div className="text-xs text-foreground/80 max-h-20 overflow-hidden relative">
-                            <div className="absolute inset-0 pointer-events-none" style={{ height: '50%', bottom: 0 }} />
+                            <div
+                              className="absolute inset-0 pointer-events-none"
+                              style={{ height: "50%", bottom: 0 }}
+                            />
                             {renderMarkdownPreview(version.content)}
                           </div>
                         </div>
@@ -444,7 +502,9 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
 
                     <div className="flex-shrink-0 ml-4">
                       <button
-                        onClick={() => handleRestoreVersion(version.version_number)}
+                        onClick={() =>
+                          handleRestoreVersion(version.version_number)
+                        }
                         disabled={restoring === version.version_number}
                         className="btn-secondary"
                       >
@@ -470,9 +530,12 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
                   <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
                     <History className="w-8 h-8 text-primary" />
                   </div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2">No Version History</h3>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">
+                    No Version History
+                  </h3>
                   <p className="text-foreground/60 max-w-md mx-auto">
-                    This PRD hasn't been modified yet. Version history will appear here after you make updates.
+                    This PRD hasn't been modified yet. Version history will
+                    appear here after you make updates.
                   </p>
                 </div>
               )}

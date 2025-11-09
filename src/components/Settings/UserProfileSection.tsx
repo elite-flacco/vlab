@@ -1,16 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { Calendar, TrendingUp, Bookmark, Star } from 'lucide-react';
-import { communityApi } from '../../lib/communityApi';
-import { PostCard } from '../Community/PostCard';
-import { useAuthStore } from '../../stores/authStore';
+import React, { useState, useEffect } from "react";
+import { Calendar, TrendingUp, Bookmark, Star } from "lucide-react";
+import { communityApi } from "../../lib/communityApi";
+import { PostCard } from "../Community/PostCard";
+import { useAuthStore } from "../../stores/authStore";
 
 interface UserProfileSectionProps {
   onPostClick?: (postId: string) => void;
 }
 
-export const UserProfileSection: React.FC<UserProfileSectionProps> = ({ onPostClick }) => {
+export const UserProfileSection: React.FC<UserProfileSectionProps> = ({
+  onPostClick,
+}) => {
   const { user } = useAuthStore();
-  const [activeTab, setActiveTab] = useState<'posts' | 'saved'>('posts');
+  const [activeTab, setActiveTab] = useState<"posts" | "saved">("posts");
   const [userPosts, setUserPosts] = useState<any[]>([]);
   const [savedPosts, setSavedPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -28,15 +30,15 @@ export const UserProfileSection: React.FC<UserProfileSectionProps> = ({ onPostCl
     setLoading(true);
     setError(null);
     try {
-      if (activeTab === 'posts') {
+      if (activeTab === "posts") {
         const posts = await communityApi.getUserPosts(user.id);
         setUserPosts(posts);
-      } else if (activeTab === 'saved') {
+      } else if (activeTab === "saved") {
         const saved = await communityApi.getSavedPosts();
         setSavedPosts(saved);
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to load user data');
+      setError(err.message || "Failed to load user data");
     } finally {
       setLoading(false);
     }
@@ -52,16 +54,16 @@ export const UserProfileSection: React.FC<UserProfileSectionProps> = ({ onPostCl
   useEffect(() => {
     // Save the current scroll position
     const scrollY = window.scrollY;
-    
+
     // After the component updates, restore the scroll position
     const timer = setTimeout(() => {
       window.scrollTo(0, scrollY);
     }, 0);
-    
+
     return () => clearTimeout(timer);
   }, [activeTab]);
 
-  const handleTabClick = (tab: 'posts' | 'saved', e: React.MouseEvent) => {
+  const handleTabClick = (tab: "posts" | "saved", e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setActiveTab(tab);
@@ -69,7 +71,6 @@ export const UserProfileSection: React.FC<UserProfileSectionProps> = ({ onPostCl
 
   return (
     <div className="space-y-4">
-
       {/* Compact Profile Stats */}
       <div className="card bg-secondary/80 p-3 mb-4">
         <div className="flex items-start justify-between">
@@ -79,27 +80,38 @@ export const UserProfileSection: React.FC<UserProfileSectionProps> = ({ onPostCl
             </div>
             <div className="min-w-0">
               <h1 className="text-base font-semibold text-foreground truncate">
-                {user?.name || 'User Profile'}
+                {user?.name || "User Profile"}
               </h1>
               <div className="flex items-center space-x-2 text-xs text-foreground-dim">
                 <Calendar className="w-3 h-3 flex-shrink-0" />
-                <span>Joined {new Date(user?.created_at || Date.now()).toLocaleDateString()}</span>
+                <span>
+                  Joined{" "}
+                  {new Date(
+                    user?.created_at || Date.now(),
+                  ).toLocaleDateString()}
+                </span>
               </div>
             </div>
           </div>
-          
+
           {/* Inline Stats */}
           <div className="flex items-center divide-x divide-foreground-dim/20 text-xs">
             <div className="px-2 text-center">
-              <div className="font-semibold text-foreground">{stats.totalPosts}</div>
+              <div className="font-semibold text-foreground">
+                {stats.totalPosts}
+              </div>
               <div className="text-foreground-dim">Posts</div>
             </div>
             <div className="px-2 text-center">
-              <div className="font-semibold text-foreground">{stats.totalUpvotes}</div>
+              <div className="font-semibold text-foreground">
+                {stats.totalUpvotes}
+              </div>
               <div className="text-foreground-dim">Upvotes</div>
             </div>
             <div className="px-2 text-center">
-              <div className="font-semibold text-foreground">{stats.totalViews}</div>
+              <div className="font-semibold text-foreground">
+                {stats.totalViews}
+              </div>
               <div className="text-foreground-dim">Views</div>
             </div>
           </div>
@@ -112,11 +124,11 @@ export const UserProfileSection: React.FC<UserProfileSectionProps> = ({ onPostCl
           <nav className="flex text-sm">
             <button
               type="button"
-              onClick={(e) => handleTabClick('posts', e)}
+              onClick={(e) => handleTabClick("posts", e)}
               className={`flex-1 px-4 py-3 text-sm font-medium transition-colors flex items-center justify-center space-x-2 focus:outline-none ${
-                activeTab === 'posts'
-                  ? 'text-primary border-b-2 border-primary bg-transparent'
-                  : 'text-foreground-dim hover:text-foreground hover:bg-background/20'
+                activeTab === "posts"
+                  ? "text-primary border-b-2 border-primary bg-transparent"
+                  : "text-foreground-dim hover:text-foreground hover:bg-background/20"
               }`}
             >
               <TrendingUp className="w-4 h-4" />
@@ -124,11 +136,11 @@ export const UserProfileSection: React.FC<UserProfileSectionProps> = ({ onPostCl
             </button>
             <button
               type="button"
-              onClick={(e) => handleTabClick('saved', e)}
+              onClick={(e) => handleTabClick("saved", e)}
               className={`flex-1 px-4 py-3 text-sm font-medium transition-colors flex items-center justify-center space-x-2 focus:outline-none ${
-                activeTab === 'saved'
-                  ? 'text-primary border-b-2 border-primary bg-transparent'
-                  : 'text-foreground-dim hover:text-foreground hover:bg-background/20'
+                activeTab === "saved"
+                  ? "text-primary border-b-2 border-primary bg-transparent"
+                  : "text-foreground-dim hover:text-foreground hover:bg-background/20"
               }`}
             >
               <Bookmark className="w-4 h-4" />
@@ -150,7 +162,7 @@ export const UserProfileSection: React.FC<UserProfileSectionProps> = ({ onPostCl
             </div>
           ) : (
             <div className="space-y-6">
-              {activeTab === 'posts' && (
+              {activeTab === "posts" && (
                 <>
                   {userPosts.length > 0 ? (
                     userPosts.map((post) => (
@@ -163,7 +175,9 @@ export const UserProfileSection: React.FC<UserProfileSectionProps> = ({ onPostCl
                   ) : (
                     <div className="text-center py-8">
                       <TrendingUp className="w-12 h-12 text-foreground-dim/30 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-foreground mb-2">No posts yet</h3>
+                      <h3 className="text-lg font-medium text-foreground mb-2">
+                        No posts yet
+                      </h3>
                       <p className="text-foreground-dim">
                         You haven't shared any tools or tips yet.
                       </p>
@@ -172,7 +186,7 @@ export const UserProfileSection: React.FC<UserProfileSectionProps> = ({ onPostCl
                 </>
               )}
 
-              {activeTab === 'saved' && (
+              {activeTab === "saved" && (
                 <>
                   {savedPosts.length > 0 ? (
                     savedPosts.map((post) => (
@@ -185,7 +199,9 @@ export const UserProfileSection: React.FC<UserProfileSectionProps> = ({ onPostCl
                   ) : (
                     <div className="text-center py-8">
                       <Bookmark className="w-12 h-12 text-foreground-dim/30 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-foreground mb-2">No saved posts</h3>
+                      <h3 className="text-lg font-medium text-foreground mb-2">
+                        No saved posts
+                      </h3>
                       <p className="text-foreground-dim">
                         Posts you save will appear here for easy access later.
                       </p>
@@ -202,4 +218,4 @@ export const UserProfileSection: React.FC<UserProfileSectionProps> = ({ onPostCl
 };
 
 // Import User icon
-import { User } from 'lucide-react';
+import { User } from "lucide-react";

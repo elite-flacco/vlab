@@ -1,6 +1,6 @@
-import { create } from 'zustand';
-import { Project, WorkspaceLayout } from '../types';
-import { db } from '../lib/supabase';
+import { create } from "zustand";
+import { Project, WorkspaceLayout } from "../types";
+import { db } from "../lib/supabase";
 
 interface ProjectState {
   activeProjects: Project[];
@@ -9,7 +9,11 @@ interface ProjectState {
   loading: boolean;
   error: string | null;
   fetchProjects: (userId: string) => Promise<void>;
-  createProject: (name: string, userId: string, description?: string) => Promise<Project>;
+  createProject: (
+    name: string,
+    userId: string,
+    description?: string,
+  ) => Promise<Project>;
   updateProject: (id: string, updates: Partial<Project>) => Promise<void>;
   archiveProject: (id: string) => Promise<void>;
   restoreProject: (id: string) => Promise<void>;
@@ -23,40 +27,40 @@ interface ProjectState {
 const defaultWorkspaceLayout: WorkspaceLayout = {
   modules: [
     {
-      id: 'prd-1',
-      type: 'prd',
+      id: "prd-1",
+      type: "prd",
       position: { x: 0, y: 0 },
       size: { width: 6, height: 3 },
       data: {},
       is_visible: true,
     },
     {
-      id: 'roadmap-1',
-      type: 'roadmap',
+      id: "roadmap-1",
+      type: "roadmap",
       position: { x: 6, y: 0 },
       size: { width: 6, height: 3 },
       data: {},
       is_visible: true,
     },
     {
-      id: 'tasks-1',
-      type: 'tasks',
+      id: "tasks-1",
+      type: "tasks",
       position: { x: 0, y: 3 },
       size: { width: 6, height: 3 },
       data: {},
       is_visible: true,
     },
     {
-      id: 'deployment-1',
-      type: 'deployment',
+      id: "deployment-1",
+      type: "deployment",
       position: { x: 6, y: 3 },
       size: { width: 6, height: 3 },
       data: {},
       is_visible: true,
     },
     {
-      id: 'scratchpad-1',
-      type: 'scratchpad',
+      id: "scratchpad-1",
+      type: "scratchpad",
       position: { x: 0, y: 6 },
       size: { width: 12, height: 2 },
       data: {},
@@ -79,35 +83,38 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
 
   fetchProjects: async (userId: string) => {
     set({ loading: true, error: null });
-    
+
     try {
-      
       const [activeResult, archivedResult] = await Promise.all([
         db.getActiveProjects(userId),
         db.getArchivedProjects(userId),
       ]);
 
       if (activeResult.error) {
-        console.error('❌ ProjectStore: Active projects fetch error:', activeResult.error);
+        console.error(
+          "❌ ProjectStore: Active projects fetch error:",
+          activeResult.error,
+        );
         throw activeResult.error;
       }
       if (archivedResult.error) {
-        console.error('❌ ProjectStore: Archived projects fetch error:', archivedResult.error);
+        console.error(
+          "❌ ProjectStore: Archived projects fetch error:",
+          archivedResult.error,
+        );
         throw archivedResult.error;
       }
 
       const activeProjects = activeResult.data || [];
       const archivedProjects = archivedResult.data || [];
-      
-      
-      set({ 
+
+      set({
         activeProjects,
         archivedProjects,
-        loading: false 
+        loading: false,
       });
-      
     } catch (error: any) {
-      console.error('❌ ProjectStore: fetchProjects error:', error);
+      console.error("❌ ProjectStore: fetchProjects error:", error);
       set({ error: error.message, loading: false });
     }
   },
@@ -123,17 +130,17 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       };
       const { data, error } = await db.createProject(projectData);
       if (error) throw error;
-      
+
       const { activeProjects } = get();
-      set({ 
+      set({
         activeProjects: [data, ...activeProjects],
         currentProject: data,
-        loading: false 
+        loading: false,
       });
-      
+
       return data;
     } catch (error: any) {
-      console.error('❌ ProjectStore: Create project error:', error);
+      console.error("❌ ProjectStore: Create project error:", error);
       set({ error: error.message, loading: false });
       throw error;
     }
@@ -144,16 +151,20 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
     try {
       const { data, error } = await db.updateProject(id, updates);
       if (error) throw error;
-      
+
       const { activeProjects, archivedProjects, currentProject } = get();
-      const updatedActiveProjects = activeProjects.map(p => p.id === id ? data : p);
-      const updatedArchivedProjects = archivedProjects.map(p => p.id === id ? data : p);
-      
-      set({ 
+      const updatedActiveProjects = activeProjects.map((p) =>
+        p.id === id ? data : p,
+      );
+      const updatedArchivedProjects = archivedProjects.map((p) =>
+        p.id === id ? data : p,
+      );
+
+      set({
         activeProjects: updatedActiveProjects,
         archivedProjects: updatedArchivedProjects,
         currentProject: currentProject?.id === id ? data : currentProject,
-        loading: false 
+        loading: false,
       });
     } catch (error: any) {
       set({ error: error.message, loading: false });
@@ -165,17 +176,17 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
     try {
       const { error } = await db.archiveProject(id);
       if (error) throw error;
-      
+
       const { activeProjects, archivedProjects, currentProject } = get();
-      const projectToArchive = activeProjects.find(p => p.id === id);
-      
+      const projectToArchive = activeProjects.find((p) => p.id === id);
+
       if (projectToArchive) {
         const archivedProject = { ...projectToArchive, is_archived: true };
-        set({ 
-          activeProjects: activeProjects.filter(p => p.id !== id),
+        set({
+          activeProjects: activeProjects.filter((p) => p.id !== id),
           archivedProjects: [archivedProject, ...archivedProjects],
           currentProject: currentProject?.id === id ? null : currentProject,
-          loading: false 
+          loading: false,
         });
       }
     } catch (error: any) {
@@ -188,16 +199,16 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
     try {
       const { error } = await db.restoreProject(id);
       if (error) throw error;
-      
+
       const { activeProjects, archivedProjects } = get();
-      const projectToRestore = archivedProjects.find(p => p.id === id);
-      
+      const projectToRestore = archivedProjects.find((p) => p.id === id);
+
       if (projectToRestore) {
         const restoredProject = { ...projectToRestore, is_archived: false };
-        set({ 
+        set({
           activeProjects: [restoredProject, ...activeProjects],
-          archivedProjects: archivedProjects.filter(p => p.id !== id),
-          loading: false 
+          archivedProjects: archivedProjects.filter((p) => p.id !== id),
+          loading: false,
         });
       }
     } catch (error: any) {
@@ -210,14 +221,14 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
     try {
       const { error } = await db.deleteProjectPermanently(id);
       if (error) throw error;
-      
+
       const { activeProjects, archivedProjects, currentProject } = get();
-      
-      set({ 
-        activeProjects: activeProjects.filter(p => p.id !== id),
-        archivedProjects: archivedProjects.filter(p => p.id !== id),
+
+      set({
+        activeProjects: activeProjects.filter((p) => p.id !== id),
+        archivedProjects: archivedProjects.filter((p) => p.id !== id),
         currentProject: currentProject?.id === id ? null : currentProject,
-        loading: false 
+        loading: false,
       });
     } catch (error: any) {
       set({ error: error.message, loading: false });
@@ -231,21 +242,23 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   updateWorkspaceLayout: async (layout: WorkspaceLayout) => {
     const { currentProject } = get();
     if (!currentProject) return;
-    
+
     try {
-      await get().updateProject(currentProject.id, { workspace_layout: layout });
+      await get().updateProject(currentProject.id, {
+        workspace_layout: layout,
+      });
     } catch (error: any) {
       set({ error: error.message });
     }
   },
 
   clearProjects: () => {
-    set({ 
-      activeProjects: [], 
-      archivedProjects: [], 
+    set({
+      activeProjects: [],
+      archivedProjects: [],
       currentProject: null,
       loading: false,
-      error: null
+      error: null,
     });
   },
 

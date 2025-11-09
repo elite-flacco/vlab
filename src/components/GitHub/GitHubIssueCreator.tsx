@@ -1,9 +1,9 @@
-import { ExternalLink, Github, Loader2 } from 'lucide-react';
-import React, { useState, useEffect } from 'react';
-import { supabase, db } from '../../lib/supabase';
-import { formatTaskAsIssue } from '../../lib/github';
-import { GitHubAuthButton } from './GitHubAuthButton';
-import { GitHubRepositorySelector } from './GitHubRepositorySelector';
+import { ExternalLink, Github, Loader2 } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { supabase, db } from "../../lib/supabase";
+import { formatTaskAsIssue } from "../../lib/github";
+import { GitHubAuthButton } from "./GitHubAuthButton";
+import { GitHubRepositorySelector } from "./GitHubRepositorySelector";
 
 interface TaskItem {
   id: string;
@@ -44,25 +44,23 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
   task,
   projectId,
   onIssueCreated,
-  className = '',
+  className = "",
 }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [selectedRepository, setSelectedRepository] = useState<GitHubRepo | null>(null);
+  const [selectedRepository, setSelectedRepository] =
+    useState<GitHubRepo | null>(null);
   const [existingIssue, setExistingIssue] = useState<GitHubIssue | null>(null);
   const [creating, setCreating] = useState(false);
-  const [error, setError] = useState<string>('');
-  const [customTitle, setCustomTitle] = useState('');
-  const [customBody, setCustomBody] = useState('');
+  const [error, setError] = useState<string>("");
+  const [customTitle, setCustomTitle] = useState("");
+  const [customBody, setCustomBody] = useState("");
   const [useCustomContent, setUseCustomContent] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
     const initializeComponent = async () => {
       // Check both existing issue and auth status in parallel
-      await Promise.all([
-        checkExistingIssue(),
-        checkAuthStatus()
-      ]);
+      await Promise.all([checkExistingIssue(), checkAuthStatus()]);
       setInitialLoading(false);
     };
     initializeComponent();
@@ -70,7 +68,9 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
 
   const checkAuthStatus = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         setIsAuthenticated(false);
         return;
@@ -79,7 +79,7 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
       const { data: tokenData } = await db.getGitHubToken(user.id);
       setIsAuthenticated(!!tokenData);
     } catch (err) {
-      console.error('Error checking GitHub auth:', err);
+      console.error("Error checking GitHub auth:", err);
       setIsAuthenticated(false);
     }
   };
@@ -88,7 +88,7 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
     if (!useCustomContent) {
       setCustomTitle(task.title);
       const formatted = formatTaskAsIssue(task);
-      setCustomBody(formatted.body || '');
+      setCustomBody(formatted.body || "");
     }
   }, [task, useCustomContent]);
 
@@ -96,7 +96,9 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
     try {
       const { data, error } = await db.getGitHubIssueByTask(task.id);
       if (error) {
-        setError(`Failed to check existing issues: ${error.message || 'Unknown error'}`);
+        setError(
+          `Failed to check existing issues: ${error.message || "Unknown error"}`,
+        );
         setExistingIssue(null);
         return;
       }
@@ -107,50 +109,57 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
         setExistingIssue(null);
       }
     } catch (err) {
-      setError(`Failed to check existing issues: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      setError(
+        `Failed to check existing issues: ${err instanceof Error ? err.message : "Unknown error"}`,
+      );
       setExistingIssue(null);
     }
   };
 
   const handleCreateIssue = async () => {
     if (!selectedRepository) {
-      setError('Please select a repository');
+      setError("Please select a repository");
       return;
     }
 
     if (!customTitle.trim()) {
-      setError('Please provide a title for the issue');
+      setError("Please provide a title for the issue");
       return;
     }
 
     setCreating(true);
-    setError('');
+    setError("");
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       if (!session) {
-        throw new Error('Not authenticated');
+        throw new Error("Not authenticated");
       }
 
       // Call the Edge Function to create the issue
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/github-create-issue`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/github-create-issue`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            taskId: task.id,
+            repositoryId: selectedRepository.id,
+            title: customTitle.trim(),
+            body: customBody.trim(),
+            labels: formatTaskAsIssue(task).labels,
+          }),
         },
-        body: JSON.stringify({
-          taskId: task.id,
-          repositoryId: selectedRepository.id,
-          title: customTitle.trim(),
-          body: customBody.trim(),
-          labels: formatTaskAsIssue(task).labels,
-        }),
-      });
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create GitHub issue');
+        throw new Error(errorData.error || "Failed to create GitHub issue");
       }
 
       const result = await response.json();
@@ -160,11 +169,10 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
         setExistingIssue(newIssue);
         onIssueCreated?.(newIssue);
       } else {
-        throw new Error(result.error || 'Failed to create GitHub issue');
+        throw new Error(result.error || "Failed to create GitHub issue");
       }
-
     } catch (err: any) {
-      setError(err.message || 'Failed to create GitHub issue');
+      setError(err.message || "Failed to create GitHub issue");
     } finally {
       setCreating(false);
     }
@@ -173,7 +181,9 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
   // Show single loading state during initial check
   if (initialLoading) {
     return (
-      <div className={`p-4 bg-secondary rounded-lg flex items-center justify-center ${className}`}>
+      <div
+        className={`p-4 bg-secondary rounded-lg flex items-center justify-center ${className}`}
+      >
         <Loader2 className="w-5 h-5 animate-spin mr-2" />
         <span className="text-sm text-foreground-dim">Loading...</span>
       </div>
@@ -183,7 +193,9 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
   // If there's already an issue for this task, show the existing issue info
   if (existingIssue) {
     return (
-      <div className={`p-4 bg-primary/5 border border-primary/20 rounded-md ${className}`}>
+      <div
+        className={`p-4 bg-primary/5 border border-primary/20 rounded-md ${className}`}
+      >
         <div className="flex items-start space-x-3">
           <Github className="w-5 h-5 text-primary mt-0.5" />
           <div className="flex-1">
@@ -191,7 +203,8 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
               GitHub Issue Created
             </h4>
             <p className="text-sm text-primary mt-1">
-              This task is linked to GitHub issue #{existingIssue.github_issue_number}
+              This task is linked to GitHub issue #
+              {existingIssue.github_issue_number}
             </p>
             <div className="mt-2">
               <a
@@ -249,7 +262,9 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
                       onChange={(e) => setUseCustomContent(e.target.checked)}
                       className="form-checkbox"
                     />
-                    <span className="text-foreground-dim text-xs">Customize content</span>
+                    <span className="text-foreground-dim text-xs">
+                      Customize content
+                    </span>
                   </label>
                 </div>
 
@@ -283,7 +298,8 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
 
                 {!useCustomContent && (
                   <p className="text-xs text-foreground-dim">
-                    Content is automatically generated from task details. Check "Customize content" to edit.
+                    Content is automatically generated from task details. Check
+                    "Customize content" to edit.
                   </p>
                 )}
               </div>
@@ -354,14 +370,16 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
             <button
               onClick={async () => {
                 try {
-                  const { data: { user } } = await supabase.auth.getUser();
+                  const {
+                    data: { user },
+                  } = await supabase.auth.getUser();
                   if (user) {
                     await db.revokeGitHubToken(user.id);
                   }
                   setIsAuthenticated(false);
                   setSelectedRepository(null);
                 } catch (err) {
-                  console.error('Error disconnecting from GitHub:', err);
+                  console.error("Error disconnecting from GitHub:", err);
                   // Still update local state even if disconnect fails
                   setIsAuthenticated(false);
                   setSelectedRepository(null);
@@ -371,7 +389,6 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
             >
               Disconnect
             </button>
-
           </div>
         </div>
       )}

@@ -1,28 +1,35 @@
-import React, { useState, useEffect } from 'react';
-import { Search, Plus, MessageSquare, AlertCircle, Tag as TagIcon, X } from 'lucide-react';
-import { PostSubmissionForm } from '../components/Community/PostSubmissionForm';
-import { PostCard } from '../components/Community/PostCard';
-import { PostDetailView } from '../components/Community/PostDetailView';
-import { communityApi } from '../lib/communityApi';
-import { useProjectStore } from '../stores/projectStore';
-import { useAuthStore } from '../stores/authStore';
+import React, { useState, useEffect } from "react";
+import {
+  Search,
+  Plus,
+  MessageSquare,
+  AlertCircle,
+  Tag as TagIcon,
+  X,
+} from "lucide-react";
+import { PostSubmissionForm } from "../components/Community/PostSubmissionForm";
+import { PostCard } from "../components/Community/PostCard";
+import { PostDetailView } from "../components/Community/PostDetailView";
+import { communityApi } from "../lib/communityApi";
+import { useProjectStore } from "../stores/projectStore";
+import { useAuthStore } from "../stores/authStore";
 
 // Tool and category options for filtering
 const TOOL_OPTIONS = [
-  { value: 'bolt', label: 'Bolt' },
-  { value: 'loveable', label: 'Loveable' },
-  { value: 'replit', label: 'Replit' },
-  { value: 'v0', label: 'V0' },
-  { value: 'other', label: 'Other' },
+  { value: "bolt", label: "Bolt" },
+  { value: "loveable", label: "Loveable" },
+  { value: "replit", label: "Replit" },
+  { value: "v0", label: "V0" },
+  { value: "other", label: "Other" },
 ];
 
 const TIP_CATEGORY_OPTIONS = [
-  { value: 'prompt_tricks', label: 'Prompt Tricks' },
-  { value: 'integrations', label: 'Integrations' },
-  { value: 'authentication', label: 'Authentication' },
-  { value: 'payment', label: 'Payment' },
-  { value: 'documentation', label: 'Documentation' },
-  { value: 'other', label: 'Other' },
+  { value: "prompt_tricks", label: "Prompt Tricks" },
+  { value: "integrations", label: "Integrations" },
+  { value: "authentication", label: "Authentication" },
+  { value: "payment", label: "Payment" },
+  { value: "documentation", label: "Documentation" },
+  { value: "other", label: "Other" },
 ];
 
 export const Community: React.FC = () => {
@@ -31,17 +38,23 @@ export const Community: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showSubmissionForm, setShowSubmissionForm] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
-  
+
   // Add project store and auth store hooks
-  const { fetchProjects, loading: projectsLoading, activeProjects } = useProjectStore();
+  const {
+    fetchProjects,
+    loading: projectsLoading,
+    activeProjects,
+  } = useProjectStore();
   const { user, loading: authLoading } = useAuthStore();
 
   // Enhanced filters with URL state management
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedTool, setSelectedTool] = useState<string>('');
-  const [selectedTipCategory, setSelectedTipCategory] = useState<string>('');
-  const [selectedTag, setSelectedTag] = useState<string>('');
-  const [sortBy, setSortBy] = useState<'newest' | 'popular' | 'trending'>('newest');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedTool, setSelectedTool] = useState<string>("");
+  const [selectedTipCategory, setSelectedTipCategory] = useState<string>("");
+  const [selectedTag, setSelectedTag] = useState<string>("");
+  const [sortBy, setSortBy] = useState<"newest" | "popular" | "trending">(
+    "newest",
+  );
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -50,37 +63,50 @@ export const Community: React.FC = () => {
 
   // Fetch projects when component mounts and user is available
   useEffect(() => {
-    if (!authLoading && user?.id && activeProjects.length === 0 && !projectsLoading) {
+    if (
+      !authLoading &&
+      user?.id &&
+      activeProjects.length === 0 &&
+      !projectsLoading
+    ) {
       fetchProjects(user.id);
     }
-  }, [user, authLoading, fetchProjects, activeProjects.length, projectsLoading]);
+  }, [
+    user,
+    authLoading,
+    fetchProjects,
+    activeProjects.length,
+    projectsLoading,
+  ]);
 
   // Initialize filters from URL parameters on component mount
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const toolParam = urlParams.get('tool');
-    const tipCategoryParam = urlParams.get('tip_category');
-    const searchParam = urlParams.get('search');
-    const sortParam = urlParams.get('sort');
+    const toolParam = urlParams.get("tool");
+    const tipCategoryParam = urlParams.get("tip_category");
+    const searchParam = urlParams.get("search");
+    const sortParam = urlParams.get("sort");
 
     if (toolParam) setSelectedTool(toolParam);
     if (tipCategoryParam) setSelectedTipCategory(tipCategoryParam);
     if (searchParam) setSearchTerm(searchParam);
-    if (sortParam && ['newest', 'popular', 'trending'].includes(sortParam)) {
-      setSortBy(sortParam as 'newest' | 'popular' | 'trending');
+    if (sortParam && ["newest", "popular", "trending"].includes(sortParam)) {
+      setSortBy(sortParam as "newest" | "popular" | "trending");
     }
   }, []);
 
   // Update URL when filters change
   useEffect(() => {
     const params = new URLSearchParams();
-    if (selectedTool) params.set('tool', selectedTool);
-    if (selectedTipCategory) params.set('tip_category', selectedTipCategory);
-    if (searchTerm) params.set('search', searchTerm);
-    if (sortBy !== 'newest') params.set('sort', sortBy);
+    if (selectedTool) params.set("tool", selectedTool);
+    if (selectedTipCategory) params.set("tip_category", selectedTipCategory);
+    if (searchTerm) params.set("search", searchTerm);
+    if (sortBy !== "newest") params.set("sort", sortBy);
 
-    const newUrl = params.toString() ? `${window.location.pathname}?${params.toString()}` : window.location.pathname;
-    window.history.replaceState({}, '', newUrl);
+    const newUrl = params.toString()
+      ? `${window.location.pathname}?${params.toString()}`
+      : window.location.pathname;
+    window.history.replaceState({}, "", newUrl);
   }, [selectedTool, selectedTipCategory, searchTerm, sortBy]);
 
   useEffect(() => {
@@ -114,7 +140,7 @@ export const Community: React.FC = () => {
       setHasNextPage(response.pagination.hasNextPage);
       setTotalPosts(response.pagination.total);
     } catch (err: any) {
-      setError(err.message || 'Failed to load posts');
+      setError(err.message || "Failed to load posts");
     } finally {
       setLoading(false);
     }
@@ -140,9 +166,7 @@ export const Community: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10">
         <div>
           <h1 className="mb-3">Community Hub</h1>
-          <p>
-            Connect, share, and learn with fellow vibe coders
-          </p>
+          <p>Connect, share, and learn with fellow vibe coders</p>
         </div>
         <button
           onClick={() => setShowSubmissionForm(true)}
@@ -164,7 +188,7 @@ export const Community: React.FC = () => {
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                onKeyPress={(e) => e.key === "Enter" && handleSearch()}
                 placeholder="Search for vibes..."
                 className="search-input"
               />
@@ -174,7 +198,9 @@ export const Community: React.FC = () => {
           {/* Filter Controls */}
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center space-x-2">
-              <span className="text-sm font-medium text-foreground-dim">Filter by:</span>
+              <span className="text-sm font-medium text-foreground-dim">
+                Filter by:
+              </span>
               <div className="flex flex-wrap items-center gap-3">
                 {/* Tool Filter */}
                 <select
@@ -208,9 +234,11 @@ export const Community: React.FC = () => {
                 {selectedTag && (
                   <div className="flex items-center space-x-1.5 bg-primary/10 text-primary px-3 py-1.5 rounded-md text-xs font-medium">
                     <TagIcon className="w-3 h-3 flex-shrink-0" />
-                    <span className="truncate max-w-[120px]">{selectedTag}</span>
+                    <span className="truncate max-w-[120px]">
+                      {selectedTag}
+                    </span>
                     <button
-                      onClick={() => setSelectedTag('')}
+                      onClick={() => setSelectedTag("")}
                       className="ml-0.5 text-primary/70 hover:text-primary transition-colors"
                       aria-label="Remove tag"
                     >
@@ -229,16 +257,18 @@ export const Community: React.FC = () => {
             <div className="flex items-center justify-between">
               <div className="text-xs text-foreground-dim">
                 Showing {posts.length} of {totalPosts} posts
-                {selectedTool && ` for ${TOOL_OPTIONS.find(t => t.value === selectedTool)?.label}`}
-                {selectedTipCategory && ` in ${TIP_CATEGORY_OPTIONS.find(c => c.value === selectedTipCategory)?.label}`}
+                {selectedTool &&
+                  ` for ${TOOL_OPTIONS.find((t) => t.value === selectedTool)?.label}`}
+                {selectedTipCategory &&
+                  ` in ${TIP_CATEGORY_OPTIONS.find((c) => c.value === selectedTipCategory)?.label}`}
                 {searchTerm && ` matching "${searchTerm}"`}
               </div>
               <button
                 onClick={() => {
-                  setSelectedTool('');
-                  setSelectedTipCategory('');
-                  setSearchTerm('');
-                  setSelectedTag('');
+                  setSelectedTool("");
+                  setSelectedTipCategory("");
+                  setSearchTerm("");
+                  setSelectedTag("");
                 }}
                 className="text-xs text-foreground-dim hover:text-foreground-dim/70 transition-colors"
               >
@@ -277,8 +307,8 @@ export const Community: React.FC = () => {
             <h3 className="mb-2">No posts found</h3>
             <p className="mb-4">
               {searchTerm || selectedTool || selectedTipCategory || selectedTag
-                ? 'Try adjusting your filters or search terms.'
-                : 'Be the first to share a tool or tip with the community!'}
+                ? "Try adjusting your filters or search terms."
+                : "Be the first to share a tool or tip with the community!"}
             </p>
           </div>
         ) : (
@@ -298,7 +328,9 @@ export const Community: React.FC = () => {
               </div>
               <div className="flex space-x-2">
                 <button
-                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.max(1, prev - 1))
+                  }
                   disabled={currentPage === 1}
                   className="btn-outline"
                 >
@@ -308,7 +340,7 @@ export const Community: React.FC = () => {
                   Page {currentPage}
                 </span>
                 <button
-                  onClick={() => setCurrentPage(prev => prev + 1)}
+                  onClick={() => setCurrentPage((prev) => prev + 1)}
                   disabled={!hasNextPage}
                   className="btn-outline"
                 >

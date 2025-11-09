@@ -1,10 +1,20 @@
-import { format } from 'date-fns';
-import { ArrowLeft, Copy, Eye, EyeOff, Key, Lock, PenTool, Plus, Shield } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { ModuleContainer } from '../../components/Workspace/ModuleContainer';
-import { BackButton } from '../../components/common/BackButton';
-import { db } from '../../lib/supabase';
+import { format } from "date-fns";
+import {
+  ArrowLeft,
+  Copy,
+  Eye,
+  EyeOff,
+  Key,
+  Lock,
+  PenTool,
+  Plus,
+  Shield,
+} from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { ModuleContainer } from "../../components/Workspace/ModuleContainer";
+import { BackButton } from "../../components/common/BackButton";
+import { db } from "../../lib/supabase";
 
 export const SecretsDetailView: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
@@ -29,7 +39,7 @@ export const SecretsDetailView: React.FC = () => {
       if (fetchError) throw fetchError;
       setSecrets(data || []);
     } catch (err: any) {
-      setError(err.message || 'Failed to fetch secrets');
+      setError(err.message || "Failed to fetch secrets");
     } finally {
       setLoading(false);
     }
@@ -39,9 +49,11 @@ export const SecretsDetailView: React.FC = () => {
     navigate(`/workspace/${projectId}`);
   };
 
-  const categories = Array.from(new Set(secrets.map(secret => secret.category)));
+  const categories = Array.from(
+    new Set(secrets.map((secret) => secret.category)),
+  );
 
-  const filteredSecrets = secrets.filter(secret => {
+  const filteredSecrets = secrets.filter((secret) => {
     return !selectedCategory || secret.category === selectedCategory;
   });
 
@@ -57,18 +69,25 @@ export const SecretsDetailView: React.FC = () => {
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case 'api_key': return <Key className="w-4 h-4" />;
-      case 'database': return <Shield className="w-4 h-4" />;
-      default: return <Lock className="w-4 h-4" />;
+      case "api_key":
+        return <Key className="w-4 h-4" />;
+      case "database":
+        return <Shield className="w-4 h-4" />;
+      default:
+        return <Lock className="w-4 h-4" />;
     }
   };
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'api_key': return 'bg-blue-100 text-blue-800';
-      case 'database': return 'bg-green-100 text-green-800';
-      case 'auth': return 'bg-purple-100 text-purple-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case "api_key":
+        return "bg-blue-100 text-blue-800";
+      case "database":
+        return "bg-green-100 text-green-800";
+      case "auth":
+        return "bg-purple-100 text-purple-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -111,7 +130,7 @@ export const SecretsDetailView: React.FC = () => {
               <div className="text-center pt-4">
                 <Lock className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                 <h3 className="mb-2">No Secrets Yet</h3>
-              </div>             
+              </div>
               <p className="mb-4 text-sm mb-8">
                 Securely store API keys, passwords, and other sensitive data.
               </p>
@@ -136,14 +155,14 @@ export const SecretsDetailView: React.FC = () => {
             <div className="flex items-center space-x-2">
               {categories.length > 0 && (
                 <select
-                  value={selectedCategory || ''}
+                  value={selectedCategory || ""}
                   onChange={(e) => setSelectedCategory(e.target.value || null)}
                   className="text-xs border border-gray-300 rounded-md px-2 py-1 focus:ring-2 focus:ring-red-500 focus:border-red-500"
                 >
                   <option value="">All Categories</option>
                   {categories.map((category) => (
                     <option key={category} value={category}>
-                      {category.replace('_', ' ')}
+                      {category.replace("_", " ")}
                     </option>
                   ))}
                 </select>
@@ -165,16 +184,24 @@ export const SecretsDetailView: React.FC = () => {
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex items-center space-x-2">
                     {getCategoryIcon(secret.category)}
-                    <h4 className="font-medium text-sm text-foreground">{secret.name}</h4>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(secret.category)}`}>
-                      {secret.category.replace('_', ' ')}
+                    <h4 className="font-medium text-sm text-foreground">
+                      {secret.name}
+                    </h4>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(secret.category)}`}
+                    >
+                      {secret.category.replace("_", " ")}
                     </span>
                   </div>
                   <div className="flex items-center space-x-1">
                     <button
                       onClick={() => toggleSecretVisibility(secret.id)}
                       className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
-                      title={visibleSecrets.has(secret.id) ? 'Hide value' : 'Show value'}
+                      title={
+                        visibleSecrets.has(secret.id)
+                          ? "Hide value"
+                          : "Show value"
+                      }
                     >
                       {visibleSecrets.has(secret.id) ? (
                         <EyeOff className="w-3 h-3" />
@@ -192,27 +219,35 @@ export const SecretsDetailView: React.FC = () => {
                 </div>
 
                 {secret.description && (
-                  <p className="text-xs text-gray-600 mb-2">{secret.description}</p>
+                  <p className="text-xs text-gray-600 mb-2">
+                    {secret.description}
+                  </p>
                 )}
 
                 <div className="bg-gray-50 rounded-md p-2 mb-2">
                   <p className="text-xs text-gray-700 font-mono">
                     {visibleSecrets.has(secret.id)
-                      ? '••••••••••••••••' // In real app, this would show decrypted value
-                      : '••••••••••••••••'
-                    }
+                      ? "••••••••••••••••" // In real app, this would show decrypted value
+                      : "••••••••••••••••"}
                   </p>
                 </div>
 
                 <div className="flex items-center justify-between text-xs text-gray-500">
                   <div className="flex items-center space-x-3">
-                    <span className={`w-2 h-2 rounded-full ${secret.is_active ? 'bg-green-500' : 'bg-gray-300'}`} />
-                    <span>{secret.is_active ? 'Active' : 'Inactive'}</span>
+                    <span
+                      className={`w-2 h-2 rounded-full ${secret.is_active ? "bg-green-500" : "bg-gray-300"}`}
+                    />
+                    <span>{secret.is_active ? "Active" : "Inactive"}</span>
                     {secret.last_used_at && (
-                      <span>Last used {format(new Date(secret.last_used_at), 'MMM d')}</span>
+                      <span>
+                        Last used{" "}
+                        {format(new Date(secret.last_used_at), "MMM d")}
+                      </span>
                     )}
                   </div>
-                  <span>Added {format(new Date(secret.created_at), 'MMM d')}</span>
+                  <span>
+                    Added {format(new Date(secret.created_at), "MMM d")}
+                  </span>
                 </div>
               </div>
             ))}
@@ -221,7 +256,8 @@ export const SecretsDetailView: React.FC = () => {
           {/* Footer */}
           <div className="mt-4 flex items-center justify-between pt-3 border-t border-gray-200">
             <div className="text-xs text-gray-500">
-              {filteredSecrets.length} of {secrets.length} secrets • {secrets.filter(s => s.is_active).length} active
+              {filteredSecrets.length} of {secrets.length} secrets •{" "}
+              {secrets.filter((s) => s.is_active).length} active
             </div>
             <button className="text-xs px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">
               Add Secret

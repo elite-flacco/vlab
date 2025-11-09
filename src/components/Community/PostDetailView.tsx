@@ -1,14 +1,17 @@
-import { format } from 'date-fns';
+import { format } from "date-fns";
 import {
   Loader2,
   MessageSquare,
   ThumbsDown,
   ThumbsUp,
-  User
-} from 'lucide-react';
-import React, { useEffect, useState } from 'react';
-import { communityApi } from '../../lib/communityApi';
-import { MarkdownRenderer, useMarkdownPreprocessing } from '../common/MarkdownRenderer';
+  User,
+} from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { communityApi } from "../../lib/communityApi";
+import {
+  MarkdownRenderer,
+  useMarkdownPreprocessing,
+} from "../common/MarkdownRenderer";
 
 interface Comment {
   id: string;
@@ -51,16 +54,19 @@ interface Post {
   comments: Comment[];
 }
 
-export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose }) => {
+export const PostDetailView: React.FC<PostDetailViewProps> = ({
+  postId,
+  onClose,
+}) => {
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [newComment, setNewComment] = useState('');
+  const [newComment, setNewComment] = useState("");
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
-  const [replyContent, setReplyContent] = useState('');
+  const [replyContent, setReplyContent] = useState("");
   const [submittingComment, setSubmittingComment] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
-  const [userVote, setUserVote] = useState<'upvote' | 'downvote' | null>(null);
+  const [userVote, setUserVote] = useState<"upvote" | "downvote" | null>(null);
   const { processContent } = useMarkdownPreprocessing();
 
   useEffect(() => {
@@ -77,14 +83,14 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
       setIsSaved(!!postData.user_saved?.length);
       setUserVote(postData.user_vote?.[0]?.vote_type || null);
     } catch (err: any) {
-      setError(err.message || 'Failed to load post');
-      console.error('Error fetching post:', err);
+      setError(err.message || "Failed to load post");
+      console.error("Error fetching post:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleVote = async (voteType: 'upvote' | 'downvote') => {
+  const handleVote = async (voteType: "upvote" | "downvote") => {
     if (!post) return;
 
     // Save current state for potential rollback
@@ -95,19 +101,19 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
     // Optimistic UI update
     let newUpvotes = post.upvotes;
     let newDownvotes = post.downvotes;
-    let newUserVote: 'upvote' | 'downvote' | null = voteType;
+    let newUserVote: "upvote" | "downvote" | null = voteType;
 
     if (previousVote === voteType) {
       // Remove vote
       newUserVote = null;
-      if (voteType === 'upvote') newUpvotes--;
+      if (voteType === "upvote") newUpvotes--;
       else newDownvotes--;
     } else {
       // Change vote
-      if (previousVote === 'upvote') newUpvotes--;
-      else if (previousVote === 'downvote') newDownvotes--;
+      if (previousVote === "upvote") newUpvotes--;
+      else if (previousVote === "downvote") newDownvotes--;
 
-      if (voteType === 'upvote') newUpvotes++;
+      if (voteType === "upvote") newUpvotes++;
       else newDownvotes++;
     }
 
@@ -116,7 +122,7 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
       ...post,
       upvotes: newUpvotes,
       downvotes: newDownvotes,
-      user_vote: newUserVote ? [{ vote_type: newUserVote }] : []
+      user_vote: newUserVote ? [{ vote_type: newUserVote }] : [],
     });
     setUserVote(newUserVote);
 
@@ -128,16 +134,16 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
         await communityApi.votePost(post.id, { vote_type: voteType });
       }
     } catch (err) {
-      console.error('Error voting:', err);
+      console.error("Error voting:", err);
       // Revert on error
       setPost({
         ...post,
         upvotes: previousUpvotes,
         downvotes: previousDownvotes,
-        user_vote: previousVote ? [{ vote_type: previousVote }] : []
+        user_vote: previousVote ? [{ vote_type: previousVote }] : [],
       });
       setUserVote(previousVote);
-      setError('Failed to update vote');
+      setError("Failed to update vote");
     }
   };
 
@@ -154,9 +160,9 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
         await communityApi.unsavePost(post.id);
       }
     } catch (err) {
-      console.error('Error saving post:', err);
+      console.error("Error saving post:", err);
       setIsSaved(!isSaved); // Revert on error
-      setError('Failed to update save status');
+      setError("Failed to update save status");
     }
   };
 
@@ -175,14 +181,14 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
 
       // Reset form
       if (parentId) {
-        setReplyContent('');
+        setReplyContent("");
         setReplyingTo(null);
       } else {
-        setNewComment('');
+        setNewComment("");
       }
     } catch (err: any) {
-      console.error('Error adding comment:', err);
-      setError(err.message || 'Failed to add comment');
+      console.error("Error adding comment:", err);
+      setError(err.message || "Failed to add comment");
     } finally {
       setSubmittingComment(false);
     }
@@ -194,45 +200,53 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
     // Tool badge
     if (tool) {
       const toolLabels: Record<string, string> = {
-        'bolt': 'Bolt',
-        'loveable': 'Loveable',
-        'replit': 'Replit',
-        'v0': 'V0',
-        'other': 'Other'
+        bolt: "Bolt",
+        loveable: "Loveable",
+        replit: "Replit",
+        v0: "V0",
+        other: "Other",
       };
       badges.push(
-        <span key="tool" className="inline-flex items-center px-2 py-1 bg-purple-100 text-purple-800 border border-purple-200 rounded-full text-xs font-medium">
+        <span
+          key="tool"
+          className="inline-flex items-center px-2 py-1 bg-purple-100 text-purple-800 border border-purple-200 rounded-full text-xs font-medium"
+        >
           {toolLabels[tool] || tool}
-        </span>
+        </span>,
       );
     }
 
     // Tip category badge
     if (tipCategory) {
       const categoryLabels: Record<string, string> = {
-        'prompt_tricks': 'Prompt Tricks',
-        'integrations': 'Integrations',
-        'authentication': 'Authentication',
-        'payment': 'Payment',
-        'documentation': 'Documentation',
-        'other': 'Other'
+        prompt_tricks: "Prompt Tricks",
+        integrations: "Integrations",
+        authentication: "Authentication",
+        payment: "Payment",
+        documentation: "Documentation",
+        other: "Other",
       };
       badges.push(
-        <span key="tip-category" className="inline-flex items-center px-2 py-1 bg-orange-100 text-orange-800 border border-orange-200 rounded-full text-xs font-medium">
+        <span
+          key="tip-category"
+          className="inline-flex items-center px-2 py-1 bg-orange-100 text-orange-800 border border-orange-200 rounded-full text-xs font-medium"
+        >
           {categoryLabels[tipCategory] || tipCategory}
-        </span>
+        </span>,
       );
     }
 
     return badges;
   };
 
-
   const renderComment = (comment: Comment, depth = 0) => {
     const isReplying = replyingTo === comment.id;
 
     return (
-      <div key={comment.id} className={`${depth > 0 ? 'ml-8 border-l-2 border-foreground/5 pl-4' : ''}`}>
+      <div
+        key={comment.id}
+        className={`${depth > 0 ? "ml-8 border-l-2 border-foreground/5 pl-4" : ""}`}
+      >
         <div className="bg-foreground/5 rounded-xl p-4 mb-4 border border-foreground/10 transition-all hover:bg-foreground/10">
           {/* Comment Header */}
           <div className="flex items-start justify-between mb-3">
@@ -241,9 +255,13 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
                 <User size={16} />
               </div>
               <div>
-                <span className="font-medium text-foreground">{comment.author?.name || 'Unknown User'}</span>
+                <span className="font-medium text-foreground">
+                  {comment.author?.name || "Unknown User"}
+                </span>
                 <div className="flex items-center space-x-2 text-xs text-foreground/50">
-                  <span>{format(new Date(comment.created_at), 'MMM d, h:mm a')}</span>
+                  <span>
+                    {format(new Date(comment.created_at), "MMM d, h:mm a")}
+                  </span>
                 </div>
               </div>
             </div>
@@ -252,7 +270,10 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
               onClick={() => setReplyingTo(isReplying ? null : comment.id)}
               className="flex items-center text-foreground/60 hover:text-primary text-sm transition-colors duration-200 group"
             >
-              <MessageSquare size={14} className="mr-1.5 group-hover:scale-110 transition-transform" />
+              <MessageSquare
+                size={14}
+                className="mr-1.5 group-hover:scale-110 transition-transform"
+              />
               <span>Reply</span>
             </button>
           </div>
@@ -265,11 +286,17 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
           {/* Comment Actions */}
           <div className="flex items-center space-x-4 text-sm">
             <button className="flex items-center space-x-1.5 text-foreground/60 hover:text-primary transition-colors duration-200 group">
-              <ThumbsUp size={16} className="group-hover:scale-110 transition-transform" />
+              <ThumbsUp
+                size={16}
+                className="group-hover:scale-110 transition-transform"
+              />
               <span className="text-xs font-medium">{comment.upvotes}</span>
             </button>
             <button className="flex items-center space-x-1.5 text-foreground/60 hover:text-rose-500 transition-colors duration-200 group">
-              <ThumbsDown size={16} className="group-hover:scale-110 transition-transform" />
+              <ThumbsDown
+                size={16}
+                className="group-hover:scale-110 transition-transform"
+              />
               <span className="text-xs font-medium">{comment.downvotes}</span>
             </button>
           </div>
@@ -296,7 +323,9 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
                       Cancel
                     </button>
                     <button
-                      onClick={() => handleSubmitComment(replyContent, comment.id)}
+                      onClick={() =>
+                        handleSubmitComment(replyContent, comment.id)
+                      }
                       disabled={!replyContent.trim() || submittingComment}
                       className="btn-primary"
                     >
@@ -306,7 +335,7 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
                           Posting...
                         </>
                       ) : (
-                        'Reply'
+                        "Reply"
                       )}
                     </button>
                   </div>
@@ -319,7 +348,7 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
         {/* Render Replies */}
         {comment.replies && comment.replies.length > 0 && (
           <div className="mt-2">
-            {comment.replies.map(reply => renderComment(reply, depth + 1))}
+            {comment.replies.map((reply) => renderComment(reply, depth + 1))}
           </div>
         )}
       </div>
@@ -345,7 +374,9 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
         <div className="bg-background border border-foreground/20 rounded-lg p-6 max-w-md w-full">
           <div className="text-center text-foreground">
             <h3 className="text-lg font-semibold mb-2">Error</h3>
-            <p className="text-foreground/80 mb-4">{error || 'Post not found'}</p>
+            <p className="text-foreground/80 mb-4">
+              {error || "Post not found"}
+            </p>
             <button
               onClick={onClose}
               className="px-4 py-2 bg-primary text-background rounded-lg hover:bg-primary/90 transition-colors"
@@ -363,13 +394,26 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
       <div className="bg-background border border-foreground/20 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-foreground/20">
-          <h2 className="text-xl font-semibold text-foreground">Post Details</h2>
+          <h2 className="text-xl font-semibold text-foreground">
+            Post Details
+          </h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition-colors"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
@@ -380,14 +424,16 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
             {/* Post Content */}
             <div className="mb-8">
               <div className="flex items-center text-sm text-foreground/60 mb-4">
-                <span>Posted by {post.author?.name || 'Unknown User'}</span>
+                <span>Posted by {post.author?.name || "Unknown User"}</span>
                 <span className="mx-2 opacity-40">•</span>
-                <span>{format(new Date(post.created_at), 'MMM d, yyyy')}</span>
+                <span>{format(new Date(post.created_at), "MMM d, yyyy")}</span>
                 <span className="mx-2 opacity-40">•</span>
                 <span>{post.view_count} views</span>
               </div>
 
-              <h1 className="text-2xl font-bold text-foreground mb-4">{post.title}</h1>
+              <h1 className="text-2xl font-bold text-foreground mb-4">
+                {post.title}
+              </h1>
 
               <div className="prose prose-invert max-w-none mb-6 text-foreground/90">
                 <MarkdownRenderer
@@ -400,25 +446,29 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
               <div className="flex items-center pt-4 border-t border-foreground/10">
                 <div className="flex items-center mr-6">
                   <button
-                    onClick={() => handleVote('upvote')}
-                    className={`p-1 rounded-full hover:bg-foreground/5 ${userVote === 'upvote' ? 'text-primary' : 'text-foreground/60 hover:text-primary'}`}
+                    onClick={() => handleVote("upvote")}
+                    className={`p-1 rounded-full hover:bg-foreground/5 ${userVote === "upvote" ? "text-primary" : "text-foreground/60 hover:text-primary"}`}
                   >
                     <ThumbsUp size={18} />
                   </button>
-                  <span className="mx-1 text-sm font-medium text-foreground/80">{post.upvotes}</span>
+                  <span className="mx-1 text-sm font-medium text-foreground/80">
+                    {post.upvotes}
+                  </span>
 
                   <button
-                    onClick={() => handleVote('downvote')}
-                    className={`p-1 rounded-full hover:bg-foreground/5 ${userVote === 'downvote' ? 'text-destructive' : 'text-foreground/60 hover:text-destructive'}`}
+                    onClick={() => handleVote("downvote")}
+                    className={`p-1 rounded-full hover:bg-foreground/5 ${userVote === "downvote" ? "text-destructive" : "text-foreground/60 hover:text-destructive"}`}
                   >
                     <ThumbsDown size={18} />
                   </button>
-                  <span className="mx-1 text-sm font-medium text-foreground/80">{post.downvotes}</span>
+                  <span className="mx-1 text-sm font-medium text-foreground/80">
+                    {post.downvotes}
+                  </span>
                 </div>
 
                 <button
                   onClick={handleToggleSave}
-                  className={`flex items-center text-sm ${isSaved ? 'text-primary' : 'text-foreground/60 hover:text-primary'}`}
+                  className={`flex items-center text-sm ${isSaved ? "text-primary" : "text-foreground/60 hover:text-primary"}`}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -428,7 +478,7 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
                   >
                     <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" />
                   </svg>
-                  <span>{isSaved ? 'Saved' : 'Save'}</span>
+                  <span>{isSaved ? "Saved" : "Save"}</span>
                 </button>
               </div>
             </div>
@@ -458,7 +508,7 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
                     <div className="flex justify-end mt-3 space-x-2">
                       {newComment.trim() && (
                         <button
-                          onClick={() => setNewComment('')}
+                          onClick={() => setNewComment("")}
                           disabled={submittingComment}
                           className="btn-outline"
                         >
@@ -476,7 +526,7 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
                             Posting...
                           </>
                         ) : (
-                          'Post Comment'
+                          "Post Comment"
                         )}
                       </button>
                     </div>
@@ -487,12 +537,16 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({ postId, onClose 
               {/* Comments List */}
               <div className="space-y-4">
                 {post.comments && post.comments.length > 0 ? (
-                  post.comments.map(comment => renderComment(comment))
+                  post.comments.map((comment) => renderComment(comment))
                 ) : (
                   <div className="text-center py-10 bg-foreground/5 rounded-xl border border-dashed border-foreground/10">
                     <MessageSquare className="w-12 h-12 text-foreground/20 mx-auto mb-4" />
-                    <h4 className="text-lg font-medium text-foreground mb-2">No comments yet</h4>
-                    <p className="text-foreground/50 max-w-md mx-auto">Be the first to share your thoughts on this post!</p>
+                    <h4 className="text-lg font-medium text-foreground mb-2">
+                      No comments yet
+                    </h4>
+                    <p className="text-foreground/50 max-w-md mx-auto">
+                      Be the first to share your thoughts on this post!
+                    </p>
                   </div>
                 )}
               </div>

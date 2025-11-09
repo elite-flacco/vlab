@@ -49,7 +49,15 @@ export interface GridConfig {
   gap: number;
 }
 
-export type ModuleType = 'prd' | 'tasks' | 'prompts' | 'scratchpad' | 'roadmap' | 'secrets' | 'design' | 'deployment';
+export type ModuleType =
+  | "prd"
+  | "tasks"
+  | "prompts"
+  | "scratchpad"
+  | "roadmap"
+  | "secrets"
+  | "design"
+  | "deployment";
 
 export interface PRD {
   id: string;
@@ -57,7 +65,7 @@ export interface PRD {
   title: string;
   content: string;
   version: number;
-  status: 'draft' | 'review' | 'approved';
+  status: "draft" | "review" | "approved";
   created_at: string;
   updated_at: string;
 }
@@ -67,8 +75,8 @@ export interface Task {
   project_id: string;
   title: string;
   description?: string;
-  status: 'todo' | 'in_progress' | 'done';
-  priority: 'low' | 'medium' | 'high';
+  status: "todo" | "in_progress" | "done";
+  priority: "low" | "medium" | "high";
   estimated_hours?: number;
   actual_hours?: number;
   dependencies: string[];
@@ -95,7 +103,7 @@ export interface Prompt {
 
 export interface PromptVariable {
   name: string;
-  type: 'text' | 'number' | 'boolean';
+  type: "text" | "number" | "boolean";
   default_value?: any;
   description?: string;
 }
@@ -116,8 +124,8 @@ export interface RoadmapItem {
   project_id: string;
   title: string;
   description: string;
-  status: 'planned' | 'in_progress' | 'completed' | 'cancelled';
-  phase: 'mvp' | 'phase_2' | 'backlog';
+  status: "planned" | "in_progress" | "completed" | "cancelled";
+  phase: "mvp" | "phase_2" | "backlog";
   start_date?: string;
   end_date?: string;
   progress: number;
@@ -144,11 +152,31 @@ export interface DeploymentItem {
   project_id: string;
   title: string;
   description: string;
-  category: 'general' | 'hosting' | 'database' | 'auth' | 'env' | 'security' | 'monitoring' | 'testing' | 'dns' | 'ssl' | 'performance';
-  platform: 'universal' | 'vercel' | 'netlify' | 'aws' | 'gcp' | 'azure' | 'heroku' | 'digitalocean' | 'supabase';
-  environment: 'development' | 'staging' | 'production';
-  status: 'todo' | 'in_progress' | 'done' | 'blocked' | 'not_applicable';
-  priority: 'low' | 'medium' | 'high' | 'critical';
+  category:
+    | "general"
+    | "hosting"
+    | "database"
+    | "auth"
+    | "env"
+    | "security"
+    | "monitoring"
+    | "testing"
+    | "dns"
+    | "ssl"
+    | "performance";
+  platform:
+    | "universal"
+    | "vercel"
+    | "netlify"
+    | "aws"
+    | "gcp"
+    | "azure"
+    | "heroku"
+    | "digitalocean"
+    | "supabase";
+  environment: "development" | "staging" | "production";
+  status: "todo" | "in_progress" | "done" | "blocked" | "not_applicable";
+  priority: "low" | "medium" | "high" | "critical";
   is_required: boolean;
   is_auto_generated: boolean;
   estimated_hours?: number;

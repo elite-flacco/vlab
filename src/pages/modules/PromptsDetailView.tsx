@@ -1,10 +1,21 @@
-import { Copy, Edit3, Loader2, MessageSquare, Plus, Save, Search, Star, Trash2, X } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import {
+  Copy,
+  Edit3,
+  Loader2,
+  MessageSquare,
+  Plus,
+  Save,
+  Search,
+  Star,
+  Trash2,
+  X,
+} from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 // import { toast } from 'react-toastify';
-import { ModuleContainer } from '../../components/Workspace/ModuleContainer';
-import { BackButton } from '../../components/common/BackButton';
-import { db } from '../../lib/supabase';
+import { ModuleContainer } from "../../components/Workspace/ModuleContainer";
+import { BackButton } from "../../components/common/BackButton";
+import { db } from "../../lib/supabase";
 
 interface PromptItem {
   id: string;
@@ -29,7 +40,7 @@ export const PromptsDetailView: React.FC = () => {
   const [prompts, setPrompts] = useState<PromptItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [isEditingList, setIsEditingList] = useState(false);
   const [editingPromptId, setEditingPromptId] = useState<string | null>(null);
@@ -50,7 +61,7 @@ export const PromptsDetailView: React.FC = () => {
       if (fetchError) throw fetchError;
       setPrompts(data || []);
     } catch (err: any) {
-      setError(err.message || 'Failed to fetch prompts');
+      setError(err.message || "Failed to fetch prompts");
     } finally {
       setLoading(false);
     }
@@ -60,22 +71,28 @@ export const PromptsDetailView: React.FC = () => {
     navigate(`/workspace/${projectId}`);
   };
 
-  const handleUpdatePrompt = async (promptId: string, updates: Partial<PromptItem>) => {
+  const handleUpdatePrompt = async (
+    promptId: string,
+    updates: Partial<PromptItem>,
+  ) => {
     setSaving(true);
     setError(null);
 
     try {
-      const { data, error: updateError } = await db.updatePrompt(promptId, updates);
+      const { data, error: updateError } = await db.updatePrompt(
+        promptId,
+        updates,
+      );
       if (updateError) throw updateError;
 
       // Update local state
-      const updatedPrompts = prompts.map(prompt =>
-        prompt.id === promptId ? data : prompt
+      const updatedPrompts = prompts.map((prompt) =>
+        prompt.id === promptId ? data : prompt,
       );
       setPrompts(updatedPrompts);
       setEditingPromptId(null);
     } catch (err: any) {
-      setError(err.message || 'Failed to update prompt');
+      setError(err.message || "Failed to update prompt");
     } finally {
       setSaving(false);
     }
@@ -90,13 +107,13 @@ export const PromptsDetailView: React.FC = () => {
     try {
       const newPromptData = {
         project_id: projectId,
-        name: promptData.name || 'New Prompt',
-        description: promptData.description || '',
-        content: promptData.content || '',
+        name: promptData.name || "New Prompt",
+        description: promptData.description || "",
+        content: promptData.content || "",
         variables: promptData.variables || [],
         version: 1,
         is_template: promptData.is_template || false,
-        category: promptData.category || 'general',
+        category: promptData.category || "general",
         tags: promptData.tags || [],
         usage_count: 0,
       };
@@ -105,10 +122,10 @@ export const PromptsDetailView: React.FC = () => {
       if (createError) throw createError;
 
       // Add to local state
-      setPrompts(prev => [data, ...prev]);
+      setPrompts((prev) => [data, ...prev]);
       setNewPrompt(null);
     } catch (err: any) {
-      setError(err.message || 'Failed to create prompt');
+      setError(err.message || "Failed to create prompt");
     } finally {
       setSaving(false);
     }
@@ -123,10 +140,10 @@ export const PromptsDetailView: React.FC = () => {
       if (deleteError) throw deleteError;
 
       // Remove from local state
-      setPrompts(prev => prev.filter(prompt => prompt.id !== promptId));
+      setPrompts((prev) => prev.filter((prompt) => prompt.id !== promptId));
       setEditingPromptId(null);
     } catch (err: any) {
-      setError(err.message || 'Failed to delete prompt');
+      setError(err.message || "Failed to delete prompt");
     } finally {
       setSaving(false);
     }
@@ -137,32 +154,39 @@ export const PromptsDetailView: React.FC = () => {
       await navigator.clipboard.writeText(content);
       // toast.success('Prompt copied to clipboard');
     } catch (err) {
-      console.error('Failed to copy prompt:', err);
+      console.error("Failed to copy prompt:", err);
     }
   };
 
-  const categories = Array.from(new Set(prompts.map(prompt => prompt.category)));
+  const categories = Array.from(
+    new Set(prompts.map((prompt) => prompt.category)),
+  );
 
-  const filteredPrompts = prompts.filter(prompt => {
-    const matchesSearch = prompt.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  const filteredPrompts = prompts.filter((prompt) => {
+    const matchesSearch =
+      prompt.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       prompt.content.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !selectedCategory || prompt.category === selectedCategory;
+    const matchesCategory =
+      !selectedCategory || prompt.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
-  const formatTagsInput = (tags: string[]) => tags.join(', ');
+  const formatTagsInput = (tags: string[]) => tags.join(", ");
   const parseTagsInput = (input: string) =>
-    input.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+    input
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter((tag) => tag.length > 0);
 
   const categoryOptions = [
-    'general',
-    'development',
-    'design',
-    'research',
-    'marketing',
-    'documentation',
-    'testing',
-    'planning',
+    "general",
+    "development",
+    "design",
+    "research",
+    "marketing",
+    "documentation",
+    "testing",
+    "planning",
   ];
 
   if (loading) {
@@ -207,14 +231,16 @@ export const PromptsDetailView: React.FC = () => {
                 Save useful AI prompts to help you vibe better in the future.
               </p>
               <button
-                onClick={() => setNewPrompt({
-                  name: '',
-                  description: '',
-                  category: 'general',
-                  content: '',
-                  tags: [],
-                  is_template: false,
-                })}
+                onClick={() =>
+                  setNewPrompt({
+                    name: "",
+                    description: "",
+                    category: "general",
+                    content: "",
+                    tags: [],
+                    is_template: false,
+                  })
+                }
                 className="btn-add mb-6"
               >
                 <Plus className="w-4 h-4 mr-2" />
@@ -238,10 +264,10 @@ export const PromptsDetailView: React.FC = () => {
               onClick={() => {
                 setIsEditingList(true);
                 setNewPrompt({
-                  name: '',
-                  description: '',
-                  content: '',
-                  category: 'general',
+                  name: "",
+                  description: "",
+                  content: "",
+                  category: "general",
                   tags: [],
                   is_template: false,
                 });
@@ -265,11 +291,18 @@ export const PromptsDetailView: React.FC = () => {
               <div className="space-y-3">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-medium text-foreground mb-1">Name</label>
+                    <label className="block text-xs font-medium text-foreground mb-1">
+                      Name
+                    </label>
                     <input
                       type="text"
-                      value={newPrompt.name || ''}
-                      onChange={(e) => setNewPrompt(prev => ({ ...prev, name: e.target.value }))}
+                      value={newPrompt.name || ""}
+                      onChange={(e) =>
+                        setNewPrompt((prev) => ({
+                          ...prev,
+                          name: e.target.value,
+                        }))
+                      }
                       className="form-input"
                       placeholder="Prompt name"
                       autoFocus
@@ -277,10 +310,17 @@ export const PromptsDetailView: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-foreground mb-1">Category</label>
+                    <label className="block text-xs font-medium text-foreground mb-1">
+                      Category
+                    </label>
                     <select
-                      value={newPrompt.category || 'general'}
-                      onChange={(e) => setNewPrompt(prev => ({ ...prev, category: e.target.value }))}
+                      value={newPrompt.category || "general"}
+                      onChange={(e) =>
+                        setNewPrompt((prev) => ({
+                          ...prev,
+                          category: e.target.value,
+                        }))
+                      }
                       className="form-select"
                     >
                       {categoryOptions.map((cat) => (
@@ -293,21 +333,35 @@ export const PromptsDetailView: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1">Description</label>
+                  <label className="block text-xs font-medium text-foreground mb-1">
+                    Description
+                  </label>
                   <input
                     type="text"
-                    value={newPrompt.description || ''}
-                    onChange={(e) => setNewPrompt(prev => ({ ...prev, description: e.target.value }))}
+                    value={newPrompt.description || ""}
+                    onChange={(e) =>
+                      setNewPrompt((prev) => ({
+                        ...prev,
+                        description: e.target.value,
+                      }))
+                    }
                     className="form-input"
                     placeholder="Brief description of the prompt"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1">Content</label>
+                  <label className="block text-xs font-medium text-foreground mb-1">
+                    Content
+                  </label>
                   <textarea
-                    value={newPrompt.content || ''}
-                    onChange={(e) => setNewPrompt(prev => ({ ...prev, content: e.target.value }))}
+                    value={newPrompt.content || ""}
+                    onChange={(e) =>
+                      setNewPrompt((prev) => ({
+                        ...prev,
+                        content: e.target.value,
+                      }))
+                    }
                     className="form-textarea"
                     rows={6}
                     placeholder="Enter your prompt content here..."
@@ -315,11 +369,18 @@ export const PromptsDetailView: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1">Tags (comma-separated)</label>
+                  <label className="block text-xs font-medium text-foreground mb-1">
+                    Tags (comma-separated)
+                  </label>
                   <input
                     type="text"
                     value={formatTagsInput(newPrompt.tags || [])}
-                    onChange={(e) => setNewPrompt(prev => ({ ...prev, tags: parseTagsInput(e.target.value) }))}
+                    onChange={(e) =>
+                      setNewPrompt((prev) => ({
+                        ...prev,
+                        tags: parseTagsInput(e.target.value),
+                      }))
+                    }
                     className="form-input"
                     placeholder="ai, coding, documentation"
                   />
@@ -330,7 +391,12 @@ export const PromptsDetailView: React.FC = () => {
                     <input
                       type="checkbox"
                       checked={newPrompt.is_template || false}
-                      onChange={(e) => setNewPrompt(prev => ({ ...prev, is_template: e.target.checked }))}
+                      onChange={(e) =>
+                        setNewPrompt((prev) => ({
+                          ...prev,
+                          is_template: e.target.checked,
+                        }))
+                      }
                       className="form-checkbox"
                     />
                     <span className="text-foreground">Mark as template</span>
@@ -340,7 +406,11 @@ export const PromptsDetailView: React.FC = () => {
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={() => handleCreatePrompt(newPrompt)}
-                    disabled={saving || !newPrompt.name?.trim() || !newPrompt.content?.trim()}
+                    disabled={
+                      saving ||
+                      !newPrompt.name?.trim() ||
+                      !newPrompt.content?.trim()
+                    }
                     className="btn-primary"
                   >
                     {saving ? (
@@ -385,10 +455,11 @@ export const PromptsDetailView: React.FC = () => {
                 <div className="flex items-center space-x-2 overflow-x-auto">
                   <button
                     onClick={() => setSelectedCategory(null)}
-                    className={`${!selectedCategory
-                      ? 'filter-button-active'
-                      : 'filter-button'
-                      }`}
+                    className={`${
+                      !selectedCategory
+                        ? "filter-button-active"
+                        : "filter-button"
+                    }`}
                   >
                     All
                   </button>
@@ -396,10 +467,11 @@ export const PromptsDetailView: React.FC = () => {
                     <button
                       key={category}
                       onClick={() => setSelectedCategory(category)}
-                      className={`${selectedCategory === category
-                        ? 'filter-button-active'
-                        : 'filter-button'
-                        }`}
+                      className={`${
+                        selectedCategory === category
+                          ? "filter-button-active"
+                          : "filter-button"
+                      }`}
                     >
                       {category}
                     </button>
@@ -410,24 +482,24 @@ export const PromptsDetailView: React.FC = () => {
           )}
           {/* Prompts List */}
           <div className="flex-1 overflow-y-auto space-y-3">
-
             {filteredPrompts.map((prompt) => (
-              <div
-                key={prompt.id}
-                className="card"
-              >
+              <div key={prompt.id} className="card">
                 {editingPromptId === prompt.id ? (
                   // Edit Form
                   <div className="space-y-3">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-xs font-medium text-foreground mb-1">Name</label>
+                        <label className="block text-xs font-medium text-foreground mb-1">
+                          Name
+                        </label>
                         <input
                           type="text"
                           value={prompt.name}
                           onChange={(e) => {
-                            const updatedPrompts = prompts.map(p =>
-                              p.id === prompt.id ? { ...p, name: e.target.value } : p
+                            const updatedPrompts = prompts.map((p) =>
+                              p.id === prompt.id
+                                ? { ...p, name: e.target.value }
+                                : p,
                             );
                             setPrompts(updatedPrompts);
                           }}
@@ -438,12 +510,16 @@ export const PromptsDetailView: React.FC = () => {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-medium text-foreground mb-1">Category</label>
+                        <label className="block text-xs font-medium text-foreground mb-1">
+                          Category
+                        </label>
                         <select
                           value={prompt.category}
                           onChange={(e) => {
-                            const updatedPrompts = prompts.map(p =>
-                              p.id === prompt.id ? { ...p, category: e.target.value } : p
+                            const updatedPrompts = prompts.map((p) =>
+                              p.id === prompt.id
+                                ? { ...p, category: e.target.value }
+                                : p,
                             );
                             setPrompts(updatedPrompts);
                           }}
@@ -459,13 +535,17 @@ export const PromptsDetailView: React.FC = () => {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-foreground mb-1">Description</label>
+                      <label className="block text-xs font-medium text-foreground mb-1">
+                        Description
+                      </label>
                       <input
                         type="text"
                         value={prompt.description}
                         onChange={(e) => {
-                          const updatedPrompts = prompts.map(p =>
-                            p.id === prompt.id ? { ...p, description: e.target.value } : p
+                          const updatedPrompts = prompts.map((p) =>
+                            p.id === prompt.id
+                              ? { ...p, description: e.target.value }
+                              : p,
                           );
                           setPrompts(updatedPrompts);
                         }}
@@ -475,12 +555,16 @@ export const PromptsDetailView: React.FC = () => {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-foreground mb-1">Content</label>
+                      <label className="block text-xs font-medium text-foreground mb-1">
+                        Content
+                      </label>
                       <textarea
                         value={prompt.content}
                         onChange={(e) => {
-                          const updatedPrompts = prompts.map(p =>
-                            p.id === prompt.id ? { ...p, content: e.target.value } : p
+                          const updatedPrompts = prompts.map((p) =>
+                            p.id === prompt.id
+                              ? { ...p, content: e.target.value }
+                              : p,
                           );
                           setPrompts(updatedPrompts);
                         }}
@@ -491,13 +575,17 @@ export const PromptsDetailView: React.FC = () => {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-foreground mb-1">Tags (comma-separated)</label>
+                      <label className="block text-xs font-medium text-foreground mb-1">
+                        Tags (comma-separated)
+                      </label>
                       <input
                         type="text"
                         value={formatTagsInput(prompt.tags)}
                         onChange={(e) => {
-                          const updatedPrompts = prompts.map(p =>
-                            p.id === prompt.id ? { ...p, tags: parseTagsInput(e.target.value) } : p
+                          const updatedPrompts = prompts.map((p) =>
+                            p.id === prompt.id
+                              ? { ...p, tags: parseTagsInput(e.target.value) }
+                              : p,
                           );
                           setPrompts(updatedPrompts);
                         }}
@@ -512,14 +600,18 @@ export const PromptsDetailView: React.FC = () => {
                           type="checkbox"
                           checked={prompt.is_template}
                           onChange={(e) => {
-                            const updatedPrompts = prompts.map(p =>
-                              p.id === prompt.id ? { ...p, is_template: e.target.checked } : p
+                            const updatedPrompts = prompts.map((p) =>
+                              p.id === prompt.id
+                                ? { ...p, is_template: e.target.checked }
+                                : p,
                             );
                             setPrompts(updatedPrompts);
                           }}
                           className="form-checkbox"
                         />
-                        <span className="text-foreground">Mark as template</span>
+                        <span className="text-foreground">
+                          Mark as template
+                        </span>
                       </label>
                     </div>
 
@@ -556,14 +648,18 @@ export const PromptsDetailView: React.FC = () => {
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center space-x-2">
-                        <h4 className="font-medium text-sm text-foreground truncate">{prompt.name}</h4>
+                        <h4 className="font-medium text-sm text-foreground truncate">
+                          {prompt.name}
+                        </h4>
                         {prompt.is_template && (
                           <Star className="w-3 h-3 text-yellow-500 flex-shrink-0" />
                         )}
                       </div>
 
                       {prompt.description && (
-                        <p className="text-xs text-foreground-dim mt-1 truncate">{prompt.description}</p>
+                        <p className="text-xs text-foreground-dim mt-1 truncate">
+                          {prompt.description}
+                        </p>
                       )}
 
                       <div className="mt-2 flex flex-wrap items-center gap-1.5">
@@ -572,7 +668,10 @@ export const PromptsDetailView: React.FC = () => {
                         </span>
                         {prompt.tags && prompt.tags.length > 0 && (
                           <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-foreground-dim/10 text-foreground-dim">
-                            {prompt.tags[0]}{prompt.tags.length > 1 ? ` +${prompt.tags.length - 1}` : ''}
+                            {prompt.tags[0]}
+                            {prompt.tags.length > 1
+                              ? ` +${prompt.tags.length - 1}`
+                              : ""}
                           </span>
                         )}
                       </div>
@@ -606,7 +705,6 @@ export const PromptsDetailView: React.FC = () => {
                 )}
               </div>
             ))}
-
           </div>
 
           {/* Footer */}
