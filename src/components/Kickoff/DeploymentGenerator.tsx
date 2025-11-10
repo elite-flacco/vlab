@@ -97,7 +97,7 @@ export const DeploymentGenerator: React.FC<DeploymentGeneratorProps> = ({
     } finally {
       setIsGenerating(false);
     }
-  }, [prdContent, roadmapItems]);
+  }, [prdContent, roadmapItems, projectId]);
 
   // Auto-generate deployment items when component mounts
   useEffect(() => {

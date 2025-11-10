@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../stores/authStore";
 import { ErrorMessage } from "../components/Auth/ErrorMessage";
@@ -56,7 +56,7 @@ export const Landing: React.FC<LandingProps> = ({
   );
   const featureRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  const features = [
+  const features = useMemo(() => [
     {
       code: "project.create()",
       desc: "Kickstart with AI",
@@ -121,7 +121,7 @@ export const Landing: React.FC<LandingProps> = ({
       // gifImage: '/gifs/community-demo.gif',
       alt: "Community Demo",
     },
-  ];
+  ], []);
 
   // Redirect if already authenticated (unless showForAuthenticated is true or in signup mode)
   useEffect(() => {

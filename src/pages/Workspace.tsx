@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useProjectStore } from "../stores/projectStore";
 import { useAuthStore } from "../stores/authStore";
@@ -75,7 +75,10 @@ export const Workspace: React.FC = () => {
   const maxRetries = 3;
 
   // Combine active and archived projects
-  const allProjects = [...(activeProjects || []), ...(archivedProjects || [])];
+  const allProjects = useMemo(() => 
+    [...(activeProjects || []), ...(archivedProjects || [])], 
+    [activeProjects, archivedProjects]
+  );
 
   // Fetch projects when user is available and we don't have projects yet
   useEffect(() => {

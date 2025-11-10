@@ -8,10 +8,8 @@ import {
 } from "lucide-react";
 import React, { useCallback, useEffect, useState } from "react";
 import { communityApi } from "../../lib/communityApi";
-import {
-  MarkdownRenderer,
-  useMarkdownPreprocessing,
-} from "../common/MarkdownRenderer";
+import { MarkdownRenderer } from "../common/MarkdownRenderer";
+import { useMarkdownPreprocessing } from "../common/useMarkdownPreprocessing";
 
 interface Comment {
   id: string;

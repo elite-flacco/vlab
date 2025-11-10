@@ -191,26 +191,3 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
   );
 };
 
-// Utility function to detect and convert URLs to markdown links
-export const convertUrlsToMarkdown = (text: string): string => {
-  const urlRegex = /(https?:\/\/[^\s]+)/g;
-  return text.replace(urlRegex, "[$1]($1)");
-};
-
-// Export a hook for common markdown processing
-export const useMarkdownPreprocessing = () => {
-  const processContent = React.useCallback(
-    (content: string, options?: { convertUrls?: boolean }) => {
-      let processed = content;
-
-      if (options?.convertUrls) {
-        processed = convertUrlsToMarkdown(processed);
-      }
-
-      return processed;
-    },
-    [],
-  );
-
-  return { processContent };
-};

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useProjectStore } from "../stores/projectStore";
 import {
@@ -70,7 +70,10 @@ export const KickoffFlow: React.FC = () => {
   const [stepData, setStepData] = useState<Record<string, any>>({});
 
   // Combine active and archived projects
-  const allProjects = [...(activeProjects || []), ...(archivedProjects || [])];
+  const allProjects = useMemo(() => 
+    [...(activeProjects || []), ...(archivedProjects || [])], 
+    [activeProjects, archivedProjects]
+  );
 
   useEffect(() => {
     if (projectId) {

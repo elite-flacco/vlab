@@ -13,10 +13,8 @@ import {
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { BackButton } from "../../components/common/BackButton";
-import {
-  MarkdownRenderer,
-  useMarkdownPreprocessing,
-} from "../../components/common/MarkdownRenderer";
+import { MarkdownRenderer } from "../../components/common/MarkdownRenderer";
+import { useMarkdownPreprocessing } from "../../components/common/useMarkdownPreprocessing";
 import { VersionHistory } from "../../components/PRD/VersionHistory";
 import { ModuleContainer } from "../../components/Workspace/ModuleContainer";
 import { db } from "../../lib/supabase";

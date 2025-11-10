@@ -121,8 +121,6 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
     [
       taskId,
       scratchpadNoteId,
-      maxFileSize,
-      acceptedTypes,
       onUploadComplete,
       onError,
       validateFile,
