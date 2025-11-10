@@ -435,27 +435,28 @@ export const RoadmapDetailView: React.FC = () => {
                 </select>
               </div>
 
-              {showPhaseSelector && (<div>
-                <label className="block text-xs font-medium text-foreground mb-1">
-                  Phase
-                </label>
-                <select
-                  value={item.phase}
-                  onChange={(e) => {
-                    const updatedItems = roadmapItems.map((i) =>
-                      i.id === item.id
-                        ? { ...i, phase: e.target.value as any }
-                        : i,
-                    );
-                    setRoadmapItems(updatedItems);
-                  }}
-                  className="form-select"
-                >
-                  <option value="mvp">MVP</option>
-                  <option value="phase_2">Phase 2</option>
-                  <option value="backlog">Backlog</option>
-                </select>
-              </div>
+              {showPhaseSelector && (
+                <div>
+                  <label className="block text-xs font-medium text-foreground mb-1">
+                    Phase
+                  </label>
+                  <select
+                    value={item.phase}
+                    onChange={(e) => {
+                      const updatedItems = roadmapItems.map((i) =>
+                        i.id === item.id
+                          ? { ...i, phase: e.target.value as any }
+                          : i,
+                      );
+                      setRoadmapItems(updatedItems);
+                    }}
+                    className="form-select"
+                  >
+                    <option value="mvp">MVP</option>
+                    <option value="phase_2">Phase 2</option>
+                    <option value="backlog">Backlog</option>
+                  </select>
+                </div>
               )}
               <div>
                 <label className="block text-xs font-medium text-foreground mb-1">

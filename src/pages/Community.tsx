@@ -131,7 +131,14 @@ export const Community: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, selectedTool, selectedTipCategory, sortBy, searchTerm, selectedTag]);
+  }, [
+    currentPage,
+    selectedTool,
+    selectedTipCategory,
+    sortBy,
+    searchTerm,
+    selectedTag,
+  ]);
 
   useEffect(() => {
     fetchPosts();
@@ -140,13 +147,7 @@ export const Community: React.FC = () => {
   useEffect(() => {
     // Reset to first page when filters change
     setCurrentPage(1);
-  }, [
-    searchTerm,
-    selectedTool,
-    selectedTipCategory,
-    sortBy,
-    selectedTag,
-  ]);
+  }, [searchTerm, selectedTool, selectedTipCategory, sortBy, selectedTag]);
 
   const handleSearch = () => {
     setCurrentPage(1);

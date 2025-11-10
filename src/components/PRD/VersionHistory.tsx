@@ -211,7 +211,15 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
 
     const { version_a_data, version_b_data } = comparisonData;
 
-    const VersionCard = ({ versionData, isCurrent, isLeft = true }: { versionData: any; isCurrent: any; isLeft?: boolean }) => (
+    const VersionCard = ({
+      versionData,
+      isCurrent,
+      isLeft = true,
+    }: {
+      versionData: any;
+      isCurrent: any;
+      isLeft?: boolean;
+    }) => (
       <div className="space-y-4">
         <div
           className={`bg-foreground/5 border-l-4 ${isLeft ? "border-primary/30" : "border-secondary/30"} rounded-lg p-5`}

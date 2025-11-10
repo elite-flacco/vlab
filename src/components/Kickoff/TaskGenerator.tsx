@@ -28,7 +28,6 @@ interface TaskItem {
   position: number;
 }
 
-
 interface TaskGeneratorProps {
   projectId: string;
   prdContent: string;

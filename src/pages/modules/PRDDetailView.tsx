@@ -28,7 +28,7 @@ export const PRDDetailView: React.FC = () => {
   const [selectedPRD, setSelectedPRD] = useState<any>(null); // Latest PRD from prds table
   const [allPRDVersions, setAllPRDVersions] = useState<any[]>([]); // All versions including current + historical
   const [selectedVersionData, setSelectedVersionData] = useState<any>(null); // Currently displayed version
-  const [isPreviewMode] = useState(true);  // setIsPreviewMode unused
+  const [isPreviewMode] = useState(true); // setIsPreviewMode unused
   const [isEditing, setIsEditing] = useState(false);
   const [editedPRD, setEditedPRD] = useState<any>(null);
   const [saving, setSaving] = useState(false);
@@ -46,17 +46,23 @@ export const PRDDetailView: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const { data, error: fetchError } = await db.getPRDs(id) as { data: any[] | null; error: any };
+      const { data, error: fetchError } = (await db.getPRDs(id)) as {
+        data: any[] | null;
+        error: any;
+      };
       if (fetchError) throw fetchError;
       setPrds(data || []);
       if (data && data.length > 0) {
         const latestPRD = data[0]; // Select the latest PRD by default
         setSelectedPRD(latestPRD);
-        
+
         // Fetch historical versions
         try {
           const { data: historicalVersions, error: versionsError } =
-            await db.getPRDVersions(latestPRD.id) as { data: any[] | null; error: any };
+            (await db.getPRDVersions(latestPRD.id)) as {
+              data: any[] | null;
+              error: any;
+            };
           if (versionsError) throw versionsError;
 
           // Combine current PRD with historical versions
@@ -74,11 +80,16 @@ export const PRDDetailView: React.FC = () => {
             is_current: true,
           };
 
-          const allVersions = [currentVersionData, ...(historicalVersions || [])];
+          const allVersions = [
+            currentVersionData,
+            ...(historicalVersions || []),
+          ];
           setAllPRDVersions(allVersions);
           setSelectedVersionData(currentVersionData); // Initially show current version
         } catch (err: Error | unknown) {
-          setError(err instanceof Error ? err.message : "Failed to fetch PRD versions");
+          setError(
+            err instanceof Error ? err.message : "Failed to fetch PRD versions",
+          );
         }
       }
     } catch (err: Error | unknown) {
@@ -98,7 +109,7 @@ export const PRDDetailView: React.FC = () => {
     try {
       // Fetch historical versions
       const { data: historicalVersions, error: versionsError } =
-        await db.getPRDVersions(prd.id) as { data: any[] | null; error: any };
+        (await db.getPRDVersions(prd.id)) as { data: any[] | null; error: any };
       if (versionsError) throw versionsError;
 
       // Combine current PRD with historical versions
@@ -120,7 +131,9 @@ export const PRDDetailView: React.FC = () => {
       setAllPRDVersions(allVersions);
       setSelectedVersionData(currentVersionData); // Initially show current version
     } catch (err: Error | unknown) {
-      setError(err instanceof Error ? err.message : "Failed to fetch PRD versions");
+      setError(
+        err instanceof Error ? err.message : "Failed to fetch PRD versions",
+      );
     }
   };
 
@@ -128,14 +141,16 @@ export const PRDDetailView: React.FC = () => {
     if (!selectedPRD) return;
 
     try {
-      const versionData = await db.getSpecificPRDVersion(
+      const versionData = (await db.getSpecificPRDVersion(
         selectedPRD.id,
         versionNumber,
-      ) as any;
+      )) as any;
       setSelectedVersionData(versionData);
       setIsEditing(false); // Exit edit mode when switching versions
     } catch (err: Error | unknown) {
-      setError(err instanceof Error ? err.message : "Failed to load version data");
+      setError(
+        err instanceof Error ? err.message : "Failed to load version data",
+      );
     }
   };
 
@@ -146,12 +161,12 @@ export const PRDDetailView: React.FC = () => {
     setError(null);
 
     try {
-      const { data, error: updateError } = await db.updatePRD(selectedPRD.id, {
+      const { data, error: updateError } = (await db.updatePRD(selectedPRD.id, {
         title: editedPRD.title,
         content: editedPRD.content,
         status: editedPRD.status,
         change_description: editedPRD.change_description,
-      }) as { data: any; error: any };
+      })) as { data: any; error: any };
 
       if (updateError) throw updateError;
 
@@ -188,11 +203,11 @@ export const PRDDetailView: React.FC = () => {
     setError(null);
 
     try {
-      const { data, error: restoreError } = await db.restorePRDVersion(
+      const { data, error: restoreError } = (await db.restorePRDVersion(
         selectedPRD.id,
         versionNumber,
         changeDescription,
-      ) as { data: any; error: any };
+      )) as { data: any; error: any };
 
       if (restoreError) throw restoreError;
 
@@ -207,7 +222,9 @@ export const PRDDetailView: React.FC = () => {
       await fetchAllVersionsForPRD(data);
       setShowVersionHistory(false);
     } catch (err: Error | unknown) {
-      setError(err instanceof Error ? err.message : "Failed to restore version");
+      setError(
+        err instanceof Error ? err.message : "Failed to restore version",
+      );
     } finally {
       setSaving(false);
     }

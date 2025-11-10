@@ -75,9 +75,9 @@ export const Workspace: React.FC = () => {
   const maxRetries = 3;
 
   // Combine active and archived projects
-  const allProjects = useMemo(() => 
-    [...(activeProjects || []), ...(archivedProjects || [])], 
-    [activeProjects, archivedProjects]
+  const allProjects = useMemo(
+    () => [...(activeProjects || []), ...(archivedProjects || [])],
+    [activeProjects, archivedProjects],
   );
 
   // Fetch projects when user is available and we don't have projects yet
@@ -178,10 +178,16 @@ export const Workspace: React.FC = () => {
         const prds = prdsResult as { data: any[] | null; error: any };
         const roadmap = roadmapResult as { data: any[] | null; error: any };
         const tasks = tasksResult as { data: any[] | null; error: any };
-        const scratchpad = scratchpadResult as { data: any[] | null; error: any };
+        const scratchpad = scratchpadResult as {
+          data: any[] | null;
+          error: any;
+        };
         const prompts = promptsResult as { data: any[] | null; error: any };
         const secrets = secretsResult as { data: any[] | null; error: any };
-        const deployment = deploymentResult as { data: any[] | null; error: any };
+        const deployment = deploymentResult as {
+          data: any[] | null;
+          error: any;
+        };
 
         // Check for errors
         if (prds.error) {
@@ -354,7 +360,6 @@ export const Workspace: React.FC = () => {
   //     return;
   //   }
   // };
-
 
   const handleDeleteProject = async () => {
     if (!currentProject || isDeleting) {

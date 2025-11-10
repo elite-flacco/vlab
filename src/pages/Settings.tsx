@@ -64,7 +64,10 @@ export const Settings: React.FC = () => {
     if (!user) return;
 
     try {
-      const result = await db.getProfile(user.id) as { data: any; error: any };
+      const result = (await db.getProfile(user.id)) as {
+        data: any;
+        error: any;
+      };
       if (result.error) throw result.error;
 
       if (result.data) {
@@ -97,7 +100,9 @@ export const Settings: React.FC = () => {
     setProfileSuccess(false);
 
     try {
-      const result = await db.updateProfile(user.id, profileData) as { error: any };
+      const result = (await db.updateProfile(user.id, profileData)) as {
+        error: any;
+      };
       if (result.error) throw result.error;
 
       setProfileSuccess(true);

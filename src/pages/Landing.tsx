@@ -56,72 +56,75 @@ export const Landing: React.FC<LandingProps> = ({
   );
   const featureRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  const features = useMemo(() => [
-    {
-      code: "project.create()",
-      desc: "Kickstart with AI",
-      info: "Brainstorm with AI to spark ideas and set a strong foundation for your next build.",
-      staticImage: "/screenshots/ideate-static.png",
-      gifImage: "/gifs/ideate-demo.gif",
-      alt: "Ideation Demo",
-    },
-    {
-      code: "prd.generate()",
-      desc: "From ideas to PRD in seconds",
-      info: "Turn your messy thoughts into a clean, structured Product Requirements Document — powered by AI and ready to guide your build.",
-      staticImage: "/screenshots/prd-static.png",
-      gifImage: "/gifs/prd-demo.gif",
-      alt: "PRD Generation Demo",
-    },
-    {
-      code: "roadmap.plan()",
-      desc: "Plan smart, move fast",
-      info: "Instantly generate multi-phase roadmaps from your PRD. Stay focused, see the big picture, and build in clear steps.",
-      staticImage: "/screenshots/roadmap-static.png",
-      gifImage: "/gifs/roadmap-demo.gif",
-      alt: "Roadmap Planning Demo",
-    },
-    {
-      code: "tasks.automate()",
-      desc: "Auto-task your roadmap",
-      info: "Convert each roadmap phase into clear, actionable tasks — complete with priorities, tags, and no mental load.",
-      staticImage: "/screenshots/tasks-static.png",
-      gifImage: "/gifs/tasks-demo.gif",
-      alt: "Task Automation Demo",
-    },
-    {
-      code: "workspace.sync()",
-      desc: "One workspace to rule it all",
-      info: "All your tools — PRDs, roadmaps, tasks, notes, and designs — synced in a single, streamlined dashboard.",
-      staticImage: "/screenshots/workspace-static.png",
-      gifImage: "/gifs/workspace-demo.gif",
-      alt: "Unified Workspace Demo",
-    },
-    {
-      code: "scratchpad.ideate()",
-      desc: "Jot now, code later",
-      info: "Drop your ideas, thoughts, or random sparks in a clean space. Turn them into tasks anytime with text-to-task conversion.",
-      staticImage: "/screenshots/scratchpad-static.png",
-      gifImage: "/gifs/scratchpad-demo.gif",
-      alt: "Scratchpad Demo",
-    },
-    {
-      code: "design.copilot()",
-      desc: "Design with an AI partner",
-      info: "Upload a screenshot, get instant UX feedback, and generate design tasks — your AI co-designer’s got your back.",
-      staticImage: "/screenshots/design-static.png",
-      gifImage: "/gifs/design-demo.gif",
-      alt: "Design Assistant Demo",
-    },
-    {
-      code: "community.join()",
-      desc: "Build with your people",
-      info: "Swap tips, workflows, and lessons learned with other builders mastering the vibe coding way. Learn faster, ship smarter.",
-      staticImage: "/screenshots/community-static.png",
-      // gifImage: '/gifs/community-demo.gif',
-      alt: "Community Demo",
-    },
-  ], []);
+  const features = useMemo(
+    () => [
+      {
+        code: "project.create()",
+        desc: "Kickstart with AI",
+        info: "Brainstorm with AI to spark ideas and set a strong foundation for your next build.",
+        staticImage: "/screenshots/ideate-static.png",
+        gifImage: "/gifs/ideate-demo.gif",
+        alt: "Ideation Demo",
+      },
+      {
+        code: "prd.generate()",
+        desc: "From ideas to PRD in seconds",
+        info: "Turn your messy thoughts into a clean, structured Product Requirements Document — powered by AI and ready to guide your build.",
+        staticImage: "/screenshots/prd-static.png",
+        gifImage: "/gifs/prd-demo.gif",
+        alt: "PRD Generation Demo",
+      },
+      {
+        code: "roadmap.plan()",
+        desc: "Plan smart, move fast",
+        info: "Instantly generate multi-phase roadmaps from your PRD. Stay focused, see the big picture, and build in clear steps.",
+        staticImage: "/screenshots/roadmap-static.png",
+        gifImage: "/gifs/roadmap-demo.gif",
+        alt: "Roadmap Planning Demo",
+      },
+      {
+        code: "tasks.automate()",
+        desc: "Auto-task your roadmap",
+        info: "Convert each roadmap phase into clear, actionable tasks — complete with priorities, tags, and no mental load.",
+        staticImage: "/screenshots/tasks-static.png",
+        gifImage: "/gifs/tasks-demo.gif",
+        alt: "Task Automation Demo",
+      },
+      {
+        code: "workspace.sync()",
+        desc: "One workspace to rule it all",
+        info: "All your tools — PRDs, roadmaps, tasks, notes, and designs — synced in a single, streamlined dashboard.",
+        staticImage: "/screenshots/workspace-static.png",
+        gifImage: "/gifs/workspace-demo.gif",
+        alt: "Unified Workspace Demo",
+      },
+      {
+        code: "scratchpad.ideate()",
+        desc: "Jot now, code later",
+        info: "Drop your ideas, thoughts, or random sparks in a clean space. Turn them into tasks anytime with text-to-task conversion.",
+        staticImage: "/screenshots/scratchpad-static.png",
+        gifImage: "/gifs/scratchpad-demo.gif",
+        alt: "Scratchpad Demo",
+      },
+      {
+        code: "design.copilot()",
+        desc: "Design with an AI partner",
+        info: "Upload a screenshot, get instant UX feedback, and generate design tasks — your AI co-designer’s got your back.",
+        staticImage: "/screenshots/design-static.png",
+        gifImage: "/gifs/design-demo.gif",
+        alt: "Design Assistant Demo",
+      },
+      {
+        code: "community.join()",
+        desc: "Build with your people",
+        info: "Swap tips, workflows, and lessons learned with other builders mastering the vibe coding way. Learn faster, ship smarter.",
+        staticImage: "/screenshots/community-static.png",
+        // gifImage: '/gifs/community-demo.gif',
+        alt: "Community Demo",
+      },
+    ],
+    [],
+  );
 
   // Redirect if already authenticated (unless showForAuthenticated is true or in signup mode)
   useEffect(() => {

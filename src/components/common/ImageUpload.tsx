@@ -118,13 +118,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
         setUploading(false);
       }
     },
-    [
-      taskId,
-      scratchpadNoteId,
-      onUploadComplete,
-      onError,
-      validateFile,
-    ],
+    [taskId, scratchpadNoteId, onUploadComplete, onError, validateFile],
   );
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {

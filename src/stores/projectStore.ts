@@ -134,7 +134,10 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
         user_id: userId,
         workspace_layout: defaultWorkspaceLayout,
       };
-      const result = await db.createProject(projectData) as { data: any; error: any };
+      const result = (await db.createProject(projectData)) as {
+        data: any;
+        error: any;
+      };
       if (result.error) throw result.error;
 
       const { activeProjects } = get();
@@ -158,7 +161,10 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   updateProject: async (id: string, updates: Partial<Project>) => {
     set({ loading: true, error: null });
     try {
-      const result = await db.updateProject(id, updates) as { data: any; error: any };
+      const result = (await db.updateProject(id, updates)) as {
+        data: any;
+        error: any;
+      };
       if (result.error) throw result.error;
 
       const { activeProjects, archivedProjects, currentProject } = get();
@@ -172,7 +178,8 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       set({
         activeProjects: updatedActiveProjects,
         archivedProjects: updatedArchivedProjects,
-        currentProject: currentProject?.id === id ? result.data : currentProject,
+        currentProject:
+          currentProject?.id === id ? result.data : currentProject,
         loading: false,
       });
     } catch (error: Error | unknown) {
@@ -186,7 +193,7 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   archiveProject: async (id: string) => {
     set({ loading: true, error: null });
     try {
-      const result = await db.archiveProject(id) as { error: any };
+      const result = (await db.archiveProject(id)) as { error: any };
       if (result.error) throw result.error;
 
       const { activeProjects, archivedProjects, currentProject } = get();
@@ -212,7 +219,7 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   restoreProject: async (id: string) => {
     set({ loading: true, error: null });
     try {
-      const result = await db.restoreProject(id) as { error: any };
+      const result = (await db.restoreProject(id)) as { error: any };
       if (result.error) throw result.error;
 
       const { activeProjects, archivedProjects } = get();
@@ -237,7 +244,7 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   deleteProjectPermanently: async (id: string) => {
     set({ loading: true, error: null });
     try {
-      const result = await db.deleteProjectPermanently(id) as { error: any };
+      const result = (await db.deleteProjectPermanently(id)) as { error: any };
       if (result.error) throw result.error;
 
       const { activeProjects, archivedProjects, currentProject } = get();

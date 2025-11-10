@@ -373,7 +373,8 @@ export const ScratchpadDetailView: React.FC = () => {
     } catch (err: Error | unknown) {
       setAttachmentErrors((prev) => ({
         ...prev,
-        [noteId]: err instanceof Error ? err.message : "Failed to upload attachment",
+        [noteId]:
+          err instanceof Error ? err.message : "Failed to upload attachment",
       }));
     }
   };
@@ -402,7 +403,8 @@ export const ScratchpadDetailView: React.FC = () => {
     } catch (err: Error | unknown) {
       setAttachmentErrors((prev) => ({
         ...prev,
-        [noteId]: err instanceof Error ? err.message : "Failed to delete attachment",
+        [noteId]:
+          err instanceof Error ? err.message : "Failed to delete attachment",
       }));
     }
   };
@@ -432,7 +434,8 @@ export const ScratchpadDetailView: React.FC = () => {
     } catch (err: Error | unknown) {
       setAttachmentErrors((prev) => ({
         ...prev,
-        [noteId]: err instanceof Error ? err.message : "Failed to update attachment",
+        [noteId]:
+          err instanceof Error ? err.message : "Failed to update attachment",
       }));
     }
   };

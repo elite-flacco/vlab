@@ -275,7 +275,8 @@ export const TasksDetailView: React.FC = () => {
     } catch (err: Error | unknown) {
       setAttachmentErrors((prev) => ({
         ...prev,
-        [taskId]: err instanceof Error ? err.message : "Failed to upload attachment",
+        [taskId]:
+          err instanceof Error ? err.message : "Failed to upload attachment",
       }));
     }
   };
@@ -304,7 +305,8 @@ export const TasksDetailView: React.FC = () => {
     } catch (err: Error | unknown) {
       setAttachmentErrors((prev) => ({
         ...prev,
-        [taskId]: err instanceof Error ? err.message : "Failed to delete attachment",
+        [taskId]:
+          err instanceof Error ? err.message : "Failed to delete attachment",
       }));
     }
   };
@@ -334,7 +336,8 @@ export const TasksDetailView: React.FC = () => {
     } catch (err: Error | unknown) {
       setAttachmentErrors((prev) => ({
         ...prev,
-        [taskId]: err instanceof Error ? err.message : "Failed to update attachment",
+        [taskId]:
+          err instanceof Error ? err.message : "Failed to update attachment",
       }));
     }
   };

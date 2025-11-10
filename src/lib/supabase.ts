@@ -275,7 +275,8 @@ export const db = {
   },
 
   deleteProjectPermanently: async (id: string) => {
-    const operation = async () => supabase.from("projects").delete().eq("id", id);
+    const operation = async () =>
+      supabase.from("projects").delete().eq("id", id);
 
     return withTimeout(
       withTiming("DB DeleteProject", operation),
@@ -609,7 +610,8 @@ export const db = {
   },
 
   deletePrompt: async (id: string) => {
-    const operation = async () => supabase.from("prompts").delete().eq("id", id);
+    const operation = async () =>
+      supabase.from("prompts").delete().eq("id", id);
 
     return withTimeout(
       withTiming("DB DeletePrompt", operation),
@@ -719,7 +721,8 @@ export const db = {
   },
 
   deleteGlobalNote: async (id: string) => {
-    const operation = async () => supabase.from("global_notes").delete().eq("id", id);
+    const operation = async () =>
+      supabase.from("global_notes").delete().eq("id", id);
 
     return withTimeout(
       withTiming("DB DeleteGlobalNote", operation),
@@ -895,7 +898,8 @@ export const db = {
   },
 
   createModuleData: async (table: string, data: Record<string, unknown>) => {
-    const operation = async () => supabase.from(table).insert(data).select().single();
+    const operation = async () =>
+      supabase.from(table).insert(data).select().single();
 
     return withTimeout(
       withTiming(`DB CreateModuleData(${table})`, operation),
@@ -1307,7 +1311,8 @@ export const db = {
     }
 
     // Then delete from database
-    const operation = async () => supabase.from("attachments").delete().eq("id", id);
+    const operation = async () =>
+      supabase.from("attachments").delete().eq("id", id);
 
     return withTimeout(
       withTiming("DB DeleteAttachment", operation),

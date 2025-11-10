@@ -70,9 +70,9 @@ export const KickoffFlow: React.FC = () => {
   const [stepData, setStepData] = useState<Record<string, any>>({});
 
   // Combine active and archived projects
-  const allProjects = useMemo(() => 
-    [...(activeProjects || []), ...(archivedProjects || [])], 
-    [activeProjects, archivedProjects]
+  const allProjects = useMemo(
+    () => [...(activeProjects || []), ...(archivedProjects || [])],
+    [activeProjects, archivedProjects],
   );
 
   useEffect(() => {

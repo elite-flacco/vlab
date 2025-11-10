@@ -46,7 +46,6 @@ interface DeploymentItem {
   position: number;
 }
 
-
 interface DeploymentGeneratorProps {
   projectId: string;
   prdContent: string;

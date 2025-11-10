@@ -5,7 +5,6 @@ interface ChatMessage {
   content: string;
 }
 
-
 interface TaskItem {
   title: string;
   description: string;
