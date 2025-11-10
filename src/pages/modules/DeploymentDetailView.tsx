@@ -1,9 +1,7 @@
-import { format } from "date-fns";
 import {
   ArrowDown,
   ArrowUp,
   CheckSquare,
-  ChevronDown,
   Cloud,
   Edit3,
   ExternalLink,
@@ -98,8 +96,10 @@ export const DeploymentDetailView: React.FC = () => {
       const { data, error: fetchError } = await db.getDeploymentItems(id);
       if (fetchError) throw fetchError;
       setDeploymentItems(data || []);
-    } catch (err: any) {
-      setError(err.message || "Failed to fetch deployment items");
+    } catch (err: Error | unknown) {
+      setError(
+        err instanceof Error ? err.message : "Failed to fetch deployment items",
+      );
     } finally {
       setLoading(false);
     }
@@ -128,8 +128,10 @@ export const DeploymentDetailView: React.FC = () => {
       );
       setDeploymentItems(updatedItems);
       setEditingItemId(null);
-    } catch (err: any) {
-      setError(err.message || "Failed to update deployment item");
+    } catch (err: Error | unknown) {
+      setError(
+        err instanceof Error ? err.message : "Failed to update deployment item",
+      );
     } finally {
       setSaving(false);
     }
@@ -166,8 +168,10 @@ export const DeploymentDetailView: React.FC = () => {
 
       setDeploymentItems((prev) => [...prev, data]);
       setNewItem(null);
-    } catch (err: any) {
-      setError(err.message || "Failed to create deployment item");
+    } catch (err: Error | unknown) {
+      setError(
+        err instanceof Error ? err.message : "Failed to create deployment item",
+      );
     } finally {
       setSaving(false);
     }
@@ -183,8 +187,10 @@ export const DeploymentDetailView: React.FC = () => {
 
       setDeploymentItems((prev) => prev.filter((item) => item.id !== itemId));
       setEditingItemId(null);
-    } catch (err: any) {
-      setError(err.message || "Failed to delete deployment item");
+    } catch (err: Error | unknown) {
+      setError(
+        err instanceof Error ? err.message : "Failed to delete deployment item",
+      );
     } finally {
       setSaving(false);
     }
@@ -344,22 +350,22 @@ export const DeploymentDetailView: React.FC = () => {
     }
   };
 
-  const getStatusDisplayName = (status: string) => {
-    switch (status) {
-      case "todo":
-        return "To Do";
-      case "in_progress":
-        return "In Progress";
-      case "done":
-        return "Done";
-      case "blocked":
-        return "Blocked";
-      case "not_applicable":
-        return "N/A";
-      default:
-        return status;
-    }
-  };
+  // const getStatusDisplayName = (status: string) => {
+  //   switch (status) {
+  //     case "todo":
+  //       return "To Do";
+  //     case "in_progress":
+  //       return "In Progress";
+  //     case "done":
+  //       return "Done";
+  //     case "blocked":
+  //       return "Blocked";
+  //     case "not_applicable":
+  //       return "N/A";
+  //     default:
+  //       return status;
+  //   }
+  // };
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
@@ -405,7 +411,7 @@ export const DeploymentDetailView: React.FC = () => {
       // 1. Add platform-specific template tasks
       selectedPlatforms.forEach((platform) => {
         const platformTasks = PLATFORM_TEMPLATES[platform] || [];
-        platformTasks.forEach((template, index) => {
+        platformTasks.forEach((template) => {
           tasksToCreate.push({
             ...template,
             project_id: projectId,
@@ -417,7 +423,7 @@ export const DeploymentDetailView: React.FC = () => {
 
       // 2. Add universal category tasks (always include these)
       Object.values(CATEGORY_TEMPLATES).forEach((categoryTasks) => {
-        categoryTasks.forEach((template, index) => {
+        categoryTasks.forEach((template) => {
           tasksToCreate.push({
             ...template,
             platform: "universal", // Universal tasks apply to any platform
@@ -475,7 +481,7 @@ export const DeploymentDetailView: React.FC = () => {
             await db.createDeploymentItem(taskData);
           if (createError) throw createError;
           createdTasks.push(data);
-        } catch (err: any) {
+        } catch (err: Error | unknown) {
           console.error("Failed to create deployment item:", err);
           failedTasks.push(taskData.title || "Unknown task");
           // Continue creating other tasks even if one fails
@@ -958,7 +964,9 @@ export const DeploymentDetailView: React.FC = () => {
                 </div>
                 <select
                   value={filter}
-                  onChange={(e) => updateFilter(e.target.value as any)}
+                  onChange={(e) =>
+                    updateFilter(e.target.value as typeof filter)
+                  }
                   className="form-select flex-shrink-0"
                 >
                   <option value="all">All Status</option>
@@ -970,7 +978,11 @@ export const DeploymentDetailView: React.FC = () => {
                 </select>
                 <select
                   value={priorityFilter}
-                  onChange={(e) => updatePriorityFilter(e.target.value as any)}
+                  onChange={(e) =>
+                    updatePriorityFilter(
+                      e.target.value as typeof priorityFilter,
+                    )
+                  }
                   className="form-select flex-shrink-0"
                 >
                   <option value="all">All Priorities</option>

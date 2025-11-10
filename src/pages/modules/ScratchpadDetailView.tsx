@@ -16,16 +16,14 @@ import {
   Tag,
   Trash2,
   X,
-  Image as ImageIcon,
+  // Image as ImageIcon,
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ModuleContainer } from "../../components/Workspace/ModuleContainer";
 import { BackButton } from "../../components/common/BackButton";
-import {
-  MarkdownRenderer,
-  useMarkdownPreprocessing,
-} from "../../components/common/MarkdownRenderer";
+import { MarkdownRenderer } from "../../components/common/MarkdownRenderer";
+import { useMarkdownPreprocessing } from "../../components/common/useMarkdownPreprocessing";
 import {
   ImageUpload,
   AttachmentView,
@@ -85,7 +83,7 @@ const TAG_OPTIONS = [
 ];
 
 // Use consistent tag styling across all modules
-const getTagClass = () => "badge-tag";
+// const getTagClass = () => "badge-tag";
 
 export const ScratchpadDetailView: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
@@ -156,8 +154,8 @@ export const ScratchpadDetailView: React.FC = () => {
       );
 
       setNotes(notesWithAttachments);
-    } catch (err: any) {
-      setError(err.message || "Failed to fetch notes");
+    } catch (err: Error | unknown) {
+      setError(err instanceof Error ? err.message : "Failed to fetch notes");
     } finally {
       setLoading(false);
     }
@@ -189,8 +187,8 @@ export const ScratchpadDetailView: React.FC = () => {
       );
       setNotes(updatedNotes);
       setEditingNoteId(null);
-    } catch (err: any) {
-      setError(err.message || "Failed to update note");
+    } catch (err: Error | unknown) {
+      setError(err instanceof Error ? err.message : "Failed to update note");
     } finally {
       setSaving(false);
     }
@@ -230,8 +228,8 @@ export const ScratchpadDetailView: React.FC = () => {
       // Add to local state
       setNotes((prev) => (response.data ? [response.data, ...prev] : prev));
       setNewNote(null);
-    } catch (err: any) {
-      setError(err.message || "Failed to create note");
+    } catch (err: Error | unknown) {
+      setError(err instanceof Error ? err.message : "Failed to create note");
     } finally {
       setSaving(false);
     }
@@ -250,8 +248,8 @@ export const ScratchpadDetailView: React.FC = () => {
       // Remove from local state
       setNotes((prev) => prev.filter((note) => note.id !== noteId));
       setEditingNoteId(null);
-    } catch (err: any) {
-      setError(err.message || "Failed to delete note");
+    } catch (err: Error | unknown) {
+      setError(err instanceof Error ? err.message : "Failed to delete note");
     } finally {
       setSaving(false);
     }
@@ -372,10 +370,11 @@ export const ScratchpadDetailView: React.FC = () => {
 
       // Clear any previous error
       setAttachmentErrors((prev) => ({ ...prev, [noteId]: "" }));
-    } catch (err: any) {
+    } catch (err: Error | unknown) {
       setAttachmentErrors((prev) => ({
         ...prev,
-        [noteId]: err.message || "Failed to upload attachment",
+        [noteId]:
+          err instanceof Error ? err.message : "Failed to upload attachment",
       }));
     }
   };
@@ -401,10 +400,11 @@ export const ScratchpadDetailView: React.FC = () => {
             : note,
         ),
       );
-    } catch (err: any) {
+    } catch (err: Error | unknown) {
       setAttachmentErrors((prev) => ({
         ...prev,
-        [noteId]: err.message || "Failed to delete attachment",
+        [noteId]:
+          err instanceof Error ? err.message : "Failed to delete attachment",
       }));
     }
   };
@@ -415,7 +415,7 @@ export const ScratchpadDetailView: React.FC = () => {
     updates: any,
   ) => {
     try {
-      const { data, error } = await db.updateAttachment(attachmentId, updates);
+      const { error } = await db.updateAttachment(attachmentId, updates);
       if (error) throw error;
 
       // Update local state
@@ -431,10 +431,11 @@ export const ScratchpadDetailView: React.FC = () => {
             : note,
         ),
       );
-    } catch (err: any) {
+    } catch (err: Error | unknown) {
       setAttachmentErrors((prev) => ({
         ...prev,
-        [noteId]: err.message || "Failed to update attachment",
+        [noteId]:
+          err instanceof Error ? err.message : "Failed to update attachment",
       }));
     }
   };

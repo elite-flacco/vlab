@@ -1,4 +1,4 @@
-import { Loader2, MessageCircle, Save, Send, Sparkles } from "lucide-react";
+import { Loader2, Save, Send, Sparkles } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { generateIdeaResponse, generateIdeaSummary } from "../../lib/openai";
 import { db } from "../../lib/supabase";

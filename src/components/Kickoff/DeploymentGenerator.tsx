@@ -6,12 +6,12 @@ import {
   RefreshCw,
   Save,
   Sparkles,
-  Tag,
   Trash2,
 } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { generateDeploymentChecklist } from "../../lib/openai";
 import { db } from "../../lib/supabase";
+import type { RoadmapItem } from "../../types";
 
 interface DeploymentItem {
   title: string;
@@ -46,17 +46,6 @@ interface DeploymentItem {
   position: number;
 }
 
-interface RoadmapItem {
-  title: string;
-  description: string;
-  status: "planned" | "in_progress" | "completed";
-  start_date?: string;
-  end_date?: string;
-  milestone: boolean;
-  color: string;
-  position: number;
-}
-
 interface DeploymentGeneratorProps {
   projectId: string;
   prdContent: string;
@@ -81,22 +70,17 @@ export const DeploymentGenerator: React.FC<DeploymentGeneratorProps> = ({
   const [hasGenerated, setHasGenerated] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
-  // Auto-generate deployment items when component mounts
-  useEffect(() => {
-    if (prdContent && roadmapItems.length > 0 && !hasGenerated) {
-      handleGenerateDeploymentItems();
-    }
-  }, [prdContent, roadmapItems, hasGenerated]);
-
-  const handleGenerateDeploymentItems = async () => {
+  const handleGenerateDeploymentItems = useCallback(async () => {
     setIsGenerating(true);
     setError(null);
 
     try {
-      const generatedItems = await generateDeploymentChecklist(
+      const generatedItems = await generateDeploymentChecklist({
+        platforms: ["general"], // default platforms
+        projectId,
         prdContent,
         roadmapItems,
-      );
+      });
       setDeploymentItems(generatedItems);
       setHasGenerated(true);
     } catch (error) {
@@ -112,7 +96,14 @@ export const DeploymentGenerator: React.FC<DeploymentGeneratorProps> = ({
     } finally {
       setIsGenerating(false);
     }
-  };
+  }, [prdContent, roadmapItems, projectId]);
+
+  // Auto-generate deployment items when component mounts
+  useEffect(() => {
+    if (prdContent && roadmapItems.length > 0 && !hasGenerated) {
+      handleGenerateDeploymentItems();
+    }
+  }, [prdContent, roadmapItems, hasGenerated, handleGenerateDeploymentItems]);
 
   const handleSaveDeploymentItems = async () => {
     if (deploymentItems.length === 0) return;

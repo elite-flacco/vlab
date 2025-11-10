@@ -48,21 +48,6 @@ export const GitHubRepositorySelector: React.FC<
   const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
 
-  useEffect(() => {
-    setHasInitiallyLoaded(false);
-    setCheckingAuth(true);
-    fetchRepositories(true);
-    checkGitHubAuth();
-  }, [projectId]);
-
-  useEffect(() => {
-    // Clear selections when auth status changes
-    if (!hasGitHubAuth) {
-      setRepositories([]);
-      onRepositorySelect(null);
-    }
-  }, [hasGitHubAuth, onRepositorySelect]);
-
   const checkGitHubAuth = async () => {
     setCheckingAuth(true);
     try {
@@ -101,7 +86,7 @@ export const GitHubRepositorySelector: React.FC<
       if (!selectedRepositoryId && data && data.length > 0) {
         onRepositorySelect(data[0]);
       }
-    } catch (err: any) {
+    } catch (err: Error | unknown) {
       console.error("Error fetching repositories:", err);
       setError("Failed to load GitHub repositories");
     } finally {
@@ -109,6 +94,22 @@ export const GitHubRepositorySelector: React.FC<
       setHasInitiallyLoaded(true);
     }
   };
+
+  useEffect(() => {
+    setHasInitiallyLoaded(false);
+    setCheckingAuth(true);
+    fetchRepositories(true);
+    checkGitHubAuth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectId]);
+
+  useEffect(() => {
+    // Clear selections when auth status changes
+    if (!hasGitHubAuth) {
+      setRepositories([]);
+      onRepositorySelect(null);
+    }
+  }, [hasGitHubAuth, onRepositorySelect]);
 
   const fetchAvailableRepositories = async () => {
     if (!hasGitHubAuth) return;
@@ -142,7 +143,7 @@ export const GitHubRepositorySelector: React.FC<
       );
 
       setAvailableRepos(availableRepos);
-    } catch (err: any) {
+    } catch (err: Error | unknown) {
       console.error("Error fetching available repositories:", err);
       setError("Failed to load available repositories from GitHub");
     } finally {
@@ -181,9 +182,9 @@ export const GitHubRepositorySelector: React.FC<
 
       // Close the add dialog
       setShowAddRepo(false);
-    } catch (err: any) {
+    } catch (err: Error | unknown) {
       console.error("Error adding repository:", err);
-      setError(err.message || "Failed to add repository");
+      setError(err instanceof Error ? err.message : "Failed to add repository");
     }
   };
 

@@ -3,7 +3,6 @@ import {
   ArrowDown,
   ArrowUp,
   CheckSquare,
-  ChevronDown,
   Edit3,
   ExternalLink,
   Github,
@@ -16,15 +15,12 @@ import {
   Tag,
   Trash2,
   X,
-  Image as ImageIcon,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { BackButton } from "../../components/common/BackButton";
-import {
-  MarkdownRenderer,
-  useMarkdownPreprocessing,
-} from "../../components/common/MarkdownRenderer";
+import { MarkdownRenderer } from "../../components/common/MarkdownRenderer";
+import { useMarkdownPreprocessing } from "../../components/common/useMarkdownPreprocessing";
 import {
   ImageUpload,
   AttachmentView,
@@ -150,8 +146,8 @@ export const TasksDetailView: React.FC = () => {
       );
 
       setTasks(tasksWithExtendedData);
-    } catch (err: any) {
-      setError(err.message || "Failed to fetch tasks");
+    } catch (err: Error | unknown) {
+      setError(err instanceof Error ? err.message : "Failed to fetch tasks");
     } finally {
       setLoading(false);
     }
@@ -184,8 +180,8 @@ export const TasksDetailView: React.FC = () => {
       );
       setTasks(updatedTasks);
       setEditingTaskId(null);
-    } catch (err: any) {
-      setError(err.message || "Failed to update task");
+    } catch (err: Error | unknown) {
+      setError(err instanceof Error ? err.message : "Failed to update task");
     } finally {
       setSaving(false);
     }
@@ -216,8 +212,8 @@ export const TasksDetailView: React.FC = () => {
       // Add to local state
       setTasks((prev) => [...prev, data]);
       setNewTask(null);
-    } catch (err: any) {
-      setError(err.message || "Failed to create task");
+    } catch (err: Error | unknown) {
+      setError(err instanceof Error ? err.message : "Failed to create task");
     } finally {
       setSaving(false);
     }
@@ -234,8 +230,8 @@ export const TasksDetailView: React.FC = () => {
       // Remove from local state
       setTasks((prev) => prev.filter((task) => task.id !== taskId));
       setEditingTaskId(null);
-    } catch (err: any) {
-      setError(err.message || "Failed to delete task");
+    } catch (err: Error | unknown) {
+      setError(err instanceof Error ? err.message : "Failed to delete task");
     } finally {
       setSaving(false);
     }
@@ -276,10 +272,11 @@ export const TasksDetailView: React.FC = () => {
 
       // Clear any previous error
       setAttachmentErrors((prev) => ({ ...prev, [taskId]: "" }));
-    } catch (err: any) {
+    } catch (err: Error | unknown) {
       setAttachmentErrors((prev) => ({
         ...prev,
-        [taskId]: err.message || "Failed to upload attachment",
+        [taskId]:
+          err instanceof Error ? err.message : "Failed to upload attachment",
       }));
     }
   };
@@ -305,10 +302,11 @@ export const TasksDetailView: React.FC = () => {
             : task,
         ),
       );
-    } catch (err: any) {
+    } catch (err: Error | unknown) {
       setAttachmentErrors((prev) => ({
         ...prev,
-        [taskId]: err.message || "Failed to delete attachment",
+        [taskId]:
+          err instanceof Error ? err.message : "Failed to delete attachment",
       }));
     }
   };
@@ -319,7 +317,7 @@ export const TasksDetailView: React.FC = () => {
     updates: any,
   ) => {
     try {
-      const { data, error } = await db.updateAttachment(attachmentId, updates);
+      const { error } = await db.updateAttachment(attachmentId, updates);
       if (error) throw error;
 
       // Update local state
@@ -335,10 +333,11 @@ export const TasksDetailView: React.FC = () => {
             : task,
         ),
       );
-    } catch (err: any) {
+    } catch (err: Error | unknown) {
       setAttachmentErrors((prev) => ({
         ...prev,
-        [taskId]: err.message || "Failed to update attachment",
+        [taskId]:
+          err instanceof Error ? err.message : "Failed to update attachment",
       }));
     }
   };
@@ -464,22 +463,22 @@ export const TasksDetailView: React.FC = () => {
     }
   };
 
-  const getStatusDisplayName = (status: string) => {
-    switch (status) {
-      case "todo":
-        return "To Do";
-      case "in_progress":
-        return "In Progress";
-      case "done":
-        return "Done";
-      case "blocked":
-        return "Blocked";
-      case "cancelled":
-        return "Cancelled";
-      default:
-        return status;
-    }
-  };
+  // const getStatusDisplayName = (status: string) => {
+  //   switch (status) {
+  //     case "todo":
+  //       return "To Do";
+  //     case "in_progress":
+  //       return "In Progress";
+  //     case "done":
+  //       return "Done";
+  //     case "blocked":
+  //       return "Blocked";
+  //     case "cancelled":
+  //       return "Cancelled";
+  //     default:
+  //       return status;
+  //   }
+  // };
 
   const getStatusIcon = (status: string, completed: boolean = false) => {
     if (status === "done" || completed) {
@@ -488,12 +487,12 @@ export const TasksDetailView: React.FC = () => {
     return <Square className="w-4 h-4 text-gray-400 hover:text-gray-600" />;
   };
 
-  const formatTagsInput = (tags: string[]) => tags.join(", ");
-  const parseTagsInput = (input: string) =>
-    input
-      .split(",")
-      .map((tag) => tag.trim())
-      .filter((tag) => tag.length > 0);
+  // const formatTagsInput = (tags: string[]) => tags.join(", ");
+  // const parseTagsInput = (input: string) =>
+  //   input
+  //     .split(",")
+  //     .map((tag) => tag.trim())
+  //     .filter((tag) => tag.length > 0);
 
   // Reusable Status Select Component
   const StatusSelect: React.FC<{
@@ -987,7 +986,9 @@ export const TasksDetailView: React.FC = () => {
                 </div>
                 <select
                   value={filter}
-                  onChange={(e) => updateFilter(e.target.value as any)}
+                  onChange={(e) =>
+                    updateFilter(e.target.value as typeof filter)
+                  }
                   className="form-select flex-shrink-0"
                 >
                   <option value="all">All Tasks</option>
@@ -999,7 +1000,11 @@ export const TasksDetailView: React.FC = () => {
                 </select>
                 <select
                   value={priorityFilter}
-                  onChange={(e) => updatePriorityFilter(e.target.value as any)}
+                  onChange={(e) =>
+                    updatePriorityFilter(
+                      e.target.value as typeof priorityFilter,
+                    )
+                  }
                   className="form-select flex-shrink-0"
                 >
                   <option value="all">All Priorities</option>

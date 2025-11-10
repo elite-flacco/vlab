@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Calendar, TrendingUp, Bookmark, Star } from "lucide-react";
+import React, { useState, useEffect, useCallback } from "react";
+import { Calendar, TrendingUp, Bookmark } from "lucide-react";
 import { communityApi } from "../../lib/communityApi";
 import { PostCard } from "../Community/PostCard";
 import { useAuthStore } from "../../stores/authStore";
@@ -18,13 +18,7 @@ export const UserProfileSection: React.FC<UserProfileSectionProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (user) {
-      fetchUserData();
-    }
-  }, [user, activeTab]);
-
-  const fetchUserData = async () => {
+  const fetchUserData = useCallback(async () => {
     if (!user) return;
 
     setLoading(true);
@@ -37,12 +31,18 @@ export const UserProfileSection: React.FC<UserProfileSectionProps> = ({
         const saved = await communityApi.getSavedPosts();
         setSavedPosts(saved);
       }
-    } catch (err: any) {
-      setError(err.message || "Failed to load user data");
+    } catch (err: Error | unknown) {
+      setError(err instanceof Error ? err.message : "Failed to load user data");
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, activeTab]);
+
+  useEffect(() => {
+    if (user) {
+      fetchUserData();
+    }
+  }, [user, fetchUserData]);
 
   const stats = {
     totalPosts: userPosts.length,

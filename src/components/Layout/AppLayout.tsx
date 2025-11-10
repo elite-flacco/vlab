@@ -38,7 +38,7 @@ export const AppLayout: React.FC = () => {
       <AnonymousBanner />
       <Header onNewProjectClick={openNewProjectModal} />
       <div className="flex-1 flex overflow-hidden">
-        <Sidebar onNewProjectClick={openNewProjectModal} />
+        <Sidebar />
         <main className="flex-1 p-6 overflow-y-auto">
           <div className="fade-in">
             <ErrorBoundary context="Main Content Area">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Search,
   Plus,
@@ -109,20 +109,7 @@ export const Community: React.FC = () => {
     window.history.replaceState({}, "", newUrl);
   }, [selectedTool, selectedTipCategory, searchTerm, sortBy]);
 
-  useEffect(() => {
-    fetchPosts();
-  }, [currentPage, selectedTool, selectedTipCategory, sortBy, selectedTag]);
-
-  useEffect(() => {
-    // Reset to first page when filters change
-    if (currentPage !== 1) {
-      setCurrentPage(1);
-    } else {
-      fetchPosts();
-    }
-  }, [searchTerm, selectedTool, selectedTipCategory, sortBy, selectedTag]);
-
-  const fetchPosts = async () => {
+  const fetchPosts = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -144,7 +131,23 @@ export const Community: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [
+    currentPage,
+    selectedTool,
+    selectedTipCategory,
+    sortBy,
+    searchTerm,
+    selectedTag,
+  ]);
+
+  useEffect(() => {
+    fetchPosts();
+  }, [fetchPosts]);
+
+  useEffect(() => {
+    // Reset to first page when filters change
+    setCurrentPage(1);
+  }, [searchTerm, selectedTool, selectedTipCategory, sortBy, selectedTag]);
 
   const handleSearch = () => {
     setCurrentPage(1);

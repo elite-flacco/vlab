@@ -3,14 +3,6 @@ import React, { useEffect, useState } from "react";
 import { supabase, db } from "../../lib/supabase";
 import { GITHUB_OAUTH_CONFIG, validateGitHubConfig } from "../../lib/github";
 
-interface GitHubToken {
-  id: string;
-  github_username: string;
-  token_scope: string[];
-  created_at: string;
-  updated_at: string;
-}
-
 interface GitHubAuthButtonProps {
   onAuthChange?: (isAuthenticated: boolean, username?: string) => void;
   className?: string;
@@ -65,7 +57,7 @@ export const GitHubAuthButton: React.FC<GitHubAuthButtonProps> = ({
         setIsAuthenticated(true);
         setGithubUsername(tokenData.github_username || "");
       }
-    } catch (err: any) {
+    } catch (err: Error | unknown) {
       console.error("Error checking GitHub auth status:", err);
       setError("Failed to check GitHub connection status");
       setIsAuthenticated(false);
@@ -145,9 +137,11 @@ export const GitHubAuthButton: React.FC<GitHubAuthButtonProps> = ({
           setConnecting(false);
         }
       }, 1000);
-    } catch (err: any) {
+    } catch (err: Error | unknown) {
       console.error("Error connecting to GitHub:", err);
-      setError(err.message || "Failed to connect to GitHub");
+      setError(
+        err instanceof Error ? err.message : "Failed to connect to GitHub",
+      );
       setConnecting(false);
     }
   };
@@ -184,9 +178,11 @@ export const GitHubAuthButton: React.FC<GitHubAuthButtonProps> = ({
 
       setIsAuthenticated(false);
       setGithubUsername("");
-    } catch (err: any) {
+    } catch (err: Error | unknown) {
       console.error("Error disconnecting from GitHub:", err);
-      setError(err.message || "Failed to disconnect from GitHub");
+      setError(
+        err instanceof Error ? err.message : "Failed to disconnect from GitHub",
+      );
     } finally {
       setLoading(false);
     }

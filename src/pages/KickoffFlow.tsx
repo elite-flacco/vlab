@@ -1,17 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useProjectStore } from "../stores/projectStore";
 import {
   Sparkles,
   ArrowRight,
   CheckCircle,
-  Circle,
   Brain,
   FileText,
   Map,
   ListTodo,
   Rocket,
-  Check,
   ClipboardList,
 } from "lucide-react";
 import { IdeaBouncer } from "../components/Kickoff/IdeaBouncer";
@@ -72,7 +70,10 @@ export const KickoffFlow: React.FC = () => {
   const [stepData, setStepData] = useState<Record<string, any>>({});
 
   // Combine active and archived projects
-  const allProjects = [...(activeProjects || []), ...(archivedProjects || [])];
+  const allProjects = useMemo(
+    () => [...(activeProjects || []), ...(archivedProjects || [])],
+    [activeProjects, archivedProjects],
+  );
 
   useEffect(() => {
     if (projectId) {
@@ -94,6 +95,7 @@ export const KickoffFlow: React.FC = () => {
   // Debug logging for step data
   useEffect(() => {
     if (currentStep === 3) {
+      // Debug log for task generation step
     }
   }, [currentStep, stepData, projectId]);
 
@@ -117,9 +119,9 @@ export const KickoffFlow: React.FC = () => {
     }
   };
 
-  const handleSkipToWorkspace = () => {
-    navigate(`/workspace/${projectId}`);
-  };
+  // const handleSkipToWorkspace = () => {
+  //   navigate(`/workspace/${projectId}`);
+  // };
 
   const handleIdeaSelected = (ideaSummary: string) => {
     handleStepComplete({ ideaSummary });

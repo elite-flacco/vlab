@@ -17,7 +17,7 @@ const DB_TIMEOUT = 10000;
 // Auth helpers
 export const auth = {
   signUp: async (email: string, password: string, name: string) => {
-    const operation = () =>
+    const operation = async () =>
       supabase.auth.signUp({
         email,
         password,
@@ -36,7 +36,7 @@ export const auth = {
   },
 
   signIn: async (email: string, password: string) => {
-    const operation = () =>
+    const operation = async () =>
       supabase.auth.signInWithPassword({
         email,
         password,
@@ -50,7 +50,7 @@ export const auth = {
   },
 
   signOut: async () => {
-    const operation = () => supabase.auth.signOut();
+    const operation = async () => supabase.auth.signOut();
 
     return withTimeout(
       withTiming("Auth SignOut", operation),
@@ -60,7 +60,7 @@ export const auth = {
   },
 
   getCurrentUser: async () => {
-    const operation = () => supabase.auth.getUser();
+    const operation = async () => supabase.auth.getUser();
 
     return withTimeout(
       withTiming("Auth GetCurrentUser", operation),
@@ -70,7 +70,7 @@ export const auth = {
   },
 
   signInAnonymously: async () => {
-    const operation = () =>
+    const operation = async () =>
       supabase.auth.signInAnonymously({
         options: {
           data: {
@@ -136,7 +136,7 @@ export const auth = {
     );
   },
 
-  onAuthStateChange: (callback: (event: string, session: any) => void) => {
+  onAuthStateChange: (callback: (event: string, session: unknown) => void) => {
     return supabase.auth.onAuthStateChange(callback);
   },
 };
@@ -145,7 +145,7 @@ export const auth = {
 export const db = {
   // Profiles
   getProfile: async (userId: string) => {
-    const operation = () =>
+    const operation = async () =>
       supabase.from("profiles").select("*").eq("id", userId).single();
 
     return withTimeout(
@@ -155,8 +155,8 @@ export const db = {
     );
   },
 
-  updateProfile: async (userId: string, updates: any) => {
-    const operation = () =>
+  updateProfile: async (userId: string, updates: Record<string, unknown>) => {
+    const operation = async () =>
       supabase
         .from("profiles")
         .update(updates)
@@ -173,7 +173,7 @@ export const db = {
 
   // Projects
   getProject: async (projectId: string) => {
-    const operation = () =>
+    const operation = async () =>
       supabase.from("projects").select("*").eq("id", projectId).single();
 
     return withTimeout(
@@ -184,7 +184,7 @@ export const db = {
   },
 
   getProjects: async (userId: string) => {
-    const operation = () =>
+    const operation = async () =>
       supabase
         .from("projects")
         .select("*")
@@ -199,7 +199,7 @@ export const db = {
   },
 
   getActiveProjects: async (userId: string) => {
-    const operation = () =>
+    const operation = async () =>
       supabase
         .from("projects")
         .select("*")
@@ -215,7 +215,7 @@ export const db = {
   },
 
   getArchivedProjects: async (userId: string) => {
-    const operation = () =>
+    const operation = async () =>
       supabase
         .from("projects")
         .select("*")
@@ -230,8 +230,8 @@ export const db = {
     );
   },
 
-  createProject: async (project: any) => {
-    const operation = () =>
+  createProject: async (project: Record<string, unknown>) => {
+    const operation = async () =>
       supabase.from("projects").insert(project).select().single();
 
     return withTimeout(
@@ -241,8 +241,8 @@ export const db = {
     );
   },
 
-  updateProject: async (id: string, updates: any) => {
-    const operation = () =>
+  updateProject: async (id: string, updates: Record<string, unknown>) => {
+    const operation = async () =>
       supabase.from("projects").update(updates).eq("id", id).select().single();
 
     return withTimeout(
@@ -253,7 +253,7 @@ export const db = {
   },
 
   archiveProject: async (id: string) => {
-    const operation = () =>
+    const operation = async () =>
       supabase.from("projects").update({ is_archived: true }).eq("id", id);
 
     return withTimeout(
@@ -264,7 +264,7 @@ export const db = {
   },
 
   restoreProject: async (id: string) => {
-    const operation = () =>
+    const operation = async () =>
       supabase.from("projects").update({ is_archived: false }).eq("id", id);
 
     return withTimeout(
@@ -275,7 +275,8 @@ export const db = {
   },
 
   deleteProjectPermanently: async (id: string) => {
-    const operation = () => supabase.from("projects").delete().eq("id", id);
+    const operation = async () =>
+      supabase.from("projects").delete().eq("id", id);
 
     return withTimeout(
       withTiming("DB DeleteProject", operation),
@@ -286,7 +287,7 @@ export const db = {
 
   // Workspace Modules
   getWorkspaceModules: async (projectId: string) => {
-    const operation = () =>
+    const operation = async () =>
       supabase
         .from("workspace_modules")
         .select("*")
@@ -301,7 +302,7 @@ export const db = {
   },
 
   upsertWorkspaceModule: async (module: any) => {
-    const operation = () =>
+    const operation = async () =>
       supabase.from("workspace_modules").upsert(module).select().single();
 
     return withTimeout(
@@ -312,7 +313,7 @@ export const db = {
   },
 
   deleteWorkspaceModule: async (id: string) => {
-    const operation = () =>
+    const operation = async () =>
       supabase.from("workspace_modules").delete().eq("id", id);
 
     return withTimeout(
@@ -324,7 +325,7 @@ export const db = {
 
   // PRDs
   getPRDs: async (projectId: string) => {
-    const operation = () =>
+    const operation = async () =>
       supabase
         .from("prds")
         .select(
@@ -345,7 +346,7 @@ export const db = {
   },
 
   createPRD: async (prd: any) => {
-    const operation = () =>
+    const operation = async () =>
       supabase
         .from("prds")
         .insert(prd)
@@ -365,8 +366,8 @@ export const db = {
     );
   },
 
-  updatePRD: async (id: string, updates: any) => {
-    const operation = () =>
+  updatePRD: async (id: string, updates: Record<string, unknown>) => {
+    const operation = async () =>
       supabase
         .from("prds")
         .update(updates)
@@ -389,7 +390,7 @@ export const db = {
 
   // PRD Versions
   getPRDVersions: async (prdId: string) => {
-    const operation = () =>
+    const operation = async () =>
       supabase
         .from("prd_versions")
         .select(
@@ -434,7 +435,7 @@ export const db = {
     }
 
     // Otherwise, fetch from prd_versions table
-    const operation = () =>
+    const operation = async () =>
       supabase
         .from("prd_versions")
         .select(
@@ -466,7 +467,7 @@ export const db = {
     versionA: number,
     versionB: number,
   ) => {
-    const operation = () =>
+    const operation = async () =>
       supabase.rpc("get_prd_version_comparison", {
         prd_uuid: prdId,
         version_a: versionA,
@@ -496,7 +497,7 @@ export const db = {
     if (versionResult.error) throw versionResult.error;
 
     // Then update the current PRD with the version data
-    const operation = () =>
+    const operation = async () =>
       supabase
         .from("prds")
         .update({
@@ -524,7 +525,7 @@ export const db = {
 
   // Tasks
   getTasks: async (projectId: string) => {
-    const operation = () =>
+    const operation = async () =>
       supabase
         .from("tasks")
         .select("*")
@@ -538,8 +539,8 @@ export const db = {
     );
   },
 
-  createTask: async (task: any) => {
-    const operation = () =>
+  createTask: async (task: Record<string, unknown>) => {
+    const operation = async () =>
       supabase.from("tasks").insert(task).select().single();
 
     return withTimeout(
@@ -549,8 +550,8 @@ export const db = {
     );
   },
 
-  updateTask: async (id: string, updates: any) => {
-    const operation = () =>
+  updateTask: async (id: string, updates: Record<string, unknown>) => {
+    const operation = async () =>
       supabase.from("tasks").update(updates).eq("id", id).select().single();
 
     return withTimeout(
@@ -561,7 +562,7 @@ export const db = {
   },
 
   deleteTask: async (id: string) => {
-    const operation = () => supabase.from("tasks").delete().eq("id", id);
+    const operation = async () => supabase.from("tasks").delete().eq("id", id);
 
     return withTimeout(
       withTiming("DB DeleteTask", operation),
@@ -572,7 +573,7 @@ export const db = {
 
   // Prompts
   getPrompts: async (projectId: string) => {
-    const operation = () =>
+    const operation = async () =>
       supabase
         .from("prompts")
         .select("*")
@@ -586,8 +587,8 @@ export const db = {
     );
   },
 
-  createPrompt: async (prompt: any) => {
-    const operation = () =>
+  createPrompt: async (prompt: Record<string, unknown>) => {
+    const operation = async () =>
       supabase.from("prompts").insert(prompt).select().single();
 
     return withTimeout(
@@ -597,8 +598,8 @@ export const db = {
     );
   },
 
-  updatePrompt: async (id: string, updates: any) => {
-    const operation = () =>
+  updatePrompt: async (id: string, updates: Record<string, unknown>) => {
+    const operation = async () =>
       supabase.from("prompts").update(updates).eq("id", id).select().single();
 
     return withTimeout(
@@ -609,7 +610,8 @@ export const db = {
   },
 
   deletePrompt: async (id: string) => {
-    const operation = () => supabase.from("prompts").delete().eq("id", id);
+    const operation = async () =>
+      supabase.from("prompts").delete().eq("id", id);
 
     return withTimeout(
       withTiming("DB DeletePrompt", operation),
@@ -620,7 +622,7 @@ export const db = {
 
   // Scratchpad Notes
   getScratchpadNotes: async (projectId: string) => {
-    const operation = () =>
+    const operation = async () =>
       supabase
         .from("scratchpad_notes")
         .select("*")
@@ -634,8 +636,8 @@ export const db = {
     );
   },
 
-  createScratchpadNote: async (note: any) => {
-    const operation = () =>
+  createScratchpadNote: async (note: Record<string, unknown>) => {
+    const operation = async () =>
       supabase.from("scratchpad_notes").insert(note).select().single();
 
     return withTimeout(
@@ -645,8 +647,11 @@ export const db = {
     );
   },
 
-  updateScratchpadNote: async (id: string, updates: any) => {
-    const operation = () =>
+  updateScratchpadNote: async (
+    id: string,
+    updates: Record<string, unknown>,
+  ) => {
+    const operation = async () =>
       supabase
         .from("scratchpad_notes")
         .update(updates)
@@ -662,7 +667,7 @@ export const db = {
   },
 
   deleteScratchpadNote: async (id: string) => {
-    const operation = () =>
+    const operation = async () =>
       supabase.from("scratchpad_notes").delete().eq("id", id);
 
     return withTimeout(
@@ -674,7 +679,7 @@ export const db = {
 
   // Global Notes (project-agnostic)
   getGlobalNotes: async (userId: string) => {
-    const operation = () =>
+    const operation = async () =>
       supabase
         .from("global_notes")
         .select("*")
@@ -688,8 +693,8 @@ export const db = {
     );
   },
 
-  createGlobalNote: async (note: any) => {
-    const operation = () =>
+  createGlobalNote: async (note: Record<string, unknown>) => {
+    const operation = async () =>
       supabase.from("global_notes").insert(note).select().single();
 
     return withTimeout(
@@ -699,8 +704,8 @@ export const db = {
     );
   },
 
-  updateGlobalNote: async (id: string, updates: any) => {
-    const operation = () =>
+  updateGlobalNote: async (id: string, updates: Record<string, unknown>) => {
+    const operation = async () =>
       supabase
         .from("global_notes")
         .update(updates)
@@ -716,7 +721,8 @@ export const db = {
   },
 
   deleteGlobalNote: async (id: string) => {
-    const operation = () => supabase.from("global_notes").delete().eq("id", id);
+    const operation = async () =>
+      supabase.from("global_notes").delete().eq("id", id);
 
     return withTimeout(
       withTiming("DB DeleteGlobalNote", operation),
@@ -727,7 +733,7 @@ export const db = {
 
   // Roadmap Items
   getRoadmapItems: async (projectId: string) => {
-    const operation = () =>
+    const operation = async () =>
       supabase
         .from("roadmap_items")
         .select("*")
@@ -741,8 +747,8 @@ export const db = {
     );
   },
 
-  createRoadmapItem: async (item: any) => {
-    const operation = () =>
+  createRoadmapItem: async (item: Record<string, unknown>) => {
+    const operation = async () =>
       supabase.from("roadmap_items").insert(item).select().single();
 
     return withTimeout(
@@ -752,8 +758,8 @@ export const db = {
     );
   },
 
-  updateRoadmapItem: async (id: string, updates: any) => {
-    const operation = () =>
+  updateRoadmapItem: async (id: string, updates: Record<string, unknown>) => {
+    const operation = async () =>
       supabase
         .from("roadmap_items")
         .update(updates)
@@ -770,7 +776,7 @@ export const db = {
 
   // Secrets
   getSecrets: async (projectId: string) => {
-    const operation = () =>
+    const operation = async () =>
       supabase
         .from("secrets")
         .select(
@@ -787,8 +793,8 @@ export const db = {
     );
   },
 
-  createSecret: async (secret: any) => {
-    const operation = () =>
+  createSecret: async (secret: Record<string, unknown>) => {
+    const operation = async () =>
       supabase
         .from("secrets")
         .insert(secret)
@@ -804,8 +810,8 @@ export const db = {
     );
   },
 
-  updateSecret: async (id: string, updates: any) => {
-    const operation = () =>
+  updateSecret: async (id: string, updates: Record<string, unknown>) => {
+    const operation = async () =>
       supabase
         .from("secrets")
         .update(updates)
@@ -824,7 +830,7 @@ export const db = {
 
   // Templates
   getPublicTemplates: async () => {
-    const operation = () =>
+    const operation = async () =>
       supabase
         .from("templates")
         .select(
@@ -845,7 +851,7 @@ export const db = {
   },
 
   getUserTemplates: async (userId: string) => {
-    const operation = () =>
+    const operation = async () =>
       supabase
         .from("templates")
         .select(
@@ -864,8 +870,8 @@ export const db = {
     );
   },
 
-  createTemplate: async (template: any) => {
-    const operation = () =>
+  createTemplate: async (template: Record<string, unknown>) => {
+    const operation = async () =>
       supabase.from("templates").insert(template).select().single();
 
     return withTimeout(
@@ -877,7 +883,7 @@ export const db = {
 
   // Generic CRUD operations for backward compatibility
   getModuleData: async (table: string, projectId: string) => {
-    const operation = () =>
+    const operation = async () =>
       supabase
         .from(table)
         .select("*")
@@ -891,8 +897,9 @@ export const db = {
     );
   },
 
-  createModuleData: async (table: string, data: any) => {
-    const operation = () => supabase.from(table).insert(data).select().single();
+  createModuleData: async (table: string, data: Record<string, unknown>) => {
+    const operation = async () =>
+      supabase.from(table).insert(data).select().single();
 
     return withTimeout(
       withTiming(`DB CreateModuleData(${table})`, operation),
@@ -901,8 +908,12 @@ export const db = {
     );
   },
 
-  updateModuleData: async (table: string, id: string, updates: any) => {
-    const operation = () =>
+  updateModuleData: async (
+    table: string,
+    id: string,
+    updates: Record<string, unknown>,
+  ) => {
+    const operation = async () =>
       supabase.from(table).update(updates).eq("id", id).select().single();
 
     return withTimeout(
@@ -913,7 +924,7 @@ export const db = {
   },
 
   deleteModuleData: async (table: string, id: string) => {
-    const operation = () => supabase.from(table).delete().eq("id", id);
+    const operation = async () => supabase.from(table).delete().eq("id", id);
 
     return withTimeout(
       withTiming(`DB DeleteModuleData(${table})`, operation),
@@ -924,7 +935,7 @@ export const db = {
 
   // Deployment Items
   getDeploymentItems: async (projectId: string) => {
-    const operation = () =>
+    const operation = async () =>
       supabase
         .from("deployment_items")
         .select("*")
@@ -938,8 +949,8 @@ export const db = {
     );
   },
 
-  createDeploymentItem: async (item: any) => {
-    const operation = () =>
+  createDeploymentItem: async (item: Record<string, unknown>) => {
+    const operation = async () =>
       supabase.from("deployment_items").insert(item).select().single();
 
     return withTimeout(
@@ -949,8 +960,11 @@ export const db = {
     );
   },
 
-  updateDeploymentItem: async (id: string, updates: any) => {
-    const operation = () =>
+  updateDeploymentItem: async (
+    id: string,
+    updates: Record<string, unknown>,
+  ) => {
+    const operation = async () =>
       supabase
         .from("deployment_items")
         .update(updates)
@@ -966,7 +980,7 @@ export const db = {
   },
 
   deleteDeploymentItem: async (id: string) => {
-    const operation = () =>
+    const operation = async () =>
       supabase.from("deployment_items").delete().eq("id", id);
 
     return withTimeout(
@@ -978,7 +992,7 @@ export const db = {
 
   // GitHub Integration
   getGitHubRepositories: async (projectId: string) => {
-    const operation = () =>
+    const operation = async () =>
       supabase
         .from("github_repositories")
         .select("*")
@@ -993,8 +1007,8 @@ export const db = {
     );
   },
 
-  createGitHubRepository: async (repository: any) => {
-    const operation = () =>
+  createGitHubRepository: async (repository: Record<string, unknown>) => {
+    const operation = async () =>
       supabase
         .from("github_repositories")
         .upsert(repository, {
@@ -1011,8 +1025,11 @@ export const db = {
     );
   },
 
-  updateGitHubRepository: async (id: string, updates: any) => {
-    const operation = () =>
+  updateGitHubRepository: async (
+    id: string,
+    updates: Record<string, unknown>,
+  ) => {
+    const operation = async () =>
       supabase
         .from("github_repositories")
         .update(updates)
@@ -1028,7 +1045,7 @@ export const db = {
   },
 
   deleteGitHubRepository: async (id: string) => {
-    const operation = () =>
+    const operation = async () =>
       supabase
         .from("github_repositories")
         .update({ is_active: false })
@@ -1042,7 +1059,7 @@ export const db = {
   },
 
   deleteAllUserGitHubRepositories: async (userId: string) => {
-    const operation = () =>
+    const operation = async () =>
       supabase.from("github_repositories").delete().eq("user_id", userId);
 
     return withTimeout(
@@ -1053,7 +1070,7 @@ export const db = {
   },
 
   getGitHubToken: async (userId: string) => {
-    const operation = () =>
+    const operation = async () =>
       supabase
         .from("github_tokens")
         .select(
@@ -1071,7 +1088,7 @@ export const db = {
   },
 
   getGitHubTokenWithSecret: async (userId: string) => {
-    const operation = () =>
+    const operation = async () =>
       supabase
         .from("github_tokens")
         .select(
@@ -1088,8 +1105,8 @@ export const db = {
     );
   },
 
-  createGitHubToken: async (token: any) => {
-    const operation = () =>
+  createGitHubToken: async (token: Record<string, unknown>) => {
+    const operation = async () =>
       supabase
         .from("github_tokens")
         .insert(token)
@@ -1105,8 +1122,8 @@ export const db = {
     );
   },
 
-  updateGitHubToken: async (id: string, updates: any) => {
-    const operation = () =>
+  updateGitHubToken: async (id: string, updates: Record<string, unknown>) => {
+    const operation = async () =>
       supabase
         .from("github_tokens")
         .update(updates)
@@ -1124,7 +1141,7 @@ export const db = {
   },
 
   revokeGitHubToken: async (userId: string) => {
-    const operation = () =>
+    const operation = async () =>
       supabase
         .from("github_tokens")
         .delete()
@@ -1139,7 +1156,7 @@ export const db = {
   },
 
   getGitHubIssues: async (projectId: string) => {
-    const operation = () =>
+    const operation = async () =>
       supabase
         .from("github_issues")
         .select(
@@ -1160,7 +1177,7 @@ export const db = {
   },
 
   getGitHubIssueByTask: async (taskId: string) => {
-    const operation = () =>
+    const operation = async () =>
       supabase
         .from("github_issues")
         .select(
@@ -1179,8 +1196,8 @@ export const db = {
     );
   },
 
-  createGitHubIssue: async (issue: any) => {
-    const operation = () =>
+  createGitHubIssue: async (issue: Record<string, unknown>) => {
+    const operation = async () =>
       supabase
         .from("github_issues")
         .insert(issue)
@@ -1199,8 +1216,8 @@ export const db = {
     );
   },
 
-  updateGitHubIssue: async (id: string, updates: any) => {
-    const operation = () =>
+  updateGitHubIssue: async (id: string, updates: Record<string, unknown>) => {
+    const operation = async () =>
       supabase
         .from("github_issues")
         .update(updates)
@@ -1222,7 +1239,7 @@ export const db = {
 
   // Attachments
   getTaskAttachments: async (taskId: string) => {
-    const operation = () =>
+    const operation = async () =>
       supabase
         .from("attachments")
         .select("*")
@@ -1237,7 +1254,7 @@ export const db = {
   },
 
   getScratchpadNoteAttachments: async (scratchpadNoteId: string) => {
-    const operation = () =>
+    const operation = async () =>
       supabase
         .from("attachments")
         .select("*")
@@ -1251,8 +1268,8 @@ export const db = {
     );
   },
 
-  createAttachment: async (attachment: any) => {
-    const operation = () =>
+  createAttachment: async (attachment: Record<string, unknown>) => {
+    const operation = async () =>
       supabase.from("attachments").insert(attachment).select().single();
 
     return withTimeout(
@@ -1262,8 +1279,8 @@ export const db = {
     );
   },
 
-  updateAttachment: async (id: string, updates: any) => {
-    const operation = () =>
+  updateAttachment: async (id: string, updates: Record<string, unknown>) => {
+    const operation = async () =>
       supabase
         .from("attachments")
         .update(updates)
@@ -1294,7 +1311,8 @@ export const db = {
     }
 
     // Then delete from database
-    const operation = () => supabase.from("attachments").delete().eq("id", id);
+    const operation = async () =>
+      supabase.from("attachments").delete().eq("id", id);
 
     return withTimeout(
       withTiming("DB DeleteAttachment", operation),

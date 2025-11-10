@@ -11,7 +11,6 @@ import {
   Users,
   PanelLeftClose,
   PanelLeftOpen,
-  Menu,
   Wrench,
   Loader2,
   Info,
@@ -19,18 +18,13 @@ import {
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 
-interface SidebarProps {
-  onNewProjectClick: () => void;
-}
-
-export const Sidebar: React.FC<SidebarProps> = ({ onNewProjectClick }) => {
+export const Sidebar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const {
     activeProjects,
     archivedProjects,
     currentProject,
-    setCurrentProject,
     restoreProject,
     loading,
     error,

@@ -6,7 +6,6 @@ import {
   Plus,
   Calendar,
   Users,
-  Star,
   Archive,
   RotateCcw,
   Trash2,

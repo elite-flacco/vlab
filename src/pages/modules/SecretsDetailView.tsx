@@ -1,6 +1,5 @@
 import { format } from "date-fns";
 import {
-  ArrowLeft,
   Copy,
   Eye,
   EyeOff,

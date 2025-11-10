@@ -90,32 +90,38 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
         db.getArchivedProjects(userId),
       ]);
 
-      if (activeResult.error) {
+      const activeRes = activeResult as { data: any[] | null; error: any };
+      const archivedRes = archivedResult as { data: any[] | null; error: any };
+
+      if (activeRes.error) {
         console.error(
           "❌ ProjectStore: Active projects fetch error:",
-          activeResult.error,
+          activeRes.error,
         );
-        throw activeResult.error;
+        throw activeRes.error;
       }
-      if (archivedResult.error) {
+      if (archivedRes.error) {
         console.error(
           "❌ ProjectStore: Archived projects fetch error:",
-          archivedResult.error,
+          archivedRes.error,
         );
-        throw archivedResult.error;
+        throw archivedRes.error;
       }
 
-      const activeProjects = activeResult.data || [];
-      const archivedProjects = archivedResult.data || [];
+      const activeProjects = activeRes.data || [];
+      const archivedProjects = archivedRes.data || [];
 
       set({
         activeProjects,
         archivedProjects,
         loading: false,
       });
-    } catch (error: any) {
+    } catch (error: Error | unknown) {
       console.error("❌ ProjectStore: fetchProjects error:", error);
-      set({ error: error.message, loading: false });
+      set({
+        error: error instanceof Error ? error.message : String(error),
+        loading: false,
+      });
     }
   },
 
@@ -128,20 +134,26 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
         user_id: userId,
         workspace_layout: defaultWorkspaceLayout,
       };
-      const { data, error } = await db.createProject(projectData);
-      if (error) throw error;
+      const result = (await db.createProject(projectData)) as {
+        data: any;
+        error: any;
+      };
+      if (result.error) throw result.error;
 
       const { activeProjects } = get();
       set({
-        activeProjects: [data, ...activeProjects],
-        currentProject: data,
+        activeProjects: [result.data, ...activeProjects],
+        currentProject: result.data,
         loading: false,
       });
 
-      return data;
-    } catch (error: any) {
+      return result.data;
+    } catch (error: Error | unknown) {
       console.error("❌ ProjectStore: Create project error:", error);
-      set({ error: error.message, loading: false });
+      set({
+        error: error instanceof Error ? error.message : String(error),
+        loading: false,
+      });
       throw error;
     }
   },
@@ -149,33 +161,40 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   updateProject: async (id: string, updates: Partial<Project>) => {
     set({ loading: true, error: null });
     try {
-      const { data, error } = await db.updateProject(id, updates);
-      if (error) throw error;
+      const result = (await db.updateProject(id, updates)) as {
+        data: any;
+        error: any;
+      };
+      if (result.error) throw result.error;
 
       const { activeProjects, archivedProjects, currentProject } = get();
       const updatedActiveProjects = activeProjects.map((p) =>
-        p.id === id ? data : p,
+        p.id === id ? result.data : p,
       );
       const updatedArchivedProjects = archivedProjects.map((p) =>
-        p.id === id ? data : p,
+        p.id === id ? result.data : p,
       );
 
       set({
         activeProjects: updatedActiveProjects,
         archivedProjects: updatedArchivedProjects,
-        currentProject: currentProject?.id === id ? data : currentProject,
+        currentProject:
+          currentProject?.id === id ? result.data : currentProject,
         loading: false,
       });
-    } catch (error: any) {
-      set({ error: error.message, loading: false });
+    } catch (error: Error | unknown) {
+      set({
+        error: error instanceof Error ? error.message : String(error),
+        loading: false,
+      });
     }
   },
 
   archiveProject: async (id: string) => {
     set({ loading: true, error: null });
     try {
-      const { error } = await db.archiveProject(id);
-      if (error) throw error;
+      const result = (await db.archiveProject(id)) as { error: any };
+      if (result.error) throw result.error;
 
       const { activeProjects, archivedProjects, currentProject } = get();
       const projectToArchive = activeProjects.find((p) => p.id === id);
@@ -189,16 +208,19 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
           loading: false,
         });
       }
-    } catch (error: any) {
-      set({ error: error.message, loading: false });
+    } catch (error: Error | unknown) {
+      set({
+        error: error instanceof Error ? error.message : String(error),
+        loading: false,
+      });
     }
   },
 
   restoreProject: async (id: string) => {
     set({ loading: true, error: null });
     try {
-      const { error } = await db.restoreProject(id);
-      if (error) throw error;
+      const result = (await db.restoreProject(id)) as { error: any };
+      if (result.error) throw result.error;
 
       const { activeProjects, archivedProjects } = get();
       const projectToRestore = archivedProjects.find((p) => p.id === id);
@@ -211,16 +233,19 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
           loading: false,
         });
       }
-    } catch (error: any) {
-      set({ error: error.message, loading: false });
+    } catch (error: Error | unknown) {
+      set({
+        error: error instanceof Error ? error.message : String(error),
+        loading: false,
+      });
     }
   },
 
   deleteProjectPermanently: async (id: string) => {
     set({ loading: true, error: null });
     try {
-      const { error } = await db.deleteProjectPermanently(id);
-      if (error) throw error;
+      const result = (await db.deleteProjectPermanently(id)) as { error: any };
+      if (result.error) throw result.error;
 
       const { activeProjects, archivedProjects, currentProject } = get();
 
@@ -230,8 +255,11 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
         currentProject: currentProject?.id === id ? null : currentProject,
         loading: false,
       });
-    } catch (error: any) {
-      set({ error: error.message, loading: false });
+    } catch (error: Error | unknown) {
+      set({
+        error: error instanceof Error ? error.message : String(error),
+        loading: false,
+      });
     }
   },
 
@@ -247,8 +275,8 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       await get().updateProject(currentProject.id, {
         workspace_layout: layout,
       });
-    } catch (error: any) {
-      set({ error: error.message });
+    } catch (error: Error | unknown) {
+      set({ error: error instanceof Error ? error.message : String(error) });
     }
   },
 

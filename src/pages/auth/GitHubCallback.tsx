@@ -1,5 +1,5 @@
 import { Loader2 } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 
@@ -11,11 +11,7 @@ export const GitHubCallback: React.FC = () => {
   );
   const [error, setError] = useState<string>("");
 
-  useEffect(() => {
-    handleCallback();
-  }, []);
-
-  const handleCallback = async () => {
+  const handleCallback = useCallback(async () => {
     try {
       const code = searchParams.get("code");
       const state = searchParams.get("state");
@@ -107,7 +103,11 @@ export const GitHubCallback: React.FC = () => {
         setTimeout(() => window.close(), 3000);
       }
     }
-  };
+  }, [searchParams, navigate]);
+
+  useEffect(() => {
+    handleCallback();
+  }, [handleCallback]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-secondary">

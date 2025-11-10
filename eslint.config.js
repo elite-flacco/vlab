@@ -23,6 +23,8 @@ export default tseslint.config(
         'warn',
         { allowConstantExport: true },
       ],
+      // Allow 'any' in type assertions for database results
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   }
 );

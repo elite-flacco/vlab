@@ -1,18 +1,8 @@
+import type { RoadmapItem } from "../types";
+
 interface ChatMessage {
   role: "user" | "assistant" | "system";
   content: string;
-}
-
-interface RoadmapItem {
-  title: string;
-  description: string;
-  status: "planned" | "in_progress" | "completed";
-  phase: "mvp" | "phase_2" | "backlog";
-  start_date?: string;
-  end_date?: string;
-  milestone: boolean;
-  color: string;
-  position: number;
 }
 
 interface TaskItem {

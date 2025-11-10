@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { format } from "date-fns";
 import {
   History,
@@ -107,23 +107,25 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
   const [comparisonData, setComparisonData] = useState<any>(null);
   const [restoring, setRestoring] = useState<number | null>(null);
 
-  useEffect(() => {
-    fetchVersions();
-  }, [prdId]);
-
-  const fetchVersions = async () => {
+  const fetchVersions = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const { data, error: fetchError } = await db.getPRDVersions(prdId);
       if (fetchError) throw fetchError;
       setVersions(data || []);
-    } catch (err: any) {
-      setError(err.message || "Failed to fetch version history");
+    } catch (err: Error | unknown) {
+      setError(
+        err instanceof Error ? err.message : "Failed to fetch version history",
+      );
     } finally {
       setLoading(false);
     }
-  };
+  }, [prdId]);
+
+  useEffect(() => {
+    fetchVersions();
+  }, [fetchVersions]);
 
   const handleVersionSelect = (versionNumber: number) => {
     if (selectedVersions.includes(versionNumber)) {
@@ -151,8 +153,10 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
       if (compareError) throw compareError;
       setComparisonData(data[0]);
       setShowComparison(true);
-    } catch (err: any) {
-      setError(err.message || "Failed to compare versions");
+    } catch (err: Error | unknown) {
+      setError(
+        err instanceof Error ? err.message : "Failed to compare versions",
+      );
     } finally {
       setLoading(false);
     }
@@ -169,8 +173,10 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
     try {
       await onVersionRestore(versionNumber, changeDescription || undefined);
       onClose();
-    } catch (err: any) {
-      setError(err.message || "Failed to restore version");
+    } catch (err: Error | unknown) {
+      setError(
+        err instanceof Error ? err.message : "Failed to restore version",
+      );
     } finally {
       setRestoring(null);
     }
@@ -205,7 +211,15 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
 
     const { version_a_data, version_b_data } = comparisonData;
 
-    const VersionCard = ({ versionData, isCurrent, isLeft = true }) => (
+    const VersionCard = ({
+      versionData,
+      isCurrent,
+      isLeft = true,
+    }: {
+      versionData: any;
+      isCurrent: any;
+      isLeft?: boolean;
+    }) => (
       <div className="space-y-4">
         <div
           className={`bg-foreground/5 border-l-4 ${isLeft ? "border-primary/30" : "border-secondary/30"} rounded-lg p-5`}

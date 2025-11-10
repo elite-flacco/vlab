@@ -73,8 +73,8 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
         tags: [],
         image_url: "",
       });
-    } catch (err: any) {
-      setError(err.message || "Failed to create post");
+    } catch (err: Error | unknown) {
+      setError(err instanceof Error ? err.message : "Failed to create post");
     } finally {
       setLoading(false);
     }

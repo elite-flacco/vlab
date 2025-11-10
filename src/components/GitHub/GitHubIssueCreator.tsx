@@ -1,5 +1,5 @@
 import { ExternalLink, Github, Loader2 } from "lucide-react";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { supabase, db } from "../../lib/supabase";
 import { formatTaskAsIssue } from "../../lib/github";
 import { GitHubAuthButton } from "./GitHubAuthButton";
@@ -57,42 +57,7 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
   const [useCustomContent, setUseCustomContent] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
 
-  useEffect(() => {
-    const initializeComponent = async () => {
-      // Check both existing issue and auth status in parallel
-      await Promise.all([checkExistingIssue(), checkAuthStatus()]);
-      setInitialLoading(false);
-    };
-    initializeComponent();
-  }, [task.id]);
-
-  const checkAuthStatus = async () => {
-    try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
-        setIsAuthenticated(false);
-        return;
-      }
-
-      const { data: tokenData } = await db.getGitHubToken(user.id);
-      setIsAuthenticated(!!tokenData);
-    } catch (err) {
-      console.error("Error checking GitHub auth:", err);
-      setIsAuthenticated(false);
-    }
-  };
-
-  useEffect(() => {
-    if (!useCustomContent) {
-      setCustomTitle(task.title);
-      const formatted = formatTaskAsIssue(task);
-      setCustomBody(formatted.body || "");
-    }
-  }, [task, useCustomContent]);
-
-  const checkExistingIssue = async () => {
+  const checkExistingIssue = useCallback(async () => {
     try {
       const { data, error } = await db.getGitHubIssueByTask(task.id);
       if (error) {
@@ -114,7 +79,42 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
       );
       setExistingIssue(null);
     }
+  }, [task.id]);
+
+  const checkAuthStatus = async () => {
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        setIsAuthenticated(false);
+        return;
+      }
+
+      const { data: tokenData } = await db.getGitHubToken(user.id);
+      setIsAuthenticated(!!tokenData);
+    } catch (err) {
+      console.error("Error checking GitHub auth:", err);
+      setIsAuthenticated(false);
+    }
   };
+
+  useEffect(() => {
+    const initializeComponent = async () => {
+      // Check both existing issue and auth status in parallel
+      await Promise.all([checkExistingIssue(), checkAuthStatus()]);
+      setInitialLoading(false);
+    };
+    initializeComponent();
+  }, [task.id, checkExistingIssue]);
+
+  useEffect(() => {
+    if (!useCustomContent) {
+      setCustomTitle(task.title);
+      const formatted = formatTaskAsIssue(task);
+      setCustomBody(formatted.body || "");
+    }
+  }, [task, useCustomContent]);
 
   const handleCreateIssue = async () => {
     if (!selectedRepository) {
@@ -171,8 +171,10 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
       } else {
         throw new Error(result.error || "Failed to create GitHub issue");
       }
-    } catch (err: any) {
-      setError(err.message || "Failed to create GitHub issue");
+    } catch (err: Error | unknown) {
+      setError(
+        err instanceof Error ? err.message : "Failed to create GitHub issue",
+      );
     } finally {
       setCreating(false);
     }

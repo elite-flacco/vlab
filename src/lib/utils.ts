@@ -48,9 +48,11 @@ export async function withTiming<T>(
   try {
     const result = await operation();
     const endTime = performance.now();
+    console.log(`[${label}] completed in ${endTime - startTime}ms`);
     return result;
   } catch (error) {
     const endTime = performance.now();
+    console.log(`[${label}] failed after ${endTime - startTime}ms`);
     throw error;
   }
 }

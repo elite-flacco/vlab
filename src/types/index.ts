@@ -29,7 +29,7 @@ export interface ModuleConfig {
   type: ModuleType;
   position: Position;
   size: Size;
-  data: any;
+  data: Record<string, unknown>;
   is_visible: boolean;
 }
 
@@ -104,7 +104,7 @@ export interface Prompt {
 export interface PromptVariable {
   name: string;
   type: "text" | "number" | "boolean";
-  default_value?: any;
+  default_value?: string | number | boolean;
   description?: string;
 }
 
