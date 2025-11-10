@@ -6,7 +6,7 @@ import {
   Plus,
   Search,
 } from "lucide-react";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { supabase, db } from "../../lib/supabase";
 import { createGitHubClient, GitHubRepository } from "../../lib/github";
 
@@ -69,41 +69,39 @@ export const GitHubRepositorySelector: React.FC<
     }
   };
 
-  const fetchRepositories = useCallback(
-    async (force = false) => {
-      // Only show loading if we haven't loaded before or if forced
-      if (force || !hasInitiallyLoaded) {
-        setLoading(true);
+  const fetchRepositories = async (force = false) => {
+    // Only show loading if we haven't loaded before or if forced
+    if (force || !hasInitiallyLoaded) {
+      setLoading(true);
+    }
+    setError("");
+
+    try {
+      const { data, error } = await db.getGitHubRepositories(projectId);
+      if (error) throw error;
+
+      setRepositories(data || []);
+
+      // Auto-select first repository if none selected
+      if (!selectedRepositoryId && data && data.length > 0) {
+        onRepositorySelect(data[0]);
       }
-      setError("");
-
-      try {
-        const { data, error } = await db.getGitHubRepositories(projectId);
-        if (error) throw error;
-
-        setRepositories(data || []);
-
-        // Auto-select first repository if none selected
-        if (!selectedRepositoryId && data && data.length > 0) {
-          onRepositorySelect(data[0]);
-        }
-      } catch (err: Error | unknown) {
-        console.error("Error fetching repositories:", err);
-        setError("Failed to load GitHub repositories");
-      } finally {
-        setLoading(false);
-        setHasInitiallyLoaded(true);
-      }
-    },
-    [projectId, selectedRepositoryId, onRepositorySelect, hasInitiallyLoaded],
-  );
+    } catch (err: Error | unknown) {
+      console.error("Error fetching repositories:", err);
+      setError("Failed to load GitHub repositories");
+    } finally {
+      setLoading(false);
+      setHasInitiallyLoaded(true);
+    }
+  };
 
   useEffect(() => {
     setHasInitiallyLoaded(false);
     setCheckingAuth(true);
     fetchRepositories(true);
     checkGitHubAuth();
-  }, [projectId, fetchRepositories]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectId]);
 
   useEffect(() => {
     // Clear selections when auth status changes
