@@ -4,18 +4,27 @@ import { useProjectStore } from "../stores/projectStore";
 import { useAuthStore } from "../stores/authStore";
 import { db } from "../lib/supabase";
 import { withTimeout, withTiming } from "../lib/utils";
-import { Trash2, AlertCircle, RefreshCw, Palette } from "lucide-react";
+import { Trash2, AlertCircle, RefreshCw } from "lucide-react";
 import { ModuleCard } from "../components/Workspace/ModuleCard";
-import { ModuleType } from "../types";
+import {
+  ModuleType,
+  PRD,
+  Task,
+  Prompt,
+  ScratchpadNote,
+  RoadmapItem,
+  Secret,
+  DeploymentItem,
+} from "../types";
 
 interface WorkspaceData {
-  prds: any[];
-  roadmapItems: any[];
-  tasks: any[];
-  scratchpadNotes: any[];
-  prompts: any[];
-  secrets: any[];
-  deploymentItems: any[];
+  prds: PRD[];
+  roadmapItems: RoadmapItem[];
+  tasks: Task[];
+  scratchpadNotes: ScratchpadNote[];
+  prompts: Prompt[];
+  secrets: Secret[];
+  deploymentItems: DeploymentItem[];
 }
 
 const ALL_MODULE_TYPES: ModuleType[] = [
@@ -40,7 +49,6 @@ export const Workspace: React.FC = () => {
     archivedProjects,
     currentProject,
     setCurrentProject,
-    updateWorkspaceLayout,
     deleteProjectPermanently,
     fetchProjects,
     loading: projectsLoading,
@@ -163,61 +171,71 @@ export const Workspace: React.FC = () => {
           deploymentResult,
         ] = await Promise.all(fetchOperations);
 
+        // Type cast results
+        const prds = prdsResult as { data: any[] | null; error: any };
+        const roadmap = roadmapResult as { data: any[] | null; error: any };
+        const tasks = tasksResult as { data: any[] | null; error: any };
+        const scratchpad = scratchpadResult as { data: any[] | null; error: any };
+        const prompts = promptsResult as { data: any[] | null; error: any };
+        const secrets = secretsResult as { data: any[] | null; error: any };
+        const deployment = deploymentResult as { data: any[] | null; error: any };
+
         // Check for errors
-        if (prdsResult.error) {
-          throw prdsResult.error;
+        if (prds.error) {
+          throw prds.error;
         }
-        if (roadmapResult.error) {
-          throw roadmapResult.error;
+        if (roadmap.error) {
+          throw roadmap.error;
         }
-        if (tasksResult.error) {
-          throw tasksResult.error;
+        if (tasks.error) {
+          throw tasks.error;
         }
-        if (scratchpadResult.error) {
-          throw scratchpadResult.error;
+        if (scratchpad.error) {
+          throw scratchpad.error;
         }
-        if (promptsResult.error) {
-          throw promptsResult.error;
+        if (prompts.error) {
+          throw prompts.error;
         }
-        if (secretsResult.error) {
-          throw secretsResult.error;
+        if (secrets.error) {
+          throw secrets.error;
         }
-        if (deploymentResult.error) {
-          throw deploymentResult.error;
+        if (deployment.error) {
+          throw deployment.error;
         }
 
         const newWorkspaceData = {
-          prds: prdsResult.data || [],
-          roadmapItems: roadmapResult.data || [],
-          tasks: tasksResult.data || [],
-          scratchpadNotes: scratchpadResult.data || [],
-          prompts: promptsResult.data || [],
-          secrets: secretsResult.data || [],
-          deploymentItems: deploymentResult.data || [],
+          prds: prds.data || [],
+          roadmapItems: roadmap.data || [],
+          tasks: tasks.data || [],
+          scratchpadNotes: scratchpad.data || [],
+          prompts: prompts.data || [],
+          secrets: secrets.data || [],
+          deploymentItems: deployment.data || [],
         };
 
         setWorkspaceData(newWorkspaceData);
 
         // Reset retry count on success
         setRetryCount(0);
-      } catch (error: any) {
+      } catch (error: Error | unknown) {
         // Handle different types of errors
         let errorMessage = "Failed to load workspace data";
 
-        if (error.message?.includes("timed out")) {
+        if (error instanceof Error && error.message?.includes("timed out")) {
           errorMessage = `Database operation timed out: ${error.message}. This might indicate a slow connection or server issues.`;
         } else if (
-          error.message?.includes("Failed to fetch") ||
-          error.message?.includes("NetworkError")
+          error instanceof Error &&
+          (error.message?.includes("Failed to fetch") ||
+            error.message?.includes("NetworkError"))
         ) {
           errorMessage =
             "Unable to connect to the database. Please check your internet connection and Supabase configuration.";
         } else if (
-          error.message?.includes("JWT") ||
-          error.message?.includes("auth")
+          error instanceof Error &&
+          (error.message?.includes("JWT") || error.message?.includes("auth"))
         ) {
           errorMessage = "Authentication error. Please try signing in again.";
-        } else if (error.message) {
+        } else if (error instanceof Error && error.message) {
           errorMessage = error.message;
         }
 
@@ -225,7 +243,7 @@ export const Workspace: React.FC = () => {
 
         // Don't auto-retry on auth errors or after max retries
         if (
-          !error.message?.includes("auth") &&
+          !(error instanceof Error && error.message?.includes("auth")) &&
           retryCount < maxRetries &&
           !isRetry
         ) {
@@ -256,6 +274,7 @@ export const Workspace: React.FC = () => {
         scratchpadNotes: [],
         prompts: [],
         secrets: [],
+        deploymentItems: [],
       });
 
       // First check if project exists in already-loaded projects
@@ -327,52 +346,12 @@ export const Workspace: React.FC = () => {
     loading,
   ]);
 
-  const handleAddMissingModules = async () => {
-    if (!currentProject) {
-      return;
-    }
+  // const handleAddMissingModules = async () => {
+  //   if (!currentProject) {
+  //     return;
+  //   }
+  // };
 
-    const defaultModules = ALL_MODULE_TYPES.map((type) => ({
-      id: `${type}-1`, // Simple ID for now, ideally UUID
-      type: type,
-      position: { x: 0, y: 0 }, // Position will be handled by grid layout
-      size: { width: 1, height: 1 }, // Size will be handled by grid layout
-      data: {},
-      is_visible: true,
-    }));
-
-    const existingModuleTypes = new Set(
-      currentProject.workspace_layout.modules.map((m) => m.type),
-    );
-    const missingModules = defaultModules.filter(
-      (module) => !existingModuleTypes.has(module.type),
-    );
-
-    if (missingModules.length > 0) {
-      const updatedLayout = {
-        ...currentProject.workspace_layout,
-        modules: [
-          ...currentProject.workspace_layout.modules,
-          ...missingModules,
-        ],
-        grid_config: {
-          ...currentProject.workspace_layout.grid_config,
-          // Ensure enough rows/columns if needed, though for cards it's less critical
-          columns: 3, // Example: 3 columns for cards
-          rows: Math.ceil(
-            (currentProject.workspace_layout.modules.length +
-              missingModules.length) /
-              3,
-          ),
-        },
-      };
-
-      await updateWorkspaceLayout(updatedLayout);
-      if (projectId) {
-        await fetchWorkspaceData(projectId, true);
-      }
-    }
-  };
 
   const handleDeleteProject = async () => {
     if (!currentProject || isDeleting) {
@@ -402,12 +381,13 @@ export const Workspace: React.FC = () => {
 
   const getModuleSummary = (type: ModuleType): string => {
     switch (type) {
-      case "prd":
+      case "prd": {
         const latestPRD = workspaceData.prds?.[0];
         return latestPRD
           ? `Latest: ${latestPRD.title} (v${latestPRD.version})`
           : "Ready for your first PRD.";
-      case "roadmap":
+      }
+      case "roadmap": {
         const completedRoadmapItems =
           workspaceData.roadmapItems?.filter(
             (item) => item.status === "completed",
@@ -416,7 +396,8 @@ export const Workspace: React.FC = () => {
         return totalRoadmapItems > 0
           ? `${totalRoadmapItems} phases, ${completedRoadmapItems} completed.`
           : "Start your roadmap.";
-      case "tasks":
+      }
+      case "tasks": {
         const todoTasks =
           workspaceData.tasks?.filter((task) => task.status === "todo")
             .length || 0;
@@ -427,27 +408,30 @@ export const Workspace: React.FC = () => {
         return totalTasks > 0
           ? `${totalTasks} tasks total, ${todoTasks} to do, ${inProgressTasks} in progress.`
           : "No tasks yet.";
-      case "scratchpad":
+      }
+      case "scratchpad": {
         const notesCount = workspaceData.scratchpadNotes?.length || 0;
         return notesCount > 0
           ? `${notesCount} notes.`
           : "Start writing down your ideas and notes.";
-      case "prompts":
+      }
+      case "prompts": {
         const promptsCount = workspaceData.prompts?.length || 0;
         return promptsCount > 0
           ? `${promptsCount} prompts.`
           : "Save your favorite prompts.";
-      case "secrets":
-        const activeSecrets =
-          workspaceData.secrets?.filter((secret) => secret.is_active).length ||
-          0;
+      }
+      case "secrets": {
+        const activeSecrets = workspaceData.secrets?.length || 0;
         const totalSecrets = workspaceData.secrets?.length || 0;
         return totalSecrets > 0
           ? `${totalSecrets} secrets, ${activeSecrets} active.`
           : "Coming soon.";
-      case "design":
+      }
+      case "design": {
         return "AI-powered design assistant.";
-      case "deployment":
+      }
+      case "deployment": {
         const completedDeploymentItems =
           workspaceData.deploymentItems?.filter(
             (item) => item.status === "done",
@@ -460,6 +444,7 @@ export const Workspace: React.FC = () => {
         return totalDeploymentItems > 0
           ? `${totalDeploymentItems} items, ${completedDeploymentItems} completed${criticalItems > 0 ? `, ${criticalItems} critical pending` : ""}.`
           : "Go-live preparation checklist.";
+      }
       default:
         return "Ready to get started.";
     }

@@ -1,9 +1,7 @@
 import { format } from "date-fns";
 import {
-  ChevronDown,
   Clock,
   Edit3,
-  Eye,
   FileText,
   GitBranch,
   History,
@@ -12,7 +10,7 @@ import {
   User,
   X,
 } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { BackButton } from "../../components/common/BackButton";
 import {
@@ -32,18 +30,12 @@ export const PRDDetailView: React.FC = () => {
   const [selectedPRD, setSelectedPRD] = useState<any>(null); // Latest PRD from prds table
   const [allPRDVersions, setAllPRDVersions] = useState<any[]>([]); // All versions including current + historical
   const [selectedVersionData, setSelectedVersionData] = useState<any>(null); // Currently displayed version
-  const [isPreviewMode, setIsPreviewMode] = useState(true);
+  const [isPreviewMode] = useState(true);  // setIsPreviewMode unused
   const [isEditing, setIsEditing] = useState(false);
   const [editedPRD, setEditedPRD] = useState<any>(null);
   const [saving, setSaving] = useState(false);
   const [showVersionHistory, setShowVersionHistory] = useState(false);
   const { processContent } = useMarkdownPreprocessing();
-
-  useEffect(() => {
-    if (projectId) {
-      fetchPRDs(projectId);
-    }
-  }, [projectId]);
 
   // Sync editedPRD with selectedVersionData when not editing
   useEffect(() => {
@@ -52,30 +44,63 @@ export const PRDDetailView: React.FC = () => {
     }
   }, [selectedVersionData, isEditing]);
 
-  const fetchPRDs = async (id: string) => {
+  const fetchPRDs = useCallback(async (id: string) => {
     setLoading(true);
     setError(null);
     try {
-      const { data, error: fetchError } = await db.getPRDs(id);
+      const { data, error: fetchError } = await db.getPRDs(id) as { data: any[] | null; error: any };
       if (fetchError) throw fetchError;
       setPrds(data || []);
       if (data && data.length > 0) {
         const latestPRD = data[0]; // Select the latest PRD by default
         setSelectedPRD(latestPRD);
-        await fetchAllVersionsForPRD(latestPRD);
+        
+        // Fetch historical versions
+        try {
+          const { data: historicalVersions, error: versionsError } =
+            await db.getPRDVersions(latestPRD.id) as { data: any[] | null; error: any };
+          if (versionsError) throw versionsError;
+
+          // Combine current PRD with historical versions
+          const currentVersionData = {
+            id: latestPRD.id,
+            version_number: latestPRD.version,
+            title: latestPRD.title,
+            content: latestPRD.content,
+            change_description: latestPRD.change_description,
+            created_by_profile: latestPRD.created_by_profile,
+            updated_by_profile: latestPRD.updated_by_profile,
+            created_at: latestPRD.created_at,
+            updated_at: latestPRD.updated_at,
+            status: latestPRD.status,
+            is_current: true,
+          };
+
+          const allVersions = [currentVersionData, ...(historicalVersions || [])];
+          setAllPRDVersions(allVersions);
+          setSelectedVersionData(currentVersionData); // Initially show current version
+        } catch (err: Error | unknown) {
+          setError(err instanceof Error ? err.message : "Failed to fetch PRD versions");
+        }
       }
-    } catch (err: any) {
-      setError(err.message || "Failed to fetch PRDs");
+    } catch (err: Error | unknown) {
+      setError(err instanceof Error ? err.message : "Failed to fetch PRDs");
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (projectId) {
+      fetchPRDs(projectId);
+    }
+  }, [projectId, fetchPRDs]);
 
   const fetchAllVersionsForPRD = async (prd: any) => {
     try {
       // Fetch historical versions
       const { data: historicalVersions, error: versionsError } =
-        await db.getPRDVersions(prd.id);
+        await db.getPRDVersions(prd.id) as { data: any[] | null; error: any };
       if (versionsError) throw versionsError;
 
       // Combine current PRD with historical versions
@@ -96,8 +121,8 @@ export const PRDDetailView: React.FC = () => {
       const allVersions = [currentVersionData, ...(historicalVersions || [])];
       setAllPRDVersions(allVersions);
       setSelectedVersionData(currentVersionData); // Initially show current version
-    } catch (err: any) {
-      setError(err.message || "Failed to fetch PRD versions");
+    } catch (err: Error | unknown) {
+      setError(err instanceof Error ? err.message : "Failed to fetch PRD versions");
     }
   };
 
@@ -108,11 +133,11 @@ export const PRDDetailView: React.FC = () => {
       const versionData = await db.getSpecificPRDVersion(
         selectedPRD.id,
         versionNumber,
-      );
+      ) as any;
       setSelectedVersionData(versionData);
       setIsEditing(false); // Exit edit mode when switching versions
-    } catch (err: any) {
-      setError(err.message || "Failed to load version data");
+    } catch (err: Error | unknown) {
+      setError(err instanceof Error ? err.message : "Failed to load version data");
     }
   };
 
@@ -128,7 +153,7 @@ export const PRDDetailView: React.FC = () => {
         content: editedPRD.content,
         status: editedPRD.status,
         change_description: editedPRD.change_description,
-      });
+      }) as { data: any; error: any };
 
       if (updateError) throw updateError;
 
@@ -142,8 +167,8 @@ export const PRDDetailView: React.FC = () => {
       // Refetch all versions to get the updated data
       await fetchAllVersionsForPRD(data);
       setIsEditing(false);
-    } catch (err: any) {
-      setError(err.message || "Failed to save PRD");
+    } catch (err: Error | unknown) {
+      setError(err instanceof Error ? err.message : "Failed to save PRD");
     } finally {
       setSaving(false);
     }
@@ -169,7 +194,7 @@ export const PRDDetailView: React.FC = () => {
         selectedPRD.id,
         versionNumber,
         changeDescription,
-      );
+      ) as { data: any; error: any };
 
       if (restoreError) throw restoreError;
 
@@ -183,8 +208,8 @@ export const PRDDetailView: React.FC = () => {
       // Refetch all versions to get the updated data
       await fetchAllVersionsForPRD(data);
       setShowVersionHistory(false);
-    } catch (err: any) {
-      setError(err.message || "Failed to restore version");
+    } catch (err: Error | unknown) {
+      setError(err instanceof Error ? err.message : "Failed to restore version");
     } finally {
       setSaving(false);
     }
@@ -436,7 +461,7 @@ export const PRDDetailView: React.FC = () => {
                       type="text"
                       value={editedPRD?.title || ""}
                       onChange={(e) =>
-                        setEditedPRD((prev) => ({
+                        setEditedPRD((prev: any) => ({
                           ...prev,
                           title: e.target.value,
                         }))
@@ -459,7 +484,7 @@ export const PRDDetailView: React.FC = () => {
                       type="text"
                       value={editedPRD?.change_description || ""}
                       onChange={(e) =>
-                        setEditedPRD((prev) => ({
+                        setEditedPRD((prev: any) => ({
                           ...prev,
                           change_description: e.target.value,
                         }))
@@ -480,7 +505,7 @@ export const PRDDetailView: React.FC = () => {
                       <textarea
                         value={editedPRD?.content || ""}
                         onChange={(e) =>
-                          setEditedPRD((prev) => ({
+                          setEditedPRD((prev: any) => ({
                             ...prev,
                             content: e.target.value,
                           }))

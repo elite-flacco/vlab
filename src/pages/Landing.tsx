@@ -210,7 +210,7 @@ export const Landing: React.FC<LandingProps> = ({
     return () => {
       observers.forEach((observer) => observer.disconnect());
     };
-  }, [features.length]);
+  }, [features]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -596,65 +596,57 @@ export const Landing: React.FC<LandingProps> = ({
                       </>
                     )}
 
-                    {true && (
-                      <>
-                        <div>
-                          <label className="block text-sm text-foreground-dim mb-2">
-                            --email
-                          </label>
-                          <input
-                            type="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleInputChange}
-                            className="form-input"
-                            placeholder="user@domain.com"
-                            required
-                            aria-label="Email address"
-                            autoComplete="email"
-                          />
-                        </div>
-                      </>
-                    )}
+                    <div>
+                      <label className="block text-sm text-foreground-dim mb-2">
+                        --email
+                      </label>
+                      <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        className="form-input"
+                        placeholder="user@domain.com"
+                        required
+                        aria-label="Email address"
+                        autoComplete="email"
+                      />
+                    </div>
 
-                    {true && (
-                      <>
-                        <div>
-                          <label className="block text-sm text-foreground-dim mb-2">
-                            --password
-                          </label>
-                          <div className="relative">
-                            <input
-                              type={showPassword ? "text" : "password"}
-                              name="password"
-                              value={formData.password}
-                              onChange={handleInputChange}
-                              className="form-input"
-                              placeholder="••••••••"
-                              required
-                              aria-label="Password"
-                              autoComplete={
-                                isSignUp ? "new-password" : "current-password"
-                              }
-                            />
-                            <button
-                              type="button"
-                              onClick={() => setShowPassword(!showPassword)}
-                              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-foreground-dim hover:text-foreground transition-colors"
-                              aria-label={
-                                showPassword ? "Hide password" : "Show password"
-                              }
-                            >
-                              {showPassword ? (
-                                <EyeOff className="w-5 h-5" />
-                              ) : (
-                                <Eye className="w-5 h-5" />
-                              )}
-                            </button>
-                          </div>
-                        </div>
-                      </>
-                    )}
+                    <div>
+                      <label className="block text-sm text-foreground-dim mb-2">
+                        --password
+                      </label>
+                      <div className="relative">
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          name="password"
+                          value={formData.password}
+                          onChange={handleInputChange}
+                          className="form-input"
+                          placeholder="••••••••"
+                          required
+                          aria-label="Password"
+                          autoComplete={
+                            isSignUp ? "new-password" : "current-password"
+                          }
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-foreground-dim hover:text-foreground transition-colors"
+                          aria-label={
+                            showPassword ? "Hide password" : "Show password"
+                          }
+                        >
+                          {showPassword ? (
+                            <EyeOff className="w-5 h-5" />
+                          ) : (
+                            <Eye className="w-5 h-5" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
 
                     {/* Enhanced Error Display */}
                     {error && (

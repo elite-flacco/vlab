@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Map,
   Sparkles,
@@ -9,22 +9,10 @@ import {
   Loader2,
   RefreshCw,
   Calendar,
-  Target,
 } from "lucide-react";
 import { generateRoadmap } from "../../lib/openai";
 import { db } from "../../lib/supabase";
-
-interface RoadmapItem {
-  title: string;
-  description: string;
-  status: "planned" | "in_progress" | "completed";
-  start_date?: string;
-  end_date?: string;
-  milestone: boolean;
-  color: string;
-  position: number;
-  phase: "mvp" | "phase_2" | "backlog";
-}
+import type { RoadmapItem } from "../../types";
 
 interface RoadmapGeneratorProps {
   projectId: string;
@@ -48,14 +36,7 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
   const [hasGenerated, setHasGenerated] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
-  // Auto-generate roadmap when component mounts
-  useEffect(() => {
-    if (prdContent && !hasGenerated) {
-      handleGenerateRoadmap();
-    }
-  }, [prdContent, hasGenerated]);
-
-  const handleGenerateRoadmap = async () => {
+  const handleGenerateRoadmap = useCallback(async () => {
     setIsGenerating(true);
     setError(null);
 
@@ -71,7 +52,14 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
     } finally {
       setIsGenerating(false);
     }
-  };
+  }, [prdContent]);
+
+  // Auto-generate roadmap when component mounts
+  useEffect(() => {
+    if (prdContent && !hasGenerated) {
+      handleGenerateRoadmap();
+    }
+  }, [prdContent, hasGenerated, handleGenerateRoadmap]);
 
   const handleSaveRoadmap = async () => {
     if (roadmapItems.length === 0) return;
@@ -118,13 +106,19 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
 
   const handleAddItem = () => {
     const newItem: RoadmapItem = {
+      id: `temp-${Date.now()}`, // Temporary ID for UI purposes
+      project_id: projectId,
       title: "New Roadmap Item",
       description: "Add description here...",
       status: "planned",
+      phase: "backlog", // Default to backlog for new items
+      progress: 0,
+      dependencies: [],
       milestone: false,
       color: "#3b82f6",
       position: roadmapItems.length,
-      phase: "backlog", // Default to backlog for new items
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     };
     setRoadmapItems([...roadmapItems, newItem]);
     setEditingIndex(roadmapItems.length);

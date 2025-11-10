@@ -6,7 +6,7 @@ import {
   ThumbsUp,
   User,
 } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { communityApi } from "../../lib/communityApi";
 import {
   MarkdownRenderer,
@@ -69,11 +69,7 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({
   const [userVote, setUserVote] = useState<"upvote" | "downvote" | null>(null);
   const { processContent } = useMarkdownPreprocessing();
 
-  useEffect(() => {
-    fetchPost();
-  }, [postId]);
-
-  const fetchPost = async () => {
+  const fetchPost = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -82,13 +78,17 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({
       setPost(postData);
       setIsSaved(!!postData.user_saved?.length);
       setUserVote(postData.user_vote?.[0]?.vote_type || null);
-    } catch (err: any) {
-      setError(err.message || "Failed to load post");
+    } catch (err: Error | unknown) {
+      setError(err instanceof Error ? err.message : "Failed to load post");
       console.error("Error fetching post:", err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [postId]);
+
+  useEffect(() => {
+    fetchPost();
+  }, [fetchPost]);
 
   const handleVote = async (voteType: "upvote" | "downvote") => {
     if (!post) return;
@@ -186,57 +186,12 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({
       } else {
         setNewComment("");
       }
-    } catch (err: any) {
+    } catch (err: Error | unknown) {
       console.error("Error adding comment:", err);
-      setError(err.message || "Failed to add comment");
+      setError(err instanceof Error ? err.message : "Failed to add comment");
     } finally {
       setSubmittingComment(false);
     }
-  };
-
-  const getCategoryBadge = (tool?: string, tipCategory?: string) => {
-    const badges = [];
-
-    // Tool badge
-    if (tool) {
-      const toolLabels: Record<string, string> = {
-        bolt: "Bolt",
-        loveable: "Loveable",
-        replit: "Replit",
-        v0: "V0",
-        other: "Other",
-      };
-      badges.push(
-        <span
-          key="tool"
-          className="inline-flex items-center px-2 py-1 bg-purple-100 text-purple-800 border border-purple-200 rounded-full text-xs font-medium"
-        >
-          {toolLabels[tool] || tool}
-        </span>,
-      );
-    }
-
-    // Tip category badge
-    if (tipCategory) {
-      const categoryLabels: Record<string, string> = {
-        prompt_tricks: "Prompt Tricks",
-        integrations: "Integrations",
-        authentication: "Authentication",
-        payment: "Payment",
-        documentation: "Documentation",
-        other: "Other",
-      };
-      badges.push(
-        <span
-          key="tip-category"
-          className="inline-flex items-center px-2 py-1 bg-orange-100 text-orange-800 border border-orange-200 rounded-full text-xs font-medium"
-        >
-          {categoryLabels[tipCategory] || tipCategory}
-        </span>,
-      );
-    }
-
-    return badges;
   };
 
   const renderComment = (comment: Comment, depth = 0) => {
@@ -280,7 +235,11 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({
 
           {/* Comment Content */}
           <div className="text-foreground/90 mb-4 text-sm leading-relaxed">
-            {renderMarkdown(comment.content)}
+            <MarkdownRenderer
+              content={processContent(comment.content, { convertUrls: true })}
+              variant="default"
+              className="text-foreground/90"
+            />
           </div>
 
           {/* Comment Actions */}

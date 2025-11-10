@@ -1,7 +1,6 @@
 import { format } from "date-fns";
 import {
   Calendar,
-  Clock,
   Edit3,
   ListTodo,
   Loader2,
@@ -12,9 +11,10 @@ import {
   Tag,
   Trash2,
 } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { generateTasks } from "../../lib/openai";
 import { db } from "../../lib/supabase";
+import type { RoadmapItem } from "../../types";
 
 interface TaskItem {
   title: string;
@@ -28,16 +28,6 @@ interface TaskItem {
   position: number;
 }
 
-interface RoadmapItem {
-  title: string;
-  description: string;
-  status: "planned" | "in_progress" | "completed";
-  start_date?: string;
-  end_date?: string;
-  milestone: boolean;
-  color: string;
-  position: number;
-}
 
 interface TaskGeneratorProps {
   projectId: string;
@@ -70,14 +60,7 @@ export const TaskGenerator: React.FC<TaskGeneratorProps> = ({
     // console.log('  - hasGenerated:', hasGenerated);
   }, []);
 
-  // Auto-generate tasks when component mounts
-  useEffect(() => {
-    if (prdContent && roadmapItems.length > 0 && !hasGenerated) {
-      handleGenerateTasks();
-    }
-  }, [prdContent, roadmapItems, hasGenerated]);
-
-  const handleGenerateTasks = async () => {
+  const handleGenerateTasks = useCallback(async () => {
     setIsGenerating(true);
     setError(null);
 
@@ -93,7 +76,14 @@ export const TaskGenerator: React.FC<TaskGeneratorProps> = ({
     } finally {
       setIsGenerating(false);
     }
-  };
+  }, [prdContent, roadmapItems]);
+
+  // Auto-generate tasks when component mounts
+  useEffect(() => {
+    if (prdContent && roadmapItems.length > 0 && !hasGenerated) {
+      handleGenerateTasks();
+    }
+  }, [prdContent, roadmapItems, hasGenerated, handleGenerateTasks]);
 
   const handleSaveTasks = async () => {
     if (tasks.length === 0) return;
@@ -167,19 +157,6 @@ export const TaskGenerator: React.FC<TaskGeneratorProps> = ({
     }));
     setTasks(reorderedTasks);
     setEditingIndex(null);
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "done":
-        return "bg-success/10 text-success border-success/20";
-      case "in_progress":
-        return "bg-primary/10 text-primary border-primary/20";
-      case "blocked":
-        return "bg-destructive/10 text-destructive border-destructive/20";
-      default:
-        return "bg-muted text-foreground/80 border-border";
-    }
   };
 
   const getPriorityColor = (priority: string) => {

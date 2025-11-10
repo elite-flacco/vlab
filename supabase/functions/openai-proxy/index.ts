@@ -104,7 +104,7 @@ serve(async (req) => {
     let requestData: OpenAIRequest;
     try {
       requestData = JSON.parse(requestText);
-    } catch (parseError) {
+    } catch {
       return new Response(JSON.stringify({ error: 'Invalid JSON format' }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" }
@@ -238,7 +238,7 @@ const cleanJsonResponse = (content: string): string => {
 function sanitizeInput(input: string): string {
   // Remove potentially harmful characters and limit length
   return input
-    .replace(/[<>\"'&]/g, '') // Remove HTML/script chars
+    .replace(/[<>"'&]/g, '') // Remove HTML/script chars
     .substring(0, 10000) // Limit length
     .trim();
 }
@@ -508,7 +508,7 @@ Avoid vague items like:
         position: index,
       };
     });
-  } catch (parseError) {
+  } catch {
     console.error('Failed to parse roadmap JSON:', content);
     
     // Fallback: create a granular roadmap structure
@@ -704,7 +704,7 @@ ${roadmapSummary}`
       dependencies: Array.isArray(task.dependencies) ? task.dependencies : [],
       position: index,
     }));
-  } catch (parseError) {
+  } catch {
     console.error('Failed to parse tasks JSON:', content);
     
     // Fallback: create basic task structure
@@ -839,7 +839,7 @@ async function generateDesignTasks(apiKey: string, feedbackText: string): Promis
       dependencies: [],
       position: index,
     }));
-  } catch (parseError) {
+  } catch {
     console.error('Failed to parse design tasks JSON:', content);
     
     // Fallback: create basic task structure
@@ -977,7 +977,7 @@ async function generateDesignTasksFromImage(apiKey: string, imageData: string, m
       dependencies: [],
       position: index,
     }));
-  } catch (parseError) {
+  } catch {
     console.error('Failed to parse design tasks JSON:', content);
     
     // Fallback: create basic task structure
@@ -1124,7 +1124,7 @@ ${!sanitizedContent && !roadmapSummary ?
       helpful_links: Array.isArray(item.helpful_links) ? item.helpful_links : [],
       position: index,
     }));
-  } catch (parseError) {
+  } catch {
     console.error('Failed to parse deployment checklist JSON:', content);
     
     // Fallback: create basic deployment checklist

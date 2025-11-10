@@ -63,9 +63,9 @@ const validateSignUpInput = (
 };
 
 // Map Supabase errors to user-friendly messages
-const mapSupabaseError = (error: any): string => {
-  const message = error?.message || "";
-  const code = error?.code || "";
+const mapSupabaseError = (error: Error | unknown): string => {
+  const message = (error as any)?.message || "";
+  const code = (error as any)?.code || "";
 
   // Check for specific error patterns
   if (
@@ -187,8 +187,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       } else {
         set({ loading: false });
       }
-    } catch (error: any) {
-      set({ error: error.message, loading: false });
+    } catch (error: Error | unknown) {
+      set({
+        error: error instanceof Error ? error.message : String(error),
+        loading: false,
+      });
     }
   },
 
@@ -245,8 +248,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       } else {
         set({ loading: false });
       }
-    } catch (error: any) {
-      set({ error: error.message, loading: false });
+    } catch (error: Error | unknown) {
+      set({
+        error: error instanceof Error ? error.message : String(error),
+        loading: false,
+      });
     }
   },
 
@@ -307,8 +313,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       } else {
         set({ loading: false });
       }
-    } catch (error: any) {
-      set({ error: error.message, loading: false });
+    } catch (error: Error | unknown) {
+      set({
+        error: error instanceof Error ? error.message : String(error),
+        loading: false,
+      });
     }
   },
 
@@ -408,8 +417,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       } else {
         set({ loading: false });
       }
-    } catch (error: any) {
-      set({ error: error.message, loading: false });
+    } catch (error: Error | unknown) {
+      set({
+        error: error instanceof Error ? error.message : String(error),
+        loading: false,
+      });
     }
   },
 
@@ -432,7 +444,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       clearProjects();
 
       set({ user: null, loading: false });
-    } catch (error: any) {
+    } catch (error: Error | unknown) {
       console.error("🔐 AuthStore: SignOut failed:", error);
       // Still clear local state even if signOut failed
       const { clearProjects } = await import("./projectStore").then((m) =>
@@ -456,8 +468,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       if (error) throw error;
 
       set({ loading: false });
-    } catch (error: any) {
-      set({ error: error.message, loading: false });
+    } catch (error: Error | unknown) {
+      set({
+        error: error instanceof Error ? error.message : String(error),
+        loading: false,
+      });
       throw error; // Re-throw so the component can handle it
     }
   },
@@ -612,9 +627,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
         set({ user: null, loading: false });
       }
-    } catch (error: any) {
+    } catch (error: Error | unknown) {
       console.error("❌ AuthStore: Initialize error:", error);
-      set({ error: error.message, loading: false, user: null });
+      set({
+        error: error instanceof Error ? error.message : String(error),
+        loading: false,
+        user: null,
+      });
     }
   },
 

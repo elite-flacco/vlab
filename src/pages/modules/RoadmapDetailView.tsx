@@ -1,6 +1,5 @@
 import { format } from "date-fns";
 import {
-  ArrowLeft,
   Calendar,
   Edit3,
   Loader2,
@@ -67,8 +66,10 @@ export const RoadmapDetailView: React.FC = () => {
       const { data, error: fetchError } = await db.getRoadmapItems(id);
       if (fetchError) throw fetchError;
       setRoadmapItems(data || []);
-    } catch (err: any) {
-      setError(err.message || "Failed to fetch roadmap items");
+    } catch (err: Error | unknown) {
+      setError(
+        err instanceof Error ? err.message : "Failed to fetch roadmap items",
+      );
     } finally {
       setLoading(false);
     }
@@ -107,8 +108,10 @@ export const RoadmapDetailView: React.FC = () => {
       );
       setRoadmapItems(updatedItems);
       setEditingItemId(null);
-    } catch (err: any) {
-      setError(err.message || "Failed to update roadmap item");
+    } catch (err: Error | unknown) {
+      setError(
+        err instanceof Error ? err.message : "Failed to update roadmap item",
+      );
     } finally {
       setSaving(false);
     }
@@ -159,8 +162,10 @@ export const RoadmapDetailView: React.FC = () => {
       // Add to local state
       setRoadmapItems((prev) => [...prev, data]);
       setNewRoadmapItem(null);
-    } catch (err: any) {
-      setError(err.message || "Failed to create roadmap item");
+    } catch (err: Error | unknown) {
+      setError(
+        err instanceof Error ? err.message : "Failed to create roadmap item",
+      );
     } finally {
       setSaving(false);
     }
@@ -184,8 +189,10 @@ export const RoadmapDetailView: React.FC = () => {
 
       setRoadmapItems(updatedItems);
       setEditingItemId(null);
-    } catch (err: any) {
-      setError(err.message || "Failed to delete roadmap item");
+    } catch (err: Error | unknown) {
+      setError(
+        err instanceof Error ? err.message : "Failed to delete roadmap item",
+      );
     } finally {
       setSaving(false);
     }
@@ -236,10 +243,12 @@ export const RoadmapDetailView: React.FC = () => {
         phase: destinationPhase,
         position: destination.index,
       });
-    } catch (err: any) {
+    } catch (err: Error | unknown) {
       // Revert local state on error
       setRoadmapItems(originalItems);
-      setError(err.message || "Failed to update item position");
+      setError(
+        err instanceof Error ? err.message : "Failed to update item position",
+      );
     } finally {
       setSaving(false);
     }
@@ -268,20 +277,20 @@ export const RoadmapDetailView: React.FC = () => {
     });
   };
 
-  const handleDirectPhaseChange = async (itemId: string, newPhase: string) => {
-    // Update local state immediately
-    const updatedItems = roadmapItems.map((item) =>
-      item.id === itemId
-        ? { ...item, phase: newPhase as RoadmapItem["phase"] }
-        : item,
-    );
-    setRoadmapItems(updatedItems);
+  // const handleDirectPhaseChange = async (itemId: string, newPhase: string) => {
+  //   // Update local state immediately
+  //   const updatedItems = roadmapItems.map((item) =>
+  //     item.id === itemId
+  //       ? { ...item, phase: newPhase as RoadmapItem["phase"] }
+  //       : item,
+  //   );
+  //   setRoadmapItems(updatedItems);
 
-    // Save to database
-    await handleUpdateRoadmapItem(itemId, {
-      phase: newPhase as RoadmapItem["phase"],
-    });
-  };
+  //   // Save to database
+  //   await handleUpdateRoadmapItem(itemId, {
+  //     phase: newPhase as RoadmapItem["phase"],
+  //   });
+  // };
 
   // Group items by phase for Kanban view
   const mvpItems = roadmapItems
@@ -343,7 +352,7 @@ export const RoadmapDetailView: React.FC = () => {
     if (!dateString) return "";
     try {
       return format(new Date(dateString), "MMM d, yyyy");
-    } catch (e) {
+    } catch {
       return dateString;
     }
   };
@@ -426,7 +435,7 @@ export const RoadmapDetailView: React.FC = () => {
                 </select>
               </div>
 
-              <div>
+              {showPhaseSelector && (<div>
                 <label className="block text-xs font-medium text-foreground mb-1">
                   Phase
                 </label>
@@ -447,6 +456,7 @@ export const RoadmapDetailView: React.FC = () => {
                   <option value="backlog">Backlog</option>
                 </select>
               </div>
+              )}
               <div>
                 <label className="block text-xs font-medium text-foreground mb-1">
                   End Date

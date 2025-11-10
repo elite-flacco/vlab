@@ -111,16 +111,18 @@ export const Community: React.FC = () => {
 
   useEffect(() => {
     fetchPosts();
-  }, [currentPage, selectedTool, selectedTipCategory, sortBy, selectedTag]);
+  }, [currentPage, selectedTool, selectedTipCategory, sortBy, searchTerm, selectedTag]);
 
   useEffect(() => {
     // Reset to first page when filters change
-    if (currentPage !== 1) {
-      setCurrentPage(1);
-    } else {
-      fetchPosts();
-    }
-  }, [searchTerm, selectedTool, selectedTipCategory, sortBy, selectedTag]);
+    setCurrentPage(1);
+  }, [
+    searchTerm,
+    selectedTool,
+    selectedTipCategory,
+    sortBy,
+    selectedTag,
+  ]);
 
   const fetchPosts = async () => {
     setLoading(true);

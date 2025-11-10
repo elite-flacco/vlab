@@ -5,9 +5,6 @@ import { BackButton } from "../../components/common/BackButton";
 import {
   Palette,
   Sparkles,
-  Zap,
-  Layers,
-  PenTool,
   Loader2,
   CheckCircle2,
   AlertCircle,
@@ -15,7 +12,6 @@ import {
   Check,
   Edit2,
   Save,
-  X,
   Upload,
   Image,
   FileText,
@@ -27,7 +23,6 @@ import {
   generateDesignTasks,
   generateDesignTasksFromImage,
 } from "../../lib/openai";
-import { v4 as uuidv4 } from "uuid";
 
 interface GeneratedTask {
   title: string;
@@ -129,7 +124,7 @@ export const DesignDetailView: React.FC = () => {
       reader.onload = (e) => {
         setImagePreview(e.target?.result as string);
       };
-      reader.onerror = (e) => {
+      reader.onerror = () => {
         setError("Failed to create image preview");
       };
       reader.readAsDataURL(file);
@@ -253,7 +248,7 @@ export const DesignDetailView: React.FC = () => {
       reader.onload = (e) => {
         setImagePreview(e.target?.result as string);
       };
-      reader.onerror = (e) => {
+      reader.onerror = () => {
         setError("Failed to create image preview");
       };
       reader.readAsDataURL(imageFile);

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   Upload,
   X,
@@ -40,80 +40,94 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const uploadAreaRef = useRef<HTMLDivElement>(null);
 
-  const validateFile = (file: File): string | null => {
-    if (file.size > maxFileSize) {
-      return `File size must be less than ${Math.round(maxFileSize / 1024 / 1024)}MB`;
-    }
-
-    if (!acceptedTypes.includes(file.type)) {
-      return `File type ${file.type} is not supported. Please use JPG, PNG, GIF, or WebP.`;
-    }
-
-    return null;
-  };
-
-  const uploadFile = async (file: File) => {
-    const validation = validateFile(file);
-    if (validation) {
-      onError(validation);
-      return;
-    }
-
-    if (!taskId && !scratchpadNoteId) {
-      onError("Either taskId or scratchpadNoteId must be provided");
-      return;
-    }
-
-    if (taskId && scratchpadNoteId) {
-      onError("Cannot attach to both task and scratchpad note");
-      return;
-    }
-
-    setUploading(true);
-
-    try {
-      // Generate unique filename
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `attachments/${fileName}`;
-
-      // Upload to Supabase Storage
-      const { error: storageError } = await supabase.storage
-        .from("attachments")
-        .upload(filePath, file);
-
-      if (storageError) {
-        throw new Error(`Storage upload failed: ${storageError.message}`);
+  const validateFile = useCallback(
+    (file: File): string | null => {
+      if (file.size > maxFileSize) {
+        return `File size must be less than ${Math.round(maxFileSize / 1024 / 1024)}MB`;
       }
 
-      // Create attachment record in database
-      const { data: attachment, error: dbError } = await supabase
-        .from("attachments")
-        .insert({
-          task_id: taskId || null,
-          scratchpad_note_id: scratchpadNoteId || null,
-          file_name: file.name,
-          file_size: file.size,
-          mime_type: file.type,
-          storage_path: filePath,
-        })
-        .select()
-        .single();
-
-      if (dbError) {
-        // Clean up the uploaded file if database insert fails
-        await supabase.storage.from("attachments").remove([filePath]);
-        throw new Error(`Database error: ${dbError.message}`);
+      if (!acceptedTypes.includes(file.type)) {
+        return `File type ${file.type} is not supported. Please use JPG, PNG, GIF, or WebP.`;
       }
 
-      onUploadComplete(attachment);
-    } catch (error) {
-      console.error("Upload failed:", error);
-      onError(error instanceof Error ? error.message : "Upload failed");
-    } finally {
-      setUploading(false);
-    }
-  };
+      return null;
+    },
+    [maxFileSize, acceptedTypes],
+  );
+
+  const uploadFile = useCallback(
+    async (file: File) => {
+      const validation = validateFile(file);
+      if (validation) {
+        onError(validation);
+        return;
+      }
+
+      if (!taskId && !scratchpadNoteId) {
+        onError("Either taskId or scratchpadNoteId must be provided");
+        return;
+      }
+
+      if (taskId && scratchpadNoteId) {
+        onError("Cannot attach to both task and scratchpad note");
+        return;
+      }
+
+      setUploading(true);
+
+      try {
+        // Generate unique filename
+        const fileExt = file.name.split(".").pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `attachments/${fileName}`;
+
+        // Upload to Supabase Storage
+        const { error: storageError } = await supabase.storage
+          .from("attachments")
+          .upload(filePath, file);
+
+        if (storageError) {
+          throw new Error(`Storage upload failed: ${storageError.message}`);
+        }
+
+        // Create attachment record in database
+        const { data: attachment, error: dbError } = await supabase
+          .from("attachments")
+          .insert({
+            task_id: taskId || null,
+            scratchpad_note_id: scratchpadNoteId || null,
+            file_name: file.name,
+            file_size: file.size,
+            mime_type: file.type,
+            storage_path: filePath,
+          })
+          .select()
+          .single();
+
+        if (dbError) {
+          // Clean up the uploaded file if database insert fails
+          await supabase.storage.from("attachments").remove([filePath]);
+          throw new Error(`Database error: ${dbError.message}`);
+        }
+
+        onUploadComplete(attachment);
+      } catch (error) {
+        console.error("Upload failed:", error);
+        onError(error instanceof Error ? error.message : "Upload failed");
+      } finally {
+        setUploading(false);
+      }
+    },
+    [
+      taskId,
+      scratchpadNoteId,
+      maxFileSize,
+      acceptedTypes,
+      onUploadComplete,
+      onError,
+      validateFile,
+    ],
+  );
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -144,47 +158,50 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
     }
   };
 
-  const handlePaste = async (e: ClipboardEvent) => {
-    // Only handle paste if the upload area is focused or if we're not in an input field
-    const activeElement = document.activeElement;
-    const isInputField =
-      activeElement instanceof HTMLInputElement ||
-      activeElement instanceof HTMLTextAreaElement ||
-      activeElement?.getAttribute("contenteditable") === "true";
+  const handlePaste = useCallback(
+    async (e: ClipboardEvent) => {
+      // Only handle paste if the upload area is focused or if we're not in an input field
+      const activeElement = document.activeElement;
+      const isInputField =
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement?.getAttribute("contenteditable") === "true";
 
-    // If we're in an input field, don't intercept the paste
-    if (isInputField) {
-      return;
-    }
-
-    const clipboardData = e.clipboardData;
-    if (!clipboardData) return;
-
-    const items = Array.from(clipboardData.items);
-    const imageItem = items.find((item) => item.type.startsWith("image/"));
-
-    if (imageItem) {
-      e.preventDefault(); // Prevent default paste behavior for images
-
-      const file = imageItem.getAsFile();
-      if (file) {
-        // Create a proper File object with a meaningful name
-        const timestamp = new Date()
-          .toISOString()
-          .slice(0, 19)
-          .replace(/[:-]/g, "");
-        const extension = file.type.split("/")[1] || "png";
-        const fileName = `pasted-image-${timestamp}.${extension}`;
-
-        const renamedFile = new File([file], fileName, {
-          type: file.type,
-          lastModified: Date.now(),
-        });
-
-        uploadFile(renamedFile);
+      // If we're in an input field, don't intercept the paste
+      if (isInputField) {
+        return;
       }
-    }
-  };
+
+      const clipboardData = e.clipboardData;
+      if (!clipboardData) return;
+
+      const items = Array.from(clipboardData.items);
+      const imageItem = items.find((item) => item.type.startsWith("image/"));
+
+      if (imageItem) {
+        e.preventDefault(); // Prevent default paste behavior for images
+
+        const file = imageItem.getAsFile();
+        if (file) {
+          // Create a proper File object with a meaningful name
+          const timestamp = new Date()
+            .toISOString()
+            .slice(0, 19)
+            .replace(/[:-]/g, "");
+          const extension = file.type.split("/")[1] || "png";
+          const fileName = `pasted-image-${timestamp}.${extension}`;
+
+          const renamedFile = new File([file], fileName, {
+            type: file.type,
+            lastModified: Date.now(),
+          });
+
+          uploadFile(renamedFile);
+        }
+      }
+    },
+    [uploadFile],
+  );
 
   // Set up paste event listener
   useEffect(() => {
@@ -196,7 +213,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
     return () => {
       document.removeEventListener("paste", handlePasteEvent);
     };
-  }, [uploading]); // Re-setup if uploading state changes
+  }, [handlePaste]);
 
   return (
     <div className={`relative ${className}`}>

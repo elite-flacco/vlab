@@ -42,7 +42,6 @@ export const PromptsDetailView: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [isEditingList, setIsEditingList] = useState(false);
   const [editingPromptId, setEditingPromptId] = useState<string | null>(null);
   const [newPrompt, setNewPrompt] = useState<Partial<PromptItem> | null>(null);
   const [saving, setSaving] = useState(false);
@@ -60,8 +59,8 @@ export const PromptsDetailView: React.FC = () => {
       const { data, error: fetchError } = await db.getPrompts(id);
       if (fetchError) throw fetchError;
       setPrompts(data || []);
-    } catch (err: any) {
-      setError(err.message || "Failed to fetch prompts");
+    } catch (err: Error | unknown) {
+      setError(err instanceof Error ? err.message : "Failed to fetch prompts");
     } finally {
       setLoading(false);
     }
@@ -91,8 +90,8 @@ export const PromptsDetailView: React.FC = () => {
       );
       setPrompts(updatedPrompts);
       setEditingPromptId(null);
-    } catch (err: any) {
-      setError(err.message || "Failed to update prompt");
+    } catch (err: Error | unknown) {
+      setError(err instanceof Error ? err.message : "Failed to update prompt");
     } finally {
       setSaving(false);
     }
@@ -124,8 +123,8 @@ export const PromptsDetailView: React.FC = () => {
       // Add to local state
       setPrompts((prev) => [data, ...prev]);
       setNewPrompt(null);
-    } catch (err: any) {
-      setError(err.message || "Failed to create prompt");
+    } catch (err: Error | unknown) {
+      setError(err instanceof Error ? err.message : "Failed to create prompt");
     } finally {
       setSaving(false);
     }
@@ -142,8 +141,8 @@ export const PromptsDetailView: React.FC = () => {
       // Remove from local state
       setPrompts((prev) => prev.filter((prompt) => prompt.id !== promptId));
       setEditingPromptId(null);
-    } catch (err: any) {
-      setError(err.message || "Failed to delete prompt");
+    } catch (err: Error | unknown) {
+      setError(err instanceof Error ? err.message : "Failed to delete prompt");
     } finally {
       setSaving(false);
     }
@@ -262,7 +261,6 @@ export const PromptsDetailView: React.FC = () => {
           {!newPrompt && (
             <button
               onClick={() => {
-                setIsEditingList(true);
                 setNewPrompt({
                   name: "",
                   description: "",

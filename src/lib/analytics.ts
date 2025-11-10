@@ -2,8 +2,8 @@
 
 declare global {
   interface Window {
-    gtag: (...args: any[]) => void;
-    dataLayer: any[];
+    gtag: (...args: unknown[]) => void;
+    dataLayer: unknown[];
   }
 }
 
@@ -59,7 +59,7 @@ export const trackPageView = (path: string, title?: string): void => {
  */
 export const trackEvent = (
   eventName: string,
-  parameters?: Record<string, any>,
+  parameters?: Record<string, unknown>,
 ): void => {
   if (!isAnalyticsEnabled()) return;
 
@@ -132,7 +132,10 @@ export const analytics = {
   },
 
   // Feature adoption
-  trackFeatureUsed: (featureName: string, metadata?: Record<string, any>) => {
+  trackFeatureUsed: (
+    featureName: string,
+    metadata?: Record<string, unknown>,
+  ) => {
     trackEvent("feature_used", {
       feature_name: featureName,
       ...metadata,
@@ -158,7 +161,9 @@ export const analytics = {
 /**
  * Set user properties (for authenticated users)
  */
-export const setUserProperties = (properties: Record<string, any>): void => {
+export const setUserProperties = (
+  properties: Record<string, unknown>,
+): void => {
   if (!isAnalyticsEnabled()) return;
 
   window.gtag("config", import.meta.env.VITE_GA_MEASUREMENT_ID, {

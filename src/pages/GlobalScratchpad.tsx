@@ -1,8 +1,5 @@
 import { format } from "date-fns";
 import {
-  AlertCircle,
-  Check,
-  CheckCircle2,
   ChevronDown,
   ChevronUp,
   Edit3,
@@ -11,9 +8,7 @@ import {
   Plus,
   Save,
   Search,
-  Sparkles,
   StickyNote,
-  Tag,
   Trash2,
   X,
 } from "lucide-react";
@@ -25,8 +20,7 @@ import {
   MarkdownRenderer,
   useMarkdownPreprocessing,
 } from "../components/common/MarkdownRenderer";
-import { generateDesignTasks } from "../lib/openai";
-import { db, supabase } from "../lib/supabase";
+import { db } from "../lib/supabase";
 import { useAuthStore } from "../stores/authStore";
 
 interface DatabaseResponse<T> {
@@ -49,17 +43,17 @@ interface GlobalNote {
   updated_at: string;
 }
 
-interface GeneratedTask {
-  title: string;
-  description: string;
-  status: "todo" | "in_progress" | "done" | "blocked";
-  priority: "low" | "medium" | "high" | "highest";
-  estimated_hours?: number;
-  due_date?: string;
-  tags: string[];
-  dependencies: string[];
-  position: number;
-}
+// interface GeneratedTask {
+//   title: string;
+//   description: string;
+//   status: "todo" | "in_progress" | "done" | "blocked";
+//   priority: "low" | "medium" | "high" | "highest";
+//   estimated_hours?: number;
+//   due_date?: string;
+//   tags: string[];
+//   dependencies: string[];
+//   position: number;
+// }
 
 // Define tag options as specified
 const TAG_OPTIONS = [
@@ -70,8 +64,6 @@ const TAG_OPTIONS = [
 ];
 
 // Use consistent tag styling across all modules
-const getTagClass = () => "badge-tag";
-
 export const GlobalScratchpad: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
@@ -91,16 +83,6 @@ export const GlobalScratchpad: React.FC = () => {
   const contentRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // Task generation state (disabled for global notes initially)
-  const [isGeneratingTasks, setIsGeneratingTasks] = useState(false);
-  const [generatedTasks, setGeneratedTasks] = useState<GeneratedTask[]>([]);
-  const [selectedTaskIds, setSelectedTaskIds] = useState<Set<number>>(
-    new Set(),
-  );
-  const [selectedNoteForTasks, setSelectedNoteForTasks] = useState<
-    string | null
-  >(null);
-  const [taskSuccess, setTaskSuccess] = useState<string | null>(null);
-  const [taskError, setTaskError] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -217,11 +199,11 @@ export const GlobalScratchpad: React.FC = () => {
   };
 
   // Note: Task generation disabled for global notes since they're not project-specific
-  const generateTasksFromNote = async (noteId: string) => {
-    setTaskError(
-      "Task generation is not available for global notes. Create tasks within specific projects.",
-    );
-  };
+  // const generateTasksFromNote = async (noteId: string) => {
+  //   setError(
+  //     "Task generation is not available for global notes. Create tasks within specific projects.",
+  //   );
+  // };
 
   const allTags = Array.from(new Set(notes.flatMap((note) => note.tags || [])));
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   FileText,
   Sparkles,
@@ -34,14 +34,7 @@ export const PRDGenerator: React.FC<PRDGeneratorProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [hasGenerated, setHasGenerated] = useState(false);
 
-  // Auto-generate PRD when component mounts
-  useEffect(() => {
-    if (ideaSummary && !hasGenerated) {
-      handleGeneratePRD();
-    }
-  }, [ideaSummary, hasGenerated]);
-
-  const handleGeneratePRD = async () => {
+  const handleGeneratePRD = useCallback(async () => {
     setIsGenerating(true);
     setError(null);
 
@@ -57,7 +50,14 @@ export const PRDGenerator: React.FC<PRDGeneratorProps> = ({
     } finally {
       setIsGenerating(false);
     }
-  };
+  }, [ideaSummary]);
+
+  // Auto-generate PRD when component mounts
+  useEffect(() => {
+    if (ideaSummary && !hasGenerated) {
+      handleGeneratePRD();
+    }
+  }, [ideaSummary, hasGenerated, handleGeneratePRD]);
 
   const handleSavePRD = async () => {
     if (!prdContent.trim()) return;

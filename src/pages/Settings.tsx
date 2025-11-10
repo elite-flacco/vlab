@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../stores/authStore";
 import { db } from "../lib/supabase";
@@ -13,7 +13,6 @@ import {
   AlertCircle,
   Loader2,
   Star,
-  Settings as SettingsIcon,
 } from "lucide-react";
 import { UserProfileSection } from "../components/Settings/UserProfileSection";
 import { PostDetailView } from "../components/Community/PostDetailView";
@@ -61,33 +60,33 @@ export const Settings: React.FC = () => {
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
 
   // Load user profile data on mount
-  useEffect(() => {
-    if (user) {
-      loadUserProfile();
-    }
-  }, [user]);
-
-  const loadUserProfile = async () => {
+  const loadUserProfile = useCallback(async () => {
     if (!user) return;
 
     try {
-      const { data, error } = await db.getProfile(user.id);
-      if (error) throw error;
+      const result = await db.getProfile(user.id) as { data: any; error: any };
+      if (result.error) throw result.error;
 
-      if (data) {
+      if (result.data) {
         setProfileData({
-          name: data.name || "",
-          bio: data.bio || "",
-          github_username: data.github_username || "",
-          twitter_username: data.twitter_username || "",
-          website_url: data.website_url || "",
+          name: result.data.name || "",
+          bio: result.data.bio || "",
+          github_username: result.data.github_username || "",
+          twitter_username: result.data.twitter_username || "",
+          website_url: result.data.website_url || "",
         });
       }
     } catch (error: any) {
       console.error("Failed to load profile:", error);
       setProfileError(error.message);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      loadUserProfile();
+    }
+  }, [user, loadUserProfile]);
 
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,8 +97,8 @@ export const Settings: React.FC = () => {
     setProfileSuccess(false);
 
     try {
-      const { error } = await db.updateProfile(user.id, profileData);
-      if (error) throw error;
+      const result = await db.updateProfile(user.id, profileData) as { error: any };
+      if (result.error) throw result.error;
 
       setProfileSuccess(true);
       setTimeout(() => setProfileSuccess(false), 3000);
