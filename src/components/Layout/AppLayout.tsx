@@ -62,7 +62,7 @@ export const AppLayout: React.FC = () => {
             window.open(
               "https://forms.gle/xQNNk8C6t7A8a2EC6",
               "_blank",
-              "noopener,noreferrer",
+              "noopener,noreferrer"
             )
           }
           className="fixed bottom-6 right-6 text-xs font-semibold bg-primary-dark/90 hover:bg-primary/80 text-background rounded-md px-4 py-2 flex items-center space-x-2 z-50 shadow-lg hover:shadow-primary/20 hover:-translate-y-0.5 active:translate-y-0 focus:outline-none transition-colors duration-200"

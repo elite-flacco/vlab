@@ -27,13 +27,13 @@ export const useThemeStore = create<ThemeState>()(
     }),
     {
       name: "vlab-theme-storage",
-      onRehydrateStorage: () => (state) => {
+      onRehydrateStorage: () => state => {
         // Apply theme on page load
         if (state?.theme) {
           document.documentElement.classList.remove("light", "dark");
           document.documentElement.classList.add(state.theme);
         }
       },
-    },
-  ),
+    }
+  )
 );

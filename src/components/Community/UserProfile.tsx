@@ -154,7 +154,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               {activeTab === "posts" && (
                 <>
                   {userPosts.length > 0 ? (
-                    userPosts.map((post) => (
+                    userPosts.map(post => (
                       <PostCard
                         key={post.id}
                         post={post}
@@ -180,7 +180,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
               {activeTab === "saved" && isOwnProfile && (
                 <>
                   {savedPosts.length > 0 ? (
-                    savedPosts.map((post) => (
+                    savedPosts.map(post => (
                       <PostCard
                         key={post.id}
                         post={post}

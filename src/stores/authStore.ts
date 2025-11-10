@@ -9,7 +9,7 @@ const EMAIL_REGEX =
 // Client-side validation functions
 const validateSignInInput = (
   email: string,
-  password: string,
+  password: string
 ): string | null => {
   if (!email.trim()) {
     return "Email address is required";
@@ -29,7 +29,7 @@ const validateSignInInput = (
 const validateSignUpInput = (
   email: string,
   password: string,
-  name: string,
+  name: string
 ): string | null => {
   if (!name.trim()) {
     return "Full name is required";
@@ -136,7 +136,7 @@ interface AuthState {
   claimAccount: (
     email: string,
     password: string,
-    name: string,
+    name: string
   ) => Promise<void>;
   signOut: () => Promise<void>;
   updatePassword: (newPassword: string) => Promise<void>;
@@ -295,7 +295,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         } catch (profileError) {
           console.error(
             "Failed to fetch profile data for anonymous user:",
-            profileError,
+            profileError
           );
           // Fallback to basic user object
           const user: User = {
@@ -370,7 +370,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             anonymousUserId,
             newUserId: data.user.id,
             claimedAt: new Date().toISOString(),
-          }),
+          })
         );
 
         if (needsEmailConfirmation) {
@@ -432,14 +432,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       if (error) {
         console.warn(
           "🔐 AuthStore: SignOut error (continuing with cleanup):",
-          error,
+          error
         );
         // Continue with cleanup even if Supabase signOut fails
       }
 
       // Clear all project data when signing out
-      const { clearProjects } = await import("./projectStore").then((m) =>
-        m.useProjectStore.getState(),
+      const { clearProjects } = await import("./projectStore").then(m =>
+        m.useProjectStore.getState()
       );
       clearProjects();
 
@@ -447,8 +447,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch (error: Error | unknown) {
       console.error("🔐 AuthStore: SignOut failed:", error);
       // Still clear local state even if signOut failed
-      const { clearProjects } = await import("./projectStore").then((m) =>
-        m.useProjectStore.getState(),
+      const { clearProjects } = await import("./projectStore").then(m =>
+        m.useProjectStore.getState()
       );
       clearProjects();
       set({ user: null, loading: false });
@@ -496,8 +496,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           }
 
           // Clear projects when no session is found (user logged out)
-          const { clearProjects } = await import("./projectStore").then((m) =>
-            m.useProjectStore.getState(),
+          const { clearProjects } = await import("./projectStore").then(m =>
+            m.useProjectStore.getState()
           );
           clearProjects();
 
@@ -508,7 +508,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         // Handle case where user was deleted but session still exists
         if (
           error.message?.includes(
-            "User from sub claim in JWT does not exist",
+            "User from sub claim in JWT does not exist"
           ) ||
           error.message?.includes("does not exist")
         ) {
@@ -520,13 +520,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           } catch (signOutError) {
             console.warn(
               "🔐 AuthStore: Error clearing invalid session:",
-              signOutError,
+              signOutError
             );
           }
 
           // Clear projects and state
-          const { clearProjects } = await import("./projectStore").then((m) =>
-            m.useProjectStore.getState(),
+          const { clearProjects } = await import("./projectStore").then(m =>
+            m.useProjectStore.getState()
           );
           clearProjects();
 
@@ -564,13 +564,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                 localStorage.removeItem("claiming_data");
 
                 console.log(
-                  "✅ Successfully transferred data from anonymous account",
+                  "✅ Successfully transferred data from anonymous account"
                 );
               }
             } catch (transferError) {
               console.error(
                 "Failed to transfer anonymous data:",
-                transferError,
+                transferError
               );
               // Don't fail the login, just log the error
             }
@@ -620,8 +620,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         }
 
         // Clear projects when no user is found
-        const { clearProjects } = await import("./projectStore").then((m) =>
-          m.useProjectStore.getState(),
+        const { clearProjects } = await import("./projectStore").then(m =>
+          m.useProjectStore.getState()
         );
         clearProjects();
 
@@ -649,7 +649,7 @@ auth.onAuthStateChange((event, session) => {
     console.log(
       "🔐 AuthStore: Auth event:",
       event,
-      session ? "with session" : "no session",
+      session ? "with session" : "no session"
     );
   }
   const { initialize } = useAuthStore.getState();

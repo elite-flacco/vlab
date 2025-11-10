@@ -324,6 +324,10 @@
     min-height: 2.25rem;
   }
 
+  .form-select:focus {
+    @apply outline-none ring-0;
+  }
+
   /* Style for the dropdown options */
   .form-select option {
     @apply bg-background text-foreground-dim;
@@ -731,15 +735,15 @@
 /* Current step */
 .kickoff-step-current .kickoff-step-icon {
   background-color: rgba(0, 255, 159, 0.2);
-  color: #00ff9f; /* Primary brand color */
-  border-color: #00ff9f;
+  color: var(--color-primary); /* Primary brand color */
+  border-color: var(--color-primary);
   box-shadow: 0 0 0 2px rgba(0, 255, 159, 0.2);
   transform: scale(1.1);
   transition: all 0.2s ease-in-out;
 }
 
 .kickoff-step-current .kickoff-step-title {
-  color: #00ff9f; /* Primary brand color */
+  color: var(--color-primary); /* Primary brand color */
   font-weight: 600;
   text-shadow: 0 0 8px rgba(0, 255, 159, 0.3);
 }
@@ -783,7 +787,7 @@
   flex: 1;
   min-width: 1rem;
   height: 2px;
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: var(--color-border);
   margin: 0 -1rem;
   position: relative;
   top: 1.5rem;

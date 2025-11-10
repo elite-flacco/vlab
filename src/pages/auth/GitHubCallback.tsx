@@ -7,7 +7,7 @@ export const GitHubCallback: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [status, setStatus] = useState<"processing" | "success" | "error">(
-    "processing",
+    "processing"
   );
   const [error, setError] = useState<string>("");
 
@@ -52,7 +52,7 @@ export const GitHubCallback: React.FC = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ code, state }),
-        },
+        }
       );
 
       if (!response.ok) {
@@ -73,7 +73,7 @@ export const GitHubCallback: React.FC = () => {
               username: result.github_username,
               scopes: result.scopes,
             },
-            window.location.origin,
+            window.location.origin
           );
           window.close();
           return;
@@ -98,7 +98,7 @@ export const GitHubCallback: React.FC = () => {
             type: "GITHUB_OAUTH_ERROR",
             error: err.message || "OAuth authentication failed",
           },
-          window.location.origin,
+          window.location.origin
         );
         setTimeout(() => window.close(), 3000);
       }

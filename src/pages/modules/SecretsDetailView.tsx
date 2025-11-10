@@ -49,10 +49,10 @@ export const SecretsDetailView: React.FC = () => {
   };
 
   const categories = Array.from(
-    new Set(secrets.map((secret) => secret.category)),
+    new Set(secrets.map(secret => secret.category))
   );
 
-  const filteredSecrets = secrets.filter((secret) => {
+  const filteredSecrets = secrets.filter(secret => {
     return !selectedCategory || secret.category === selectedCategory;
   });
 
@@ -155,11 +155,11 @@ export const SecretsDetailView: React.FC = () => {
               {categories.length > 0 && (
                 <select
                   value={selectedCategory || ""}
-                  onChange={(e) => setSelectedCategory(e.target.value || null)}
+                  onChange={e => setSelectedCategory(e.target.value || null)}
                   className="text-xs border border-gray-300 rounded-md px-2 py-1 focus:ring-2 focus:ring-red-500 focus:border-red-500"
                 >
                   <option value="">All Categories</option>
-                  {categories.map((category) => (
+                  {categories.map(category => (
                     <option key={category} value={category}>
                       {category.replace("_", " ")}
                     </option>
@@ -175,7 +175,7 @@ export const SecretsDetailView: React.FC = () => {
 
           {/* Secrets List */}
           <div className="flex-1 overflow-y-auto space-y-3">
-            {filteredSecrets.map((secret) => (
+            {filteredSecrets.map(secret => (
               <div
                 key={secret.id}
                 className="card p-3 hover:shadow-sm transition-shadow"
@@ -256,7 +256,7 @@ export const SecretsDetailView: React.FC = () => {
           <div className="mt-4 flex items-center justify-between pt-3 border-t border-gray-200">
             <div className="text-xs text-gray-500">
               {filteredSecrets.length} of {secrets.length} secrets •{" "}
-              {secrets.filter((s) => s.is_active).length} active
+              {secrets.filter(s => s.is_active).length} active
             </div>
             <button className="text-xs px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">
               Add Secret

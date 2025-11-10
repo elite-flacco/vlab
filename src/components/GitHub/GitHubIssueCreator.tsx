@@ -62,7 +62,7 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
       const { data, error } = await db.getGitHubIssueByTask(task.id);
       if (error) {
         setError(
-          `Failed to check existing issues: ${error.message || "Unknown error"}`,
+          `Failed to check existing issues: ${error.message || "Unknown error"}`
         );
         setExistingIssue(null);
         return;
@@ -75,7 +75,7 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
       }
     } catch (err) {
       setError(
-        `Failed to check existing issues: ${err instanceof Error ? err.message : "Unknown error"}`,
+        `Failed to check existing issues: ${err instanceof Error ? err.message : "Unknown error"}`
       );
       setExistingIssue(null);
     }
@@ -154,7 +154,7 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
             body: customBody.trim(),
             labels: formatTaskAsIssue(task).labels,
           }),
-        },
+        }
       );
 
       if (!response.ok) {
@@ -173,7 +173,7 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
       }
     } catch (err: Error | unknown) {
       setError(
-        err instanceof Error ? err.message : "Failed to create GitHub issue",
+        err instanceof Error ? err.message : "Failed to create GitHub issue"
       );
     } finally {
       setCreating(false);
@@ -235,7 +235,7 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
       {/* GitHub Authentication */}
       {!isAuthenticated && (
         <GitHubAuthButton
-          onAuthChange={(authenticated) => {
+          onAuthChange={authenticated => {
             setIsAuthenticated(authenticated);
             if (!authenticated) {
               // Clear selected repository when disconnecting
@@ -261,7 +261,7 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
                     <input
                       type="checkbox"
                       checked={useCustomContent}
-                      onChange={(e) => setUseCustomContent(e.target.checked)}
+                      onChange={e => setUseCustomContent(e.target.checked)}
                       className="form-checkbox"
                     />
                     <span className="text-foreground-dim text-xs">
@@ -277,7 +277,7 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
                   <input
                     type="text"
                     value={customTitle}
-                    onChange={(e) => setCustomTitle(e.target.value)}
+                    onChange={e => setCustomTitle(e.target.value)}
                     disabled={!useCustomContent}
                     className="form-input w-full"
                     placeholder="Issue title"
@@ -290,7 +290,7 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
                   </label>
                   <textarea
                     value={customBody}
-                    onChange={(e) => setCustomBody(e.target.value)}
+                    onChange={e => setCustomBody(e.target.value)}
                     disabled={!useCustomContent}
                     rows={6}
                     className="form-textarea w-full"

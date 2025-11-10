@@ -54,67 +54,65 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
       <ReactMarkdown
         children={preprocessMarkdown(content)}
         components={{
-          h1: (props) => (
+          h1: props => (
             <h1
               className="text-2xl font-bold mt-3 mb-2 text-foreground"
               {...props}
             />
           ),
-          h2: (props) => (
+          h2: props => (
             <h2
               className="text-xl font-bold mt-3 mb-2 text-foreground"
               {...props}
             />
           ),
-          h3: (props) => (
+          h3: props => (
             <h3
               className="text-lg font-semibold mt-2 mb-1 text-foreground"
               {...props}
             />
           ),
-          h4: (props) => (
+          h4: props => (
             <h4
               className="text-base font-semibold mt-2 mb-1 text-foreground"
               {...props}
             />
           ),
-          h5: (props) => (
+          h5: props => (
             <h5
               className="text-sm font-medium mt-2 mb-1 text-foreground"
               {...props}
             />
           ),
-          h6: (props) => (
+          h6: props => (
             <h6
               className="text-xs font-medium mt-1 mb-1 text-foreground/90"
               {...props}
             />
           ),
-          ul: (props) => (
+          ul: props => (
             <ul className="text-sm list-disc pl-6 space-y-1 my-2" {...props} />
           ),
-          ol: (props) => (
+          ol: props => (
             <ol
               className="text-sm list-decimal pl-6 space-y-1 my-2"
               {...props}
             />
           ),
-          li: (props) => (
+          li: props => (
             <li className="text-sm pl-1 my-0.5 text-foreground/80" {...props} />
           ),
-          p: (props) => (
+          p: props => (
             <p
               className="text-sm my-2 text-foreground-dim leading-relaxed"
               {...props}
             />
           ),
-          strong: (props) => (
+          strong: props => (
             <strong className="font-semibold text-foreground/90" {...props} />
           ),
-          em: (props) => (
-            <em className="italic text-foreground/80" {...props} />
-          ),
-          blockquote: (props) => (
+          em: props => <em className="italic text-foreground/80" {...props} />,
+          blockquote: props => (
             <blockquote
               className="border-l-4 border-foreground/20 pl-4 italic text-foreground/70 my-2"
               {...props}
@@ -143,7 +141,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
               </pre>
             );
           },
-          a: (props) => {
+          a: props => {
             // Handle auto-detected URLs if enableAutoLinks is true
             if (enableAutoLinks) {
               return (
@@ -162,10 +160,8 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
               />
             );
           },
-          hr: (props) => (
-            <hr className="border-foreground/20 my-4" {...props} />
-          ),
-          table: (props) => (
+          hr: props => <hr className="border-foreground/20 my-4" {...props} />,
+          table: props => (
             <div className="overflow-x-auto my-2">
               <table
                 className="min-w-full border-collapse border border-foreground/20"
@@ -173,13 +169,13 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
               />
             </div>
           ),
-          th: (props) => (
+          th: props => (
             <th
               className="border border-foreground/20 px-2 py-1 bg-foreground/5 font-semibold text-sm text-foreground/90"
               {...props}
             />
           ),
-          td: (props) => (
+          td: props => (
             <td
               className="border border-foreground/20 px-2 py-1 text-sm text-foreground/80"
               {...props}

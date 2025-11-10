@@ -49,10 +49,10 @@ export const Landing: React.FC<LandingProps> = ({
   const [showCursor, setShowCursor] = useState(true);
   const [showContactModal, setShowContactModal] = useState(false);
   const [visibleFeatures, setVisibleFeatures] = useState<Set<number>>(
-    new Set(),
+    new Set()
   );
   const [animatedFeatures, setAnimatedFeatures] = useState<Set<number>>(
-    new Set(),
+    new Set()
   );
   const featureRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -123,7 +123,7 @@ export const Landing: React.FC<LandingProps> = ({
         alt: "Community Demo",
       },
     ],
-    [],
+    []
   );
 
   // Redirect if already authenticated (unless showForAuthenticated is true or in signup mode)
@@ -155,7 +155,7 @@ export const Landing: React.FC<LandingProps> = ({
 
     // Cursor blink effect
     const cursorInterval = setInterval(() => {
-      setShowCursor((prev) => !prev);
+      setShowCursor(prev => !prev);
     }, 500);
 
     return () => clearInterval(cursorInterval);
@@ -179,20 +179,20 @@ export const Landing: React.FC<LandingProps> = ({
         const observer = new IntersectionObserver(
           ([entry]) => {
             if (entry.isIntersecting) {
-              setVisibleFeatures((prev) => new Set([...prev, index]));
+              setVisibleFeatures(prev => new Set([...prev, index]));
               // Start GIF animation after 1.5 seconds only if GIF exists
               if (features[index]?.gifImage) {
                 setTimeout(() => {
-                  setAnimatedFeatures((prev) => new Set([...prev, index]));
+                  setAnimatedFeatures(prev => new Set([...prev, index]));
                 }, 1500);
               }
             } else {
-              setVisibleFeatures((prev) => {
+              setVisibleFeatures(prev => {
                 const newSet = new Set(prev);
                 newSet.delete(index);
                 return newSet;
               });
-              setAnimatedFeatures((prev) => {
+              setAnimatedFeatures(prev => {
                 const newSet = new Set(prev);
                 newSet.delete(index);
                 return newSet;
@@ -202,7 +202,7 @@ export const Landing: React.FC<LandingProps> = ({
           {
             threshold: 0.3,
             rootMargin: "-100px 0px",
-          },
+          }
         );
 
         observer.observe(ref);
@@ -211,7 +211,7 @@ export const Landing: React.FC<LandingProps> = ({
     });
 
     return () => {
-      observers.forEach((observer) => observer.disconnect());
+      observers.forEach(observer => observer.disconnect());
     };
   }, [features]);
 
@@ -234,7 +234,7 @@ export const Landing: React.FC<LandingProps> = ({
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
@@ -391,7 +391,7 @@ export const Landing: React.FC<LandingProps> = ({
                   return (
                     <div
                       key={index}
-                      ref={(el) => (featureRefs.current[index] = el)}
+                      ref={el => (featureRefs.current[index] = el)}
                       className={`flex flex-col ${
                         isEven ? "lg:flex-row" : "lg:flex-row-reverse"
                       } items-center gap-8 md:gap-12 lg:gap-20 transition-all duration-1000 ${
@@ -788,7 +788,7 @@ export const Landing: React.FC<LandingProps> = ({
                     </div>
                   </div>
                 </div>,
-                document.body,
+                document.body
               )}
           </footer>
         </div>

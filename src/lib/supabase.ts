@@ -31,7 +31,7 @@ export const auth = {
     return withTimeout(
       withTiming("Auth SignUp", operation),
       DB_TIMEOUT,
-      "Sign up operation timed out",
+      "Sign up operation timed out"
     );
   },
 
@@ -45,7 +45,7 @@ export const auth = {
     return withTimeout(
       withTiming("Auth SignIn", operation),
       DB_TIMEOUT,
-      "Sign in operation timed out",
+      "Sign in operation timed out"
     );
   },
 
@@ -55,7 +55,7 @@ export const auth = {
     return withTimeout(
       withTiming("Auth SignOut", operation),
       DB_TIMEOUT,
-      "Sign out operation timed out",
+      "Sign out operation timed out"
     );
   },
 
@@ -65,7 +65,7 @@ export const auth = {
     return withTimeout(
       withTiming("Auth GetCurrentUser", operation),
       DB_TIMEOUT,
-      "Get current user operation timed out",
+      "Get current user operation timed out"
     );
   },
 
@@ -83,14 +83,14 @@ export const auth = {
     return withTimeout(
       withTiming("Auth SignInAnonymously", operation),
       DB_TIMEOUT,
-      "Anonymous sign in operation timed out",
+      "Anonymous sign in operation timed out"
     );
   },
 
   claimAnonymousAccount: async (
     email: string,
     password: string,
-    name: string,
+    name: string
   ) => {
     // For anonymous account claiming, we need to:
     // 1. Create a new proper account
@@ -132,7 +132,7 @@ export const auth = {
     return withTimeout(
       withTiming("Auth ClaimAnonymousAccount", operation),
       DB_TIMEOUT,
-      "Claim anonymous account operation timed out",
+      "Claim anonymous account operation timed out"
     );
   },
 
@@ -151,7 +151,7 @@ export const db = {
     return withTimeout(
       withTiming("DB GetProfile", operation),
       DB_TIMEOUT,
-      "Get profile operation timed out",
+      "Get profile operation timed out"
     );
   },
 
@@ -167,7 +167,7 @@ export const db = {
     return withTimeout(
       withTiming("DB UpdateProfile", operation),
       DB_TIMEOUT,
-      "Update profile operation timed out",
+      "Update profile operation timed out"
     );
   },
 
@@ -179,7 +179,7 @@ export const db = {
     return withTimeout(
       withTiming("DB GetProject", operation),
       DB_TIMEOUT,
-      "Get project operation timed out",
+      "Get project operation timed out"
     );
   },
 
@@ -194,7 +194,7 @@ export const db = {
     return withTimeout(
       withTiming("DB GetProjects", operation),
       DB_TIMEOUT,
-      "Get projects operation timed out",
+      "Get projects operation timed out"
     );
   },
 
@@ -210,7 +210,7 @@ export const db = {
     return withTimeout(
       withTiming("DB GetActiveProjects", operation),
       DB_TIMEOUT,
-      "Get active projects operation timed out",
+      "Get active projects operation timed out"
     );
   },
 
@@ -226,7 +226,7 @@ export const db = {
     return withTimeout(
       withTiming("DB GetArchivedProjects", operation),
       DB_TIMEOUT,
-      "Get archived projects operation timed out",
+      "Get archived projects operation timed out"
     );
   },
 
@@ -237,7 +237,7 @@ export const db = {
     return withTimeout(
       withTiming("DB CreateProject", operation),
       DB_TIMEOUT,
-      "Create project operation timed out",
+      "Create project operation timed out"
     );
   },
 
@@ -248,7 +248,7 @@ export const db = {
     return withTimeout(
       withTiming("DB UpdateProject", operation),
       DB_TIMEOUT,
-      "Update project operation timed out",
+      "Update project operation timed out"
     );
   },
 
@@ -259,7 +259,7 @@ export const db = {
     return withTimeout(
       withTiming("DB ArchiveProject", operation),
       DB_TIMEOUT,
-      "Archive project operation timed out",
+      "Archive project operation timed out"
     );
   },
 
@@ -270,7 +270,7 @@ export const db = {
     return withTimeout(
       withTiming("DB RestoreProject", operation),
       DB_TIMEOUT,
-      "Restore project operation timed out",
+      "Restore project operation timed out"
     );
   },
 
@@ -281,7 +281,7 @@ export const db = {
     return withTimeout(
       withTiming("DB DeleteProject", operation),
       DB_TIMEOUT,
-      "Delete project operation timed out",
+      "Delete project operation timed out"
     );
   },
 
@@ -297,7 +297,7 @@ export const db = {
     return withTimeout(
       withTiming("DB GetWorkspaceModules", operation),
       DB_TIMEOUT,
-      "Get workspace modules operation timed out",
+      "Get workspace modules operation timed out"
     );
   },
 
@@ -308,7 +308,7 @@ export const db = {
     return withTimeout(
       withTiming("DB UpsertWorkspaceModule", operation),
       DB_TIMEOUT,
-      "Upsert workspace module operation timed out",
+      "Upsert workspace module operation timed out"
     );
   },
 
@@ -319,7 +319,7 @@ export const db = {
     return withTimeout(
       withTiming("DB DeleteWorkspaceModule", operation),
       DB_TIMEOUT,
-      "Delete workspace module operation timed out",
+      "Delete workspace module operation timed out"
     );
   },
 
@@ -333,7 +333,7 @@ export const db = {
         *,
         created_by_profile:created_by(name, email),
         updated_by_profile:updated_by(name, email)
-      `,
+      `
         )
         .eq("project_id", projectId)
         .order("updated_at", { ascending: false });
@@ -341,7 +341,7 @@ export const db = {
     return withTimeout(
       withTiming("DB GetPRDs", operation),
       DB_TIMEOUT,
-      "Get PRDs operation timed out",
+      "Get PRDs operation timed out"
     );
   },
 
@@ -355,14 +355,14 @@ export const db = {
         *,
         created_by_profile:created_by(name, email),
         updated_by_profile:updated_by(name, email)
-      `,
+      `
         )
         .single();
 
     return withTimeout(
       withTiming("DB CreatePRD", operation),
       DB_TIMEOUT,
-      "Create PRD operation timed out",
+      "Create PRD operation timed out"
     );
   },
 
@@ -377,14 +377,14 @@ export const db = {
         *,
         created_by_profile:created_by(name, email),
         updated_by_profile:updated_by(name, email)
-      `,
+      `
         )
         .single();
 
     return withTimeout(
       withTiming("DB UpdatePRD", operation),
       DB_TIMEOUT,
-      "Update PRD operation timed out",
+      "Update PRD operation timed out"
     );
   },
 
@@ -397,7 +397,7 @@ export const db = {
           `
         *,
         created_by_profile:created_by(name, email)
-      `,
+      `
         )
         .eq("prd_id", prdId)
         .order("version_number", { ascending: false });
@@ -405,7 +405,7 @@ export const db = {
     return withTimeout(
       withTiming("DB GetPRDVersions", operation),
       DB_TIMEOUT,
-      "Get PRD versions operation timed out",
+      "Get PRD versions operation timed out"
     );
   },
 
@@ -418,7 +418,7 @@ export const db = {
         *,
         created_by_profile:created_by(name, email),
         updated_by_profile:updated_by(name, email)
-      `,
+      `
       )
       .eq("id", prdId)
       .single();
@@ -442,7 +442,7 @@ export const db = {
           `
         *,
         created_by_profile:created_by(name, email)
-      `,
+      `
         )
         .eq("prd_id", prdId)
         .eq("version_number", versionNumber)
@@ -451,7 +451,7 @@ export const db = {
     const result = await withTimeout(
       withTiming("DB GetSpecificPRDVersion", operation),
       DB_TIMEOUT,
-      "Get specific PRD version operation timed out",
+      "Get specific PRD version operation timed out"
     );
 
     if (result.error) throw result.error;
@@ -465,7 +465,7 @@ export const db = {
   getPRDVersionComparison: async (
     prdId: string,
     versionA: number,
-    versionB: number,
+    versionB: number
   ) => {
     const operation = async () =>
       supabase.rpc("get_prd_version_comparison", {
@@ -477,14 +477,14 @@ export const db = {
     return withTimeout(
       withTiming("DB GetPRDVersionComparison", operation),
       DB_TIMEOUT,
-      "Get PRD version comparison operation timed out",
+      "Get PRD version comparison operation timed out"
     );
   },
 
   restorePRDVersion: async (
     prdId: string,
     versionNumber: number,
-    changeDescription?: string,
+    changeDescription?: string
   ) => {
     // First get the version data
     const versionResult = await supabase
@@ -512,14 +512,14 @@ export const db = {
         *,
         created_by_profile:created_by(name, email),
         updated_by_profile:updated_by(name, email)
-      `,
+      `
         )
         .single();
 
     return withTimeout(
       withTiming("DB RestorePRDVersion", operation),
       DB_TIMEOUT,
-      "Restore PRD version operation timed out",
+      "Restore PRD version operation timed out"
     );
   },
 
@@ -535,7 +535,7 @@ export const db = {
     return withTimeout(
       withTiming("DB GetTasks", operation),
       DB_TIMEOUT,
-      "Get tasks operation timed out",
+      "Get tasks operation timed out"
     );
   },
 
@@ -546,7 +546,7 @@ export const db = {
     return withTimeout(
       withTiming("DB CreateTask", operation),
       DB_TIMEOUT,
-      "Create task operation timed out",
+      "Create task operation timed out"
     );
   },
 
@@ -557,7 +557,7 @@ export const db = {
     return withTimeout(
       withTiming("DB UpdateTask", operation),
       DB_TIMEOUT,
-      "Update task operation timed out",
+      "Update task operation timed out"
     );
   },
 
@@ -567,7 +567,7 @@ export const db = {
     return withTimeout(
       withTiming("DB DeleteTask", operation),
       DB_TIMEOUT,
-      "Delete task operation timed out",
+      "Delete task operation timed out"
     );
   },
 
@@ -583,7 +583,7 @@ export const db = {
     return withTimeout(
       withTiming("DB GetPrompts", operation),
       DB_TIMEOUT,
-      "Get prompts operation timed out",
+      "Get prompts operation timed out"
     );
   },
 
@@ -594,7 +594,7 @@ export const db = {
     return withTimeout(
       withTiming("DB CreatePrompt", operation),
       DB_TIMEOUT,
-      "Create prompt operation timed out",
+      "Create prompt operation timed out"
     );
   },
 
@@ -605,7 +605,7 @@ export const db = {
     return withTimeout(
       withTiming("DB UpdatePrompt", operation),
       DB_TIMEOUT,
-      "Update prompt operation timed out",
+      "Update prompt operation timed out"
     );
   },
 
@@ -616,7 +616,7 @@ export const db = {
     return withTimeout(
       withTiming("DB DeletePrompt", operation),
       DB_TIMEOUT,
-      "Delete prompt operation timed out",
+      "Delete prompt operation timed out"
     );
   },
 
@@ -632,7 +632,7 @@ export const db = {
     return withTimeout(
       withTiming("DB GetScratchpadNotes", operation),
       DB_TIMEOUT,
-      "Get scratchpad notes operation timed out",
+      "Get scratchpad notes operation timed out"
     );
   },
 
@@ -643,13 +643,13 @@ export const db = {
     return withTimeout(
       withTiming("DB CreateScratchpadNote", operation),
       DB_TIMEOUT,
-      "Create scratchpad note operation timed out",
+      "Create scratchpad note operation timed out"
     );
   },
 
   updateScratchpadNote: async (
     id: string,
-    updates: Record<string, unknown>,
+    updates: Record<string, unknown>
   ) => {
     const operation = async () =>
       supabase
@@ -662,7 +662,7 @@ export const db = {
     return withTimeout(
       withTiming("DB UpdateScratchpadNote", operation),
       DB_TIMEOUT,
-      "Update scratchpad note operation timed out",
+      "Update scratchpad note operation timed out"
     );
   },
 
@@ -673,7 +673,7 @@ export const db = {
     return withTimeout(
       withTiming("DB DeleteScratchpadNote", operation),
       DB_TIMEOUT,
-      "Delete scratchpad note operation timed out",
+      "Delete scratchpad note operation timed out"
     );
   },
 
@@ -689,7 +689,7 @@ export const db = {
     return withTimeout(
       withTiming("DB GetGlobalNotes", operation),
       DB_TIMEOUT,
-      "Get global notes operation timed out",
+      "Get global notes operation timed out"
     );
   },
 
@@ -700,7 +700,7 @@ export const db = {
     return withTimeout(
       withTiming("DB CreateGlobalNote", operation),
       DB_TIMEOUT,
-      "Create global note operation timed out",
+      "Create global note operation timed out"
     );
   },
 
@@ -716,7 +716,7 @@ export const db = {
     return withTimeout(
       withTiming("DB UpdateGlobalNote", operation),
       DB_TIMEOUT,
-      "Update global note operation timed out",
+      "Update global note operation timed out"
     );
   },
 
@@ -727,7 +727,7 @@ export const db = {
     return withTimeout(
       withTiming("DB DeleteGlobalNote", operation),
       DB_TIMEOUT,
-      "Delete global note operation timed out",
+      "Delete global note operation timed out"
     );
   },
 
@@ -743,7 +743,7 @@ export const db = {
     return withTimeout(
       withTiming("DB GetRoadmapItems", operation),
       DB_TIMEOUT,
-      "Get roadmap items operation timed out",
+      "Get roadmap items operation timed out"
     );
   },
 
@@ -754,7 +754,7 @@ export const db = {
     return withTimeout(
       withTiming("DB CreateRoadmapItem", operation),
       DB_TIMEOUT,
-      "Create roadmap item operation timed out",
+      "Create roadmap item operation timed out"
     );
   },
 
@@ -770,7 +770,7 @@ export const db = {
     return withTimeout(
       withTiming("DB UpdateRoadmapItem", operation),
       DB_TIMEOUT,
-      "Update roadmap item operation timed out",
+      "Update roadmap item operation timed out"
     );
   },
 
@@ -780,7 +780,7 @@ export const db = {
       supabase
         .from("secrets")
         .select(
-          "id, name, description, category, is_active, created_at, updated_at",
+          "id, name, description, category, is_active, created_at, updated_at"
         )
         .eq("project_id", projectId)
         .eq("is_active", true)
@@ -789,7 +789,7 @@ export const db = {
     return withTimeout(
       withTiming("DB GetSecrets", operation),
       DB_TIMEOUT,
-      "Get secrets operation timed out",
+      "Get secrets operation timed out"
     );
   },
 
@@ -799,14 +799,14 @@ export const db = {
         .from("secrets")
         .insert(secret)
         .select(
-          "id, name, description, category, is_active, created_at, updated_at",
+          "id, name, description, category, is_active, created_at, updated_at"
         )
         .single();
 
     return withTimeout(
       withTiming("DB CreateSecret", operation),
       DB_TIMEOUT,
-      "Create secret operation timed out",
+      "Create secret operation timed out"
     );
   },
 
@@ -817,14 +817,14 @@ export const db = {
         .update(updates)
         .eq("id", id)
         .select(
-          "id, name, description, category, is_active, created_at, updated_at",
+          "id, name, description, category, is_active, created_at, updated_at"
         )
         .single();
 
     return withTimeout(
       withTiming("DB UpdateSecret", operation),
       DB_TIMEOUT,
-      "Update secret operation timed out",
+      "Update secret operation timed out"
     );
   },
 
@@ -838,7 +838,7 @@ export const db = {
         *,
         template_tags(tag),
         profiles(name, avatar_url)
-      `,
+      `
         )
         .eq("is_public", true)
         .order("download_count", { ascending: false });
@@ -846,7 +846,7 @@ export const db = {
     return withTimeout(
       withTiming("DB GetPublicTemplates", operation),
       DB_TIMEOUT,
-      "Get public templates operation timed out",
+      "Get public templates operation timed out"
     );
   },
 
@@ -858,7 +858,7 @@ export const db = {
           `
         *,
         template_tags(tag)
-      `,
+      `
         )
         .eq("user_id", userId)
         .order("updated_at", { ascending: false });
@@ -866,7 +866,7 @@ export const db = {
     return withTimeout(
       withTiming("DB GetUserTemplates", operation),
       DB_TIMEOUT,
-      "Get user templates operation timed out",
+      "Get user templates operation timed out"
     );
   },
 
@@ -877,7 +877,7 @@ export const db = {
     return withTimeout(
       withTiming("DB CreateTemplate", operation),
       DB_TIMEOUT,
-      "Create template operation timed out",
+      "Create template operation timed out"
     );
   },
 
@@ -893,7 +893,7 @@ export const db = {
     return withTimeout(
       withTiming(`DB GetModuleData(${table})`, operation),
       DB_TIMEOUT,
-      `Get ${table} data operation timed out`,
+      `Get ${table} data operation timed out`
     );
   },
 
@@ -904,14 +904,14 @@ export const db = {
     return withTimeout(
       withTiming(`DB CreateModuleData(${table})`, operation),
       DB_TIMEOUT,
-      `Create ${table} data operation timed out`,
+      `Create ${table} data operation timed out`
     );
   },
 
   updateModuleData: async (
     table: string,
     id: string,
-    updates: Record<string, unknown>,
+    updates: Record<string, unknown>
   ) => {
     const operation = async () =>
       supabase.from(table).update(updates).eq("id", id).select().single();
@@ -919,7 +919,7 @@ export const db = {
     return withTimeout(
       withTiming(`DB UpdateModuleData(${table})`, operation),
       DB_TIMEOUT,
-      `Update ${table} data operation timed out`,
+      `Update ${table} data operation timed out`
     );
   },
 
@@ -929,7 +929,7 @@ export const db = {
     return withTimeout(
       withTiming(`DB DeleteModuleData(${table})`, operation),
       DB_TIMEOUT,
-      `Delete ${table} data operation timed out`,
+      `Delete ${table} data operation timed out`
     );
   },
 
@@ -945,7 +945,7 @@ export const db = {
     return withTimeout(
       withTiming("DB GetDeploymentItems", operation),
       DB_TIMEOUT,
-      "Get deployment items operation timed out",
+      "Get deployment items operation timed out"
     );
   },
 
@@ -956,13 +956,13 @@ export const db = {
     return withTimeout(
       withTiming("DB CreateDeploymentItem", operation),
       DB_TIMEOUT,
-      "Create deployment item operation timed out",
+      "Create deployment item operation timed out"
     );
   },
 
   updateDeploymentItem: async (
     id: string,
-    updates: Record<string, unknown>,
+    updates: Record<string, unknown>
   ) => {
     const operation = async () =>
       supabase
@@ -975,7 +975,7 @@ export const db = {
     return withTimeout(
       withTiming("DB UpdateDeploymentItem", operation),
       DB_TIMEOUT,
-      "Update deployment item operation timed out",
+      "Update deployment item operation timed out"
     );
   },
 
@@ -986,7 +986,7 @@ export const db = {
     return withTimeout(
       withTiming("DB DeleteDeploymentItem", operation),
       DB_TIMEOUT,
-      "Delete deployment item operation timed out",
+      "Delete deployment item operation timed out"
     );
   },
 
@@ -1003,7 +1003,7 @@ export const db = {
     return withTimeout(
       withTiming("DB GetGitHubRepositories", operation),
       DB_TIMEOUT,
-      "Get GitHub repositories operation timed out",
+      "Get GitHub repositories operation timed out"
     );
   },
 
@@ -1021,13 +1021,13 @@ export const db = {
     return withTimeout(
       withTiming("DB CreateGitHubRepository", operation),
       DB_TIMEOUT,
-      "Create GitHub repository operation timed out",
+      "Create GitHub repository operation timed out"
     );
   },
 
   updateGitHubRepository: async (
     id: string,
-    updates: Record<string, unknown>,
+    updates: Record<string, unknown>
   ) => {
     const operation = async () =>
       supabase
@@ -1040,7 +1040,7 @@ export const db = {
     return withTimeout(
       withTiming("DB UpdateGitHubRepository", operation),
       DB_TIMEOUT,
-      "Update GitHub repository operation timed out",
+      "Update GitHub repository operation timed out"
     );
   },
 
@@ -1054,7 +1054,7 @@ export const db = {
     return withTimeout(
       withTiming("DB DeleteGitHubRepository", operation),
       DB_TIMEOUT,
-      "Delete GitHub repository operation timed out",
+      "Delete GitHub repository operation timed out"
     );
   },
 
@@ -1065,7 +1065,7 @@ export const db = {
     return withTimeout(
       withTiming("DB DeleteAllUserGitHubRepositories", operation),
       DB_TIMEOUT,
-      "Delete all user GitHub repositories operation timed out",
+      "Delete all user GitHub repositories operation timed out"
     );
   },
 
@@ -1074,7 +1074,7 @@ export const db = {
       supabase
         .from("github_tokens")
         .select(
-          "id, token_scope, github_username, github_user_id, expires_at, is_active, created_at, updated_at",
+          "id, token_scope, github_username, github_user_id, expires_at, is_active, created_at, updated_at"
         )
         .eq("user_id", userId)
         .eq("is_active", true)
@@ -1083,7 +1083,7 @@ export const db = {
     return withTimeout(
       withTiming("DB GetGitHubToken", operation),
       DB_TIMEOUT,
-      "Get GitHub token operation timed out",
+      "Get GitHub token operation timed out"
     );
   },
 
@@ -1092,7 +1092,7 @@ export const db = {
       supabase
         .from("github_tokens")
         .select(
-          "id, encrypted_token, token_scope, github_username, github_user_id, expires_at, is_active, created_at, updated_at",
+          "id, encrypted_token, token_scope, github_username, github_user_id, expires_at, is_active, created_at, updated_at"
         )
         .eq("user_id", userId)
         .eq("is_active", true)
@@ -1101,7 +1101,7 @@ export const db = {
     return withTimeout(
       withTiming("DB GetGitHubTokenWithSecret", operation),
       DB_TIMEOUT,
-      "Get GitHub token with secret operation timed out",
+      "Get GitHub token with secret operation timed out"
     );
   },
 
@@ -1111,14 +1111,14 @@ export const db = {
         .from("github_tokens")
         .insert(token)
         .select(
-          "id, token_scope, github_username, github_user_id, expires_at, is_active, created_at, updated_at",
+          "id, token_scope, github_username, github_user_id, expires_at, is_active, created_at, updated_at"
         )
         .single();
 
     return withTimeout(
       withTiming("DB CreateGitHubToken", operation),
       DB_TIMEOUT,
-      "Create GitHub token operation timed out",
+      "Create GitHub token operation timed out"
     );
   },
 
@@ -1129,14 +1129,14 @@ export const db = {
         .update(updates)
         .eq("id", id)
         .select(
-          "id, token_scope, github_username, github_user_id, expires_at, is_active, created_at, updated_at",
+          "id, token_scope, github_username, github_user_id, expires_at, is_active, created_at, updated_at"
         )
         .single();
 
     return withTimeout(
       withTiming("DB UpdateGitHubToken", operation),
       DB_TIMEOUT,
-      "Update GitHub token operation timed out",
+      "Update GitHub token operation timed out"
     );
   },
 
@@ -1151,7 +1151,7 @@ export const db = {
     return withTimeout(
       withTiming("DB RevokeGitHubToken", operation),
       DB_TIMEOUT,
-      "Revoke GitHub token operation timed out",
+      "Revoke GitHub token operation timed out"
     );
   },
 
@@ -1164,7 +1164,7 @@ export const db = {
         *,
         task:tasks(*),
         repository:github_repositories(*)
-      `,
+      `
         )
         .eq("repository.project_id", projectId)
         .order("updated_at", { ascending: false });
@@ -1172,7 +1172,7 @@ export const db = {
     return withTimeout(
       withTiming("DB GetGitHubIssues", operation),
       DB_TIMEOUT,
-      "Get GitHub issues operation timed out",
+      "Get GitHub issues operation timed out"
     );
   },
 
@@ -1184,7 +1184,7 @@ export const db = {
           `
         *,
         repository:github_repositories(*)
-      `,
+      `
         )
         .eq("task_id", taskId)
         .maybeSingle();
@@ -1192,7 +1192,7 @@ export const db = {
     return withTimeout(
       withTiming("DB GetGitHubIssueByTask", operation),
       DB_TIMEOUT,
-      "Get GitHub issue by task operation timed out",
+      "Get GitHub issue by task operation timed out"
     );
   },
 
@@ -1205,14 +1205,14 @@ export const db = {
           `
         *,
         repository:github_repositories(*)
-      `,
+      `
         )
         .single();
 
     return withTimeout(
       withTiming("DB CreateGitHubIssue", operation),
       DB_TIMEOUT,
-      "Create GitHub issue operation timed out",
+      "Create GitHub issue operation timed out"
     );
   },
 
@@ -1226,14 +1226,14 @@ export const db = {
           `
         *,
         repository:github_repositories(*)
-      `,
+      `
         )
         .single();
 
     return withTimeout(
       withTiming("DB UpdateGitHubIssue", operation),
       DB_TIMEOUT,
-      "Update GitHub issue operation timed out",
+      "Update GitHub issue operation timed out"
     );
   },
 
@@ -1249,7 +1249,7 @@ export const db = {
     return withTimeout(
       withTiming("DB GetTaskAttachments", operation),
       DB_TIMEOUT,
-      "Get task attachments operation timed out",
+      "Get task attachments operation timed out"
     );
   },
 
@@ -1264,7 +1264,7 @@ export const db = {
     return withTimeout(
       withTiming("DB GetScratchpadNoteAttachments", operation),
       DB_TIMEOUT,
-      "Get scratchpad note attachments operation timed out",
+      "Get scratchpad note attachments operation timed out"
     );
   },
 
@@ -1275,7 +1275,7 @@ export const db = {
     return withTimeout(
       withTiming("DB CreateAttachment", operation),
       DB_TIMEOUT,
-      "Create attachment operation timed out",
+      "Create attachment operation timed out"
     );
   },
 
@@ -1291,7 +1291,7 @@ export const db = {
     return withTimeout(
       withTiming("DB UpdateAttachment", operation),
       DB_TIMEOUT,
-      "Update attachment operation timed out",
+      "Update attachment operation timed out"
     );
   },
 
@@ -1317,7 +1317,7 @@ export const db = {
     return withTimeout(
       withTiming("DB DeleteAttachment", operation),
       DB_TIMEOUT,
-      "Delete attachment operation timed out",
+      "Delete attachment operation timed out"
     );
   },
 };

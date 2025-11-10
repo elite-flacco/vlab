@@ -88,7 +88,7 @@ interface VersionHistoryProps {
   currentVersion: number;
   onVersionRestore: (
     versionNumber: number,
-    changeDescription?: string,
+    changeDescription?: string
   ) => Promise<void>;
   onClose: () => void;
 }
@@ -116,7 +116,7 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
       setVersions(data || []);
     } catch (err: Error | unknown) {
       setError(
-        err instanceof Error ? err.message : "Failed to fetch version history",
+        err instanceof Error ? err.message : "Failed to fetch version history"
       );
     } finally {
       setLoading(false);
@@ -129,7 +129,7 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
 
   const handleVersionSelect = (versionNumber: number) => {
     if (selectedVersions.includes(versionNumber)) {
-      setSelectedVersions(selectedVersions.filter((v) => v !== versionNumber));
+      setSelectedVersions(selectedVersions.filter(v => v !== versionNumber));
     } else if (selectedVersions.length < 2) {
       setSelectedVersions([...selectedVersions, versionNumber]);
     } else {
@@ -147,7 +147,7 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
       const { data, error: compareError } = await db.getPRDVersionComparison(
         prdId,
         versionA,
-        versionB,
+        versionB
       );
 
       if (compareError) throw compareError;
@@ -155,7 +155,7 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
       setShowComparison(true);
     } catch (err: Error | unknown) {
       setError(
-        err instanceof Error ? err.message : "Failed to compare versions",
+        err instanceof Error ? err.message : "Failed to compare versions"
       );
     } finally {
       setLoading(false);
@@ -164,7 +164,7 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
 
   const handleRestoreVersion = async (versionNumber: number) => {
     const changeDescription = prompt(
-      `Describe the reason for restoring to version ${versionNumber}:`,
+      `Describe the reason for restoring to version ${versionNumber}:`
     );
 
     if (changeDescription === null) return; // User cancelled
@@ -175,7 +175,7 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
       onClose();
     } catch (err: Error | unknown) {
       setError(
-        err instanceof Error ? err.message : "Failed to restore version",
+        err instanceof Error ? err.message : "Failed to restore version"
       );
     } finally {
       setRestoring(null);
@@ -417,7 +417,7 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
                           Last updated{" "}
                           {format(
                             new Date(versions[0]?.created_at || new Date()),
-                            "MMM d, yyyy",
+                            "MMM d, yyyy"
                           )}
                         </span>
                       </div>
@@ -427,7 +427,7 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
               </div>
 
               {/* Historical Versions */}
-              {versions.map((version) => (
+              {versions.map(version => (
                 <div
                   key={version.id}
                   className={`border rounded-lg p-5 transition-all duration-200 bg-foreground/5 hover:bg-foreground/10 ${
@@ -443,7 +443,7 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
                           <input
                             type="checkbox"
                             checked={selectedVersions.includes(
-                              version.version_number,
+                              version.version_number
                             )}
                             onChange={() =>
                               handleVersionSelect(version.version_number)
@@ -452,7 +452,7 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
                             aria-label={`Select version ${version.version_number}`}
                           />
                           {selectedVersions.includes(
-                            version.version_number,
+                            version.version_number
                           ) && (
                             <Check className="w-3 h-3 absolute left-0.5 top-0.5 text-background pointer-events-none" />
                           )}
@@ -474,7 +474,7 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
                             <span>
                               {format(
                                 new Date(version.created_at),
-                                "MMM d, yyyy · h:mm a",
+                                "MMM d, yyyy · h:mm a"
                               )}
                             </span>
                           </div>

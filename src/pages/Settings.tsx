@@ -144,9 +144,9 @@ export const Settings: React.FC = () => {
   };
 
   const togglePasswordVisibility = (
-    field: "newPassword" | "confirmPassword",
+    field: "newPassword" | "confirmPassword"
   ) => {
-    setShowPasswords((prev) => ({
+    setShowPasswords(prev => ({
       ...prev,
       [field]: !prev[field],
     }));
@@ -253,8 +253,8 @@ export const Settings: React.FC = () => {
                     id="name"
                     type="text"
                     value={profileData.name}
-                    onChange={(e) =>
-                      setProfileData((prev) => ({
+                    onChange={e =>
+                      setProfileData(prev => ({
                         ...prev,
                         name: e.target.value,
                       }))
@@ -286,8 +286,8 @@ export const Settings: React.FC = () => {
                 <textarea
                   id="bio"
                   value={profileData.bio}
-                  onChange={(e) =>
-                    setProfileData((prev) => ({ ...prev, bio: e.target.value }))
+                  onChange={e =>
+                    setProfileData(prev => ({ ...prev, bio: e.target.value }))
                   }
                   className="form-textarea"
                   rows={3}
@@ -304,8 +304,8 @@ export const Settings: React.FC = () => {
                     id="github"
                     type="text"
                     value={profileData.github_username}
-                    onChange={(e) =>
-                      setProfileData((prev) => ({
+                    onChange={e =>
+                      setProfileData(prev => ({
                         ...prev,
                         github_username: e.target.value,
                       }))
@@ -323,8 +323,8 @@ export const Settings: React.FC = () => {
                     id="twitter"
                     type="text"
                     value={profileData.twitter_username}
-                    onChange={(e) =>
-                      setProfileData((prev) => ({
+                    onChange={e =>
+                      setProfileData(prev => ({
                         ...prev,
                         twitter_username: e.target.value,
                       }))
@@ -342,8 +342,8 @@ export const Settings: React.FC = () => {
                     id="website"
                     type="url"
                     value={profileData.website_url}
-                    onChange={(e) =>
-                      setProfileData((prev) => ({
+                    onChange={e =>
+                      setProfileData(prev => ({
                         ...prev,
                         website_url: e.target.value,
                       }))
@@ -423,8 +423,8 @@ export const Settings: React.FC = () => {
                       id="newPassword"
                       type={showPasswords.newPassword ? "text" : "password"}
                       value={passwordData.newPassword}
-                      onChange={(e) =>
-                        setPasswordData((prev) => ({
+                      onChange={e =>
+                        setPasswordData(prev => ({
                           ...prev,
                           newPassword: e.target.value,
                         }))
@@ -457,8 +457,8 @@ export const Settings: React.FC = () => {
                       id="confirmPassword"
                       type={showPasswords.confirmPassword ? "text" : "password"}
                       value={passwordData.confirmPassword}
-                      onChange={(e) =>
-                        setPasswordData((prev) => ({
+                      onChange={e =>
+                        setPasswordData(prev => ({
                           ...prev,
                           confirmPassword: e.target.value,
                         }))

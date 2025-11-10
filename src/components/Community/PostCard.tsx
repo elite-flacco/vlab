@@ -47,7 +47,7 @@ export const PostCard: React.FC<PostCardProps> = ({
   showFullContent = false,
 }) => {
   const [userVote, setUserVote] = useState<string | null>(
-    post.user_vote?.[0]?.vote_type || null,
+    post.user_vote?.[0]?.vote_type || null
   );
   const [isSaved, setIsSaved] = useState(!!post.user_saved?.length);
   const [upvotes, setUpvotes] = useState(post.upvotes);
@@ -65,9 +65,9 @@ export const PostCard: React.FC<PostCardProps> = ({
         await communityApi.removeVote(post.id);
         setUserVote(null);
         if (voteType === "upvote") {
-          setUpvotes((prev) => prev - 1);
+          setUpvotes(prev => prev - 1);
         } else {
-          setDownvotes((prev) => prev - 1);
+          setDownvotes(prev => prev - 1);
         }
       } else {
         // Add or change vote
@@ -75,15 +75,15 @@ export const PostCard: React.FC<PostCardProps> = ({
 
         // Update counts
         if (userVote === "upvote" && voteType === "downvote") {
-          setUpvotes((prev) => prev - 1);
-          setDownvotes((prev) => prev + 1);
+          setUpvotes(prev => prev - 1);
+          setDownvotes(prev => prev + 1);
         } else if (userVote === "downvote" && voteType === "upvote") {
-          setDownvotes((prev) => prev - 1);
-          setUpvotes((prev) => prev + 1);
+          setDownvotes(prev => prev - 1);
+          setUpvotes(prev => prev + 1);
         } else if (voteType === "upvote") {
-          setUpvotes((prev) => prev + 1);
+          setUpvotes(prev => prev + 1);
         } else {
-          setDownvotes((prev) => prev + 1);
+          setDownvotes(prev => prev + 1);
         }
 
         setUserVote(voteType);
@@ -168,7 +168,7 @@ export const PostCard: React.FC<PostCardProps> = ({
           className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium ${colors.bg} ${colors.text} border ${colors.border}`}
         >
           🛠️ {toolLabels[post.tool] || post.tool}
-        </span>,
+        </span>
       );
     }
 
@@ -227,7 +227,7 @@ export const PostCard: React.FC<PostCardProps> = ({
           className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium ${colors.bg} ${colors.text} border ${colors.border}`}
         >
           💡 {categoryLabels[post.tip_category] || post.tip_category}
-        </span>,
+        </span>
       );
     }
 
@@ -264,7 +264,7 @@ export const PostCard: React.FC<PostCardProps> = ({
             src={post.image_url}
             alt={post.title}
             className="w-full h-48 object-cover rounded-lg"
-            onError={(e) => {
+            onError={e => {
               (e.target as HTMLImageElement).style.display = "none";
             }}
           />
@@ -278,7 +278,7 @@ export const PostCard: React.FC<PostCardProps> = ({
             !showFullContent && post.content.length > 200
               ? post.content.substring(0, 200) + "..."
               : post.content,
-            { convertUrls: true },
+            { convertUrls: true }
           )}
           variant="compact"
           className="text-sm"
@@ -286,7 +286,7 @@ export const PostCard: React.FC<PostCardProps> = ({
         {!showFullContent && post.content.length > 200 && (
           <button
             onClick={() => onPostClick?.(post.id)}
-            className="text-primary-light hover:text-primary"
+            className="text-primary/70 hover:text-primary"
           >
             Read more
           </button>
@@ -320,7 +320,7 @@ export const PostCard: React.FC<PostCardProps> = ({
               <span className="text-xs text-gray-500">
                 {post.tags
                   .slice(0, 2)
-                  .map((t) => t.tag)
+                  .map(t => t.tag)
                   .join(", ")}
                 {post.tags.length > 2 && ` +${post.tags.length - 2}`}
               </span>

@@ -68,7 +68,7 @@ export const RoadmapDetailView: React.FC = () => {
       setRoadmapItems(data || []);
     } catch (err: Error | unknown) {
       setError(
-        err instanceof Error ? err.message : "Failed to fetch roadmap items",
+        err instanceof Error ? err.message : "Failed to fetch roadmap items"
       );
     } finally {
       setLoading(false);
@@ -81,7 +81,7 @@ export const RoadmapDetailView: React.FC = () => {
 
   const handleUpdateRoadmapItem = async (
     itemId: string,
-    updates: Partial<RoadmapItem>,
+    updates: Partial<RoadmapItem>
   ) => {
     setSaving(true);
     setError(null);
@@ -98,19 +98,19 @@ export const RoadmapDetailView: React.FC = () => {
 
       const { data, error: updateError } = await db.updateRoadmapItem(
         itemId,
-        formattedUpdates,
+        formattedUpdates
       );
       if (updateError) throw updateError;
 
       // Update local state with the server response if available, or with the updates
-      const updatedItems = roadmapItems.map((item) =>
-        item.id === itemId ? data || { ...item, ...formattedUpdates } : item,
+      const updatedItems = roadmapItems.map(item =>
+        item.id === itemId ? data || { ...item, ...formattedUpdates } : item
       );
       setRoadmapItems(updatedItems);
       setEditingItemId(null);
     } catch (err: Error | unknown) {
       setError(
-        err instanceof Error ? err.message : "Failed to update roadmap item",
+        err instanceof Error ? err.message : "Failed to update roadmap item"
       );
     } finally {
       setSaving(false);
@@ -160,11 +160,11 @@ export const RoadmapDetailView: React.FC = () => {
       if (createError) throw createError;
 
       // Add to local state
-      setRoadmapItems((prev) => [...prev, data]);
+      setRoadmapItems(prev => [...prev, data]);
       setNewRoadmapItem(null);
     } catch (err: Error | unknown) {
       setError(
-        err instanceof Error ? err.message : "Failed to create roadmap item",
+        err instanceof Error ? err.message : "Failed to create roadmap item"
       );
     } finally {
       setSaving(false);
@@ -178,20 +178,20 @@ export const RoadmapDetailView: React.FC = () => {
     try {
       const { error: deleteError } = await db.deleteModuleData(
         "roadmap_items",
-        itemId,
+        itemId
       );
       if (deleteError) throw deleteError;
 
       // Remove from local state and update positions
       const updatedItems = roadmapItems
-        .filter((item) => item.id !== itemId)
+        .filter(item => item.id !== itemId)
         .map((item, index) => ({ ...item, position: index }));
 
       setRoadmapItems(updatedItems);
       setEditingItemId(null);
     } catch (err: Error | unknown) {
       setError(
-        err instanceof Error ? err.message : "Failed to delete roadmap item",
+        err instanceof Error ? err.message : "Failed to delete roadmap item"
       );
     } finally {
       setSaving(false);
@@ -220,17 +220,17 @@ export const RoadmapDetailView: React.FC = () => {
     const destinationPhase = destination.droppableId as RoadmapItem["phase"];
 
     // Find the item being moved
-    const movedItem = roadmapItems.find((item) => item.id === draggableId);
+    const movedItem = roadmapItems.find(item => item.id === draggableId);
     if (!movedItem) return;
 
     // Store original state for potential revert
     const originalItems = [...roadmapItems];
 
     // Update the item's phase and position in local state immediately
-    const updatedItems = roadmapItems.map((item) =>
+    const updatedItems = roadmapItems.map(item =>
       item.id === draggableId
         ? { ...item, phase: destinationPhase, position: destination.index }
-        : item,
+        : item
     );
 
     setRoadmapItems(updatedItems);
@@ -247,7 +247,7 @@ export const RoadmapDetailView: React.FC = () => {
       // Revert local state on error
       setRoadmapItems(originalItems);
       setError(
-        err instanceof Error ? err.message : "Failed to update item position",
+        err instanceof Error ? err.message : "Failed to update item position"
       );
     } finally {
       setSaving(false);
@@ -261,13 +261,13 @@ export const RoadmapDetailView: React.FC = () => {
   // Direct editing handlers
   const handleDirectStatusChange = async (
     itemId: string,
-    newStatus: string,
+    newStatus: string
   ) => {
     // Update local state immediately for better UX
-    const updatedItems = roadmapItems.map((item) =>
+    const updatedItems = roadmapItems.map(item =>
       item.id === itemId
         ? { ...item, status: newStatus as RoadmapItem["status"] }
-        : item,
+        : item
     );
     setRoadmapItems(updatedItems);
 
@@ -294,13 +294,13 @@ export const RoadmapDetailView: React.FC = () => {
 
   // Group items by phase for Kanban view
   const mvpItems = roadmapItems
-    .filter((item) => item.phase === "mvp")
+    .filter(item => item.phase === "mvp")
     .sort((a, b) => a.position - b.position);
   const phase2Items = roadmapItems
-    .filter((item) => item.phase === "phase_2")
+    .filter(item => item.phase === "phase_2")
     .sort((a, b) => a.position - b.position);
   const backlogItems = roadmapItems
-    .filter((item) => item.phase === "backlog")
+    .filter(item => item.phase === "backlog")
     .sort((a, b) => a.position - b.position);
 
   const getStatusColor = (status: string) => {
@@ -361,7 +361,7 @@ export const RoadmapDetailView: React.FC = () => {
     item: RoadmapItem,
     index: number,
     showPhaseSelector = false,
-    isDraggable = false,
+    isDraggable = false
   ) => {
     const itemContent = (
       <div
@@ -379,9 +379,9 @@ export const RoadmapDetailView: React.FC = () => {
               <input
                 type="text"
                 value={item.title}
-                onChange={(e) => {
-                  const updatedItems = roadmapItems.map((i) =>
-                    i.id === item.id ? { ...i, title: e.target.value } : i,
+                onChange={e => {
+                  const updatedItems = roadmapItems.map(i =>
+                    i.id === item.id ? { ...i, title: e.target.value } : i
                   );
                   setRoadmapItems(updatedItems);
                 }}
@@ -397,11 +397,9 @@ export const RoadmapDetailView: React.FC = () => {
               </label>
               <textarea
                 value={item.description}
-                onChange={(e) => {
-                  const updatedItems = roadmapItems.map((i) =>
-                    i.id === item.id
-                      ? { ...i, description: e.target.value }
-                      : i,
+                onChange={e => {
+                  const updatedItems = roadmapItems.map(i =>
+                    i.id === item.id ? { ...i, description: e.target.value } : i
                   );
                   setRoadmapItems(updatedItems);
                 }}
@@ -418,11 +416,11 @@ export const RoadmapDetailView: React.FC = () => {
                 </label>
                 <select
                   value={item.status}
-                  onChange={(e) => {
-                    const updatedItems = roadmapItems.map((i) =>
+                  onChange={e => {
+                    const updatedItems = roadmapItems.map(i =>
                       i.id === item.id
                         ? { ...i, status: e.target.value as any }
-                        : i,
+                        : i
                     );
                     setRoadmapItems(updatedItems);
                   }}
@@ -442,11 +440,11 @@ export const RoadmapDetailView: React.FC = () => {
                   </label>
                   <select
                     value={item.phase}
-                    onChange={(e) => {
-                      const updatedItems = roadmapItems.map((i) =>
+                    onChange={e => {
+                      const updatedItems = roadmapItems.map(i =>
                         i.id === item.id
                           ? { ...i, phase: e.target.value as any }
-                          : i,
+                          : i
                       );
                       setRoadmapItems(updatedItems);
                     }}
@@ -466,8 +464,8 @@ export const RoadmapDetailView: React.FC = () => {
                   <input
                     type="date"
                     value={item.end_date?.split("T")[0] || ""}
-                    onChange={(e) => {
-                      const updatedItems = roadmapItems.map((i) =>
+                    onChange={e => {
+                      const updatedItems = roadmapItems.map(i =>
                         i.id === item.id
                           ? {
                               ...i,
@@ -475,7 +473,7 @@ export const RoadmapDetailView: React.FC = () => {
                                 ? `${e.target.value}T00:00:00.000Z`
                                 : null,
                             }
-                          : i,
+                          : i
                       );
                       setRoadmapItems(updatedItems);
                     }}
@@ -486,10 +484,10 @@ export const RoadmapDetailView: React.FC = () => {
                     {item.end_date && (
                       <button
                         type="button"
-                        onClick={(e) => {
+                        onClick={e => {
                           e.stopPropagation();
-                          const updatedItems = roadmapItems.map((i) =>
-                            i.id === item.id ? { ...i, end_date: null } : i,
+                          const updatedItems = roadmapItems.map(i =>
+                            i.id === item.id ? { ...i, end_date: null } : i
                           );
                           setRoadmapItems(updatedItems);
                         }}
@@ -595,35 +593,47 @@ export const RoadmapDetailView: React.FC = () => {
                 <div className="flex items-center space-x-2">
                   <select
                     value={item.status}
-                    onChange={(e) =>
+                    onChange={e =>
                       handleDirectStatusChange(item.id, e.target.value)
                     }
                     disabled={saving}
                     className={`cursor-pointer px-2 py-1 rounded-md text-2xs border ${getStatusColor(
-                      item.status,
-                    )} disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-1 focus:ring-offset-1`}
+                      item.status
+                    )} disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-0 focus:ring-offset-0`}
                   >
                     <option
                       value="planned"
-                      style={{ backgroundColor: "#1a1a1a", color: "#e0e0e0" }}
+                      style={{
+                        backgroundColor: "bg-background",
+                        color: "text-foreground",
+                      }}
                     >
                       Planned
                     </option>
                     <option
                       value="in_progress"
-                      style={{ backgroundColor: "#1a1a1a", color: "#e0e0e0" }}
+                      style={{
+                        backgroundColor: "bg-background",
+                        color: "text-foreground",
+                      }}
                     >
                       In Progress
                     </option>
                     <option
                       value="completed"
-                      style={{ backgroundColor: "#1a1a1a", color: "#e0e0e0" }}
+                      style={{
+                        backgroundColor: "bg-background",
+                        color: "text-foreground",
+                      }}
                     >
                       Completed
                     </option>
                     <option
                       value="cancelled"
-                      style={{ backgroundColor: "#1a1a1a", color: "#e0e0e0" }}
+                      style={{
+                        backgroundColor: "bg-background",
+                        color: "text-foreground",
+                      }}
                     >
                       Cancelled
                     </option>
@@ -679,7 +689,7 @@ export const RoadmapDetailView: React.FC = () => {
     items: RoadmapItem[],
     phase: RoadmapItem["phase"],
     icon: React.ReactNode,
-    bgColor: string,
+    bgColor: string
   ) => {
     return (
       <div className={`${bgColor} rounded-lg p-4 flex flex-col h-full`}>
@@ -704,7 +714,7 @@ export const RoadmapDetailView: React.FC = () => {
               }`}
             >
               {items.map((item, index) =>
-                renderRoadmapItem(item, index, false, true),
+                renderRoadmapItem(item, index, false, true)
               )}
               {provided.placeholder}
               {items.length === 0 && !snapshot.isDraggingOver && (
@@ -851,21 +861,21 @@ export const RoadmapDetailView: React.FC = () => {
                     mvpItems,
                     "mvp",
                     <Target className="w-4 h-4 mr-2" />,
-                    "bg-red-500/5",
+                    "bg-red-500/5"
                   )}
                   {renderKanbanColumn(
                     "Phase 2",
                     phase2Items,
                     "phase_2",
                     <Map className="w-4 h-4 mr-2" />,
-                    "bg-purple-500/5",
+                    "bg-purple-500/5"
                   )}
                   {renderKanbanColumn(
                     "Backlog",
                     backlogItems,
                     "backlog",
                     <Plus className="w-4 h-4 mr-2" />,
-                    "bg-yellow-500/5",
+                    "bg-yellow-500/5"
                   )}
                 </div>
               </DragDropContext>
@@ -888,8 +898,8 @@ export const RoadmapDetailView: React.FC = () => {
                         <input
                           type="text"
                           value={newRoadmapItem.title || ""}
-                          onChange={(e) =>
-                            setNewRoadmapItem((prev) => ({
+                          onChange={e =>
+                            setNewRoadmapItem(prev => ({
                               ...prev,
                               title: e.target.value,
                             }))
@@ -906,8 +916,8 @@ export const RoadmapDetailView: React.FC = () => {
                         </label>
                         <textarea
                           value={newRoadmapItem.description || ""}
-                          onChange={(e) =>
-                            setNewRoadmapItem((prev) => ({
+                          onChange={e =>
+                            setNewRoadmapItem(prev => ({
                               ...prev,
                               description: e.target.value,
                             }))
@@ -925,8 +935,8 @@ export const RoadmapDetailView: React.FC = () => {
                           </label>
                           <select
                             value={newRoadmapItem.phase || "mvp"}
-                            onChange={(e) =>
-                              setNewRoadmapItem((prev) => ({
+                            onChange={e =>
+                              setNewRoadmapItem(prev => ({
                                 ...prev,
                                 phase: e.target.value as any,
                               }))
@@ -948,8 +958,8 @@ export const RoadmapDetailView: React.FC = () => {
                               value={
                                 newRoadmapItem.end_date?.split("T")[0] || ""
                               }
-                              onChange={(e) =>
-                                setNewRoadmapItem((prev) => ({
+                              onChange={e =>
+                                setNewRoadmapItem(prev => ({
                                   ...prev,
                                   end_date: e.target.value
                                     ? `${e.target.value}T00:00:00.000Z`
@@ -963,9 +973,9 @@ export const RoadmapDetailView: React.FC = () => {
                               {newRoadmapItem.end_date && (
                                 <button
                                   type="button"
-                                  onClick={(e) => {
+                                  onClick={e => {
                                     e.stopPropagation();
-                                    setNewRoadmapItem((prev) => ({
+                                    setNewRoadmapItem(prev => ({
                                       ...prev,
                                       end_date: null,
                                     }));
@@ -1038,7 +1048,7 @@ export const RoadmapDetailView: React.FC = () => {
                         {/* <div className="flex-1 border-t border-gray-200"></div> */}
                       </div>
                       {mvpItems.map((item, index) =>
-                        renderRoadmapItem(item, index, true, false),
+                        renderRoadmapItem(item, index, true, false)
                       )}
                     </div>
                   )}
@@ -1055,7 +1065,7 @@ export const RoadmapDetailView: React.FC = () => {
                         {/* <div className="flex-1 border-t border-gray-200"></div> */}
                       </div>
                       {phase2Items.map((item, index) =>
-                        renderRoadmapItem(item, index, true, false),
+                        renderRoadmapItem(item, index, true, false)
                       )}
                     </div>
                   )}
@@ -1072,7 +1082,7 @@ export const RoadmapDetailView: React.FC = () => {
                         {/* <div className="flex-1 border-t border-gray-200"></div> */}
                       </div>
                       {backlogItems.map((item, index) =>
-                        renderRoadmapItem(item, index, true, false),
+                        renderRoadmapItem(item, index, true, false)
                       )}
                     </div>
                   )}
@@ -1086,10 +1096,7 @@ export const RoadmapDetailView: React.FC = () => {
             <div className="text-xs text-gray-500">
               {roadmapItems.length} phase{roadmapItems.length !== 1 ? "s" : ""}{" "}
               •{" "}
-              {
-                roadmapItems.filter((item) => item.status === "completed")
-                  .length
-              }{" "}
+              {roadmapItems.filter(item => item.status === "completed").length}{" "}
               completed
               {/* {viewMode === 'kanban' && (
                 <span className="ml-2 text-blue-600">💡 Drag items between columns to change phases</span>

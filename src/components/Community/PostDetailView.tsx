@@ -268,7 +268,7 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({
                 <div className="flex-1">
                   <textarea
                     value={replyContent}
-                    onChange={(e) => setReplyContent(e.target.value)}
+                    onChange={e => setReplyContent(e.target.value)}
                     placeholder="Write a reply..."
                     className="form-textarea bg-background/50"
                   />
@@ -305,7 +305,7 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({
         {/* Render Replies */}
         {comment.replies && comment.replies.length > 0 && (
           <div className="mt-2">
-            {comment.replies.map((reply) => renderComment(reply, depth + 1))}
+            {comment.replies.map(reply => renderComment(reply, depth + 1))}
           </div>
         )}
       </div>
@@ -457,7 +457,7 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({
                   <div className="flex-1">
                     <textarea
                       value={newComment}
-                      onChange={(e) => setNewComment(e.target.value)}
+                      onChange={e => setNewComment(e.target.value)}
                       placeholder="Share your thoughts..."
                       className="form-textarea bg-background/50"
                       rows={3}
@@ -494,7 +494,7 @@ export const PostDetailView: React.FC<PostDetailViewProps> = ({
               {/* Comments List */}
               <div className="space-y-4">
                 {post.comments && post.comments.length > 0 ? (
-                  post.comments.map((comment) => renderComment(comment))
+                  post.comments.map(comment => renderComment(comment))
                 ) : (
                   <div className="text-center py-10 bg-foreground/5 rounded-xl border border-dashed border-foreground/10">
                     <MessageSquare className="w-12 h-12 text-foreground/20 mx-auto mb-4" />

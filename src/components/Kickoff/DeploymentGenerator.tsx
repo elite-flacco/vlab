@@ -86,12 +86,12 @@ export const DeploymentGenerator: React.FC<DeploymentGeneratorProps> = ({
     } catch (error) {
       console.error(
         "DeploymentGenerator Debug - Error generating deployment items:",
-        error,
+        error
       );
       setError(
         error instanceof Error
           ? error.message
-          : "Failed to generate deployment checklist",
+          : "Failed to generate deployment checklist"
       );
     } finally {
       setIsGenerating(false);
@@ -148,7 +148,7 @@ export const DeploymentGenerator: React.FC<DeploymentGeneratorProps> = ({
       setError(
         error instanceof Error
           ? error.message
-          : "Failed to save deployment checklist",
+          : "Failed to save deployment checklist"
       );
     } finally {
       setIsSaving(false);
@@ -175,10 +175,10 @@ export const DeploymentGenerator: React.FC<DeploymentGeneratorProps> = ({
 
   const handleUpdateItem = (
     index: number,
-    updates: Partial<DeploymentItem>,
+    updates: Partial<DeploymentItem>
   ) => {
     const updatedItems = deploymentItems.map((item, i) =>
-      i === index ? { ...item, ...updates } : item,
+      i === index ? { ...item, ...updates } : item
     );
     setDeploymentItems(updatedItems);
   };
@@ -326,7 +326,7 @@ export const DeploymentGenerator: React.FC<DeploymentGeneratorProps> = ({
                         <input
                           type="text"
                           value={item.title}
-                          onChange={(e) =>
+                          onChange={e =>
                             handleUpdateItem(index, { title: e.target.value })
                           }
                           className="form-input w-full"
@@ -336,7 +336,7 @@ export const DeploymentGenerator: React.FC<DeploymentGeneratorProps> = ({
                       <div>
                         <textarea
                           value={item.description}
-                          onChange={(e) =>
+                          onChange={e =>
                             handleUpdateItem(index, {
                               description: e.target.value,
                             })
@@ -352,7 +352,7 @@ export const DeploymentGenerator: React.FC<DeploymentGeneratorProps> = ({
                           </label>
                           <select
                             value={item.category}
-                            onChange={(e) =>
+                            onChange={e =>
                               handleUpdateItem(index, {
                                 category: e.target.value as any,
                               })
@@ -377,7 +377,7 @@ export const DeploymentGenerator: React.FC<DeploymentGeneratorProps> = ({
                           </label>
                           <select
                             value={item.platform}
-                            onChange={(e) =>
+                            onChange={e =>
                               handleUpdateItem(index, {
                                 platform: e.target.value as any,
                               })
@@ -401,7 +401,7 @@ export const DeploymentGenerator: React.FC<DeploymentGeneratorProps> = ({
                           </label>
                           <select
                             value={item.priority}
-                            onChange={(e) =>
+                            onChange={e =>
                               handleUpdateItem(index, {
                                 priority: e.target.value as any,
                               })
@@ -421,7 +421,7 @@ export const DeploymentGenerator: React.FC<DeploymentGeneratorProps> = ({
                           <input
                             type="checkbox"
                             checked={item.is_required}
-                            onChange={(e) =>
+                            onChange={e =>
                               handleUpdateItem(index, {
                                 is_required: e.target.checked,
                               })
@@ -436,7 +436,7 @@ export const DeploymentGenerator: React.FC<DeploymentGeneratorProps> = ({
                         </label>
                         <textarea
                           value={item.verification_notes}
-                          onChange={(e) =>
+                          onChange={e =>
                             handleUpdateItem(index, {
                               verification_notes: e.target.value,
                             })

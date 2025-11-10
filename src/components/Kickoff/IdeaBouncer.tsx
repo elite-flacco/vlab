@@ -50,13 +50,13 @@ export const IdeaBouncer: React.FC<IdeaBouncerProps> = ({
       timestamp: new Date(),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    setMessages(prev => [...prev, userMessage]);
     setInputValue("");
     setIsLoading(true);
     setError(null);
 
     try {
-      const chatHistory = [...messages, userMessage].map((msg) => ({
+      const chatHistory = [...messages, userMessage].map(msg => ({
         role: msg.role,
         content: msg.content,
       }));
@@ -69,11 +69,11 @@ export const IdeaBouncer: React.FC<IdeaBouncerProps> = ({
         timestamp: new Date(),
       };
 
-      setMessages((prev) => [...prev, assistantMessage]);
+      setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
       console.error("Error getting AI response:", error);
       setError(
-        error instanceof Error ? error.message : "Failed to get AI response",
+        error instanceof Error ? error.message : "Failed to get AI response"
       );
 
       // Add error message to chat
@@ -83,7 +83,7 @@ export const IdeaBouncer: React.FC<IdeaBouncerProps> = ({
           "I'm having trouble connecting right now. Could you try rephrasing your message? In the meantime, feel free to continue describing your idea!",
         timestamp: new Date(),
       };
-      setMessages((prev) => [...prev, errorMessage]);
+      setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
@@ -102,7 +102,7 @@ export const IdeaBouncer: React.FC<IdeaBouncerProps> = ({
 
     try {
       // Generate a summary of the conversation
-      const chatHistory = messages.map((msg) => ({
+      const chatHistory = messages.map(msg => ({
         role: msg.role,
         content: msg.content,
       }));
@@ -112,8 +112,8 @@ export const IdeaBouncer: React.FC<IdeaBouncerProps> = ({
       // Save the full conversation to scratchpad
       const conversationText = messages
         .map(
-          (msg) =>
-            `**${msg.role === "user" ? "You" : "AI Assistant"}** (${msg.timestamp.toLocaleTimeString()}):\n${msg.content}`,
+          msg =>
+            `**${msg.role === "user" ? "You" : "AI Assistant"}** (${msg.timestamp.toLocaleTimeString()}):\n${msg.content}`
         )
         .join("\n\n---\n\n");
 
@@ -221,7 +221,7 @@ export const IdeaBouncer: React.FC<IdeaBouncerProps> = ({
             <textarea
               ref={inputRef}
               value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
+              onChange={e => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Describe your idea, ask questions, or share your thoughts..."
               className="form-textarea"

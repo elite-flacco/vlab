@@ -76,7 +76,7 @@ export const GlobalScratchpad: React.FC = () => {
   const { processContent } = useMarkdownPreprocessing();
 
   const [expandedNotes, setExpandedNotes] = useState<Record<string, boolean>>(
-    {},
+    {}
   );
   const contentRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
@@ -110,7 +110,7 @@ export const GlobalScratchpad: React.FC = () => {
 
   const handleUpdateNote = async (
     noteId: string,
-    updates: Partial<GlobalNote>,
+    updates: Partial<GlobalNote>
   ) => {
     setSaving(true);
     setError(null);
@@ -118,13 +118,13 @@ export const GlobalScratchpad: React.FC = () => {
     try {
       const response = (await db.updateGlobalNote(
         noteId,
-        updates,
+        updates
       )) as DatabaseResponse<GlobalNote>;
       if (response.error) throw response.error;
 
       // Update local state
-      const updatedNotes = notes.map((note) =>
-        note.id === noteId ? { ...note, ...updates } : note,
+      const updatedNotes = notes.map(note =>
+        note.id === noteId ? { ...note, ...updates } : note
       );
       setNotes(updatedNotes);
       setEditingNoteId(null);
@@ -136,7 +136,7 @@ export const GlobalScratchpad: React.FC = () => {
   };
 
   const toggleNoteExpansion = (noteId: string) => {
-    setExpandedNotes((prev) => ({
+    setExpandedNotes(prev => ({
       ...prev,
       [noteId]: !prev[noteId],
     }));
@@ -162,12 +162,12 @@ export const GlobalScratchpad: React.FC = () => {
       };
 
       const response = (await db.createGlobalNote(
-        newNoteData,
+        newNoteData
       )) as DatabaseResponse<GlobalNote>;
       if (response.error) throw response.error;
 
       // Add to local state
-      setNotes((prev) => (response.data ? [response.data, ...prev] : prev));
+      setNotes(prev => (response.data ? [response.data, ...prev] : prev));
       setNewNote(null);
     } catch (err: any) {
       setError(err.message || "Failed to create note");
@@ -182,12 +182,12 @@ export const GlobalScratchpad: React.FC = () => {
 
     try {
       const response = (await db.deleteGlobalNote(
-        noteId,
+        noteId
       )) as DatabaseResponse<void>;
       if (response.error) throw response.error;
 
       // Remove from local state
-      setNotes((prev) => prev.filter((note) => note.id !== noteId));
+      setNotes(prev => prev.filter(note => note.id !== noteId));
       setEditingNoteId(null);
     } catch (err: any) {
       setError(err.message || "Failed to delete note");
@@ -203,10 +203,10 @@ export const GlobalScratchpad: React.FC = () => {
   //   );
   // };
 
-  const allTags = Array.from(new Set(notes.flatMap((note) => note.tags || [])));
+  const allTags = Array.from(new Set(notes.flatMap(note => note.tags || [])));
 
   const filteredNotes = notes
-    .filter((note) => {
+    .filter(note => {
       const matchesSearch =
         note.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (note.title &&
@@ -330,8 +330,8 @@ export const GlobalScratchpad: React.FC = () => {
                   <input
                     type="text"
                     value={newNote.title || ""}
-                    onChange={(e) =>
-                      setNewNote((prev) => ({ ...prev, title: e.target.value }))
+                    onChange={e =>
+                      setNewNote(prev => ({ ...prev, title: e.target.value }))
                     }
                     className="form-input mb-3 w-full"
                     placeholder="Note title (optional)"
@@ -339,8 +339,8 @@ export const GlobalScratchpad: React.FC = () => {
                   />
                   <textarea
                     value={newNote.content || ""}
-                    onChange={(e) =>
-                      setNewNote((prev) => ({
+                    onChange={e =>
+                      setNewNote(prev => ({
                         ...prev,
                         content: e.target.value,
                       }))
@@ -358,15 +358,15 @@ export const GlobalScratchpad: React.FC = () => {
                     </label>
                     <select
                       value={newNote.tags?.[0] || TAG_OPTIONS[0]}
-                      onChange={(e) =>
-                        setNewNote((prev) => ({
+                      onChange={e =>
+                        setNewNote(prev => ({
                           ...prev,
                           tags: [e.target.value],
                         }))
                       }
                       className="form-select"
                     >
-                      {TAG_OPTIONS.map((tag) => (
+                      {TAG_OPTIONS.map(tag => (
                         <option key={tag} value={tag}>
                           {tag}
                         </option>
@@ -382,8 +382,8 @@ export const GlobalScratchpad: React.FC = () => {
                         <input
                           type="checkbox"
                           checked={newNote.is_pinned || false}
-                          onChange={(e) =>
-                            setNewNote((prev) => ({
+                          onChange={e =>
+                            setNewNote(prev => ({
                               ...prev,
                               is_pinned: e.target.checked,
                             }))
@@ -436,7 +436,7 @@ export const GlobalScratchpad: React.FC = () => {
                 <input
                   type="text"
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={e => setSearchTerm(e.target.value)}
                   placeholder="Search notes..."
                   className="search-input w-full"
                 />
@@ -453,7 +453,7 @@ export const GlobalScratchpad: React.FC = () => {
                 >
                   All Notes
                 </button>
-                {allTags.map((tag) => (
+                {allTags.map(tag => (
                   <button
                     key={tag}
                     onClick={() => setSelectedTag(tag)}
@@ -473,7 +473,7 @@ export const GlobalScratchpad: React.FC = () => {
           <div className="flex-1 overflow-y-auto">
             <div className="space-y-4">
               {/* Individual Note Cards with Direct Edit/Delete Icons */}
-              {filteredNotes.map((note) => (
+              {filteredNotes.map(note => (
                 <div key={note.id} className="card">
                   {editingNoteId === note.id ? (
                     // Edit Form
@@ -483,11 +483,11 @@ export const GlobalScratchpad: React.FC = () => {
                           <input
                             type="text"
                             value={note.title || ""}
-                            onChange={(e) => {
-                              const updatedNotes = notes.map((n) =>
+                            onChange={e => {
+                              const updatedNotes = notes.map(n =>
                                 n.id === note.id
                                   ? { ...n, title: e.target.value }
-                                  : n,
+                                  : n
                               );
                               setNotes(updatedNotes);
                             }}
@@ -497,11 +497,11 @@ export const GlobalScratchpad: React.FC = () => {
                           />
                           <textarea
                             value={note.content}
-                            onChange={(e) => {
-                              const updatedNotes = notes.map((n) =>
+                            onChange={e => {
+                              const updatedNotes = notes.map(n =>
                                 n.id === note.id
                                   ? { ...n, content: e.target.value }
-                                  : n,
+                                  : n
                               );
                               setNotes(updatedNotes);
                             }}
@@ -518,17 +518,17 @@ export const GlobalScratchpad: React.FC = () => {
                             </label>
                             <select
                               value={note.tags?.[0] || TAG_OPTIONS[0]}
-                              onChange={(e) => {
-                                const updatedNotes = notes.map((n) =>
+                              onChange={e => {
+                                const updatedNotes = notes.map(n =>
                                   n.id === note.id
                                     ? { ...n, tags: [e.target.value] }
-                                    : n,
+                                    : n
                                 );
                                 setNotes(updatedNotes);
                               }}
                               className="form-select"
                             >
-                              {TAG_OPTIONS.map((tag) => (
+                              {TAG_OPTIONS.map(tag => (
                                 <option key={tag} value={tag}>
                                   {tag}
                                 </option>
@@ -545,11 +545,11 @@ export const GlobalScratchpad: React.FC = () => {
                                 <input
                                   type="checkbox"
                                   checked={note.is_pinned}
-                                  onChange={(e) => {
-                                    const updatedNotes = notes.map((n) =>
+                                  onChange={e => {
+                                    const updatedNotes = notes.map(n =>
                                       n.id === note.id
                                         ? { ...n, is_pinned: e.target.checked }
-                                        : n,
+                                        : n
                                     );
                                     setNotes(updatedNotes);
                                   }}
@@ -615,7 +615,7 @@ export const GlobalScratchpad: React.FC = () => {
                             )}
                           </div>
                           <div
-                            ref={(el) => (contentRefs.current[note.id] = el)}
+                            ref={el => (contentRefs.current[note.id] = el)}
                             className={`overflow-hidden transition-all duration-300 ease-in-out ${expandedNotes[note.id] ? "" : "max-h-32"}`}
                           >
                             <div
@@ -636,7 +636,7 @@ export const GlobalScratchpad: React.FC = () => {
                           {(note.content.length > 100 ||
                             expandedNotes[note.id]) && (
                             <button
-                              onClick={(e) => {
+                              onClick={e => {
                                 e.stopPropagation();
                                 toggleNoteExpansion(note.id);
                               }}

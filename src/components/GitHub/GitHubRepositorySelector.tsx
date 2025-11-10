@@ -136,10 +136,10 @@ export const GitHubRepositorySelector: React.FC<
       const repos = await githubClient.getUserRepositories(1, 100);
 
       // Filter out repositories that are already added to this project
-      const existingRepoNames = repositories.map((r) => r.repo_full_name);
+      const existingRepoNames = repositories.map(r => r.repo_full_name);
       const availableRepos = repos.filter(
-        (repo) =>
-          !existingRepoNames.includes(repo.full_name) && repo.permissions.push, // Only show repos where user has push access
+        repo =>
+          !existingRepoNames.includes(repo.full_name) && repo.permissions.push // Only show repos where user has push access
       );
 
       setAvailableRepos(availableRepos);
@@ -189,12 +189,12 @@ export const GitHubRepositorySelector: React.FC<
   };
 
   const filteredAvailableRepos = availableRepos.filter(
-    (repo) =>
+    repo =>
       repo.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      repo.name.toLowerCase().includes(searchTerm.toLowerCase()),
+      repo.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const selectedRepo = repositories.find((r) => r.id === selectedRepositoryId);
+  const selectedRepo = repositories.find(r => r.id === selectedRepositoryId);
 
   // Show loading while checking authentication
   if (checkingAuth) {
@@ -277,14 +277,14 @@ export const GitHubRepositorySelector: React.FC<
           <div className="relative">
             <select
               value={selectedRepositoryId || ""}
-              onChange={(e) => {
-                const repo = repositories.find((r) => r.id === e.target.value);
+              onChange={e => {
+                const repo = repositories.find(r => r.id === e.target.value);
                 onRepositorySelect(repo || null);
               }}
               className="form-select w-full pr-10"
             >
               <option value="">Select a repository...</option>
-              {repositories.map((repo) => (
+              {repositories.map(repo => (
                 <option key={repo.id} value={repo.id}>
                   {repo.repo_full_name}
                 </option>
@@ -328,7 +328,7 @@ export const GitHubRepositorySelector: React.FC<
                   type="text"
                   placeholder="Search repositories..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={e => setSearchTerm(e.target.value)}
                   className="search-input"
                 />
               </div>
@@ -353,7 +353,7 @@ export const GitHubRepositorySelector: React.FC<
                 </div>
               ) : (
                 <div className="space-y-2">
-                  {filteredAvailableRepos.map((repo) => (
+                  {filteredAvailableRepos.map(repo => (
                     <div
                       key={repo.id}
                       className="flex items-center justify-between p-3 bg-secondary/30 text-foreground-dim border border-foreground-dim/20 rounded-md hover:bg-primary/10 hover:text-primary hover:border-primary/20"

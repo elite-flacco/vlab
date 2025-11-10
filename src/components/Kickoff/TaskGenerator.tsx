@@ -70,7 +70,7 @@ export const TaskGenerator: React.FC<TaskGeneratorProps> = ({
     } catch (error) {
       console.error("🔍 TaskGenerator Debug - Error generating tasks:", error);
       setError(
-        error instanceof Error ? error.message : "Failed to generate tasks",
+        error instanceof Error ? error.message : "Failed to generate tasks"
       );
     } finally {
       setIsGenerating(false);
@@ -142,7 +142,7 @@ export const TaskGenerator: React.FC<TaskGeneratorProps> = ({
 
   const handleUpdateTask = (index: number, updates: Partial<TaskItem>) => {
     const updatedTasks = tasks.map((task, i) =>
-      i === index ? { ...task, ...updates } : task,
+      i === index ? { ...task, ...updates } : task
     );
     setTasks(updatedTasks);
   };
@@ -177,8 +177,8 @@ export const TaskGenerator: React.FC<TaskGeneratorProps> = ({
   const parseTagsInput = (input: string) =>
     input
       .split(",")
-      .map((tag) => tag.trim())
-      .filter((tag) => tag.length > 0);
+      .map(tag => tag.trim())
+      .filter(tag => tag.length > 0);
 
   return (
     <div className="h-full flex flex-col">
@@ -265,7 +265,7 @@ export const TaskGenerator: React.FC<TaskGeneratorProps> = ({
                         <input
                           type="text"
                           value={task.title}
-                          onChange={(e) =>
+                          onChange={e =>
                             handleUpdateTask(index, { title: e.target.value })
                           }
                           className="form-input w-full"
@@ -275,7 +275,7 @@ export const TaskGenerator: React.FC<TaskGeneratorProps> = ({
                       <div>
                         <textarea
                           value={task.description}
-                          onChange={(e) =>
+                          onChange={e =>
                             handleUpdateTask(index, {
                               description: e.target.value,
                             })
@@ -291,7 +291,7 @@ export const TaskGenerator: React.FC<TaskGeneratorProps> = ({
                           </label>
                           <select
                             value={task.priority}
-                            onChange={(e) =>
+                            onChange={e =>
                               handleUpdateTask(index, {
                                 priority: e.target.value as any,
                               })
@@ -312,7 +312,7 @@ export const TaskGenerator: React.FC<TaskGeneratorProps> = ({
                             <input
                               type="date"
                               value={task.due_date || ""}
-                              onChange={(e) =>
+                              onChange={e =>
                                 handleUpdateTask(index, {
                                   due_date: e.target.value || undefined,
                                 })
@@ -335,7 +335,7 @@ export const TaskGenerator: React.FC<TaskGeneratorProps> = ({
                         <input
                           type="text"
                           value={formatTagsInput(task.tags)}
-                          onChange={(e) =>
+                          onChange={e =>
                             handleUpdateTask(index, {
                               tags: parseTagsInput(e.target.value),
                             })

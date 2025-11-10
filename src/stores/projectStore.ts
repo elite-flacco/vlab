@@ -12,7 +12,7 @@ interface ProjectState {
   createProject: (
     name: string,
     userId: string,
-    description?: string,
+    description?: string
   ) => Promise<Project>;
   updateProject: (id: string, updates: Partial<Project>) => Promise<void>;
   archiveProject: (id: string) => Promise<void>;
@@ -96,14 +96,14 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       if (activeRes.error) {
         console.error(
           "❌ ProjectStore: Active projects fetch error:",
-          activeRes.error,
+          activeRes.error
         );
         throw activeRes.error;
       }
       if (archivedRes.error) {
         console.error(
           "❌ ProjectStore: Archived projects fetch error:",
-          archivedRes.error,
+          archivedRes.error
         );
         throw archivedRes.error;
       }
@@ -168,11 +168,11 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       if (result.error) throw result.error;
 
       const { activeProjects, archivedProjects, currentProject } = get();
-      const updatedActiveProjects = activeProjects.map((p) =>
-        p.id === id ? result.data : p,
+      const updatedActiveProjects = activeProjects.map(p =>
+        p.id === id ? result.data : p
       );
-      const updatedArchivedProjects = archivedProjects.map((p) =>
-        p.id === id ? result.data : p,
+      const updatedArchivedProjects = archivedProjects.map(p =>
+        p.id === id ? result.data : p
       );
 
       set({
@@ -197,12 +197,12 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       if (result.error) throw result.error;
 
       const { activeProjects, archivedProjects, currentProject } = get();
-      const projectToArchive = activeProjects.find((p) => p.id === id);
+      const projectToArchive = activeProjects.find(p => p.id === id);
 
       if (projectToArchive) {
         const archivedProject = { ...projectToArchive, is_archived: true };
         set({
-          activeProjects: activeProjects.filter((p) => p.id !== id),
+          activeProjects: activeProjects.filter(p => p.id !== id),
           archivedProjects: [archivedProject, ...archivedProjects],
           currentProject: currentProject?.id === id ? null : currentProject,
           loading: false,
@@ -223,13 +223,13 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       if (result.error) throw result.error;
 
       const { activeProjects, archivedProjects } = get();
-      const projectToRestore = archivedProjects.find((p) => p.id === id);
+      const projectToRestore = archivedProjects.find(p => p.id === id);
 
       if (projectToRestore) {
         const restoredProject = { ...projectToRestore, is_archived: false };
         set({
           activeProjects: [restoredProject, ...activeProjects],
-          archivedProjects: archivedProjects.filter((p) => p.id !== id),
+          archivedProjects: archivedProjects.filter(p => p.id !== id),
           loading: false,
         });
       }
@@ -250,8 +250,8 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       const { activeProjects, archivedProjects, currentProject } = get();
 
       set({
-        activeProjects: activeProjects.filter((p) => p.id !== id),
-        archivedProjects: archivedProjects.filter((p) => p.id !== id),
+        activeProjects: activeProjects.filter(p => p.id !== id),
+        archivedProjects: archivedProjects.filter(p => p.id !== id),
         currentProject: currentProject?.id === id ? null : currentProject,
         loading: false,
       });

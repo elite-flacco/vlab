@@ -53,7 +53,7 @@ export const Community: React.FC = () => {
   const [selectedTipCategory, setSelectedTipCategory] = useState<string>("");
   const [selectedTag, setSelectedTag] = useState<string>("");
   const [sortBy, setSortBy] = useState<"newest" | "popular" | "trending">(
-    "newest",
+    "newest"
   );
 
   // Pagination
@@ -190,8 +190,8 @@ export const Community: React.FC = () => {
               <input
                 type="text"
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+                onChange={e => setSearchTerm(e.target.value)}
+                onKeyPress={e => e.key === "Enter" && handleSearch()}
                 placeholder="Search for vibes..."
                 className="search-input"
               />
@@ -208,11 +208,11 @@ export const Community: React.FC = () => {
                 {/* Tool Filter */}
                 <select
                   value={selectedTool}
-                  onChange={(e) => setSelectedTool(e.target.value)}
+                  onChange={e => setSelectedTool(e.target.value)}
                   className="form-select"
                 >
                   <option value="">All Tools</option>
-                  {TOOL_OPTIONS.map((tool) => (
+                  {TOOL_OPTIONS.map(tool => (
                     <option key={tool.value} value={tool.value}>
                       {tool.label}
                     </option>
@@ -222,11 +222,11 @@ export const Community: React.FC = () => {
                 {/* Tip Category Filter */}
                 <select
                   value={selectedTipCategory}
-                  onChange={(e) => setSelectedTipCategory(e.target.value)}
+                  onChange={e => setSelectedTipCategory(e.target.value)}
                   className="form-select"
                 >
                   <option value="">All Tip Categories</option>
-                  {TIP_CATEGORY_OPTIONS.map((category) => (
+                  {TIP_CATEGORY_OPTIONS.map(category => (
                     <option key={category.value} value={category.value}>
                       {category.label}
                     </option>
@@ -261,9 +261,9 @@ export const Community: React.FC = () => {
               <div className="text-xs text-foreground-dim">
                 Showing {posts.length} of {totalPosts} posts
                 {selectedTool &&
-                  ` for ${TOOL_OPTIONS.find((t) => t.value === selectedTool)?.label}`}
+                  ` for ${TOOL_OPTIONS.find(t => t.value === selectedTool)?.label}`}
                 {selectedTipCategory &&
-                  ` in ${TIP_CATEGORY_OPTIONS.find((c) => c.value === selectedTipCategory)?.label}`}
+                  ` in ${TIP_CATEGORY_OPTIONS.find(c => c.value === selectedTipCategory)?.label}`}
                 {searchTerm && ` matching "${searchTerm}"`}
               </div>
               <button
@@ -316,7 +316,7 @@ export const Community: React.FC = () => {
           </div>
         ) : (
           <>
-            {posts.map((post) => (
+            {posts.map(post => (
               <PostCard
                 key={post.id}
                 post={post}
@@ -331,9 +331,7 @@ export const Community: React.FC = () => {
               </div>
               <div className="flex space-x-2">
                 <button
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.max(1, prev - 1))
-                  }
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                   disabled={currentPage === 1}
                   className="btn-outline"
                 >
@@ -343,7 +341,7 @@ export const Community: React.FC = () => {
                   Page {currentPage}
                 </span>
                 <button
-                  onClick={() => setCurrentPage((prev) => prev + 1)}
+                  onClick={() => setCurrentPage(prev => prev + 1)}
                   disabled={!hasNextPage}
                   className="btn-outline"
                 >

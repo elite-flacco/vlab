@@ -82,7 +82,7 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
 
   const handleAddTag = () => {
     if (newTag.trim() && !formData.tags.includes(newTag.trim().toLowerCase())) {
-      setFormData((prev) => ({
+      setFormData(prev => ({
         ...prev,
         tags: [...prev.tags, newTag.trim().toLowerCase()],
       }));
@@ -91,9 +91,9 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
   };
 
   const handleRemoveTag = (tagToRemove: string) => {
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
-      tags: prev.tags.filter((tag) => tag !== tagToRemove),
+      tags: prev.tags.filter(tag => tag !== tagToRemove),
     }));
   };
 
@@ -146,8 +146,8 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
               type="text"
               id="title"
               value={formData.title}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, title: e.target.value }))
+              onChange={e =>
+                setFormData(prev => ({ ...prev, title: e.target.value }))
               }
               className="w-full px-3 py-2.5 bg-secondary border border-foreground-dim/20 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-foreground placeholder-foreground-dim/50 text-sm transition-colors"
               placeholder="Enter a descriptive title for your post..."
@@ -166,8 +166,8 @@ export const PostSubmissionForm: React.FC<PostSubmissionFormProps> = ({
             <textarea
               id="content"
               value={formData.content}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, content: e.target.value }))
+              onChange={e =>
+                setFormData(prev => ({ ...prev, content: e.target.value }))
               }
               rows={8}
               className="w-full px-3 py-2.5 bg-secondary border border-foreground-dim/20 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-foreground placeholder-foreground-dim/50 resize-none text-sm transition-colors"
@@ -198,13 +198,13 @@ Markdown formatting is supported!"
               <select
                 id="tool"
                 value={formData.tool}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, tool: e.target.value }))
+                onChange={e =>
+                  setFormData(prev => ({ ...prev, tool: e.target.value }))
                 }
                 className="w-full px-3 py-2.5 bg-secondary border border-foreground-dim/20 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-foreground placeholder-foreground-dim/50 text-sm transition-colors"
               >
                 <option value="">Select a tool (optional)</option>
-                {TOOL_OPTIONS.map((option) => (
+                {TOOL_OPTIONS.map(option => (
                   <option key={option.value} value={option.value}>
                     {option.label}
                   </option>
@@ -226,8 +226,8 @@ Markdown formatting is supported!"
               <select
                 id="tip_category"
                 value={formData.tip_category}
-                onChange={(e) =>
-                  setFormData((prev) => ({
+                onChange={e =>
+                  setFormData(prev => ({
                     ...prev,
                     tip_category: e.target.value,
                   }))
@@ -235,7 +235,7 @@ Markdown formatting is supported!"
                 className="w-full px-3 py-2.5 bg-secondary border border-foreground-dim/20 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-foreground placeholder-foreground-dim/50 text-sm transition-colors"
               >
                 <option value="">Select a tip category (optional)</option>
-                {TIP_CATEGORY_OPTIONS.map((option) => (
+                {TIP_CATEGORY_OPTIONS.map(option => (
                   <option key={option.value} value={option.value}>
                     {option.label}
                   </option>
@@ -268,8 +268,8 @@ Markdown formatting is supported!"
                 type="url"
                 id="image_url"
                 value={formData.image_url}
-                onChange={(e) =>
-                  setFormData((prev) => ({
+                onChange={e =>
+                  setFormData(prev => ({
                     ...prev,
                     image_url: e.target.value,
                   }))
@@ -293,7 +293,7 @@ Markdown formatting is supported!"
               Tags (Optional)
             </label>
             <div className="flex flex-wrap gap-2 mb-3">
-              {formData.tags.map((tag) => (
+              {formData.tags.map(tag => (
                 <span
                   key={tag}
                   className="inline-flex items-center px-3 py-1 bg-foreground-dim/5 border border-foreground-dim/20 text-foreground rounded-full text-xs font-medium"
@@ -314,7 +314,7 @@ Markdown formatting is supported!"
               <input
                 type="text"
                 value={newTag}
-                onChange={(e) => setNewTag(e.target.value)}
+                onChange={e => setNewTag(e.target.value)}
                 onKeyPress={handleKeyPress}
                 className="flex-1 px-3 py-2.5 bg-secondary border border-foreground-dim/20 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-foreground placeholder-foreground-dim/50 text-sm transition-colors"
                 placeholder="Add a tag..."

@@ -47,7 +47,7 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
     } catch (error) {
       console.error("Error generating roadmap:", error);
       setError(
-        error instanceof Error ? error.message : "Failed to generate roadmap",
+        error instanceof Error ? error.message : "Failed to generate roadmap"
       );
     } finally {
       setIsGenerating(false);
@@ -97,7 +97,7 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
     } catch (error) {
       console.error("Error saving roadmap:", error);
       setError(
-        error instanceof Error ? error.message : "Failed to save roadmap",
+        error instanceof Error ? error.message : "Failed to save roadmap"
       );
     } finally {
       setIsSaving(false);
@@ -126,7 +126,7 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
 
   const handleUpdateItem = (index: number, updates: Partial<RoadmapItem>) => {
     const updatedItems = roadmapItems.map((item, i) =>
-      i === index ? { ...item, ...updates } : item,
+      i === index ? { ...item, ...updates } : item
     );
     setRoadmapItems(updatedItems);
   };
@@ -252,7 +252,7 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
                         <input
                           type="text"
                           value={item.title}
-                          onChange={(e) =>
+                          onChange={e =>
                             handleUpdateItem(index, { title: e.target.value })
                           }
                           className="form-input"
@@ -260,7 +260,7 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
                         />
                         <textarea
                           value={item.description}
-                          onChange={(e) =>
+                          onChange={e =>
                             handleUpdateItem(index, {
                               description: e.target.value,
                             })
@@ -271,7 +271,7 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
                         <div className="flex flex-wrap gap-4">
                           <select
                             value={item.status}
-                            onChange={(e) =>
+                            onChange={e =>
                               handleUpdateItem(index, {
                                 status: e.target.value as any,
                               })
@@ -284,7 +284,7 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
                           </select>
                           <select
                             value={item.phase}
-                            onChange={(e) =>
+                            onChange={e =>
                               handleUpdateItem(index, {
                                 phase: e.target.value as any,
                               })
@@ -343,7 +343,7 @@ export const RoadmapGenerator: React.FC<RoadmapGeneratorProps> = ({
                                 <span>
                                   Start:{" "}
                                   {new Date(
-                                    item.start_date,
+                                    item.start_date
                                   ).toLocaleDateString()}
                                 </span>
                               </div>

@@ -99,12 +99,12 @@ export const GitHubAuthButton: React.FC<GitHubAuthButtonProps> = ({
       const popup = window.open(
         authUrl,
         "github-oauth",
-        `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`,
+        `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`
       );
 
       if (!popup) {
         throw new Error(
-          "Failed to open OAuth popup. Please allow popups for this site.",
+          "Failed to open OAuth popup. Please allow popups for this site."
         );
       }
 
@@ -140,7 +140,7 @@ export const GitHubAuthButton: React.FC<GitHubAuthButtonProps> = ({
     } catch (err: Error | unknown) {
       console.error("Error connecting to GitHub:", err);
       setError(
-        err instanceof Error ? err.message : "Failed to connect to GitHub",
+        err instanceof Error ? err.message : "Failed to connect to GitHub"
       );
       setConnecting(false);
     }
@@ -171,7 +171,7 @@ export const GitHubAuthButton: React.FC<GitHubAuthButtonProps> = ({
       if (repoResult.error) {
         console.warn(
           "Warning: Failed to clear repositories:",
-          repoResult.error,
+          repoResult.error
         );
         // Don't throw here since the main disconnection succeeded
       }
@@ -181,7 +181,7 @@ export const GitHubAuthButton: React.FC<GitHubAuthButtonProps> = ({
     } catch (err: Error | unknown) {
       console.error("Error disconnecting from GitHub:", err);
       setError(
-        err instanceof Error ? err.message : "Failed to disconnect from GitHub",
+        err instanceof Error ? err.message : "Failed to disconnect from GitHub"
       );
     } finally {
       setLoading(false);

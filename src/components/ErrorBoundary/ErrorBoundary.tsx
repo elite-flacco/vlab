@@ -100,7 +100,7 @@ export class ErrorBoundary extends Component<
 
 export const withErrorBoundary = <P extends object>(
   Component: React.ComponentType<P>,
-  context?: string,
+  context?: string
 ) => {
   return (props: P) => (
     <ErrorBoundary context={context}>

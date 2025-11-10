@@ -87,7 +87,7 @@ export const UserProfileSection: React.FC<UserProfileSectionProps> = ({
                 <span>
                   Joined{" "}
                   {new Date(
-                    user?.created_at || Date.now(),
+                    user?.created_at || Date.now()
                   ).toLocaleDateString()}
                 </span>
               </div>
@@ -124,7 +124,7 @@ export const UserProfileSection: React.FC<UserProfileSectionProps> = ({
           <nav className="flex text-sm">
             <button
               type="button"
-              onClick={(e) => handleTabClick("posts", e)}
+              onClick={e => handleTabClick("posts", e)}
               className={`flex-1 px-4 py-3 text-sm font-medium transition-colors flex items-center justify-center space-x-2 focus:outline-none ${
                 activeTab === "posts"
                   ? "text-primary border-b-2 border-primary bg-transparent"
@@ -136,7 +136,7 @@ export const UserProfileSection: React.FC<UserProfileSectionProps> = ({
             </button>
             <button
               type="button"
-              onClick={(e) => handleTabClick("saved", e)}
+              onClick={e => handleTabClick("saved", e)}
               className={`flex-1 px-4 py-3 text-sm font-medium transition-colors flex items-center justify-center space-x-2 focus:outline-none ${
                 activeTab === "saved"
                   ? "text-primary border-b-2 border-primary bg-transparent"
@@ -165,7 +165,7 @@ export const UserProfileSection: React.FC<UserProfileSectionProps> = ({
               {activeTab === "posts" && (
                 <>
                   {userPosts.length > 0 ? (
-                    userPosts.map((post) => (
+                    userPosts.map(post => (
                       <PostCard
                         key={post.id}
                         post={post}
@@ -189,7 +189,7 @@ export const UserProfileSection: React.FC<UserProfileSectionProps> = ({
               {activeTab === "saved" && (
                 <>
                   {savedPosts.length > 0 ? (
-                    savedPosts.map((post) => (
+                    savedPosts.map(post => (
                       <PostCard
                         key={post.id}
                         post={post}

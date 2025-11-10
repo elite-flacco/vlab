@@ -88,7 +88,7 @@ export const PRDDetailView: React.FC = () => {
           setSelectedVersionData(currentVersionData); // Initially show current version
         } catch (err: Error | unknown) {
           setError(
-            err instanceof Error ? err.message : "Failed to fetch PRD versions",
+            err instanceof Error ? err.message : "Failed to fetch PRD versions"
           );
         }
       }
@@ -132,7 +132,7 @@ export const PRDDetailView: React.FC = () => {
       setSelectedVersionData(currentVersionData); // Initially show current version
     } catch (err: Error | unknown) {
       setError(
-        err instanceof Error ? err.message : "Failed to fetch PRD versions",
+        err instanceof Error ? err.message : "Failed to fetch PRD versions"
       );
     }
   };
@@ -143,13 +143,13 @@ export const PRDDetailView: React.FC = () => {
     try {
       const versionData = (await db.getSpecificPRDVersion(
         selectedPRD.id,
-        versionNumber,
+        versionNumber
       )) as any;
       setSelectedVersionData(versionData);
       setIsEditing(false); // Exit edit mode when switching versions
     } catch (err: Error | unknown) {
       setError(
-        err instanceof Error ? err.message : "Failed to load version data",
+        err instanceof Error ? err.message : "Failed to load version data"
       );
     }
   };
@@ -171,8 +171,8 @@ export const PRDDetailView: React.FC = () => {
       if (updateError) throw updateError;
 
       // Update local state
-      const updatedPRDs = prds.map((prd) =>
-        prd.id === selectedPRD.id ? data : prd,
+      const updatedPRDs = prds.map(prd =>
+        prd.id === selectedPRD.id ? data : prd
       );
       setPrds(updatedPRDs);
       setSelectedPRD(data);
@@ -195,7 +195,7 @@ export const PRDDetailView: React.FC = () => {
 
   const handleVersionRestore = async (
     versionNumber: number,
-    changeDescription?: string,
+    changeDescription?: string
   ) => {
     if (!selectedPRD) return;
 
@@ -206,14 +206,14 @@ export const PRDDetailView: React.FC = () => {
       const { data, error: restoreError } = (await db.restorePRDVersion(
         selectedPRD.id,
         versionNumber,
-        changeDescription,
+        changeDescription
       )) as { data: any; error: any };
 
       if (restoreError) throw restoreError;
 
       // Update local state
-      const updatedPRDs = prds.map((prd) =>
-        prd.id === selectedPRD.id ? data : prd,
+      const updatedPRDs = prds.map(prd =>
+        prd.id === selectedPRD.id ? data : prd
       );
       setPrds(updatedPRDs);
       setSelectedPRD(data);
@@ -223,7 +223,7 @@ export const PRDDetailView: React.FC = () => {
       setShowVersionHistory(false);
     } catch (err: Error | unknown) {
       setError(
-        err instanceof Error ? err.message : "Failed to restore version",
+        err instanceof Error ? err.message : "Failed to restore version"
       );
     } finally {
       setSaving(false);
@@ -316,13 +316,11 @@ export const PRDDetailView: React.FC = () => {
                 <div className="relative">
                   <select
                     value={selectedVersionData?.version_number || ""}
-                    onChange={(e) =>
-                      handleVersionSelect(Number(e.target.value))
-                    }
+                    onChange={e => handleVersionSelect(Number(e.target.value))}
                     disabled={isEditing}
                     className="form-select"
                   >
-                    {allPRDVersions.map((version) => (
+                    {allPRDVersions.map(version => (
                       <option
                         key={version.version_number}
                         value={version.version_number}
@@ -430,9 +428,9 @@ export const PRDDetailView: React.FC = () => {
                           {format(
                             new Date(
                               selectedVersionData.updated_at ||
-                                selectedVersionData.created_at,
+                                selectedVersionData.created_at
                             ),
-                            "MMM d, yyyy h:mm a",
+                            "MMM d, yyyy h:mm a"
                           )}
                         </p>
                       </div>
@@ -475,7 +473,7 @@ export const PRDDetailView: React.FC = () => {
                     <input
                       type="text"
                       value={editedPRD?.title || ""}
-                      onChange={(e) =>
+                      onChange={e =>
                         setEditedPRD((prev: any) => ({
                           ...prev,
                           title: e.target.value,
@@ -498,7 +496,7 @@ export const PRDDetailView: React.FC = () => {
                     <input
                       type="text"
                       value={editedPRD?.change_description || ""}
-                      onChange={(e) =>
+                      onChange={e =>
                         setEditedPRD((prev: any) => ({
                           ...prev,
                           change_description: e.target.value,
@@ -519,7 +517,7 @@ export const PRDDetailView: React.FC = () => {
                       </label>
                       <textarea
                         value={editedPRD?.content || ""}
-                        onChange={(e) =>
+                        onChange={e =>
                           setEditedPRD((prev: any) => ({
                             ...prev,
                             content: e.target.value,

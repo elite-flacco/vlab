@@ -46,7 +46,7 @@ export const Dashboard: React.FC = () => {
 
   const handleArchiveProject = async (
     projectId: string,
-    e: React.MouseEvent,
+    e: React.MouseEvent
   ) => {
     e.stopPropagation();
     try {
@@ -58,7 +58,7 @@ export const Dashboard: React.FC = () => {
 
   const handleRestoreProject = async (
     projectId: string,
-    e: React.MouseEvent,
+    e: React.MouseEvent
   ) => {
     e.stopPropagation();
     try {
@@ -86,7 +86,7 @@ export const Dashboard: React.FC = () => {
   }
 
   const totalProjects = activeProjects.length + archivedProjects.length;
-  const recentlyActive = activeProjects.filter((p) => {
+  const recentlyActive = activeProjects.filter(p => {
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
     return new Date(p.updated_at) > weekAgo;
@@ -190,7 +190,7 @@ export const Dashboard: React.FC = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {activeProjects.map((project) => (
+          {activeProjects.map(project => (
             <div
               key={project.id}
               className="terminal-window p-6 hover:shadow-lg hover:shadow-primary/10 transition-shadow cursor-pointer group"
@@ -201,7 +201,7 @@ export const Dashboard: React.FC = () => {
                   {project.name}
                 </h3>
                 <button
-                  onClick={(e) => handleArchiveProject(project.id, e)}
+                  onClick={e => handleArchiveProject(project.id, e)}
                   className="opacity-0 group-hover:opacity-100 p-1 text-foreground-dim hover:text-primary transition-all"
                   title="Archive project"
                 >
@@ -243,7 +243,7 @@ export const Dashboard: React.FC = () => {
 
           {showArchived && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {archivedProjects.map((project) => (
+              {archivedProjects.map(project => (
                 <div
                   key={project.id}
                   className="terminal-window p-6 hover:shadow-md transition-shadow cursor-pointer group opacity-75"
@@ -255,14 +255,14 @@ export const Dashboard: React.FC = () => {
                     </h3>
                     <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button
-                        onClick={(e) => handleRestoreProject(project.id, e)}
+                        onClick={e => handleRestoreProject(project.id, e)}
                         className="p-1 text-foreground-dim hover:text-primary transition-colors"
                         title="Restore project"
                       >
                         <RotateCcw className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={(e) => {
+                        onClick={e => {
                           e.stopPropagation();
                           setDeleteConfirm(project.id);
                         }}

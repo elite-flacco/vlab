@@ -66,7 +66,7 @@ const getAuthHeaders = async () => {
 };
 
 export const generateIdeaResponse = async (
-  messages: ChatMessage[],
+  messages: ChatMessage[]
 ): Promise<string> => {
   try {
     const headers = await getAuthHeaders();
@@ -97,7 +97,7 @@ export const generateIdeaResponse = async (
 };
 
 export const generateIdeaSummary = async (
-  chatHistory: ChatMessage[],
+  chatHistory: ChatMessage[]
 ): Promise<string> => {
   try {
     const headers = await getAuthHeaders();
@@ -151,7 +151,7 @@ export const generatePRD = async (ideaSummary: string): Promise<string> => {
 };
 
 export const generateRoadmap = async (
-  prdContent: string,
+  prdContent: string
 ): Promise<RoadmapItem[]> => {
   try {
     const headers = await getAuthHeaders();
@@ -180,7 +180,7 @@ export const generateRoadmap = async (
 
 export const generateTasks = async (
   prdContent: string,
-  roadmapItems: RoadmapItem[],
+  roadmapItems: RoadmapItem[]
 ): Promise<TaskItem[]> => {
   try {
     const headers = await getAuthHeaders();
@@ -209,7 +209,7 @@ export const generateTasks = async (
 };
 
 export const generateDesignTasks = async (
-  feedbackText: string,
+  feedbackText: string
 ): Promise<TaskItem[]> => {
   try {
     const headers = await getAuthHeaders();
@@ -237,7 +237,7 @@ export const generateDesignTasks = async (
 };
 
 export const generateDesignTasksFromImage = async (
-  imageFile: File,
+  imageFile: File
 ): Promise<TaskItem[]> => {
   try {
     const headers = await getAuthHeaders();
@@ -311,6 +311,6 @@ const fileToBase64 = (file: File): Promise<string> => {
       const base64String = (reader.result as string).split(",")[1]; // Remove data:image/png;base64, prefix
       resolve(base64String);
     };
-    reader.onerror = (error) => reject(error);
+    reader.onerror = error => reject(error);
   });
 };

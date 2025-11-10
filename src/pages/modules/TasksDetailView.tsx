@@ -120,11 +120,11 @@ export const TasksDetailView: React.FC = () => {
 
       // Fetch GitHub issues and attachments for all tasks
       const tasksWithExtendedData = await Promise.all(
-        (data || []).map(async (task) => {
+        (data || []).map(async task => {
           try {
             // Fetch GitHub issue
             const { data: githubIssue } = await db.getGitHubIssueByTask(
-              task.id,
+              task.id
             );
 
             // Fetch attachments
@@ -142,7 +142,7 @@ export const TasksDetailView: React.FC = () => {
               attachments: [],
             };
           }
-        }),
+        })
       );
 
       setTasks(tasksWithExtendedData);
@@ -159,7 +159,7 @@ export const TasksDetailView: React.FC = () => {
 
   const handleUpdateTask = async (
     taskId: string,
-    updates: Partial<TaskItem>,
+    updates: Partial<TaskItem>
   ) => {
     setSaving(true);
     setError(null);
@@ -169,14 +169,14 @@ export const TasksDetailView: React.FC = () => {
       if (updateError) throw updateError;
 
       // Update local state - preserve attachments and github_issue since they're not returned from DB
-      const updatedTasks = tasks.map((task) =>
+      const updatedTasks = tasks.map(task =>
         task.id === taskId
           ? {
               ...data,
               attachments: task.attachments,
               github_issue: task.github_issue,
             }
-          : task,
+          : task
       );
       setTasks(updatedTasks);
       setEditingTaskId(null);
@@ -210,7 +210,7 @@ export const TasksDetailView: React.FC = () => {
       if (createError) throw createError;
 
       // Add to local state
-      setTasks((prev) => [...prev, data]);
+      setTasks(prev => [...prev, data]);
       setNewTask(null);
     } catch (err: Error | unknown) {
       setError(err instanceof Error ? err.message : "Failed to create task");
@@ -228,7 +228,7 @@ export const TasksDetailView: React.FC = () => {
       if (deleteError) throw deleteError;
 
       // Remove from local state
-      setTasks((prev) => prev.filter((task) => task.id !== taskId));
+      setTasks(prev => prev.filter(task => task.id !== taskId));
       setEditingTaskId(null);
     } catch (err: Error | unknown) {
       setError(err instanceof Error ? err.message : "Failed to delete task");
@@ -239,7 +239,7 @@ export const TasksDetailView: React.FC = () => {
 
   const handleToggleTaskCompletion = async (
     taskId: string,
-    currentStatus: string,
+    currentStatus: string
   ) => {
     const newStatus = currentStatus === "done" ? "todo" : "done";
     await handleUpdateTask(taskId, { status: newStatus });
@@ -259,21 +259,21 @@ export const TasksDetailView: React.FC = () => {
   const handleAttachmentUpload = async (taskId: string, attachment: any) => {
     try {
       // Update local state immediately to show the new attachment
-      setTasks((prev) =>
-        prev.map((task) =>
+      setTasks(prev =>
+        prev.map(task =>
           task.id === taskId
             ? {
                 ...task,
                 attachments: [...(task.attachments || []), attachment],
               }
-            : task,
-        ),
+            : task
+        )
       );
 
       // Clear any previous error
-      setAttachmentErrors((prev) => ({ ...prev, [taskId]: "" }));
+      setAttachmentErrors(prev => ({ ...prev, [taskId]: "" }));
     } catch (err: Error | unknown) {
-      setAttachmentErrors((prev) => ({
+      setAttachmentErrors(prev => ({
         ...prev,
         [taskId]:
           err instanceof Error ? err.message : "Failed to upload attachment",
@@ -283,27 +283,27 @@ export const TasksDetailView: React.FC = () => {
 
   const handleAttachmentDelete = async (
     taskId: string,
-    attachmentId: string,
+    attachmentId: string
   ) => {
     try {
       const { error } = await db.deleteAttachment(attachmentId);
       if (error) throw error;
 
       // Update local state
-      setTasks((prev) =>
-        prev.map((task) =>
+      setTasks(prev =>
+        prev.map(task =>
           task.id === taskId
             ? {
                 ...task,
                 attachments: (task.attachments || []).filter(
-                  (att) => att.id !== attachmentId,
+                  att => att.id !== attachmentId
                 ),
               }
-            : task,
-        ),
+            : task
+        )
       );
     } catch (err: Error | unknown) {
-      setAttachmentErrors((prev) => ({
+      setAttachmentErrors(prev => ({
         ...prev,
         [taskId]:
           err instanceof Error ? err.message : "Failed to delete attachment",
@@ -314,27 +314,27 @@ export const TasksDetailView: React.FC = () => {
   const handleAttachmentUpdate = async (
     taskId: string,
     attachmentId: string,
-    updates: any,
+    updates: any
   ) => {
     try {
       const { error } = await db.updateAttachment(attachmentId, updates);
       if (error) throw error;
 
       // Update local state
-      setTasks((prev) =>
-        prev.map((task) =>
+      setTasks(prev =>
+        prev.map(task =>
           task.id === taskId
             ? {
                 ...task,
-                attachments: (task.attachments || []).map((att) =>
-                  att.id === attachmentId ? { ...att, ...updates } : att,
+                attachments: (task.attachments || []).map(att =>
+                  att.id === attachmentId ? { ...att, ...updates } : att
                 ),
               }
-            : task,
-        ),
+            : task
+        )
       );
     } catch (err: Error | unknown) {
-      setAttachmentErrors((prev) => ({
+      setAttachmentErrors(prev => ({
         ...prev,
         [taskId]:
           err instanceof Error ? err.message : "Failed to update attachment",
@@ -352,7 +352,7 @@ export const TasksDetailView: React.FC = () => {
     setPriorityFilter(newPriorityFilter);
     localStorage.setItem(
       `tasks-priority-filter-${projectId}`,
-      newPriorityFilter,
+      newPriorityFilter
     );
   };
 
@@ -370,18 +370,18 @@ export const TasksDetailView: React.FC = () => {
     setShowCompleted(newShowCompleted);
     localStorage.setItem(
       `tasks-show-completed-${projectId}`,
-      JSON.stringify(newShowCompleted),
+      JSON.stringify(newShowCompleted)
     );
   };
 
   // Get all unique tags from existing tasks
   const getAllTags = () => {
-    const allTags = tasks.flatMap((task) => task.tags || []);
+    const allTags = tasks.flatMap(task => task.tags || []);
     return Array.from(new Set(allTags)).sort();
   };
 
   const filteredTasks = tasks
-    .filter((task) => {
+    .filter(task => {
       const matchesStatus =
         filter === "all"
           ? showCompleted ||
@@ -515,7 +515,7 @@ export const TasksDetailView: React.FC = () => {
     return (
       <select
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={e => onChange(e.target.value)}
         disabled={disabled}
         className={`${selectClass} ${className}`}
         style={showBadgeStyle ? {} : {}}
@@ -524,7 +524,7 @@ export const TasksDetailView: React.FC = () => {
           value="todo"
           style={
             showBadgeStyle
-              ? { backgroundColor: "#1a1a1a", color: "#e0e0e0" }
+              ? { backgroundColor: "bg-background", color: "text-foreground" }
               : {}
           }
         >
@@ -534,7 +534,7 @@ export const TasksDetailView: React.FC = () => {
           value="in_progress"
           style={
             showBadgeStyle
-              ? { backgroundColor: "#1a1a1a", color: "#e0e0e0" }
+              ? { backgroundColor: "bg-background", color: "text-foreground" }
               : {}
           }
         >
@@ -544,7 +544,7 @@ export const TasksDetailView: React.FC = () => {
           value="done"
           style={
             showBadgeStyle
-              ? { backgroundColor: "#1a1a1a", color: "#e0e0e0" }
+              ? { backgroundColor: "bg-background", color: "text-foreground" }
               : {}
           }
         >
@@ -554,7 +554,7 @@ export const TasksDetailView: React.FC = () => {
           value="blocked"
           style={
             showBadgeStyle
-              ? { backgroundColor: "#1a1a1a", color: "#e0e0e0" }
+              ? { backgroundColor: "bg-background", color: "text-foreground" }
               : {}
           }
         >
@@ -564,7 +564,7 @@ export const TasksDetailView: React.FC = () => {
           value="cancelled"
           style={
             showBadgeStyle
-              ? { backgroundColor: "#1a1a1a", color: "#e0e0e0" }
+              ? { backgroundColor: "bg-background", color: "text-foreground" }
               : {}
           }
         >
@@ -597,7 +597,7 @@ export const TasksDetailView: React.FC = () => {
     const content = (
       <select
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={e => onChange(e.target.value)}
         disabled={disabled}
         className={`${selectClass} ${className}`}
       >
@@ -605,7 +605,7 @@ export const TasksDetailView: React.FC = () => {
           value="low"
           style={
             showBadgeStyle
-              ? { backgroundColor: "#1a1a1a", color: "#e0e0e0" }
+              ? { backgroundColor: "bg-background", color: "text-foreground" }
               : {}
           }
         >
@@ -615,7 +615,7 @@ export const TasksDetailView: React.FC = () => {
           value="medium"
           style={
             showBadgeStyle
-              ? { backgroundColor: "#1a1a1a", color: "#e0e0e0" }
+              ? { backgroundColor: "bg-background", color: "text-foreground" }
               : {}
           }
         >
@@ -625,7 +625,7 @@ export const TasksDetailView: React.FC = () => {
           value="high"
           style={
             showBadgeStyle
-              ? { backgroundColor: "#1a1a1a", color: "#e0e0e0" }
+              ? { backgroundColor: "bg-background", color: "text-foreground" }
               : {}
           }
         >
@@ -635,7 +635,7 @@ export const TasksDetailView: React.FC = () => {
           value="highest"
           style={
             showBadgeStyle
-              ? { backgroundColor: "#1a1a1a", color: "#e0e0e0" }
+              ? { backgroundColor: "bg-background", color: "text-foreground" }
               : {}
           }
         >
@@ -670,7 +670,7 @@ export const TasksDetailView: React.FC = () => {
 
     const toggleTag = (tag: string) => {
       if (selectedTags.includes(tag)) {
-        onChange(selectedTags.filter((t) => t !== tag));
+        onChange(selectedTags.filter(t => t !== tag));
       } else {
         onChange([...selectedTags, tag]);
       }
@@ -698,12 +698,12 @@ export const TasksDetailView: React.FC = () => {
             {selectedTags.length === 0 ? (
               <span className="text-foreground-dim">{placeholder}</span>
             ) : (
-              selectedTags.map((tag) => (
+              selectedTags.map(tag => (
                 <span key={tag} className="badge-tag flex items-center">
                   {tag}
                   <button
                     type="button"
-                    onClick={(e) => {
+                    onClick={e => {
                       e.stopPropagation();
                       toggleTag(tag);
                     }}
@@ -726,8 +726,8 @@ export const TasksDetailView: React.FC = () => {
                 <input
                   type="text"
                   value={newTagInput}
-                  onChange={(e) => setNewTagInput(e.target.value)}
-                  onKeyDown={(e) => {
+                  onChange={e => setNewTagInput(e.target.value)}
+                  onKeyDown={e => {
                     if (e.key === "Enter") {
                       e.preventDefault();
                       addNewTag();
@@ -748,7 +748,7 @@ export const TasksDetailView: React.FC = () => {
             </div>
 
             {/* Existing tags */}
-            {availableTags.map((tag) => (
+            {availableTags.map(tag => (
               <div
                 key={tag}
                 className={`px-3 py-2 cursor-pointer hover:bg-secondary/50 flex items-center justify-between ${
@@ -886,10 +886,10 @@ export const TasksDetailView: React.FC = () => {
                   <input
                     type="text"
                     value={newTask.title}
-                    onChange={(e) =>
+                    onChange={e =>
                       setNewTask({ ...newTask, title: e.target.value })
                     }
-                    onKeyDown={(e) => {
+                    onKeyDown={e => {
                       if (e.key === "Enter" && newTask.title?.trim()) {
                         e.preventDefault();
                         handleAddTask(newTask);
@@ -907,7 +907,7 @@ export const TasksDetailView: React.FC = () => {
                   </label>
                   <textarea
                     value={newTask.description}
-                    onChange={(e) =>
+                    onChange={e =>
                       setNewTask({ ...newTask, description: e.target.value })
                     }
                     className="form-textarea"
@@ -923,7 +923,7 @@ export const TasksDetailView: React.FC = () => {
                     </label>
                     <PrioritySelect
                       value={newTask.priority || "medium"}
-                      onChange={(priority) =>
+                      onChange={priority =>
                         setNewTask({ ...newTask, priority: priority as any })
                       }
                     />
@@ -934,7 +934,7 @@ export const TasksDetailView: React.FC = () => {
                     </label>
                     <TagMultiSelect
                       selectedTags={newTask.tags || []}
-                      onChange={(tags) => setNewTask({ ...newTask, tags })}
+                      onChange={tags => setNewTask({ ...newTask, tags })}
                       placeholder="Select or add tags..."
                     />
                   </div>
@@ -979,16 +979,14 @@ export const TasksDetailView: React.FC = () => {
                   <input
                     type="text"
                     value={searchTerm}
-                    onChange={(e) => updateSearchTerm(e.target.value)}
+                    onChange={e => updateSearchTerm(e.target.value)}
                     placeholder="Search tasks..."
                     className="search-input"
                   />
                 </div>
                 <select
                   value={filter}
-                  onChange={(e) =>
-                    updateFilter(e.target.value as typeof filter)
-                  }
+                  onChange={e => updateFilter(e.target.value as typeof filter)}
                   className="form-select flex-shrink-0"
                 >
                   <option value="all">All Tasks</option>
@@ -1000,9 +998,9 @@ export const TasksDetailView: React.FC = () => {
                 </select>
                 <select
                   value={priorityFilter}
-                  onChange={(e) =>
+                  onChange={e =>
                     updatePriorityFilter(
-                      e.target.value as typeof priorityFilter,
+                      e.target.value as typeof priorityFilter
                     )
                   }
                   className="form-select flex-shrink-0"
@@ -1015,11 +1013,11 @@ export const TasksDetailView: React.FC = () => {
                 </select>
                 <select
                   value={tagFilter}
-                  onChange={(e) => updateTagFilter(e.target.value)}
+                  onChange={e => updateTagFilter(e.target.value)}
                   className="form-select flex-shrink-0"
                 >
                   <option value="all">All Tags</option>
-                  {getAllTags().map((tag) => (
+                  {getAllTags().map(tag => (
                     <option key={tag} value={tag}>
                       {tag}
                     </option>
@@ -1040,7 +1038,7 @@ export const TasksDetailView: React.FC = () => {
           {/* Tasks List */}
           <div className="flex-1 space-y-3">
             {/* Existing Tasks */}
-            {filteredTasks.map((task) => (
+            {filteredTasks.map(task => (
               <div
                 key={task.id}
                 className={`card ${task.status === "done" ? "opacity-75" : ""}`}
@@ -1055,11 +1053,11 @@ export const TasksDetailView: React.FC = () => {
                       <input
                         type="text"
                         value={task.title}
-                        onChange={(e) => {
-                          const updatedTasks = tasks.map((t) =>
+                        onChange={e => {
+                          const updatedTasks = tasks.map(t =>
                             t.id === task.id
                               ? { ...t, title: e.target.value }
-                              : t,
+                              : t
                           );
                           setTasks(updatedTasks);
                         }}
@@ -1074,11 +1072,11 @@ export const TasksDetailView: React.FC = () => {
                       </label>
                       <textarea
                         value={task.description}
-                        onChange={(e) => {
-                          const updatedTasks = tasks.map((t) =>
+                        onChange={e => {
+                          const updatedTasks = tasks.map(t =>
                             t.id === task.id
                               ? { ...t, description: e.target.value }
-                              : t,
+                              : t
                           );
                           setTasks(updatedTasks);
                         }}
@@ -1095,11 +1093,11 @@ export const TasksDetailView: React.FC = () => {
                         </label>
                         <StatusSelect
                           value={task.status}
-                          onChange={(status) => {
-                            const updatedTasks = tasks.map((t) =>
+                          onChange={status => {
+                            const updatedTasks = tasks.map(t =>
                               t.id === task.id
                                 ? { ...t, status: status as any }
-                                : t,
+                                : t
                             );
                             setTasks(updatedTasks);
                           }}
@@ -1112,11 +1110,11 @@ export const TasksDetailView: React.FC = () => {
                         </label>
                         <PrioritySelect
                           value={task.priority}
-                          onChange={(priority) => {
-                            const updatedTasks = tasks.map((t) =>
+                          onChange={priority => {
+                            const updatedTasks = tasks.map(t =>
                               t.id === task.id
                                 ? { ...t, priority: priority as any }
-                                : t,
+                                : t
                             );
                             setTasks(updatedTasks);
                           }}
@@ -1128,9 +1126,9 @@ export const TasksDetailView: React.FC = () => {
                         </label>
                         <TagMultiSelect
                           selectedTags={task.tags || []}
-                          onChange={(tags) => {
-                            const updatedTasks = tasks.map((t) =>
-                              t.id === task.id ? { ...t, tags } : t,
+                          onChange={tags => {
+                            const updatedTasks = tasks.map(t =>
+                              t.id === task.id ? { ...t, tags } : t
                             );
                             setTasks(updatedTasks);
                           }}
@@ -1146,11 +1144,11 @@ export const TasksDetailView: React.FC = () => {
                       </label>
                       <ImageUpload
                         taskId={task.id}
-                        onUploadComplete={(attachment) =>
+                        onUploadComplete={attachment =>
                           handleAttachmentUpload(task.id, attachment)
                         }
-                        onError={(error) =>
-                          setAttachmentErrors((prev) => ({
+                        onError={error =>
+                          setAttachmentErrors(prev => ({
                             ...prev,
                             [task.id]: error,
                           }))
@@ -1168,18 +1166,18 @@ export const TasksDetailView: React.FC = () => {
                       {/* Current Attachments */}
                       {task.attachments && task.attachments.length > 0 && (
                         <div className="space-y-2 mb-3">
-                          {task.attachments.map((attachment) => (
+                          {task.attachments.map(attachment => (
                             <AttachmentView
                               key={attachment.id}
                               attachment={attachment}
-                              onDelete={(attachmentId) =>
+                              onDelete={attachmentId =>
                                 handleAttachmentDelete(task.id, attachmentId)
                               }
                               onUpdate={(attachmentId, updates) =>
                                 handleAttachmentUpdate(
                                   task.id,
                                   attachmentId,
-                                  updates,
+                                  updates
                                 )
                               }
                               showControls={true}
@@ -1257,7 +1255,7 @@ export const TasksDetailView: React.FC = () => {
                           {/* Interactive Status Dropdown */}
                           <StatusSelect
                             value={task.status}
-                            onChange={(status) =>
+                            onChange={status =>
                               handleStatusChange(task.id, status)
                             }
                             disabled={saving}
@@ -1266,7 +1264,7 @@ export const TasksDetailView: React.FC = () => {
                           {/* Interactive Priority Dropdown */}
                           <PrioritySelect
                             value={task.priority}
-                            onChange={(priority) =>
+                            onChange={priority =>
                               handlePriorityChange(task.id, priority)
                             }
                             disabled={saving}
@@ -1360,18 +1358,18 @@ export const TasksDetailView: React.FC = () => {
                       {/* Inline Attachments */}
                       {task.attachments && task.attachments.length > 0 && (
                         <div className="mt-4 space-y-3">
-                          {task.attachments.map((attachment) => (
+                          {task.attachments.map(attachment => (
                             <AttachmentView
                               key={attachment.id}
                               attachment={attachment}
-                              onDelete={(attachmentId) =>
+                              onDelete={attachmentId =>
                                 handleAttachmentDelete(task.id, attachmentId)
                               }
                               onUpdate={(attachmentId, updates) =>
                                 handleAttachmentUpdate(
                                   task.id,
                                   attachmentId,
-                                  updates,
+                                  updates
                                 )
                               }
                               showControls={true}
@@ -1392,12 +1390,11 @@ export const TasksDetailView: React.FC = () => {
             <div className="text-xs text-foreground-dim">
               {
                 tasks.filter(
-                  (t) => t.status !== "done" && t.status !== "cancelled",
+                  t => t.status !== "done" && t.status !== "cancelled"
                 ).length
               }{" "}
-              active • {tasks.filter((t) => t.status === "done").length}{" "}
-              completed • {tasks.filter((t) => t.status === "cancelled").length}{" "}
-              cancelled
+              active • {tasks.filter(t => t.status === "done").length} completed
+              • {tasks.filter(t => t.status === "cancelled").length} cancelled
             </div>
           </div>
         </div>
@@ -1422,14 +1419,14 @@ export const TasksDetailView: React.FC = () => {
 
             <div className="p-6">
               {(() => {
-                const task = tasks.find((t) => t.id === showGitHubModal);
+                const task = tasks.find(t => t.id === showGitHubModal);
                 if (!task || !projectId) return null;
 
                 return (
                   <GitHubIssueCreator
                     task={task}
                     projectId={projectId}
-                    onIssueCreated={(issue) => {
+                    onIssueCreated={issue => {
                       console.log("GitHub issue created:", issue);
                       setShowGitHubModal(null);
                       // Refetch tasks to show the new GitHub issue link

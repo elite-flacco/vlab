@@ -50,7 +50,7 @@ class CommunityAPI {
         method: "POST",
         headers,
         body: JSON.stringify(data),
-      },
+      }
     );
 
     if (!response.ok) {
@@ -79,7 +79,7 @@ class CommunityAPI {
       {
         method: "GET",
         headers,
-      },
+      }
     );
 
     if (!response.ok) {
@@ -98,7 +98,7 @@ class CommunityAPI {
       {
         method: "GET",
         headers,
-      },
+      }
     );
 
     if (!response.ok) {
@@ -118,7 +118,7 @@ class CommunityAPI {
         method: "POST",
         headers,
         body: JSON.stringify(voteData),
-      },
+      }
     );
 
     if (!response.ok) {
@@ -137,7 +137,7 @@ class CommunityAPI {
       {
         method: "DELETE",
         headers,
-      },
+      }
     );
 
     if (!response.ok) {
@@ -157,7 +157,7 @@ class CommunityAPI {
         method: "POST",
         headers,
         body: JSON.stringify(commentData),
-      },
+      }
     );
 
     if (!response.ok) {
@@ -202,7 +202,7 @@ class CommunityAPI {
         *,
         author:profiles(name, avatar_url),
         tags:community_post_tags(tag)
-      `,
+      `
       )
       .single();
 
@@ -227,14 +227,14 @@ class CommunityAPI {
         *,
         author:profiles(name, avatar_url),
         tags:community_post_tags(tag)
-      `,
+      `
       )
       .eq("author_id", userId)
       .eq("is_published", true)
       .order("created_at", { ascending: false })
       .range(
         (params.page || 1 - 1) * (params.limit || 10),
-        (params.page || 1) * (params.limit || 10) - 1,
+        (params.page || 1) * (params.limit || 10) - 1
       );
 
     if (error) throw error;
@@ -251,17 +251,17 @@ class CommunityAPI {
           author:profiles(name, avatar_url),
           tags:community_post_tags(tag)
         )
-      `,
+      `
       )
       .eq("user_id", (await supabase.auth.getUser()).data.user?.id)
       .order("created_at", { ascending: false })
       .range(
         (params.page || 1 - 1) * (params.limit || 10),
-        (params.page || 1) * (params.limit || 10) - 1,
+        (params.page || 1) * (params.limit || 10) - 1
       );
 
     if (error) throw error;
-    return data.map((item) => item.post);
+    return data.map(item => item.post);
   }
 }
 

@@ -72,7 +72,7 @@ export const PromptsDetailView: React.FC = () => {
 
   const handleUpdatePrompt = async (
     promptId: string,
-    updates: Partial<PromptItem>,
+    updates: Partial<PromptItem>
   ) => {
     setSaving(true);
     setError(null);
@@ -80,13 +80,13 @@ export const PromptsDetailView: React.FC = () => {
     try {
       const { data, error: updateError } = await db.updatePrompt(
         promptId,
-        updates,
+        updates
       );
       if (updateError) throw updateError;
 
       // Update local state
-      const updatedPrompts = prompts.map((prompt) =>
-        prompt.id === promptId ? data : prompt,
+      const updatedPrompts = prompts.map(prompt =>
+        prompt.id === promptId ? data : prompt
       );
       setPrompts(updatedPrompts);
       setEditingPromptId(null);
@@ -121,7 +121,7 @@ export const PromptsDetailView: React.FC = () => {
       if (createError) throw createError;
 
       // Add to local state
-      setPrompts((prev) => [data, ...prev]);
+      setPrompts(prev => [data, ...prev]);
       setNewPrompt(null);
     } catch (err: Error | unknown) {
       setError(err instanceof Error ? err.message : "Failed to create prompt");
@@ -139,7 +139,7 @@ export const PromptsDetailView: React.FC = () => {
       if (deleteError) throw deleteError;
 
       // Remove from local state
-      setPrompts((prev) => prev.filter((prompt) => prompt.id !== promptId));
+      setPrompts(prev => prev.filter(prompt => prompt.id !== promptId));
       setEditingPromptId(null);
     } catch (err: Error | unknown) {
       setError(err instanceof Error ? err.message : "Failed to delete prompt");
@@ -158,10 +158,10 @@ export const PromptsDetailView: React.FC = () => {
   };
 
   const categories = Array.from(
-    new Set(prompts.map((prompt) => prompt.category)),
+    new Set(prompts.map(prompt => prompt.category))
   );
 
-  const filteredPrompts = prompts.filter((prompt) => {
+  const filteredPrompts = prompts.filter(prompt => {
     const matchesSearch =
       prompt.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       prompt.content.toLowerCase().includes(searchTerm.toLowerCase());
@@ -174,8 +174,8 @@ export const PromptsDetailView: React.FC = () => {
   const parseTagsInput = (input: string) =>
     input
       .split(",")
-      .map((tag) => tag.trim())
-      .filter((tag) => tag.length > 0);
+      .map(tag => tag.trim())
+      .filter(tag => tag.length > 0);
 
   const categoryOptions = [
     "general",
@@ -295,8 +295,8 @@ export const PromptsDetailView: React.FC = () => {
                     <input
                       type="text"
                       value={newPrompt.name || ""}
-                      onChange={(e) =>
-                        setNewPrompt((prev) => ({
+                      onChange={e =>
+                        setNewPrompt(prev => ({
                           ...prev,
                           name: e.target.value,
                         }))
@@ -313,15 +313,15 @@ export const PromptsDetailView: React.FC = () => {
                     </label>
                     <select
                       value={newPrompt.category || "general"}
-                      onChange={(e) =>
-                        setNewPrompt((prev) => ({
+                      onChange={e =>
+                        setNewPrompt(prev => ({
                           ...prev,
                           category: e.target.value,
                         }))
                       }
                       className="form-select"
                     >
-                      {categoryOptions.map((cat) => (
+                      {categoryOptions.map(cat => (
                         <option key={cat} value={cat}>
                           {cat.charAt(0).toUpperCase() + cat.slice(1)}
                         </option>
@@ -337,8 +337,8 @@ export const PromptsDetailView: React.FC = () => {
                   <input
                     type="text"
                     value={newPrompt.description || ""}
-                    onChange={(e) =>
-                      setNewPrompt((prev) => ({
+                    onChange={e =>
+                      setNewPrompt(prev => ({
                         ...prev,
                         description: e.target.value,
                       }))
@@ -354,8 +354,8 @@ export const PromptsDetailView: React.FC = () => {
                   </label>
                   <textarea
                     value={newPrompt.content || ""}
-                    onChange={(e) =>
-                      setNewPrompt((prev) => ({
+                    onChange={e =>
+                      setNewPrompt(prev => ({
                         ...prev,
                         content: e.target.value,
                       }))
@@ -373,8 +373,8 @@ export const PromptsDetailView: React.FC = () => {
                   <input
                     type="text"
                     value={formatTagsInput(newPrompt.tags || [])}
-                    onChange={(e) =>
-                      setNewPrompt((prev) => ({
+                    onChange={e =>
+                      setNewPrompt(prev => ({
                         ...prev,
                         tags: parseTagsInput(e.target.value),
                       }))
@@ -389,8 +389,8 @@ export const PromptsDetailView: React.FC = () => {
                     <input
                       type="checkbox"
                       checked={newPrompt.is_template || false}
-                      onChange={(e) =>
-                        setNewPrompt((prev) => ({
+                      onChange={e =>
+                        setNewPrompt(prev => ({
                           ...prev,
                           is_template: e.target.checked,
                         }))
@@ -443,7 +443,7 @@ export const PromptsDetailView: React.FC = () => {
                 <input
                   type="text"
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={e => setSearchTerm(e.target.value)}
                   placeholder="Search prompts..."
                   className="search-input"
                 />
@@ -461,7 +461,7 @@ export const PromptsDetailView: React.FC = () => {
                   >
                     All
                   </button>
-                  {categories.map((category) => (
+                  {categories.map(category => (
                     <button
                       key={category}
                       onClick={() => setSelectedCategory(category)}
@@ -480,7 +480,7 @@ export const PromptsDetailView: React.FC = () => {
           )}
           {/* Prompts List */}
           <div className="flex-1 overflow-y-auto space-y-3">
-            {filteredPrompts.map((prompt) => (
+            {filteredPrompts.map(prompt => (
               <div key={prompt.id} className="card">
                 {editingPromptId === prompt.id ? (
                   // Edit Form
@@ -493,11 +493,11 @@ export const PromptsDetailView: React.FC = () => {
                         <input
                           type="text"
                           value={prompt.name}
-                          onChange={(e) => {
-                            const updatedPrompts = prompts.map((p) =>
+                          onChange={e => {
+                            const updatedPrompts = prompts.map(p =>
                               p.id === prompt.id
                                 ? { ...p, name: e.target.value }
-                                : p,
+                                : p
                             );
                             setPrompts(updatedPrompts);
                           }}
@@ -513,17 +513,17 @@ export const PromptsDetailView: React.FC = () => {
                         </label>
                         <select
                           value={prompt.category}
-                          onChange={(e) => {
-                            const updatedPrompts = prompts.map((p) =>
+                          onChange={e => {
+                            const updatedPrompts = prompts.map(p =>
                               p.id === prompt.id
                                 ? { ...p, category: e.target.value }
-                                : p,
+                                : p
                             );
                             setPrompts(updatedPrompts);
                           }}
                           className="form-select"
                         >
-                          {categoryOptions.map((cat) => (
+                          {categoryOptions.map(cat => (
                             <option key={cat} value={cat}>
                               {cat.charAt(0).toUpperCase() + cat.slice(1)}
                             </option>
@@ -539,11 +539,11 @@ export const PromptsDetailView: React.FC = () => {
                       <input
                         type="text"
                         value={prompt.description}
-                        onChange={(e) => {
-                          const updatedPrompts = prompts.map((p) =>
+                        onChange={e => {
+                          const updatedPrompts = prompts.map(p =>
                             p.id === prompt.id
                               ? { ...p, description: e.target.value }
-                              : p,
+                              : p
                           );
                           setPrompts(updatedPrompts);
                         }}
@@ -558,11 +558,11 @@ export const PromptsDetailView: React.FC = () => {
                       </label>
                       <textarea
                         value={prompt.content}
-                        onChange={(e) => {
-                          const updatedPrompts = prompts.map((p) =>
+                        onChange={e => {
+                          const updatedPrompts = prompts.map(p =>
                             p.id === prompt.id
                               ? { ...p, content: e.target.value }
-                              : p,
+                              : p
                           );
                           setPrompts(updatedPrompts);
                         }}
@@ -579,11 +579,11 @@ export const PromptsDetailView: React.FC = () => {
                       <input
                         type="text"
                         value={formatTagsInput(prompt.tags)}
-                        onChange={(e) => {
-                          const updatedPrompts = prompts.map((p) =>
+                        onChange={e => {
+                          const updatedPrompts = prompts.map(p =>
                             p.id === prompt.id
                               ? { ...p, tags: parseTagsInput(e.target.value) }
-                              : p,
+                              : p
                           );
                           setPrompts(updatedPrompts);
                         }}
@@ -597,11 +597,11 @@ export const PromptsDetailView: React.FC = () => {
                         <input
                           type="checkbox"
                           checked={prompt.is_template}
-                          onChange={(e) => {
-                            const updatedPrompts = prompts.map((p) =>
+                          onChange={e => {
+                            const updatedPrompts = prompts.map(p =>
                               p.id === prompt.id
                                 ? { ...p, is_template: e.target.checked }
-                                : p,
+                                : p
                             );
                             setPrompts(updatedPrompts);
                           }}

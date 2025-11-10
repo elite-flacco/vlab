@@ -50,7 +50,7 @@ class GitHubAPIClient {
 
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {},
+    options: RequestInit = {}
   ): Promise<T> {
     const url = `${GITHUB_API_BASE_URL}${endpoint}`;
 
@@ -71,7 +71,7 @@ class GitHubAPIClient {
         throw new Error(
           `GitHub API error: ${response.status} ${response.statusText}. ${
             errorData.message || "Unknown error"
-          }`,
+          }`
         );
       }
 
@@ -81,7 +81,7 @@ class GitHubAPIClient {
     return withTimeout(
       withTiming(`GitHub API ${endpoint}`, operation),
       API_TIMEOUT,
-      `GitHub API request to ${endpoint} timed out`,
+      `GitHub API request to ${endpoint} timed out`
     );
   }
 
@@ -98,10 +98,10 @@ class GitHubAPIClient {
   // Get user's repositories
   async getUserRepositories(
     page: number = 1,
-    perPage: number = 30,
+    perPage: number = 30
   ): Promise<GitHubRepository[]> {
     return this.request<GitHubRepository[]>(
-      `/user/repos?sort=updated&direction=desc&page=${page}&per_page=${perPage}`,
+      `/user/repos?sort=updated&direction=desc&page=${page}&per_page=${perPage}`
     );
   }
 
@@ -109,10 +109,10 @@ class GitHubAPIClient {
   async getOrgRepositories(
     org: string,
     page: number = 1,
-    perPage: number = 30,
+    perPage: number = 30
   ): Promise<GitHubRepository[]> {
     return this.request<GitHubRepository[]>(
-      `/orgs/${org}/repos?sort=updated&direction=desc&page=${page}&per_page=${perPage}`,
+      `/orgs/${org}/repos?sort=updated&direction=desc&page=${page}&per_page=${perPage}`
     );
   }
 
@@ -125,7 +125,7 @@ class GitHubAPIClient {
   async createIssue(
     owner: string,
     repo: string,
-    issue: CreateIssueRequest,
+    issue: CreateIssueRequest
   ): Promise<GitHubIssue> {
     return this.request<GitHubIssue>(`/repos/${owner}/${repo}/issues`, {
       method: "POST",
@@ -137,10 +137,10 @@ class GitHubAPIClient {
   async getIssue(
     owner: string,
     repo: string,
-    issueNumber: number,
+    issueNumber: number
   ): Promise<GitHubIssue> {
     return this.request<GitHubIssue>(
-      `/repos/${owner}/${repo}/issues/${issueNumber}`,
+      `/repos/${owner}/${repo}/issues/${issueNumber}`
     );
   }
 
@@ -149,14 +149,14 @@ class GitHubAPIClient {
     owner: string,
     repo: string,
     issueNumber: number,
-    updates: Partial<CreateIssueRequest>,
+    updates: Partial<CreateIssueRequest>
   ): Promise<GitHubIssue> {
     return this.request<GitHubIssue>(
       `/repos/${owner}/${repo}/issues/${issueNumber}`,
       {
         method: "PATCH",
         body: JSON.stringify(updates),
-      },
+      }
     );
   }
 
@@ -181,7 +181,7 @@ export const createGitHubClient = (token: string): GitHubAPIClient => {
 
 // Parse repository full name into owner and repo
 export const parseRepoFullName = (
-  fullName: string,
+  fullName: string
 ): { owner: string; repo: string } => {
   const [owner, repo] = fullName.split("/");
   if (!owner || !repo) {

@@ -44,7 +44,7 @@ export const Sidebar: React.FC = () => {
 
   const handleRestoreProject = async (
     projectId: string,
-    e: React.MouseEvent,
+    e: React.MouseEvent
   ) => {
     e.stopPropagation();
     try {
@@ -148,7 +148,7 @@ export const Sidebar: React.FC = () => {
               </div>
             )}
 
-            {activeProjects.map((project) => (
+            {activeProjects.map(project => (
               <button
                 key={project.id}
                 onClick={() => handleProjectClick(project)}
@@ -203,7 +203,7 @@ export const Sidebar: React.FC = () => {
 
             {showArchived && !isCollapsed && (
               <div className="sidebar-section mt-4">
-                {archivedProjects.map((project) => (
+                {archivedProjects.map(project => (
                   <div
                     key={project.id}
                     className="group flex items-center space-x-2 px-3 py-2 text-sm rounded-md text-foreground-dim/70 hover:bg-secondary/50 transition-colors"
@@ -217,7 +217,7 @@ export const Sidebar: React.FC = () => {
                       <span className="truncate">{project.name}</span>
                     </button>
                     <button
-                      onClick={(e) => handleRestoreProject(project.id, e)}
+                      onClick={e => handleRestoreProject(project.id, e)}
                       className="opacity-0 group-hover:opacity-100 p-1 text-foreground-dim hover:text-primary transition-all"
                       title="Restore project"
                     >

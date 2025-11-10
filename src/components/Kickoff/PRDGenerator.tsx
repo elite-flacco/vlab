@@ -45,7 +45,7 @@ export const PRDGenerator: React.FC<PRDGeneratorProps> = ({
     } catch (error) {
       console.error("Error generating PRD:", error);
       setError(
-        error instanceof Error ? error.message : "Failed to generate PRD",
+        error instanceof Error ? error.message : "Failed to generate PRD"
       );
     } finally {
       setIsGenerating(false);
@@ -177,7 +177,7 @@ export const PRDGenerator: React.FC<PRDGeneratorProps> = ({
             <div className="flex-1 flex flex-col">
               <textarea
                 value={prdContent}
-                onChange={(e) => setPrdContent(e.target.value)}
+                onChange={e => setPrdContent(e.target.value)}
                 className="form-textarea"
                 placeholder="Edit your PRD content here..."
               />

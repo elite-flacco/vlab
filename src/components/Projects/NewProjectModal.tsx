@@ -61,8 +61,8 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
               id="project-name"
               type="text"
               value={formData.name}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, name: e.target.value }))
+              onChange={e =>
+                setFormData(prev => ({ ...prev, name: e.target.value }))
               }
               placeholder="Enter your project name"
               className="form-input"
@@ -78,8 +78,8 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
             <textarea
               id="project-description"
               value={formData.description}
-              onChange={(e) =>
-                setFormData((prev) => ({
+              onChange={e =>
+                setFormData(prev => ({
                   ...prev,
                   description: e.target.value,
                 }))

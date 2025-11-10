@@ -52,7 +52,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
 
       return null;
     },
-    [maxFileSize, acceptedTypes],
+    [maxFileSize, acceptedTypes]
   );
 
   const uploadFile = useCallback(
@@ -118,7 +118,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
         setUploading(false);
       }
     },
-    [taskId, scratchpadNoteId, onUploadComplete, onError, validateFile],
+    [taskId, scratchpadNoteId, onUploadComplete, onError, validateFile]
   );
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -168,7 +168,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
       if (!clipboardData) return;
 
       const items = Array.from(clipboardData.items);
-      const imageItem = items.find((item) => item.type.startsWith("image/"));
+      const imageItem = items.find(item => item.type.startsWith("image/"));
 
       if (imageItem) {
         e.preventDefault(); // Prevent default paste behavior for images
@@ -192,7 +192,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
         }
       }
     },
-    [uploadFile],
+    [uploadFile]
   );
 
   // Set up paste event listener
@@ -275,7 +275,7 @@ interface AttachmentViewProps {
   onDelete?: (attachmentId: string) => void;
   onUpdate?: (
     attachmentId: string,
-    updates: { alt_text?: string; caption?: string },
+    updates: { alt_text?: string; caption?: string }
   ) => void;
   showControls?: boolean;
   className?: string;
@@ -404,13 +404,13 @@ export const AttachmentView: React.FC<AttachmentViewProps> = ({
                   <input
                     type="text"
                     value={altText}
-                    onChange={(e) => setAltText(e.target.value)}
+                    onChange={e => setAltText(e.target.value)}
                     placeholder="Alt text (for accessibility)"
                     className="form-input text-xs"
                   />
                   <textarea
                     value={caption}
-                    onChange={(e) => setCaption(e.target.value)}
+                    onChange={e => setCaption(e.target.value)}
                     placeholder="Caption (optional)"
                     rows={2}
                     className="form-textarea text-xs"

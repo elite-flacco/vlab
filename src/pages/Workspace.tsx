@@ -77,7 +77,7 @@ export const Workspace: React.FC = () => {
   // Combine active and archived projects
   const allProjects = useMemo(
     () => [...(activeProjects || []), ...(archivedProjects || [])],
-    [activeProjects, archivedProjects],
+    [activeProjects, archivedProjects]
   );
 
   // Fetch projects when user is available and we don't have projects yet
@@ -124,43 +124,43 @@ export const Workspace: React.FC = () => {
           withTimeout(
             withTiming("Workspace PRDs", () => db.getPRDs(projectId)),
             10000,
-            "PRDs fetch timed out after 10 seconds",
+            "PRDs fetch timed out after 10 seconds"
           ),
           withTimeout(
             withTiming("Workspace Roadmap", () =>
-              db.getRoadmapItems(projectId),
+              db.getRoadmapItems(projectId)
             ),
             10000,
-            "Roadmap items fetch timed out after 10 seconds",
+            "Roadmap items fetch timed out after 10 seconds"
           ),
           withTimeout(
             withTiming("Workspace Tasks", () => db.getTasks(projectId)),
             10000,
-            "Tasks fetch timed out after 10 seconds",
+            "Tasks fetch timed out after 10 seconds"
           ),
           withTimeout(
             withTiming("Workspace Scratchpad", () =>
-              db.getScratchpadNotes(projectId),
+              db.getScratchpadNotes(projectId)
             ),
             10000,
-            "Scratchpad notes fetch timed out after 10 seconds",
+            "Scratchpad notes fetch timed out after 10 seconds"
           ),
           withTimeout(
             withTiming("Workspace Prompts", () => db.getPrompts(projectId)),
             10000,
-            "Prompts fetch timed out after 10 seconds",
+            "Prompts fetch timed out after 10 seconds"
           ),
           withTimeout(
             withTiming("Workspace Secrets", () => db.getSecrets(projectId)),
             10000,
-            "Secrets fetch timed out after 10 seconds",
+            "Secrets fetch timed out after 10 seconds"
           ),
           withTimeout(
             withTiming("Workspace Deployment", () =>
-              db.getDeploymentItems(projectId),
+              db.getDeploymentItems(projectId)
             ),
             10000,
-            "Deployment items fetch timed out after 10 seconds",
+            "Deployment items fetch timed out after 10 seconds"
           ),
         ];
 
@@ -256,14 +256,14 @@ export const Workspace: React.FC = () => {
           retryCount < maxRetries &&
           !isRetry
         ) {
-          setRetryCount((prev) => prev + 1);
+          setRetryCount(prev => prev + 1);
         }
       } finally {
         setLoading(false);
         setIsRetrying(false);
       }
     },
-    [loading, retryCount, maxRetries],
+    [loading, retryCount, maxRetries]
   );
 
   // Handle project selection and data fetching
@@ -287,7 +287,7 @@ export const Workspace: React.FC = () => {
       });
 
       // First check if project exists in already-loaded projects
-      const project = allProjects.find((p) => p.id === projectId);
+      const project = allProjects.find(p => p.id === projectId);
 
       if (project) {
         setCurrentProject(project);
@@ -305,12 +305,12 @@ export const Workspace: React.FC = () => {
               setCurrentProject(data);
             } else {
               console.log(
-                "❌ Workspace: Project not found, redirecting to dashboard",
+                "❌ Workspace: Project not found, redirecting to dashboard"
               );
               navigate("/");
             }
           })
-          .catch((error) => {
+          .catch(error => {
             console.error("❌ Workspace: Error fetching project:", error);
             navigate("/");
           })
@@ -324,7 +324,7 @@ export const Workspace: React.FC = () => {
       ) {
         // No projects exist for user - redirect to dashboard
         console.log(
-          "❌ Workspace: No projects exist for user, redirecting to dashboard",
+          "❌ Workspace: No projects exist for user, redirecting to dashboard"
         );
         navigate("/");
       }
@@ -334,7 +334,7 @@ export const Workspace: React.FC = () => {
     // Once we have a currentProject that matches the URL, fetch workspace data if needed
     if (currentProject && currentProject.id === projectId) {
       const hasWorkspaceData = Object.values(workspaceData).some(
-        (arr) => arr.length > 0,
+        arr => arr.length > 0
       );
 
       if (!hasWorkspaceData && !loading) {
@@ -398,7 +398,7 @@ export const Workspace: React.FC = () => {
       case "roadmap": {
         const completedRoadmapItems =
           workspaceData.roadmapItems?.filter(
-            (item) => item.status === "completed",
+            item => item.status === "completed"
           ).length || 0;
         const totalRoadmapItems = workspaceData.roadmapItems?.length || 0;
         return totalRoadmapItems > 0
@@ -407,10 +407,10 @@ export const Workspace: React.FC = () => {
       }
       case "tasks": {
         const todoTasks =
-          workspaceData.tasks?.filter((task) => task.status === "todo")
-            .length || 0;
+          workspaceData.tasks?.filter(task => task.status === "todo").length ||
+          0;
         const inProgressTasks =
-          workspaceData.tasks?.filter((task) => task.status === "in_progress")
+          workspaceData.tasks?.filter(task => task.status === "in_progress")
             .length || 0;
         const totalTasks = workspaceData.tasks?.length || 0;
         return totalTasks > 0
@@ -441,13 +441,12 @@ export const Workspace: React.FC = () => {
       }
       case "deployment": {
         const completedDeploymentItems =
-          workspaceData.deploymentItems?.filter(
-            (item) => item.status === "done",
-          ).length || 0;
+          workspaceData.deploymentItems?.filter(item => item.status === "done")
+            .length || 0;
         const totalDeploymentItems = workspaceData.deploymentItems?.length || 0;
         const criticalItems =
           workspaceData.deploymentItems?.filter(
-            (item) => item.priority === "critical" && item.status !== "done",
+            item => item.priority === "critical" && item.status !== "done"
           ).length || 0;
         return totalDeploymentItems > 0
           ? `${totalDeploymentItems} items, ${completedDeploymentItems} completed${criticalItems > 0 ? `, ${criticalItems} critical pending` : ""}.`
@@ -628,7 +627,7 @@ export const Workspace: React.FC = () => {
 
       {/* Module Cards Grid */}
       <div className="workspace-grid">
-        {ALL_MODULE_TYPES.map((type) => {
+        {ALL_MODULE_TYPES.map(type => {
           // // Special handling for design module
           // if (type === 'design') {
           //   return (

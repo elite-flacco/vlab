@@ -72,7 +72,7 @@ export const KickoffFlow: React.FC = () => {
   // Combine active and archived projects
   const allProjects = useMemo(
     () => [...(activeProjects || []), ...(archivedProjects || [])],
-    [activeProjects, archivedProjects],
+    [activeProjects, archivedProjects]
   );
 
   useEffect(() => {
@@ -82,7 +82,7 @@ export const KickoffFlow: React.FC = () => {
         return;
       }
 
-      const project = allProjects.find((p) => p.id === projectId);
+      const project = allProjects.find(p => p.id === projectId);
       if (project) {
         setCurrentProject(project);
       } else {
@@ -101,7 +101,7 @@ export const KickoffFlow: React.FC = () => {
 
   const handleStepComplete = (data?: any) => {
     if (data) {
-      setStepData((prev) => {
+      setStepData(prev => {
         const newStepData = {
           ...prev,
           [KICKOFF_STEPS[currentStep].id]: data,
@@ -110,7 +110,7 @@ export const KickoffFlow: React.FC = () => {
       });
     }
 
-    setCompletedSteps((prev) => new Set([...prev, currentStep]));
+    setCompletedSteps(prev => new Set([...prev, currentStep]));
     if (currentStep < KICKOFF_STEPS.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {

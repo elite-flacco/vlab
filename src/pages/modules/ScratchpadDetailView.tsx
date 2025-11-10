@@ -102,7 +102,7 @@ export const ScratchpadDetailView: React.FC = () => {
   const { processContent } = useMarkdownPreprocessing();
 
   const [expandedNotes, setExpandedNotes] = useState<Record<string, boolean>>(
-    {},
+    {}
   );
   const contentRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
@@ -110,7 +110,7 @@ export const ScratchpadDetailView: React.FC = () => {
   const [isGeneratingTasks, setIsGeneratingTasks] = useState(false);
   const [generatedTasks, setGeneratedTasks] = useState<GeneratedTask[]>([]);
   const [selectedTaskIds, setSelectedTaskIds] = useState<Set<number>>(
-    new Set(),
+    new Set()
   );
   const [selectedNoteForTasks, setSelectedNoteForTasks] = useState<
     string | null
@@ -135,10 +135,10 @@ export const ScratchpadDetailView: React.FC = () => {
 
       // Fetch attachments for all notes
       const notesWithAttachments = await Promise.all(
-        (response.data || []).map(async (note) => {
+        (response.data || []).map(async note => {
           try {
             const { data: attachments } = await db.getScratchpadNoteAttachments(
-              note.id,
+              note.id
             );
             return {
               ...note,
@@ -150,7 +150,7 @@ export const ScratchpadDetailView: React.FC = () => {
               attachments: [],
             };
           }
-        }),
+        })
       );
 
       setNotes(notesWithAttachments);
@@ -167,7 +167,7 @@ export const ScratchpadDetailView: React.FC = () => {
 
   const handleUpdateNote = async (
     noteId: string,
-    updates: Partial<ScratchpadNote>,
+    updates: Partial<ScratchpadNote>
   ) => {
     setSaving(true);
     setError(null);
@@ -175,15 +175,15 @@ export const ScratchpadDetailView: React.FC = () => {
     try {
       const response = (await db.updateScratchpadNote(
         noteId,
-        updates,
+        updates
       )) as DatabaseResponse<ScratchpadNote>;
       if (response.error) throw response.error;
 
       // Update local state - preserve attachments since they're not returned from DB
-      const updatedNotes = notes.map((note) =>
+      const updatedNotes = notes.map(note =>
         note.id === noteId
           ? { ...response.data!, attachments: note.attachments }
-          : note,
+          : note
       );
       setNotes(updatedNotes);
       setEditingNoteId(null);
@@ -195,7 +195,7 @@ export const ScratchpadDetailView: React.FC = () => {
   };
 
   const toggleNoteExpansion = (noteId: string) => {
-    setExpandedNotes((prev) => ({
+    setExpandedNotes(prev => ({
       ...prev,
       [noteId]: !prev[noteId],
     }));
@@ -221,12 +221,12 @@ export const ScratchpadDetailView: React.FC = () => {
       };
 
       const response = (await db.createScratchpadNote(
-        newNoteData,
+        newNoteData
       )) as DatabaseResponse<ScratchpadNote>;
       if (response.error) throw response.error;
 
       // Add to local state
-      setNotes((prev) => (response.data ? [response.data, ...prev] : prev));
+      setNotes(prev => (response.data ? [response.data, ...prev] : prev));
       setNewNote(null);
     } catch (err: Error | unknown) {
       setError(err instanceof Error ? err.message : "Failed to create note");
@@ -241,12 +241,12 @@ export const ScratchpadDetailView: React.FC = () => {
 
     try {
       const response = (await db.deleteScratchpadNote(
-        noteId,
+        noteId
       )) as DatabaseResponse<void>;
       if (response.error) throw response.error;
 
       // Remove from local state
-      setNotes((prev) => prev.filter((note) => note.id !== noteId));
+      setNotes(prev => prev.filter(note => note.id !== noteId));
       setEditingNoteId(null);
     } catch (err: Error | unknown) {
       setError(err instanceof Error ? err.message : "Failed to delete note");
@@ -257,7 +257,7 @@ export const ScratchpadDetailView: React.FC = () => {
 
   // Task generation functions
   const generateTasksFromNote = async (noteId: string) => {
-    const note = notes.find((n) => n.id === noteId);
+    const note = notes.find(n => n.id === noteId);
     if (!note || !note.content.trim()) {
       setTaskError("Please select a note with content to generate tasks from");
       return;
@@ -275,7 +275,7 @@ export const ScratchpadDetailView: React.FC = () => {
       setSelectedTaskIds(new Set(tasks.map((_, index) => index)));
     } catch (err) {
       setTaskError(
-        err instanceof Error ? err.message : "Failed to generate tasks",
+        err instanceof Error ? err.message : "Failed to generate tasks"
       );
     } finally {
       setIsGeneratingTasks(false);
@@ -284,7 +284,7 @@ export const ScratchpadDetailView: React.FC = () => {
 
   const addTasksToProject = async () => {
     const selectedTasks = generatedTasks.filter((_, index) =>
-      selectedTaskIds.has(index),
+      selectedTaskIds.has(index)
     );
     if (!projectId || selectedTasks.length === 0) return;
 
@@ -323,7 +323,7 @@ export const ScratchpadDetailView: React.FC = () => {
       }
 
       setTaskSuccess(
-        `Successfully added ${selectedTasks.length} tasks to your project!`,
+        `Successfully added ${selectedTasks.length} tasks to your project!`
       );
       setGeneratedTasks([]);
       setSelectedTaskIds(new Set());
@@ -357,21 +357,21 @@ export const ScratchpadDetailView: React.FC = () => {
   const handleAttachmentUpload = async (noteId: string, attachment: any) => {
     try {
       // Update local state immediately to show the new attachment
-      setNotes((prev) =>
-        prev.map((note) =>
+      setNotes(prev =>
+        prev.map(note =>
           note.id === noteId
             ? {
                 ...note,
                 attachments: [...(note.attachments || []), attachment],
               }
-            : note,
-        ),
+            : note
+        )
       );
 
       // Clear any previous error
-      setAttachmentErrors((prev) => ({ ...prev, [noteId]: "" }));
+      setAttachmentErrors(prev => ({ ...prev, [noteId]: "" }));
     } catch (err: Error | unknown) {
-      setAttachmentErrors((prev) => ({
+      setAttachmentErrors(prev => ({
         ...prev,
         [noteId]:
           err instanceof Error ? err.message : "Failed to upload attachment",
@@ -381,27 +381,27 @@ export const ScratchpadDetailView: React.FC = () => {
 
   const handleAttachmentDelete = async (
     noteId: string,
-    attachmentId: string,
+    attachmentId: string
   ) => {
     try {
       const { error } = await db.deleteAttachment(attachmentId);
       if (error) throw error;
 
       // Update local state
-      setNotes((prev) =>
-        prev.map((note) =>
+      setNotes(prev =>
+        prev.map(note =>
           note.id === noteId
             ? {
                 ...note,
                 attachments: (note.attachments || []).filter(
-                  (att) => att.id !== attachmentId,
+                  att => att.id !== attachmentId
                 ),
               }
-            : note,
-        ),
+            : note
+        )
       );
     } catch (err: Error | unknown) {
-      setAttachmentErrors((prev) => ({
+      setAttachmentErrors(prev => ({
         ...prev,
         [noteId]:
           err instanceof Error ? err.message : "Failed to delete attachment",
@@ -412,27 +412,27 @@ export const ScratchpadDetailView: React.FC = () => {
   const handleAttachmentUpdate = async (
     noteId: string,
     attachmentId: string,
-    updates: any,
+    updates: any
   ) => {
     try {
       const { error } = await db.updateAttachment(attachmentId, updates);
       if (error) throw error;
 
       // Update local state
-      setNotes((prev) =>
-        prev.map((note) =>
+      setNotes(prev =>
+        prev.map(note =>
           note.id === noteId
             ? {
                 ...note,
-                attachments: (note.attachments || []).map((att) =>
-                  att.id === attachmentId ? { ...att, ...updates } : att,
+                attachments: (note.attachments || []).map(att =>
+                  att.id === attachmentId ? { ...att, ...updates } : att
                 ),
               }
-            : note,
-        ),
+            : note
+        )
       );
     } catch (err: Error | unknown) {
-      setAttachmentErrors((prev) => ({
+      setAttachmentErrors(prev => ({
         ...prev,
         [noteId]:
           err instanceof Error ? err.message : "Failed to update attachment",
@@ -455,10 +455,10 @@ export const ScratchpadDetailView: React.FC = () => {
     }
   };
 
-  const allTags = Array.from(new Set(notes.flatMap((note) => note.tags || [])));
+  const allTags = Array.from(new Set(notes.flatMap(note => note.tags || [])));
 
   const filteredNotes = notes
-    .filter((note) => {
+    .filter(note => {
       const matchesSearch = note.content
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
@@ -580,8 +580,8 @@ export const ScratchpadDetailView: React.FC = () => {
                   <input
                     type="text"
                     value={newNote.title || ""}
-                    onChange={(e) =>
-                      setNewNote((prev) => ({ ...prev, title: e.target.value }))
+                    onChange={e =>
+                      setNewNote(prev => ({ ...prev, title: e.target.value }))
                     }
                     className="form-input mb-3 w-full"
                     placeholder="Note title"
@@ -589,8 +589,8 @@ export const ScratchpadDetailView: React.FC = () => {
                   />
                   <textarea
                     value={newNote.content || ""}
-                    onChange={(e) =>
-                      setNewNote((prev) => ({
+                    onChange={e =>
+                      setNewNote(prev => ({
                         ...prev,
                         content: e.target.value,
                       }))
@@ -608,15 +608,15 @@ export const ScratchpadDetailView: React.FC = () => {
                     </label>
                     <select
                       value={newNote.tags?.[0] || TAG_OPTIONS[0]}
-                      onChange={(e) =>
-                        setNewNote((prev) => ({
+                      onChange={e =>
+                        setNewNote(prev => ({
                           ...prev,
                           tags: [e.target.value],
                         }))
                       }
                       className="form-select"
                     >
-                      {TAG_OPTIONS.map((tag) => (
+                      {TAG_OPTIONS.map(tag => (
                         <option key={tag} value={tag}>
                           {tag}
                         </option>
@@ -632,8 +632,8 @@ export const ScratchpadDetailView: React.FC = () => {
                         <input
                           type="checkbox"
                           checked={newNote.is_pinned || false}
-                          onChange={(e) =>
-                            setNewNote((prev) => ({
+                          onChange={e =>
+                            setNewNote(prev => ({
                               ...prev,
                               is_pinned: e.target.checked,
                             }))
@@ -686,7 +686,7 @@ export const ScratchpadDetailView: React.FC = () => {
                 <input
                   type="text"
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={e => setSearchTerm(e.target.value)}
                   placeholder="Search notes..."
                   className="search-input w-full"
                 />
@@ -703,7 +703,7 @@ export const ScratchpadDetailView: React.FC = () => {
                 >
                   All Notes
                 </button>
-                {allTags.map((tag) => (
+                {allTags.map(tag => (
                   <button
                     key={tag}
                     onClick={() => setSelectedTag(tag)}
@@ -723,7 +723,7 @@ export const ScratchpadDetailView: React.FC = () => {
           <div className="flex-1 overflow-y-auto">
             <div className="space-y-4">
               {/* Individual Note Cards with Direct Edit/Delete Icons */}
-              {filteredNotes.map((note) => (
+              {filteredNotes.map(note => (
                 <div key={note.id} className="card">
                   {editingNoteId === note.id ? (
                     // Edit Form
@@ -733,11 +733,11 @@ export const ScratchpadDetailView: React.FC = () => {
                           <input
                             type="text"
                             value={note.title}
-                            onChange={(e) => {
-                              const updatedNotes = notes.map((n) =>
+                            onChange={e => {
+                              const updatedNotes = notes.map(n =>
                                 n.id === note.id
                                   ? { ...n, title: e.target.value }
-                                  : n,
+                                  : n
                               );
                               setNotes(updatedNotes);
                             }}
@@ -747,11 +747,11 @@ export const ScratchpadDetailView: React.FC = () => {
                           />
                           <textarea
                             value={note.content}
-                            onChange={(e) => {
-                              const updatedNotes = notes.map((n) =>
+                            onChange={e => {
+                              const updatedNotes = notes.map(n =>
                                 n.id === note.id
                                   ? { ...n, content: e.target.value }
-                                  : n,
+                                  : n
                               );
                               setNotes(updatedNotes);
                             }}
@@ -768,17 +768,17 @@ export const ScratchpadDetailView: React.FC = () => {
                             </label>
                             <select
                               value={note.tags?.[0] || TAG_OPTIONS[0]}
-                              onChange={(e) => {
-                                const updatedNotes = notes.map((n) =>
+                              onChange={e => {
+                                const updatedNotes = notes.map(n =>
                                   n.id === note.id
                                     ? { ...n, tags: [e.target.value] }
-                                    : n,
+                                    : n
                                 );
                                 setNotes(updatedNotes);
                               }}
                               className="form-select"
                             >
-                              {TAG_OPTIONS.map((tag) => (
+                              {TAG_OPTIONS.map(tag => (
                                 <option key={tag} value={tag}>
                                   {tag}
                                 </option>
@@ -795,11 +795,11 @@ export const ScratchpadDetailView: React.FC = () => {
                                 <input
                                   type="checkbox"
                                   checked={note.is_pinned}
-                                  onChange={(e) => {
-                                    const updatedNotes = notes.map((n) =>
+                                  onChange={e => {
+                                    const updatedNotes = notes.map(n =>
                                       n.id === note.id
                                         ? { ...n, is_pinned: e.target.checked }
-                                        : n,
+                                        : n
                                     );
                                     setNotes(updatedNotes);
                                   }}
@@ -820,11 +820,11 @@ export const ScratchpadDetailView: React.FC = () => {
                           </label>
                           <ImageUpload
                             scratchpadNoteId={note.id}
-                            onUploadComplete={(attachment) =>
+                            onUploadComplete={attachment =>
                               handleAttachmentUpload(note.id, attachment)
                             }
-                            onError={(error) =>
-                              setAttachmentErrors((prev) => ({
+                            onError={error =>
+                              setAttachmentErrors(prev => ({
                                 ...prev,
                                 [note.id]: error,
                               }))
@@ -842,21 +842,21 @@ export const ScratchpadDetailView: React.FC = () => {
                           {/* Current Attachments */}
                           {note.attachments && note.attachments.length > 0 && (
                             <div className="space-y-2 mb-3">
-                              {note.attachments.map((attachment) => (
+                              {note.attachments.map(attachment => (
                                 <AttachmentView
                                   key={attachment.id}
                                   attachment={attachment}
-                                  onDelete={(attachmentId) =>
+                                  onDelete={attachmentId =>
                                     handleAttachmentDelete(
                                       note.id,
-                                      attachmentId,
+                                      attachmentId
                                     )
                                   }
                                   onUpdate={(attachmentId, updates) =>
                                     handleAttachmentUpdate(
                                       note.id,
                                       attachmentId,
-                                      updates,
+                                      updates
                                     )
                                   }
                                   showControls={true}
@@ -932,7 +932,7 @@ export const ScratchpadDetailView: React.FC = () => {
                             )}
                           </div>
                           <div
-                            ref={(el) => (contentRefs.current[note.id] = el)}
+                            ref={el => (contentRefs.current[note.id] = el)}
                             className={`overflow-hidden transition-all duration-300 ease-in-out ${expandedNotes[note.id] ? "" : "max-h-32"}`}
                           >
                             <div
@@ -994,7 +994,7 @@ export const ScratchpadDetailView: React.FC = () => {
                           {(note.content.length > 100 ||
                             expandedNotes[note.id]) && (
                             <button
-                              onClick={(e) => {
+                              onClick={e => {
                                 e.stopPropagation();
                                 toggleNoteExpansion(note.id);
                               }}
@@ -1017,21 +1017,21 @@ export const ScratchpadDetailView: React.FC = () => {
                           {/* Inline Attachments */}
                           {note.attachments && note.attachments.length > 0 && (
                             <div className="mt-4 space-y-3">
-                              {note.attachments.map((attachment) => (
+                              {note.attachments.map(attachment => (
                                 <AttachmentView
                                   key={attachment.id}
                                   attachment={attachment}
-                                  onDelete={(attachmentId) =>
+                                  onDelete={attachmentId =>
                                     handleAttachmentDelete(
                                       note.id,
-                                      attachmentId,
+                                      attachmentId
                                     )
                                   }
                                   onUpdate={(attachmentId, updates) =>
                                     handleAttachmentUpdate(
                                       note.id,
                                       attachmentId,
-                                      updates,
+                                      updates
                                     )
                                   }
                                   showControls={true}

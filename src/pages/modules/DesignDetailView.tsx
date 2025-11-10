@@ -43,7 +43,7 @@ export const DesignDetailView: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedTasks, setGeneratedTasks] = useState<GeneratedTask[]>([]);
   const [selectedTaskIds, setSelectedTaskIds] = useState<Set<number>>(
-    new Set(),
+    new Set()
   );
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
   const [editingField, setEditingField] = useState<
@@ -95,7 +95,7 @@ export const DesignDetailView: React.FC = () => {
   };
 
   const handleImageUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -121,7 +121,7 @@ export const DesignDetailView: React.FC = () => {
 
       // Create preview from original file for better quality display
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = e => {
         setImagePreview(e.target?.result as string);
       };
       reader.onerror = () => {
@@ -138,7 +138,7 @@ export const DesignDetailView: React.FC = () => {
   const compressImage = (
     file: File,
     quality: number,
-    maxWidth: number,
+    maxWidth: number
   ): Promise<File> => {
     return new Promise((resolve, reject) => {
       const canvas = document.createElement("canvas");
@@ -166,7 +166,7 @@ export const DesignDetailView: React.FC = () => {
           ctx.drawImage(img, 0, 0, newWidth, newHeight);
 
           canvas.toBlob(
-            (blob) => {
+            blob => {
               if (!blob) {
                 reject(new Error("Failed to compress image"));
                 return;
@@ -179,7 +179,7 @@ export const DesignDetailView: React.FC = () => {
               resolve(compressedFile);
             },
             file.type,
-            quality,
+            quality
           );
         } catch (error) {
           reject(error);
@@ -223,7 +223,7 @@ export const DesignDetailView: React.FC = () => {
     setIsDragOver(false);
 
     const files = Array.from(e.dataTransfer.files);
-    const imageFile = files.find((file) => file.type.startsWith("image/"));
+    const imageFile = files.find(file => file.type.startsWith("image/"));
 
     if (!imageFile) {
       setError("Please drop a valid image file");
@@ -245,7 +245,7 @@ export const DesignDetailView: React.FC = () => {
 
       // Create preview from original file for better quality display
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = e => {
         setImagePreview(e.target?.result as string);
       };
       reader.onerror = () => {
@@ -260,7 +260,7 @@ export const DesignDetailView: React.FC = () => {
 
   const addTasksToProject = async () => {
     const selectedTasks = generatedTasks.filter((_, index) =>
-      selectedTaskIds.has(index),
+      selectedTaskIds.has(index)
     );
     if (!projectId || selectedTasks.length === 0) return;
 
@@ -299,7 +299,7 @@ export const DesignDetailView: React.FC = () => {
       }
 
       setSuccess(
-        `Successfully added ${selectedTasks.length} tasks to your project!`,
+        `Successfully added ${selectedTasks.length} tasks to your project!`
       );
       setGeneratedTasks([]);
       setSelectedTaskIds(new Set());
@@ -334,7 +334,7 @@ export const DesignDetailView: React.FC = () => {
   const updateTask = (
     taskIndex: number,
     field: keyof GeneratedTask,
-    value: any,
+    value: any
   ) => {
     const updatedTasks = [...generatedTasks];
     updatedTasks[taskIndex] = { ...updatedTasks[taskIndex], [field]: value };
@@ -427,7 +427,7 @@ export const DesignDetailView: React.FC = () => {
                 <textarea
                   id="feedback"
                   value={feedbackText}
-                  onChange={(e) => setFeedbackText(e.target.value)}
+                  onChange={e => setFeedbackText(e.target.value)}
                   placeholder="If you want to use your preferred AI tools, you can simply paste the feedback here... For example: 'The header feels too cramped on mobile. The call-to-action button needs more contrast. The navigation could be more intuitive.'"
                   className="form-textarea min-h-[8rem]"
                   disabled={isGenerating}
@@ -606,12 +606,12 @@ export const DesignDetailView: React.FC = () => {
                               <input
                                 type="text"
                                 value={task.title}
-                                onChange={(e) =>
+                                onChange={e =>
                                   updateTask(index, "title", e.target.value)
                                 }
                                 className="form-input"
                                 onBlur={stopEditing}
-                                onKeyDown={(e) => {
+                                onKeyDown={e => {
                                   if (e.key === "Enter") stopEditing();
                                   if (e.key === "Escape") stopEditing();
                                 }}
@@ -648,7 +648,7 @@ export const DesignDetailView: React.FC = () => {
                             </button>
                             <select
                               value={task.priority}
-                              onChange={(e) =>
+                              onChange={e =>
                                 updateTask(index, "priority", e.target.value)
                               }
                               className={`badge ${getPriorityBadgeClass(task.priority)} appearance-none cursor-pointer border-none outline-none`}
@@ -696,13 +696,13 @@ export const DesignDetailView: React.FC = () => {
                         {isEditing(index, "description") ? (
                           <textarea
                             value={task.description}
-                            onChange={(e) =>
+                            onChange={e =>
                               updateTask(index, "description", e.target.value)
                             }
                             className="form-textarea"
                             rows={3}
                             onBlur={stopEditing}
-                            onKeyDown={(e) => {
+                            onKeyDown={e => {
                               if (e.key === "Escape") stopEditing();
                             }}
                             autoFocus

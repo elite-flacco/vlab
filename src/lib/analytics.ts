@@ -59,7 +59,7 @@ export const trackPageView = (path: string, title?: string): void => {
  */
 export const trackEvent = (
   eventName: string,
-  parameters?: Record<string, unknown>,
+  parameters?: Record<string, unknown>
 ): void => {
   if (!isAnalyticsEnabled()) return;
 
@@ -115,7 +115,7 @@ export const analytics = {
   // AI feature usage
   trackAITaskGeneration: (
     source: "prd" | "roadmap" | "design" | "scratchpad",
-    taskCount?: number,
+    taskCount?: number
   ) => {
     trackEvent("ai_task_generation", {
       source,
@@ -134,7 +134,7 @@ export const analytics = {
   // Feature adoption
   trackFeatureUsed: (
     featureName: string,
-    metadata?: Record<string, unknown>,
+    metadata?: Record<string, unknown>
   ) => {
     trackEvent("feature_used", {
       feature_name: featureName,
@@ -162,7 +162,7 @@ export const analytics = {
  * Set user properties (for authenticated users)
  */
 export const setUserProperties = (
-  properties: Record<string, unknown>,
+  properties: Record<string, unknown>
 ): void => {
   if (!isAnalyticsEnabled()) return;
 

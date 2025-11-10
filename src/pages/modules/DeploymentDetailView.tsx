@@ -98,7 +98,7 @@ export const DeploymentDetailView: React.FC = () => {
       setDeploymentItems(data || []);
     } catch (err: Error | unknown) {
       setError(
-        err instanceof Error ? err.message : "Failed to fetch deployment items",
+        err instanceof Error ? err.message : "Failed to fetch deployment items"
       );
     } finally {
       setLoading(false);
@@ -111,7 +111,7 @@ export const DeploymentDetailView: React.FC = () => {
 
   const handleUpdateItem = async (
     itemId: string,
-    updates: Partial<DeploymentItem>,
+    updates: Partial<DeploymentItem>
   ) => {
     setSaving(true);
     setError(null);
@@ -119,18 +119,18 @@ export const DeploymentDetailView: React.FC = () => {
     try {
       const { data, error: updateError } = await db.updateDeploymentItem(
         itemId,
-        updates,
+        updates
       );
       if (updateError) throw updateError;
 
-      const updatedItems = deploymentItems.map((item) =>
-        item.id === itemId ? data : item,
+      const updatedItems = deploymentItems.map(item =>
+        item.id === itemId ? data : item
       );
       setDeploymentItems(updatedItems);
       setEditingItemId(null);
     } catch (err: Error | unknown) {
       setError(
-        err instanceof Error ? err.message : "Failed to update deployment item",
+        err instanceof Error ? err.message : "Failed to update deployment item"
       );
     } finally {
       setSaving(false);
@@ -166,11 +166,11 @@ export const DeploymentDetailView: React.FC = () => {
         await db.createDeploymentItem(newItemData);
       if (createError) throw createError;
 
-      setDeploymentItems((prev) => [...prev, data]);
+      setDeploymentItems(prev => [...prev, data]);
       setNewItem(null);
     } catch (err: Error | unknown) {
       setError(
-        err instanceof Error ? err.message : "Failed to create deployment item",
+        err instanceof Error ? err.message : "Failed to create deployment item"
       );
     } finally {
       setSaving(false);
@@ -185,11 +185,11 @@ export const DeploymentDetailView: React.FC = () => {
       const { error: deleteError } = await db.deleteDeploymentItem(itemId);
       if (deleteError) throw deleteError;
 
-      setDeploymentItems((prev) => prev.filter((item) => item.id !== itemId));
+      setDeploymentItems(prev => prev.filter(item => item.id !== itemId));
       setEditingItemId(null);
     } catch (err: Error | unknown) {
       setError(
-        err instanceof Error ? err.message : "Failed to delete deployment item",
+        err instanceof Error ? err.message : "Failed to delete deployment item"
       );
     } finally {
       setSaving(false);
@@ -198,7 +198,7 @@ export const DeploymentDetailView: React.FC = () => {
 
   const handleToggleItemCompletion = async (
     itemId: string,
-    currentStatus: string,
+    currentStatus: string
   ) => {
     const newStatus = currentStatus === "done" ? "todo" : "done";
     await handleUpdateItem(itemId, { status: newStatus });
@@ -246,23 +246,23 @@ export const DeploymentDetailView: React.FC = () => {
     setShowCompleted(newShowCompleted);
     localStorage.setItem(
       "deployment-show-completed",
-      JSON.stringify(newShowCompleted),
+      JSON.stringify(newShowCompleted)
     );
   };
 
   // Get all unique categories, platforms from existing items
   const getAllCategories = () => {
-    const categories = deploymentItems.map((item) => item.category);
+    const categories = deploymentItems.map(item => item.category);
     return Array.from(new Set(categories)).sort();
   };
 
   const getAllPlatforms = () => {
-    const platforms = deploymentItems.map((item) => item.platform);
+    const platforms = deploymentItems.map(item => item.platform);
     return Array.from(new Set(platforms)).sort();
   };
 
   const filteredItems = deploymentItems
-    .filter((item) => {
+    .filter(item => {
       const matchesStatus =
         filter === "all"
           ? showCompleted ||
@@ -409,9 +409,9 @@ export const DeploymentDetailView: React.FC = () => {
       const tasksToCreate: Partial<DeploymentItem>[] = [];
 
       // 1. Add platform-specific template tasks
-      selectedPlatforms.forEach((platform) => {
+      selectedPlatforms.forEach(platform => {
         const platformTasks = PLATFORM_TEMPLATES[platform] || [];
-        platformTasks.forEach((template) => {
+        platformTasks.forEach(template => {
           tasksToCreate.push({
             ...template,
             project_id: projectId,
@@ -422,8 +422,8 @@ export const DeploymentDetailView: React.FC = () => {
       });
 
       // 2. Add universal category tasks (always include these)
-      Object.values(CATEGORY_TEMPLATES).forEach((categoryTasks) => {
-        categoryTasks.forEach((template) => {
+      Object.values(CATEGORY_TEMPLATES).forEach(categoryTasks => {
+        categoryTasks.forEach(template => {
           tasksToCreate.push({
             ...template,
             platform: "universal", // Universal tasks apply to any platform
@@ -465,7 +465,7 @@ export const DeploymentDetailView: React.FC = () => {
         } catch (aiError: any) {
           console.warn(
             "AI generation failed, continuing with templates only:",
-            aiError,
+            aiError
           );
           // Continue without AI tasks if AI generation fails
         }
@@ -489,7 +489,7 @@ export const DeploymentDetailView: React.FC = () => {
       }
 
       // 5. Update local state with only successfully created tasks
-      setDeploymentItems((prev) => [...prev, ...createdTasks]);
+      setDeploymentItems(prev => [...prev, ...createdTasks]);
 
       // 6. Close modal and reset state
       setShowGenerateModal(false);
@@ -503,10 +503,10 @@ export const DeploymentDetailView: React.FC = () => {
       if (failedTasks.length > 0) {
         console.warn(
           `❌ Failed to create ${failedTasks.length} tasks:`,
-          failedTasks,
+          failedTasks
         );
         setError(
-          `Created ${createdTasks.length} tasks successfully. ${failedTasks.length} tasks failed due to validation errors.`,
+          `Created ${createdTasks.length} tasks successfully. ${failedTasks.length} tasks failed due to validation errors.`
         );
       }
     } catch (error: any) {
@@ -614,7 +614,7 @@ export const DeploymentDetailView: React.FC = () => {
                       Select deployment platforms:
                     </label>
                     <div className="grid grid-cols-2 gap-2">
-                      {Object.keys(PLATFORM_TEMPLATES).map((platform) => (
+                      {Object.keys(PLATFORM_TEMPLATES).map(platform => (
                         <label
                           key={platform}
                           className="flex items-center space-x-2 cursor-pointer"
@@ -622,7 +622,7 @@ export const DeploymentDetailView: React.FC = () => {
                           <input
                             type="checkbox"
                             checked={selectedPlatforms.includes(platform)}
-                            onChange={(e) => {
+                            onChange={e => {
                               if (e.target.checked) {
                                 setSelectedPlatforms([
                                   ...selectedPlatforms,
@@ -630,9 +630,7 @@ export const DeploymentDetailView: React.FC = () => {
                                 ]);
                               } else {
                                 setSelectedPlatforms(
-                                  selectedPlatforms.filter(
-                                    (p) => p !== platform,
-                                  ),
+                                  selectedPlatforms.filter(p => p !== platform)
                                 );
                               }
                             }}
@@ -649,7 +647,7 @@ export const DeploymentDetailView: React.FC = () => {
                       type="checkbox"
                       id="includeProjectSpecific"
                       checked={includeProjectSpecific}
-                      onChange={(e) =>
+                      onChange={e =>
                         setIncludeProjectSpecific(e.target.checked)
                       }
                       className="form-checkbox"
@@ -719,7 +717,7 @@ export const DeploymentDetailView: React.FC = () => {
     return (
       <select
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={e => onChange(e.target.value)}
         disabled={disabled}
         className={selectClass}
       >
@@ -752,7 +750,7 @@ export const DeploymentDetailView: React.FC = () => {
     const content = (
       <select
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={e => onChange(e.target.value)}
         disabled={disabled}
         className={selectClass}
       >
@@ -826,7 +824,7 @@ export const DeploymentDetailView: React.FC = () => {
                   <input
                     type="text"
                     value={newItem.title}
-                    onChange={(e) =>
+                    onChange={e =>
                       setNewItem({ ...newItem, title: e.target.value })
                     }
                     className="form-input"
@@ -841,7 +839,7 @@ export const DeploymentDetailView: React.FC = () => {
                   </label>
                   <textarea
                     value={newItem.description}
-                    onChange={(e) =>
+                    onChange={e =>
                       setNewItem({ ...newItem, description: e.target.value })
                     }
                     className="form-textarea"
@@ -857,7 +855,7 @@ export const DeploymentDetailView: React.FC = () => {
                     </label>
                     <select
                       value={newItem.category || "general"}
-                      onChange={(e) =>
+                      onChange={e =>
                         setNewItem({
                           ...newItem,
                           category: e.target.value as any,
@@ -884,7 +882,7 @@ export const DeploymentDetailView: React.FC = () => {
                     </label>
                     <select
                       value={newItem.platform || "universal"}
-                      onChange={(e) =>
+                      onChange={e =>
                         setNewItem({
                           ...newItem,
                           platform: e.target.value as any,
@@ -910,7 +908,7 @@ export const DeploymentDetailView: React.FC = () => {
                     </label>
                     <PrioritySelect
                       value={newItem.priority || "medium"}
-                      onChange={(priority) =>
+                      onChange={priority =>
                         setNewItem({ ...newItem, priority: priority as any })
                       }
                     />
@@ -957,16 +955,14 @@ export const DeploymentDetailView: React.FC = () => {
                   <input
                     type="text"
                     value={searchTerm}
-                    onChange={(e) => updateSearchTerm(e.target.value)}
+                    onChange={e => updateSearchTerm(e.target.value)}
                     placeholder="Search deployment items..."
                     className="search-input"
                   />
                 </div>
                 <select
                   value={filter}
-                  onChange={(e) =>
-                    updateFilter(e.target.value as typeof filter)
-                  }
+                  onChange={e => updateFilter(e.target.value as typeof filter)}
                   className="form-select flex-shrink-0"
                 >
                   <option value="all">All Status</option>
@@ -978,9 +974,9 @@ export const DeploymentDetailView: React.FC = () => {
                 </select>
                 <select
                   value={priorityFilter}
-                  onChange={(e) =>
+                  onChange={e =>
                     updatePriorityFilter(
-                      e.target.value as typeof priorityFilter,
+                      e.target.value as typeof priorityFilter
                     )
                   }
                   className="form-select flex-shrink-0"
@@ -993,11 +989,11 @@ export const DeploymentDetailView: React.FC = () => {
                 </select>
                 <select
                   value={categoryFilter}
-                  onChange={(e) => updateCategoryFilter(e.target.value)}
+                  onChange={e => updateCategoryFilter(e.target.value)}
                   className="form-select flex-shrink-0"
                 >
                   <option value="all">All Categories</option>
-                  {getAllCategories().map((category) => (
+                  {getAllCategories().map(category => (
                     <option key={category} value={category}>
                       {category.charAt(0).toUpperCase() + category.slice(1)}
                     </option>
@@ -1005,11 +1001,11 @@ export const DeploymentDetailView: React.FC = () => {
                 </select>
                 <select
                   value={platformFilter}
-                  onChange={(e) => updatePlatformFilter(e.target.value)}
+                  onChange={e => updatePlatformFilter(e.target.value)}
                   className="form-select flex-shrink-0"
                 >
                   <option value="all">All Platforms</option>
-                  {getAllPlatforms().map((platform) => (
+                  {getAllPlatforms().map(platform => (
                     <option key={platform} value={platform}>
                       {platform.charAt(0).toUpperCase() + platform.slice(1)}
                     </option>
@@ -1029,7 +1025,7 @@ export const DeploymentDetailView: React.FC = () => {
 
           {/* Items List */}
           <div className="flex-1 space-y-3">
-            {filteredItems.map((item) => (
+            {filteredItems.map(item => (
               <div
                 key={item.id}
                 className={`card ${item.status === "done" ? "opacity-75" : ""}`}
@@ -1044,11 +1040,11 @@ export const DeploymentDetailView: React.FC = () => {
                       <input
                         type="text"
                         value={item.title}
-                        onChange={(e) => {
-                          const updatedItems = deploymentItems.map((i) =>
+                        onChange={e => {
+                          const updatedItems = deploymentItems.map(i =>
                             i.id === item.id
                               ? { ...i, title: e.target.value }
-                              : i,
+                              : i
                           );
                           setDeploymentItems(updatedItems);
                         }}
@@ -1063,11 +1059,11 @@ export const DeploymentDetailView: React.FC = () => {
                       </label>
                       <textarea
                         value={item.description}
-                        onChange={(e) => {
-                          const updatedItems = deploymentItems.map((i) =>
+                        onChange={e => {
+                          const updatedItems = deploymentItems.map(i =>
                             i.id === item.id
                               ? { ...i, description: e.target.value }
-                              : i,
+                              : i
                           );
                           setDeploymentItems(updatedItems);
                         }}
@@ -1084,11 +1080,11 @@ export const DeploymentDetailView: React.FC = () => {
                         </label>
                         <StatusSelect
                           value={item.status}
-                          onChange={(status) => {
-                            const updatedItems = deploymentItems.map((i) =>
+                          onChange={status => {
+                            const updatedItems = deploymentItems.map(i =>
                               i.id === item.id
                                 ? { ...i, status: status as any }
-                                : i,
+                                : i
                             );
                             setDeploymentItems(updatedItems);
                           }}
@@ -1101,11 +1097,11 @@ export const DeploymentDetailView: React.FC = () => {
                         </label>
                         <PrioritySelect
                           value={item.priority}
-                          onChange={(priority) => {
-                            const updatedItems = deploymentItems.map((i) =>
+                          onChange={priority => {
+                            const updatedItems = deploymentItems.map(i =>
                               i.id === item.id
                                 ? { ...i, priority: priority as any }
-                                : i,
+                                : i
                             );
                             setDeploymentItems(updatedItems);
                           }}
@@ -1118,11 +1114,11 @@ export const DeploymentDetailView: React.FC = () => {
                         </label>
                         <select
                           value={item.category}
-                          onChange={(e) => {
-                            const updatedItems = deploymentItems.map((i) =>
+                          onChange={e => {
+                            const updatedItems = deploymentItems.map(i =>
                               i.id === item.id
                                 ? { ...i, category: e.target.value as any }
-                                : i,
+                                : i
                             );
                             setDeploymentItems(updatedItems);
                           }}
@@ -1147,11 +1143,11 @@ export const DeploymentDetailView: React.FC = () => {
                         </label>
                         <select
                           value={item.platform}
-                          onChange={(e) => {
-                            const updatedItems = deploymentItems.map((i) =>
+                          onChange={e => {
+                            const updatedItems = deploymentItems.map(i =>
                               i.id === item.id
                                 ? { ...i, platform: e.target.value as any }
-                                : i,
+                                : i
                             );
                             setDeploymentItems(updatedItems);
                           }}
@@ -1233,7 +1229,7 @@ export const DeploymentDetailView: React.FC = () => {
                         <div className="flex items-center space-x-2 ml-2">
                           <StatusSelect
                             value={item.status}
-                            onChange={(status) =>
+                            onChange={status =>
                               handleStatusChange(item.id, status)
                             }
                             disabled={saving}
@@ -1241,7 +1237,7 @@ export const DeploymentDetailView: React.FC = () => {
                           />
                           <PrioritySelect
                             value={item.priority}
-                            onChange={(priority) =>
+                            onChange={priority =>
                               handlePriorityChange(item.id, priority)
                             }
                             disabled={saving}
@@ -1293,7 +1289,7 @@ export const DeploymentDetailView: React.FC = () => {
                                   window.open(
                                     item.helpful_links[0].url,
                                     "_blank",
-                                    "noopener,noreferrer",
+                                    "noopener,noreferrer"
                                   )
                                 }
                                 disabled={saving}
@@ -1317,14 +1313,13 @@ export const DeploymentDetailView: React.FC = () => {
             <div className="text-xs text-gray-500">
               {
                 deploymentItems.filter(
-                  (i) => i.status !== "done" && i.status !== "not_applicable",
+                  i => i.status !== "done" && i.status !== "not_applicable"
                 ).length
               }{" "}
-              active •
-              {deploymentItems.filter((i) => i.status === "done").length}{" "}
+              active •{deploymentItems.filter(i => i.status === "done").length}{" "}
               completed •
               {
-                deploymentItems.filter((i) => i.status === "not_applicable")
+                deploymentItems.filter(i => i.status === "not_applicable")
                   .length
               }{" "}
               N/A
@@ -1332,9 +1327,9 @@ export const DeploymentDetailView: React.FC = () => {
             <div className="text-xs text-gray-500">
               Progress:{" "}
               {Math.round(
-                (deploymentItems.filter((i) => i.status === "done").length /
+                (deploymentItems.filter(i => i.status === "done").length /
                   deploymentItems.length) *
-                  100,
+                  100
               ) || 0}
               %
             </div>
@@ -1362,7 +1357,7 @@ export const DeploymentDetailView: React.FC = () => {
                     Select deployment platforms:
                   </label>
                   <div className="grid grid-cols-2 gap-2">
-                    {Object.keys(PLATFORM_TEMPLATES).map((platform) => (
+                    {Object.keys(PLATFORM_TEMPLATES).map(platform => (
                       <label
                         key={platform}
                         className="flex items-center space-x-2 cursor-pointer"
@@ -1370,7 +1365,7 @@ export const DeploymentDetailView: React.FC = () => {
                         <input
                           type="checkbox"
                           checked={selectedPlatforms.includes(platform)}
-                          onChange={(e) => {
+                          onChange={e => {
                             if (e.target.checked) {
                               setSelectedPlatforms([
                                 ...selectedPlatforms,
@@ -1378,7 +1373,7 @@ export const DeploymentDetailView: React.FC = () => {
                               ]);
                             } else {
                               setSelectedPlatforms(
-                                selectedPlatforms.filter((p) => p !== platform),
+                                selectedPlatforms.filter(p => p !== platform)
                               );
                             }
                           }}
@@ -1395,9 +1390,7 @@ export const DeploymentDetailView: React.FC = () => {
                     type="checkbox"
                     id="includeProjectSpecific"
                     checked={includeProjectSpecific}
-                    onChange={(e) =>
-                      setIncludeProjectSpecific(e.target.checked)
-                    }
+                    onChange={e => setIncludeProjectSpecific(e.target.checked)}
                     className="form-checkbox"
                   />
                   <label
