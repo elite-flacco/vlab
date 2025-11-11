@@ -47,7 +47,10 @@ function ThemeManager() {
 
   useEffect(() => {
     // Force dark mode on landing page routes
-    const isLandingPage = !user || location.pathname === "/landing" || location.pathname === "/about";
+    const isLandingPage =
+      !user ||
+      location.pathname === "/landing" ||
+      location.pathname === "/about";
 
     if (isLandingPage) {
       document.documentElement.classList.remove("light");
