@@ -39,6 +39,29 @@ function PageViewTracker() {
   return null;
 }
 
+// Component to manage theme based on current route
+function ThemeManager() {
+  const location = useLocation();
+  const { user } = useAuthStore();
+  const { theme } = useThemeStore();
+
+  useEffect(() => {
+    // Force dark mode on landing page routes
+    const isLandingPage = !user || location.pathname === "/landing" || location.pathname === "/about";
+
+    if (isLandingPage) {
+      document.documentElement.classList.remove("light");
+      document.documentElement.classList.add("dark");
+    } else {
+      // Apply user's theme preference for authenticated pages
+      document.documentElement.classList.remove("light", "dark");
+      document.documentElement.classList.add(theme);
+    }
+  }, [theme, user, location.pathname]);
+
+  return null;
+}
+
 // Wrapper component to handle return URL logic
 function LandingWrapper() {
   const location = useLocation();
@@ -55,17 +78,10 @@ function LandingWrapper() {
 
 function App() {
   const { user, loading, initialize } = useAuthStore();
-  const { theme } = useThemeStore();
 
   useEffect(() => {
     initialize();
   }, [initialize]);
-
-  // Apply theme class to document on mount and theme change
-  useEffect(() => {
-    document.documentElement.classList.remove("light", "dark");
-    document.documentElement.classList.add(theme);
-  }, [theme]);
 
   if (loading) {
     return (
@@ -82,6 +98,7 @@ function App() {
     <ErrorBoundary context="Application Root">
       <Router>
         <PageViewTracker />
+        <ThemeManager />
         <Routes>
           {/* Landing page for unauthenticated users OR when explicitly accessing /landing or /#signup */}
           {!user ? (
