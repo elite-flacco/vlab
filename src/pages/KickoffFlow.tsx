@@ -119,9 +119,9 @@ export const KickoffFlow: React.FC = () => {
     }
   };
 
-  // const handleSkipToWorkspace = () => {
-  //   navigate(`/workspace/${projectId}`);
-  // };
+  const handleSkipToWorkspace = () => {
+    navigate(`/workspace/${projectId}`);
+  };
 
   const handleIdeaSelected = (ideaSummary: string) => {
     handleStepComplete({ ideaSummary });
@@ -173,12 +173,9 @@ export const KickoffFlow: React.FC = () => {
               Let's get you started with "{currentProject.name}"!
             </p>
           </div>
-          {/* <button
-            onClick={handleSkipToWorkspace}
-            className="btn-secondary"
-          >
+          <button onClick={handleSkipToWorkspace} className="btn-secondary">
             Skip to workspace →
-          </button> */}
+          </button>
         </div>
       </div>
 
