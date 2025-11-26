@@ -7,6 +7,7 @@ Check it out at [https://v-lab.dev](https://v-lab.dev).
 ## 🚀 Features
 
 ### 📦 Core Modules
+
 - **PRD (Product Requirements Documents)** - Create and manage detailed product specifications with AI assistance and full version control
 - **Roadmap** - Visual project planning with phase management and milestone tracking
 - **Tasks** - Minimalistic task management with priorities, progress tracking, and GitHub issue creation
@@ -16,6 +17,7 @@ Check it out at [https://v-lab.dev](https://v-lab.dev).
 - **Deployment** - Deployment checklists, configuration tracking, and platform-specific templates
 
 ### ⚡ Key Features
+
 - **AI-Powered Kick-off Flow** - Transform ideas into structured workspaces with AI assistance
 - **Version Control for PRDs** - Complete version history, side-by-side comparison, and change tracking
 - **GitHub Integration** - Convert tasks directly into GitHub repository issues with OAuth authentication
@@ -27,17 +29,20 @@ Check it out at [https://v-lab.dev](https://v-lab.dev).
 ### 🌟 Community Features
 
 #### 💬 Posts & Discussions
+
 - **Create and Share** - Share your tips, tricks, and experiences with the community
 - **Rich Text Formatting** - Use Markdown to format your posts with headers, lists, bold/italic text, and links
 - **Image Support** - Include images in your posts to better illustrate your points
 - **Tagging System** - Add tags to make your posts more discoverable
 
 #### 👍 Engagement Tools
+
 - **Voting System** - Upvote/downvote posts and comments to highlight valuable content
 - **Comments & Replies** - Engage in threaded discussions with other community members
 - **Save Posts** - Bookmark posts to easily find them later
 
 #### 🔍 Discovery & Filtering
+
 - **Advanced Search** - Find relevant content with powerful search capabilities
 - **Filter by Tools** - Browse content specific to tools like Bolt, Loveable, Replit, and V0
 - **Category Filtering** - Filter by tip categories including Prompt Tricks, Integrations, Authentication, and more
@@ -45,6 +50,7 @@ Check it out at [https://v-lab.dev](https://v-lab.dev).
 - **Sorting Options** - Sort by newest, most popular, or trending content
 
 #### 👤 User Profiles
+
 - **Personalized Feed** - View your contributed and saved posts
 - **Activity Tracking** - Keep track of your interactions and contributions
 - **Profile Customization** - Personalize your community presence
@@ -65,29 +71,34 @@ Check it out at [https://v-lab.dev](https://v-lab.dev).
 ## 🎯 Getting Started
 
 ### 📋 Prerequisites
-- Node.js 18+ 
+
+- Node.js 18+
 - npm or yarn
 - Supabase account
 
 ### 🛠️ Installation
 
 1. Clone the repository:
+
 ```bash
 git clone <repository-url>
 cd vlab
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Set up environment variables:
+
 ```bash
 cp .env.example .env
 ```
 
 Fill in your Supabase credentials:
+
 ```env
 VITE_SUPABASE_URL=your_supabase_url_here
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key_here
@@ -107,11 +118,13 @@ To enable GitHub integration for task-to-issue creation:
 5. Required OAuth scopes: `repo`, `user:email`
 
 6. Run database migrations:
+
 ```bash
 # Apply the migrations in your Supabase dashboard or using the CLI
 ```
 
 7. Start the development server:
+
 ```bash
 npm run dev
 ```
@@ -119,7 +132,11 @@ npm run dev
 ## 🗄️ Database Schema
 
 ### 📊 Core Tables
-- `profiles` - User profile information
+
+- `profiles` - User profile information with anonymous user support
+  - `is_anonymous` - Flag indicating guest/anonymous accounts
+  - `anonymous_claimed_at` - Timestamp when anonymous account was converted
+  - `email` - Unique partial index (allows multiple NULL emails for anonymous users)
 - `projects` - Project containers
 - `prds` - Product Requirements Documents with versioning
 - `prd_versions` - Complete version history for PRDs
@@ -137,14 +154,36 @@ npm run dev
 ### 📝 Version Control System
 
 The PRD versioning system provides:
+
 - **Automatic Version Tracking** - Every PRD update creates a new version
 - **Complete History** - Full content and metadata for each version
 - **Version Comparison** - Side-by-side comparison of any two versions
 - **Change Descriptions** - Optional descriptions for each version update
 
+### 👤 Anonymous User Support
+
+VLab supports full functionality for anonymous users without requiring registration:
+
+- **Multiple Anonymous Sessions** - Database schema supports unlimited concurrent anonymous users via partial unique index on email field
+- **Full Feature Access** - Anonymous users can create projects, use all modules, and interact with community features
+- **Seamless Account Claiming** - Convert anonymous accounts to registered accounts while preserving all data
+- **Data Transfer System** - Comprehensive database functions (`transfer_anonymous_data()`, `claim_anonymous_account()`) ensure zero data loss during conversion
+- **Schema Support** - `is_anonymous` flag and `anonymous_claimed_at` timestamp track account lifecycle
+
+#### Database Schema Design
+
+- Email field allows NULL for anonymous users (enforced via check constraint for non-anonymous users)
+- Partial unique index on email permits multiple NULL values while enforcing uniqueness for registered users
+- RLS policies properly handle both authenticated and anonymous user access patterns
+- `handle_new_user()` function includes auth schema in search_path for reliable profile creation
+
 #### ⚙️ Database Functions
+
 - `create_prd_version()` - Automatically creates version snapshots
 - `get_prd_version_comparison()` - Returns comparison data for two versions
+- `handle_new_user()` - Automatically creates profiles for new users, supports anonymous users with proper schema handling
+- `transfer_anonymous_data()` - Database function for transferring anonymous user data during account claiming
+- `claim_anonymous_account()` - Database function for converting anonymous accounts to registered accounts
 
 ## 📁 Project Structure
 
@@ -181,13 +220,16 @@ src/
 ## 🔌 API Integration
 
 ### 🤖 OpenAI Integration
+
 VLab integrates with OpenAI for:
+
 - Idea refinement and PRD generation
 - Roadmap creation from PRDs
 - Task breakdown from roadmaps
 - Prompt suggestions and optimization
 
 ### 📡 Supabase Integration
+
 - Real-time data synchronization
 - Row Level Security for multi-tenant data isolation
 - Automatic user profile creation
@@ -196,6 +238,7 @@ VLab integrates with OpenAI for:
 ## 💻 Development
 
 ### 📝 Available Scripts
+
 - `npm run dev` - Start development server with hot reload
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build locally
@@ -204,6 +247,7 @@ VLab integrates with OpenAI for:
 - `npm run dev:full` - Run both frontend dev server and backend server concurrently
 
 ### 🎨 Code Style
+
 - TypeScript for type safety
 - ESLint for code quality
 - Tailwind CSS for styling
@@ -214,6 +258,7 @@ VLab integrates with OpenAI for:
 The application is designed to be deployed on modern hosting platforms:
 
 1. Build the application:
+
 ```bash
 npm run build
 ```
@@ -237,6 +282,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 🆘 Support
 
 For support and questions:
+
 - Create an issue in the repository
 - Check the documentation
 - Join our community discussions
