@@ -43,7 +43,7 @@ serve(async (req) => {
     const token = authHeader.replace('Bearer ', '')
     
     // Verify the user is authenticated
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token)
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser()
     if (authError || !user) {
       throw new Error('Unauthorized')
     }

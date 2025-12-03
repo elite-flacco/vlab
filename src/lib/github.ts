@@ -224,7 +224,7 @@ export const GITHUB_OAUTH_CONFIG = {
       client_id: this.clientId,
       redirect_uri: this.redirectUri,
       scope: this.scopes.join(" "),
-      state: crypto.randomUUID(), // CSRF protection
+      state: crypto?.randomUUID?.() || Math.random().toString(36), // CSRF protection
     });
 
     return `https://github.com/login/oauth/authorize?${params.toString()}`;
