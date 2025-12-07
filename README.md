@@ -242,14 +242,20 @@ VLab integrates with OpenAI for:
 - `npm run dev` - Start development server with hot reload
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build locally
-- `npm run lint` - Run ESLint for code quality checks
+- `npm run lint` - Run ESLint for code quality checks (strict mode, no warnings allowed)
+- `npm run lint:fix` - Auto-fix ESLint issues where possible
+- `npm run lint:check` - Run ESLint in quiet mode for CI/CD
+- `npm run typecheck` - Run TypeScript type checking without emitting files
+- `npm run format` - Auto-format code with Prettier
+- `npm run format:check` - Check code formatting compliance
 - `npm run server` - Run backend Express server only (for API proxying)
 - `npm run dev:full` - Run both frontend dev server and backend server concurrently
 
 ### 🎨 Code Style
 
 - TypeScript for type safety
-- ESLint for code quality
+- ESLint for code quality (strict mode with no warnings allowed)
+- Prettier for code formatting (v3.7.3)
 - Tailwind CSS for styling
 - Component-based architecture
 
