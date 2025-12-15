@@ -239,19 +239,65 @@ VLab integrates with OpenAI for:
 
 ### 📝 Available Scripts
 
+#### Development
+
 - `npm run dev` - Start development server with hot reload
+- `npm run dev:full` - Run both frontend dev server and backend server concurrently
+- `npm run server` - Run backend Express server only (for API proxying)
+
+#### Build & Preview
+
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build locally
-- `npm run lint` - Run ESLint for code quality checks
-- `npm run server` - Run backend Express server only (for API proxying)
-- `npm run dev:full` - Run both frontend dev server and backend server concurrently
+
+#### Code Quality
+
+- `npm run lint` - Run ESLint for code quality checks (strict mode, no warnings allowed)
+- `npm run lint:fix` - Auto-fix ESLint issues where possible
+- `npm run lint:check` - Run ESLint in quiet mode for CI/CD
+- `npm run typecheck` - Run TypeScript type checking without emitting files
+
+#### Formatting
+
+- `npm run format` - Auto-format code with Prettier (includes TypeScript, React, CSS, and Markdown files)
+- `npm run format:check` - Check code formatting compliance
 
 ### 🎨 Code Style
 
-- TypeScript for type safety
-- ESLint for code quality
-- Tailwind CSS for styling
-- Component-based architecture
+- **TypeScript** for type safety across all components
+- **ESLint** for code quality (strict mode, zero warnings policy)
+- **Prettier** for consistent code formatting (configured in `.prettierrc`)
+  - 80 character line width
+  - 2 space indentation
+  - Semicolons enabled
+  - LF line endings
+- **Tailwind CSS** for utility-first styling
+- **Component-based architecture** with feature-based organization
+
+### 🔒 Security
+
+VLab implements comprehensive security measures:
+
+- **Row Level Security (RLS)** - All database tables protected with multi-tenant isolation
+- **Content Security Policy (CSP)** - Strict CSP headers configured for production deployment
+- **Encrypted Secrets Storage** - Sensitive credentials encrypted at rest, never retrieved in SELECT queries
+- **Input Validation** - Comprehensive client and server-side validation
+- **OAuth Security** - Secure token storage with encryption for GitHub integration
+
+For detailed security documentation, see:
+
+- `docs/CSP_IMPLEMENTATION.md` - Content Security Policy configuration
+- `docs/SECURITY_AUDIT_REPORT.md` - Complete security audit findings
+
+### 🔄 CI/CD
+
+Automated workflows for continuous integration and delivery:
+
+- **CI Pipeline** (`.github/workflows/ci.yml`) - Runs linting, type checking, and builds on every push
+- **Claude Code Assistant** (`.github/workflows/cc-assistant.yml`) - AI-powered code reviews and suggestions
+- **Auto-review** (`.github/workflows/cc-auto-review.yml`) - Automated PR reviews
+- **Changelog Bot** (`.github/workflows/changelogbot.yml`) - Automatically maintains changelog
+- **Dependabot Auto-merge** (`.github/workflows/auto-merge-dependabot.yml`) - Automatically merges dependency updates
 
 ## 🚢 Deployment
 
@@ -266,6 +312,12 @@ npm run build
 2. Deploy the `dist` folder to your hosting provider
 3. Ensure environment variables are configured in your hosting environment
 4. Set up your Supabase database with the provided migrations
+
+### 🛡️ Deployment Configuration
+
+- **Security Headers** (`public/_headers`) - Content Security Policy and security headers configuration
+- **Redirects** (`public/_redirects`) - SPA routing configuration for static hosting platforms
+- **Environment Variables** - Configure all required environment variables in your hosting platform
 
 ## 🤝 Contributing
 
