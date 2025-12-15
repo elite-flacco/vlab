@@ -1,10 +1,9 @@
 import { DeploymentItem } from "../types";
 
-export interface DeploymentTemplate
-  extends Omit<
-    DeploymentItem,
-    "id" | "project_id" | "created_at" | "updated_at" | "position" | "platform"
-  > {
+export interface DeploymentTemplate extends Omit<
+  DeploymentItem,
+  "id" | "project_id" | "created_at" | "updated_at" | "position" | "platform"
+> {
   platform?: DeploymentItem["platform"]; // Make platform optional for universal templates
 }
 

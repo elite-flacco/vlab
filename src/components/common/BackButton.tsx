@@ -1,8 +1,7 @@
 import React from "react";
 import { ArrowLeft } from "lucide-react";
 
-interface BackButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface BackButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children?: React.ReactNode;
 }
 
