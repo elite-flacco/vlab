@@ -259,7 +259,7 @@ VLab integrates with OpenAI for:
 
 #### Formatting
 
-- `npm run format` - Auto-format code with Prettier (includes TypeScript, React, CSS, and Markdown files)
+- `npm run format` - Auto-format code with Prettier (formats files in src/ directory)
 - `npm run format:check` - Check code formatting compliance
 
 ### 🎨 Code Style
