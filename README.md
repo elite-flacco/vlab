@@ -105,6 +105,9 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key_here
 
 # Optional - for GitHub integration
 VITE_GITHUB_CLIENT_ID=your_github_oauth_app_client_id_here
+
+# Optional - for Google Analytics tracking
+VITE_GA_MEASUREMENT_ID=your_google_analytics_measurement_id_here
 ```
 
 ### 🛠️ GitHub Integration Setup
