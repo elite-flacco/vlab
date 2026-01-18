@@ -282,15 +282,10 @@ VLab integrates with OpenAI for:
 VLab implements comprehensive security measures:
 
 - **Row Level Security (RLS)** - All database tables protected with multi-tenant isolation
-- **Content Security Policy (CSP)** - Strict CSP headers configured for production deployment
+- **Content Security Policy (CSP)** - Strict CSP headers configured for production deployment (see `public/_headers`)
 - **Encrypted Secrets Storage** - Sensitive credentials encrypted at rest, never retrieved in SELECT queries
 - **Input Validation** - Comprehensive client and server-side validation
 - **OAuth Security** - Secure token storage with encryption for GitHub integration
-
-For detailed security documentation, see:
-
-- `docs/CSP_IMPLEMENTATION.md` - Content Security Policy configuration
-- `docs/SECURITY_AUDIT_REPORT.md` - Complete security audit findings
 
 ### 🔄 CI/CD
 
