@@ -159,7 +159,7 @@ export const db = {
     const operation = async () =>
       supabase
         .from("profiles")
-        .update(updates)
+        .update(updates as any)
         .eq("id", userId)
         .select()
         .single();
@@ -232,7 +232,11 @@ export const db = {
 
   createProject: async (project: Record<string, unknown>) => {
     const operation = async () =>
-      supabase.from("projects").insert(project).select().single();
+      supabase
+        .from("projects")
+        .insert(project as any)
+        .select()
+        .single();
 
     return withTimeout(
       withTiming("DB CreateProject", operation),
@@ -243,7 +247,12 @@ export const db = {
 
   updateProject: async (id: string, updates: Record<string, unknown>) => {
     const operation = async () =>
-      supabase.from("projects").update(updates).eq("id", id).select().single();
+      supabase
+        .from("projects")
+        .update(updates as any)
+        .eq("id", id)
+        .select()
+        .single();
 
     return withTimeout(
       withTiming("DB UpdateProject", operation),
@@ -349,7 +358,7 @@ export const db = {
     const operation = async () =>
       supabase
         .from("prds")
-        .insert(prd)
+        .insert(prd as any)
         .select(
           `
         *,
@@ -370,7 +379,7 @@ export const db = {
     const operation = async () =>
       supabase
         .from("prds")
-        .update(updates)
+        .update(updates as any)
         .eq("id", id)
         .select(
           `
@@ -541,7 +550,11 @@ export const db = {
 
   createTask: async (task: Record<string, unknown>) => {
     const operation = async () =>
-      supabase.from("tasks").insert(task).select().single();
+      supabase
+        .from("tasks")
+        .insert(task as any)
+        .select()
+        .single();
 
     return withTimeout(
       withTiming("DB CreateTask", operation),
@@ -552,7 +565,12 @@ export const db = {
 
   updateTask: async (id: string, updates: Record<string, unknown>) => {
     const operation = async () =>
-      supabase.from("tasks").update(updates).eq("id", id).select().single();
+      supabase
+        .from("tasks")
+        .update(updates as any)
+        .eq("id", id)
+        .select()
+        .single();
 
     return withTimeout(
       withTiming("DB UpdateTask", operation),
@@ -589,7 +607,11 @@ export const db = {
 
   createPrompt: async (prompt: Record<string, unknown>) => {
     const operation = async () =>
-      supabase.from("prompts").insert(prompt).select().single();
+      supabase
+        .from("prompts")
+        .insert(prompt as any)
+        .select()
+        .single();
 
     return withTimeout(
       withTiming("DB CreatePrompt", operation),
@@ -600,7 +622,12 @@ export const db = {
 
   updatePrompt: async (id: string, updates: Record<string, unknown>) => {
     const operation = async () =>
-      supabase.from("prompts").update(updates).eq("id", id).select().single();
+      supabase
+        .from("prompts")
+        .update(updates as any)
+        .eq("id", id)
+        .select()
+        .single();
 
     return withTimeout(
       withTiming("DB UpdatePrompt", operation),
@@ -638,7 +665,11 @@ export const db = {
 
   createScratchpadNote: async (note: Record<string, unknown>) => {
     const operation = async () =>
-      supabase.from("scratchpad_notes").insert(note).select().single();
+      supabase
+        .from("scratchpad_notes")
+        .insert(note as any)
+        .select()
+        .single();
 
     return withTimeout(
       withTiming("DB CreateScratchpadNote", operation),
@@ -654,7 +685,7 @@ export const db = {
     const operation = async () =>
       supabase
         .from("scratchpad_notes")
-        .update(updates)
+        .update(updates as any)
         .eq("id", id)
         .select()
         .single();
@@ -695,7 +726,11 @@ export const db = {
 
   createGlobalNote: async (note: Record<string, unknown>) => {
     const operation = async () =>
-      supabase.from("global_notes").insert(note).select().single();
+      supabase
+        .from("global_notes")
+        .insert(note as any)
+        .select()
+        .single();
 
     return withTimeout(
       withTiming("DB CreateGlobalNote", operation),
@@ -708,7 +743,7 @@ export const db = {
     const operation = async () =>
       supabase
         .from("global_notes")
-        .update(updates)
+        .update(updates as any)
         .eq("id", id)
         .select()
         .single();
@@ -749,7 +784,11 @@ export const db = {
 
   createRoadmapItem: async (item: Record<string, unknown>) => {
     const operation = async () =>
-      supabase.from("roadmap_items").insert(item).select().single();
+      supabase
+        .from("roadmap_items")
+        .insert(item as any)
+        .select()
+        .single();
 
     return withTimeout(
       withTiming("DB CreateRoadmapItem", operation),
@@ -762,7 +801,7 @@ export const db = {
     const operation = async () =>
       supabase
         .from("roadmap_items")
-        .update(updates)
+        .update(updates as any)
         .eq("id", id)
         .select()
         .single();
@@ -797,7 +836,7 @@ export const db = {
     const operation = async () =>
       supabase
         .from("secrets")
-        .insert(secret)
+        .insert(secret as any)
         .select(
           "id, name, description, category, is_active, created_at, updated_at"
         )
@@ -814,7 +853,7 @@ export const db = {
     const operation = async () =>
       supabase
         .from("secrets")
-        .update(updates)
+        .update(updates as any)
         .eq("id", id)
         .select(
           "id, name, description, category, is_active, created_at, updated_at"
@@ -872,7 +911,11 @@ export const db = {
 
   createTemplate: async (template: Record<string, unknown>) => {
     const operation = async () =>
-      supabase.from("templates").insert(template).select().single();
+      supabase
+        .from("templates")
+        .insert(template as any)
+        .select()
+        .single();
 
     return withTimeout(
       withTiming("DB CreateTemplate", operation),
@@ -885,7 +928,7 @@ export const db = {
   getModuleData: async (table: string, projectId: string) => {
     const operation = async () =>
       supabase
-        .from(table)
+        .from(table as any)
         .select("*")
         .eq("project_id", projectId)
         .order("created_at", { ascending: false });
@@ -899,7 +942,11 @@ export const db = {
 
   createModuleData: async (table: string, data: Record<string, unknown>) => {
     const operation = async () =>
-      supabase.from(table).insert(data).select().single();
+      supabase
+        .from(table as any)
+        .insert(data as any)
+        .select()
+        .single();
 
     return withTimeout(
       withTiming(`DB CreateModuleData(${table})`, operation),
@@ -914,7 +961,12 @@ export const db = {
     updates: Record<string, unknown>
   ) => {
     const operation = async () =>
-      supabase.from(table).update(updates).eq("id", id).select().single();
+      supabase
+        .from(table as any)
+        .update(updates as any)
+        .eq("id", id)
+        .select()
+        .single();
 
     return withTimeout(
       withTiming(`DB UpdateModuleData(${table})`, operation),
@@ -924,7 +976,11 @@ export const db = {
   },
 
   deleteModuleData: async (table: string, id: string) => {
-    const operation = async () => supabase.from(table).delete().eq("id", id);
+    const operation = async () =>
+      supabase
+        .from(table as any)
+        .delete()
+        .eq("id", id);
 
     return withTimeout(
       withTiming(`DB DeleteModuleData(${table})`, operation),
@@ -951,7 +1007,11 @@ export const db = {
 
   createDeploymentItem: async (item: Record<string, unknown>) => {
     const operation = async () =>
-      supabase.from("deployment_items").insert(item).select().single();
+      supabase
+        .from("deployment_items")
+        .insert(item as any)
+        .select()
+        .single();
 
     return withTimeout(
       withTiming("DB CreateDeploymentItem", operation),
@@ -967,7 +1027,7 @@ export const db = {
     const operation = async () =>
       supabase
         .from("deployment_items")
-        .update(updates)
+        .update(updates as any)
         .eq("id", id)
         .select()
         .single();
@@ -1011,7 +1071,7 @@ export const db = {
     const operation = async () =>
       supabase
         .from("github_repositories")
-        .upsert(repository, {
+        .upsert(repository as any, {
           onConflict: "project_id,repo_full_name",
           ignoreDuplicates: false,
         })
@@ -1032,7 +1092,7 @@ export const db = {
     const operation = async () =>
       supabase
         .from("github_repositories")
-        .update(updates)
+        .update(updates as any)
         .eq("id", id)
         .select()
         .single();
@@ -1109,7 +1169,7 @@ export const db = {
     const operation = async () =>
       supabase
         .from("github_tokens")
-        .insert(token)
+        .insert(token as any)
         .select(
           "id, token_scope, github_username, github_user_id, expires_at, is_active, created_at, updated_at"
         )
@@ -1126,7 +1186,7 @@ export const db = {
     const operation = async () =>
       supabase
         .from("github_tokens")
-        .update(updates)
+        .update(updates as any)
         .eq("id", id)
         .select(
           "id, token_scope, github_username, github_user_id, expires_at, is_active, created_at, updated_at"
@@ -1200,7 +1260,7 @@ export const db = {
     const operation = async () =>
       supabase
         .from("github_issues")
-        .insert(issue)
+        .insert(issue as any)
         .select(
           `
         *,
@@ -1220,7 +1280,7 @@ export const db = {
     const operation = async () =>
       supabase
         .from("github_issues")
-        .update(updates)
+        .update(updates as any)
         .eq("id", id)
         .select(
           `
@@ -1270,7 +1330,11 @@ export const db = {
 
   createAttachment: async (attachment: Record<string, unknown>) => {
     const operation = async () =>
-      supabase.from("attachments").insert(attachment).select().single();
+      supabase
+        .from("attachments")
+        .insert(attachment as any)
+        .select()
+        .single();
 
     return withTimeout(
       withTiming("DB CreateAttachment", operation),
@@ -1283,7 +1347,7 @@ export const db = {
     const operation = async () =>
       supabase
         .from("attachments")
-        .update(updates)
+        .update(updates as any)
         .eq("id", id)
         .select()
         .single();

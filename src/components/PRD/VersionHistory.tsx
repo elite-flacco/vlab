@@ -113,7 +113,7 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
     try {
       const { data, error: fetchError } = await db.getPRDVersions(prdId);
       if (fetchError) throw fetchError;
-      setVersions(data || []);
+      setVersions((data as any) || []);
     } catch (err: Error | unknown) {
       setError(
         err instanceof Error ? err.message : "Failed to fetch version history"
