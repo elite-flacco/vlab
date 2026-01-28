@@ -95,7 +95,7 @@ export const DeploymentDetailView: React.FC = () => {
     try {
       const { data, error: fetchError } = await db.getDeploymentItems(id);
       if (fetchError) throw fetchError;
-      setDeploymentItems(data || []);
+      setDeploymentItems((data as any) || []);
     } catch (err: Error | unknown) {
       setError(
         err instanceof Error ? err.message : "Failed to fetch deployment items"
@@ -126,7 +126,7 @@ export const DeploymentDetailView: React.FC = () => {
       const updatedItems = deploymentItems.map(item =>
         item.id === itemId ? data : item
       );
-      setDeploymentItems(updatedItems);
+      setDeploymentItems(updatedItems as any);
       setEditingItemId(null);
     } catch (err: Error | unknown) {
       setError(
@@ -166,7 +166,7 @@ export const DeploymentDetailView: React.FC = () => {
         await db.createDeploymentItem(newItemData);
       if (createError) throw createError;
 
-      setDeploymentItems(prev => [...prev, data]);
+      setDeploymentItems(prev => [...prev, data] as any);
       setNewItem(null);
     } catch (err: Error | unknown) {
       setError(
@@ -480,7 +480,7 @@ export const DeploymentDetailView: React.FC = () => {
           const { data, error: createError } =
             await db.createDeploymentItem(taskData);
           if (createError) throw createError;
-          createdTasks.push(data);
+          createdTasks.push(data as any);
         } catch (err: Error | unknown) {
           console.error("Failed to create deployment item:", err);
           failedTasks.push(taskData.title || "Unknown task");
@@ -1046,7 +1046,7 @@ export const DeploymentDetailView: React.FC = () => {
                               ? { ...i, title: e.target.value }
                               : i
                           );
-                          setDeploymentItems(updatedItems);
+                          setDeploymentItems(updatedItems as any);
                         }}
                         className="form-input"
                         placeholder="Deployment task title"
@@ -1065,7 +1065,7 @@ export const DeploymentDetailView: React.FC = () => {
                               ? { ...i, description: e.target.value }
                               : i
                           );
-                          setDeploymentItems(updatedItems);
+                          setDeploymentItems(updatedItems as any);
                         }}
                         className="form-textarea"
                         rows={2}
@@ -1086,7 +1086,7 @@ export const DeploymentDetailView: React.FC = () => {
                                 ? { ...i, status: status as any }
                                 : i
                             );
-                            setDeploymentItems(updatedItems);
+                            setDeploymentItems(updatedItems as any);
                           }}
                         />
                       </div>
@@ -1103,7 +1103,7 @@ export const DeploymentDetailView: React.FC = () => {
                                 ? { ...i, priority: priority as any }
                                 : i
                             );
-                            setDeploymentItems(updatedItems);
+                            setDeploymentItems(updatedItems as any);
                           }}
                         />
                       </div>
@@ -1120,7 +1120,7 @@ export const DeploymentDetailView: React.FC = () => {
                                 ? { ...i, category: e.target.value as any }
                                 : i
                             );
-                            setDeploymentItems(updatedItems);
+                            setDeploymentItems(updatedItems as any);
                           }}
                           className="form-select"
                         >
@@ -1149,7 +1149,7 @@ export const DeploymentDetailView: React.FC = () => {
                                 ? { ...i, platform: e.target.value as any }
                                 : i
                             );
-                            setDeploymentItems(updatedItems);
+                            setDeploymentItems(updatedItems as any);
                           }}
                           className="form-select"
                         >

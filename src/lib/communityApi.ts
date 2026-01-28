@@ -169,11 +169,14 @@ class CommunityAPI {
   }
 
   async savePost(postId: string) {
+    const userId = (await supabase.auth.getUser()).data.user?.id;
+    if (!userId) throw new Error("User not authenticated");
+
     const { data, error } = await supabase
       .from("community_post_saves")
       .insert({
         post_id: postId,
-        user_id: (await supabase.auth.getUser()).data.user?.id,
+        user_id: userId,
       })
       .select()
       .single();
@@ -183,11 +186,14 @@ class CommunityAPI {
   }
 
   async unsavePost(postId: string) {
+    const userId = (await supabase.auth.getUser()).data.user?.id;
+    if (!userId) throw new Error("User not authenticated");
+
     const { error } = await supabase
       .from("community_post_saves")
       .delete()
       .eq("post_id", postId)
-      .eq("user_id", (await supabase.auth.getUser()).data.user?.id);
+      .eq("user_id", userId);
 
     if (error) throw error;
   }
@@ -242,6 +248,9 @@ class CommunityAPI {
   }
 
   async getSavedPosts(params: ListPostsParams = {}) {
+    const userId = (await supabase.auth.getUser()).data.user?.id;
+    if (!userId) throw new Error("User not authenticated");
+
     const { data, error } = await supabase
       .from("community_post_saves")
       .select(
@@ -253,7 +262,7 @@ class CommunityAPI {
         )
       `
       )
-      .eq("user_id", (await supabase.auth.getUser()).data.user?.id)
+      .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .range(
         (params.page || 1 - 1) * (params.limit || 10),

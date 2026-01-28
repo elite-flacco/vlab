@@ -58,7 +58,7 @@ export const PromptsDetailView: React.FC = () => {
     try {
       const { data, error: fetchError } = await db.getPrompts(id);
       if (fetchError) throw fetchError;
-      setPrompts(data || []);
+      setPrompts((data as any) || []);
     } catch (err: Error | unknown) {
       setError(err instanceof Error ? err.message : "Failed to fetch prompts");
     } finally {
@@ -88,7 +88,7 @@ export const PromptsDetailView: React.FC = () => {
       const updatedPrompts = prompts.map(prompt =>
         prompt.id === promptId ? data : prompt
       );
-      setPrompts(updatedPrompts);
+      setPrompts(updatedPrompts as any);
       setEditingPromptId(null);
     } catch (err: Error | unknown) {
       setError(err instanceof Error ? err.message : "Failed to update prompt");
@@ -121,7 +121,7 @@ export const PromptsDetailView: React.FC = () => {
       if (createError) throw createError;
 
       // Add to local state
-      setPrompts(prev => [data, ...prev]);
+      setPrompts(prev => [data, ...prev] as any);
       setNewPrompt(null);
     } catch (err: Error | unknown) {
       setError(err instanceof Error ? err.message : "Failed to create prompt");
@@ -499,7 +499,7 @@ export const PromptsDetailView: React.FC = () => {
                                 ? { ...p, name: e.target.value }
                                 : p
                             );
-                            setPrompts(updatedPrompts);
+                            setPrompts(updatedPrompts as any);
                           }}
                           className="form-input"
                           placeholder="Prompt name"
@@ -519,7 +519,7 @@ export const PromptsDetailView: React.FC = () => {
                                 ? { ...p, category: e.target.value }
                                 : p
                             );
-                            setPrompts(updatedPrompts);
+                            setPrompts(updatedPrompts as any);
                           }}
                           className="form-select"
                         >
@@ -545,7 +545,7 @@ export const PromptsDetailView: React.FC = () => {
                               ? { ...p, description: e.target.value }
                               : p
                           );
-                          setPrompts(updatedPrompts);
+                          setPrompts(updatedPrompts as any);
                         }}
                         className="form-input"
                         placeholder="Brief description of the prompt"
@@ -564,7 +564,7 @@ export const PromptsDetailView: React.FC = () => {
                               ? { ...p, content: e.target.value }
                               : p
                           );
-                          setPrompts(updatedPrompts);
+                          setPrompts(updatedPrompts as any);
                         }}
                         className="form-textarea"
                         rows={6}
@@ -585,7 +585,7 @@ export const PromptsDetailView: React.FC = () => {
                               ? { ...p, tags: parseTagsInput(e.target.value) }
                               : p
                           );
-                          setPrompts(updatedPrompts);
+                          setPrompts(updatedPrompts as any);
                         }}
                         className="form-input"
                         placeholder="ai, coding, documentation"
@@ -603,7 +603,7 @@ export const PromptsDetailView: React.FC = () => {
                                 ? { ...p, is_template: e.target.checked }
                                 : p
                             );
-                            setPrompts(updatedPrompts);
+                            setPrompts(updatedPrompts as any);
                           }}
                           className="form-checkbox"
                         />

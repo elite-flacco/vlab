@@ -145,7 +145,7 @@ export const TasksDetailView: React.FC = () => {
         })
       );
 
-      setTasks(tasksWithExtendedData);
+      setTasks(tasksWithExtendedData as any);
     } catch (err: Error | unknown) {
       setError(err instanceof Error ? err.message : "Failed to fetch tasks");
     } finally {
@@ -178,7 +178,7 @@ export const TasksDetailView: React.FC = () => {
             }
           : task
       );
-      setTasks(updatedTasks);
+      setTasks(updatedTasks as any);
       setEditingTaskId(null);
     } catch (err: Error | unknown) {
       setError(err instanceof Error ? err.message : "Failed to update task");
@@ -210,7 +210,7 @@ export const TasksDetailView: React.FC = () => {
       if (createError) throw createError;
 
       // Add to local state
-      setTasks(prev => [...prev, data]);
+      setTasks(prev => [...prev, data] as any);
       setNewTask(null);
     } catch (err: Error | unknown) {
       setError(err instanceof Error ? err.message : "Failed to create task");
@@ -1059,7 +1059,7 @@ export const TasksDetailView: React.FC = () => {
                               ? { ...t, title: e.target.value }
                               : t
                           );
-                          setTasks(updatedTasks);
+                          setTasks(updatedTasks as any);
                         }}
                         className="form-input"
                         placeholder="Task title"
@@ -1078,7 +1078,7 @@ export const TasksDetailView: React.FC = () => {
                               ? { ...t, description: e.target.value }
                               : t
                           );
-                          setTasks(updatedTasks);
+                          setTasks(updatedTasks as any);
                         }}
                         className="form-textarea"
                         rows={2}
@@ -1099,7 +1099,7 @@ export const TasksDetailView: React.FC = () => {
                                 ? { ...t, status: status as any }
                                 : t
                             );
-                            setTasks(updatedTasks);
+                            setTasks(updatedTasks as any);
                           }}
                         />
                       </div>
@@ -1116,7 +1116,7 @@ export const TasksDetailView: React.FC = () => {
                                 ? { ...t, priority: priority as any }
                                 : t
                             );
-                            setTasks(updatedTasks);
+                            setTasks(updatedTasks as any);
                           }}
                         />
                       </div>
@@ -1130,7 +1130,7 @@ export const TasksDetailView: React.FC = () => {
                             const updatedTasks = tasks.map(t =>
                               t.id === task.id ? { ...t, tags } : t
                             );
-                            setTasks(updatedTasks);
+                            setTasks(updatedTasks as any);
                           }}
                           placeholder="Select or add tags..."
                         />
