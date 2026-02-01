@@ -13,6 +13,7 @@ Check it out at [https://v-lab.dev](https://v-lab.dev).
 - **Tasks** - Minimalistic task management with priorities, progress tracking, and GitHub issue creation
 - **Scratchpad** - Flexible note-taking and idea capture with tagging, search, and organization
 - **Prompts** - AI prompt library for consistent and effective AI interactions with categorization
+- **Secrets** - Encrypted storage for sensitive credentials (values never retrieved in SELECT queries)
 - **Design** - Design documentation, asset management, and AI-powered design task generation
 - **Deployment** - Deployment checklists, configuration tracking, and platform-specific templates
 
