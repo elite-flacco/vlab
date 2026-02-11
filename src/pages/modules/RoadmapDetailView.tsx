@@ -65,7 +65,7 @@ export const RoadmapDetailView: React.FC = () => {
     try {
       const { data, error: fetchError } = await db.getRoadmapItems(id);
       if (fetchError) throw fetchError;
-      setRoadmapItems(data || []);
+      setRoadmapItems((data as any) || []);
     } catch (err: Error | unknown) {
       setError(
         err instanceof Error ? err.message : "Failed to fetch roadmap items"
@@ -106,7 +106,7 @@ export const RoadmapDetailView: React.FC = () => {
       const updatedItems = roadmapItems.map(item =>
         item.id === itemId ? data || { ...item, ...formattedUpdates } : item
       );
-      setRoadmapItems(updatedItems);
+      setRoadmapItems(updatedItems as any);
       setEditingItemId(null);
     } catch (err: Error | unknown) {
       setError(
@@ -160,7 +160,7 @@ export const RoadmapDetailView: React.FC = () => {
       if (createError) throw createError;
 
       // Add to local state
-      setRoadmapItems(prev => [...prev, data]);
+      setRoadmapItems(prev => [...prev, data] as any);
       setNewRoadmapItem(null);
     } catch (err: Error | unknown) {
       setError(
@@ -187,7 +187,7 @@ export const RoadmapDetailView: React.FC = () => {
         .filter(item => item.id !== itemId)
         .map((item, index) => ({ ...item, position: index }));
 
-      setRoadmapItems(updatedItems);
+      setRoadmapItems(updatedItems as any);
       setEditingItemId(null);
     } catch (err: Error | unknown) {
       setError(
@@ -383,7 +383,7 @@ export const RoadmapDetailView: React.FC = () => {
                   const updatedItems = roadmapItems.map(i =>
                     i.id === item.id ? { ...i, title: e.target.value } : i
                   );
-                  setRoadmapItems(updatedItems);
+                  setRoadmapItems(updatedItems as any);
                 }}
                 className="form-input"
                 placeholder="Phase title"
@@ -401,7 +401,7 @@ export const RoadmapDetailView: React.FC = () => {
                   const updatedItems = roadmapItems.map(i =>
                     i.id === item.id ? { ...i, description: e.target.value } : i
                   );
-                  setRoadmapItems(updatedItems);
+                  setRoadmapItems(updatedItems as any);
                 }}
                 className="form-textarea"
                 rows={3}
@@ -422,7 +422,7 @@ export const RoadmapDetailView: React.FC = () => {
                         ? { ...i, status: e.target.value as any }
                         : i
                     );
-                    setRoadmapItems(updatedItems);
+                    setRoadmapItems(updatedItems as any);
                   }}
                   className="form-select"
                 >
@@ -446,7 +446,7 @@ export const RoadmapDetailView: React.FC = () => {
                           ? { ...i, phase: e.target.value as any }
                           : i
                       );
-                      setRoadmapItems(updatedItems);
+                      setRoadmapItems(updatedItems as any);
                     }}
                     className="form-select"
                   >
@@ -475,7 +475,7 @@ export const RoadmapDetailView: React.FC = () => {
                             }
                           : i
                       );
-                      setRoadmapItems(updatedItems);
+                      setRoadmapItems(updatedItems as any);
                     }}
                     className="form-input w-full pr-8 text-sm"
                     id={`end-date-${item.id}`}
@@ -489,7 +489,7 @@ export const RoadmapDetailView: React.FC = () => {
                           const updatedItems = roadmapItems.map(i =>
                             i.id === item.id ? { ...i, end_date: null } : i
                           );
-                          setRoadmapItems(updatedItems);
+                          setRoadmapItems(updatedItems as any);
                         }}
                         className="text-foreground-dim hover:text-foreground transition-colors"
                         title="Clear date"

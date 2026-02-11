@@ -286,7 +286,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             avatar_url:
               data.user.user_metadata?.avatar_url || profileData?.avatar_url,
             is_anonymous: profileData?.is_anonymous ?? true,
-            anonymous_claimed_at: profileData?.anonymous_claimed_at,
+            anonymous_claimed_at:
+              profileData?.anonymous_claimed_at || undefined,
             created_at: data.user.created_at,
             updated_at: data.user.updated_at || data.user.created_at,
           };
@@ -588,7 +589,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             avatar_url:
               data.user.user_metadata?.avatar_url || profileData?.avatar_url,
             is_anonymous: profileData?.is_anonymous ?? false,
-            anonymous_claimed_at: profileData?.anonymous_claimed_at,
+            anonymous_claimed_at:
+              profileData?.anonymous_claimed_at || undefined,
             created_at: data.user.created_at,
             updated_at: data.user.updated_at || data.user.created_at,
           };

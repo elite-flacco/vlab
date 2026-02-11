@@ -110,7 +110,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
           throw new Error(`Database error: ${dbError.message}`);
         }
 
-        onUploadComplete(attachment);
+        onUploadComplete(attachment as any);
       } catch (error) {
         console.error("Upload failed:", error);
         onError(error instanceof Error ? error.message : "Upload failed");

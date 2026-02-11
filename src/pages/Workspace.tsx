@@ -302,7 +302,7 @@ export const Workspace: React.FC = () => {
               // Project not found, redirect to dashboard
               navigate("/");
             } else if (data) {
-              setCurrentProject(data);
+              setCurrentProject(data as any);
             } else {
               console.log(
                 "❌ Workspace: Project not found, redirecting to dashboard"
