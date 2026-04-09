@@ -248,7 +248,7 @@
   .dark .form-input:-moz-autofill {
     background-color: #0f0f0f !important;
     color: #ffffff !important;
-    border-color: var(--foreground-dim/30) !important;
+    border-color: rgba(160, 160, 160, 0.3) !important;
   }
 
   /* Light mode autofill overrides */
