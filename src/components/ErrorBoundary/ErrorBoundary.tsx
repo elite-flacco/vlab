@@ -64,7 +64,7 @@ export class ErrorBoundary extends Component<
                 <p className="text-foreground-dim">
                   Apologies, we'll get it fixed soon.
                 </p>
-                {process.env.NODE_ENV === "development" && this.state.error && (
+                {import.meta.env.DEV && this.state.error && (
                   <details className="mt-4 text-left text-sm text-foreground-dim">
                     <summary className="cursor-pointer font-medium">
                       Error details
@@ -97,14 +97,3 @@ export class ErrorBoundary extends Component<
     return this.props.children;
   }
 }
-
-export const withErrorBoundary = <P extends object>(
-  Component: React.ComponentType<P>,
-  context?: string
-) => {
-  return (props: P) => (
-    <ErrorBoundary context={context}>
-      <Component {...props} />
-    </ErrorBoundary>
-  );
-};
