@@ -8,11 +8,11 @@ import { GitHubRepositorySelector } from "./GitHubRepositorySelector";
 interface TaskItem {
   id: string;
   title: string;
-  description?: string;
+  description: string;
   status: string;
   priority: string;
-  tags?: string[];
-  due_date?: string;
+  tags: string[];
+  due_date: string | null;
 }
 
 interface GitHubRepo {
@@ -26,11 +26,15 @@ interface GitHubRepo {
 
 interface GitHubIssue {
   id: string;
-  github_issue_number: number;
-  github_issue_url: string;
+  task_id: string;
+  repository_id: string;
+  issue_number: number;
+  issue_url: string;
   issue_title: string;
-  github_issue_state: string;
+  issue_state: string;
   created_at: string;
+  updated_at: string;
+  repository?: any;
 }
 
 interface GitHubIssueCreatorProps {
@@ -205,12 +209,11 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
               GitHub Issue Created
             </h4>
             <p className="text-sm text-primary mt-1">
-              This task is linked to GitHub issue #
-              {existingIssue.github_issue_number}
+              This task is linked to GitHub issue #{existingIssue.issue_number}
             </p>
             <div className="mt-2">
               <a
-                href={existingIssue.github_issue_url}
+                href={existingIssue.issue_url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center space-x-1"

@@ -34,13 +34,15 @@ interface TaskItem {
   project_id: string;
   title: string;
   description: string;
-  status: "todo" | "in_progress" | "done" | "blocked" | "cancelled";
-  priority: "low" | "medium" | "high" | "highest";
-  due_date?: string;
+  status: string;
+  priority: string;
+  estimated_hours: number | null;
+  actual_hours: number | null;
+  due_date: string | null;
   tags: string[];
   dependencies: string[];
-  assignee_id?: string;
-  parent_task_id?: string;
+  assignee_id: string | null;
+  parent_task_id: string | null;
   position: number;
   created_at: string;
   updated_at: string;
@@ -57,10 +59,15 @@ interface TaskItem {
   }>;
   github_issue?: {
     id: string;
-    github_issue_number: number;
-    github_issue_url: string;
+    issue_number: number;
+    issue_url: string;
     issue_title: string;
-    github_issue_state: string;
+    issue_state: string;
+    repository_id: string;
+    task_id: string;
+    created_at: string;
+    updated_at: string;
+    repository?: any;
   };
 }
 
@@ -1274,11 +1281,11 @@ export const TasksDetailView: React.FC = () => {
                           <div className="flex items-center space-x-1 opacity-80 group-hover:opacity-100 transition-opacity">
                             {task.github_issue ? (
                               <a
-                                href={task.github_issue.github_issue_url}
+                                href={task.github_issue.issue_url}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="p-1.5 text-foreground-dim hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
-                                title={`View GitHub issue #${task.github_issue.github_issue_number}`}
+                                title={`View GitHub issue #${task.github_issue.issue_number}`}
                               >
                                 <ExternalLink className="w-3 h-3" />
                               </a>
@@ -1330,16 +1337,14 @@ export const TasksDetailView: React.FC = () => {
 
                         {task.github_issue && (
                           <a
-                            href={task.github_issue.github_issue_url}
+                            href={task.github_issue.issue_url}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center space-x-1 text-xs text-primary hover:text-primary/80 transition-colors"
                             title="Linked to GitHub issue"
                           >
                             <Github className="w-3 h-3" />
-                            <span>
-                              #{task.github_issue.github_issue_number}
-                            </span>
+                            <span>#{task.github_issue.issue_number}</span>
                           </a>
                         )}
 

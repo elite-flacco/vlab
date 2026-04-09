@@ -75,11 +75,13 @@ import { db } from "../../lib/supabase";
 
 interface PRDVersion {
   id: string;
+  prd_id: string;
   version_number: number;
   title: string;
   content: string;
-  change_description?: string;
-  created_by_profile?: { name: string; email: string };
+  change_description: string | null;
+  created_by: string | null;
+  created_by_profile?: { name: string; email: string } | null;
   created_at: string;
 }
 

@@ -2,9 +2,24 @@ import { DeploymentItem } from "../types";
 
 export interface DeploymentTemplate extends Omit<
   DeploymentItem,
-  "id" | "project_id" | "created_at" | "updated_at" | "position" | "platform"
+  | "id"
+  | "project_id"
+  | "created_at"
+  | "updated_at"
+  | "position"
+  | "platform"
+  | "estimated_hours"
+  | "actual_hours"
+  | "due_date"
+  | "assignee_id"
+  | "completion_date"
 > {
-  platform?: DeploymentItem["platform"]; // Make platform optional for universal templates
+  platform?: string; // Make platform optional for universal templates
+  estimated_hours?: number | null;
+  actual_hours?: number | null;
+  due_date?: string | null;
+  assignee_id?: string | null;
+  completion_date?: string | null;
 }
 
 export const PLATFORM_TEMPLATES: Record<string, DeploymentTemplate[]> = {

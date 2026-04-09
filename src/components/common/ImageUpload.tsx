@@ -15,8 +15,9 @@ interface ImageUploadProps {
     file_size: number;
     mime_type: string;
     storage_path: string;
-    alt_text?: string;
-    caption?: string;
+    alt_text?: string | null;
+    caption?: string | null;
+    [key: string]: unknown;
   }) => void;
   onError: (error: string) => void;
   taskId?: string;

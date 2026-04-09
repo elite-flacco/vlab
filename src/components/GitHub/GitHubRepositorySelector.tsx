@@ -12,6 +12,8 @@ import { createGitHubClient, GitHubRepository } from "../../lib/github";
 
 interface GitHubRepo {
   id: string;
+  project_id: string;
+  user_id: string;
   repo_owner: string;
   repo_name: string;
   repo_full_name: string;

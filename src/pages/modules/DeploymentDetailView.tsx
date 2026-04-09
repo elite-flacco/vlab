@@ -28,7 +28,11 @@ import {
 } from "../../lib/deploymentTemplates";
 import { generateDeploymentChecklist } from "../../lib/openai";
 import { db } from "../../lib/supabase";
+import type { Database } from "../../types/database";
 import { DeploymentItem } from "../../types";
+
+type DeploymentItemInsert =
+  Database["public"]["Tables"]["deployment_items"]["Insert"];
 
 export const DeploymentDetailView: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
@@ -406,7 +410,7 @@ export const DeploymentDetailView: React.FC = () => {
     setError(null);
 
     try {
-      const tasksToCreate: Partial<DeploymentItem>[] = [];
+      const tasksToCreate: DeploymentItemInsert[] = [];
 
       // 1. Add platform-specific template tasks
       selectedPlatforms.forEach(platform => {

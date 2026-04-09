@@ -23,13 +23,13 @@ interface PromptItem {
   name: string;
   description: string;
   content: string;
-  variables: any[];
+  variables: any;
   version: number;
   is_template: boolean;
   category: string;
   tags: string[];
   usage_count: number;
-  parent_id?: string;
+  parent_id: string | null;
   created_at: string;
   updated_at: string;
 }

@@ -27,8 +27,8 @@ interface RoadmapItem {
   project_id: string;
   title: string;
   description: string;
-  status: "planned" | "in_progress" | "completed" | "cancelled";
-  phase: "mvp" | "phase_2" | "backlog";
+  status: string;
+  phase: string;
   start_date: string | null;
   end_date: string | null;
   progress: number;

@@ -2,6 +2,11 @@ import { createClient } from "@supabase/supabase-js";
 import type { Database } from "../types/database";
 import { withTimeout, withTiming } from "./utils";
 
+type Tables = Database["public"]["Tables"];
+type TableName = keyof Tables;
+type InsertRow<T extends TableName> = Tables[T]["Insert"];
+type UpdateRow<T extends TableName> = Tables[T]["Update"];
+
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
@@ -155,7 +160,7 @@ export const db = {
     );
   },
 
-  updateProfile: async (userId: string, updates: Record<string, unknown>) => {
+  updateProfile: async (userId: string, updates: UpdateRow<"profiles">) => {
     const operation = async () =>
       supabase
         .from("profiles")
@@ -230,7 +235,7 @@ export const db = {
     );
   },
 
-  createProject: async (project: Record<string, unknown>) => {
+  createProject: async (project: InsertRow<"projects">) => {
     const operation = async () =>
       supabase.from("projects").insert(project).select().single();
 
@@ -241,7 +246,7 @@ export const db = {
     );
   },
 
-  updateProject: async (id: string, updates: Record<string, unknown>) => {
+  updateProject: async (id: string, updates: UpdateRow<"projects">) => {
     const operation = async () =>
       supabase.from("projects").update(updates).eq("id", id).select().single();
 
@@ -366,7 +371,7 @@ export const db = {
     );
   },
 
-  updatePRD: async (id: string, updates: Record<string, unknown>) => {
+  updatePRD: async (id: string, updates: UpdateRow<"prds">) => {
     const operation = async () =>
       supabase
         .from("prds")
@@ -539,7 +544,7 @@ export const db = {
     );
   },
 
-  createTask: async (task: Record<string, unknown>) => {
+  createTask: async (task: InsertRow<"tasks">) => {
     const operation = async () =>
       supabase.from("tasks").insert(task).select().single();
 
@@ -550,7 +555,7 @@ export const db = {
     );
   },
 
-  updateTask: async (id: string, updates: Record<string, unknown>) => {
+  updateTask: async (id: string, updates: UpdateRow<"tasks">) => {
     const operation = async () =>
       supabase.from("tasks").update(updates).eq("id", id).select().single();
 
@@ -587,7 +592,7 @@ export const db = {
     );
   },
 
-  createPrompt: async (prompt: Record<string, unknown>) => {
+  createPrompt: async (prompt: InsertRow<"prompts">) => {
     const operation = async () =>
       supabase.from("prompts").insert(prompt).select().single();
 
@@ -598,7 +603,7 @@ export const db = {
     );
   },
 
-  updatePrompt: async (id: string, updates: Record<string, unknown>) => {
+  updatePrompt: async (id: string, updates: UpdateRow<"prompts">) => {
     const operation = async () =>
       supabase.from("prompts").update(updates).eq("id", id).select().single();
 
@@ -636,7 +641,7 @@ export const db = {
     );
   },
 
-  createScratchpadNote: async (note: Record<string, unknown>) => {
+  createScratchpadNote: async (note: InsertRow<"scratchpad_notes">) => {
     const operation = async () =>
       supabase.from("scratchpad_notes").insert(note).select().single();
 
@@ -649,7 +654,7 @@ export const db = {
 
   updateScratchpadNote: async (
     id: string,
-    updates: Record<string, unknown>
+    updates: UpdateRow<"scratchpad_notes">
   ) => {
     const operation = async () =>
       supabase
@@ -693,7 +698,7 @@ export const db = {
     );
   },
 
-  createGlobalNote: async (note: Record<string, unknown>) => {
+  createGlobalNote: async (note: InsertRow<"global_notes">) => {
     const operation = async () =>
       supabase.from("global_notes").insert(note).select().single();
 
@@ -704,7 +709,7 @@ export const db = {
     );
   },
 
-  updateGlobalNote: async (id: string, updates: Record<string, unknown>) => {
+  updateGlobalNote: async (id: string, updates: UpdateRow<"global_notes">) => {
     const operation = async () =>
       supabase
         .from("global_notes")
@@ -747,7 +752,7 @@ export const db = {
     );
   },
 
-  createRoadmapItem: async (item: Record<string, unknown>) => {
+  createRoadmapItem: async (item: InsertRow<"roadmap_items">) => {
     const operation = async () =>
       supabase.from("roadmap_items").insert(item).select().single();
 
@@ -758,7 +763,10 @@ export const db = {
     );
   },
 
-  updateRoadmapItem: async (id: string, updates: Record<string, unknown>) => {
+  updateRoadmapItem: async (
+    id: string,
+    updates: UpdateRow<"roadmap_items">
+  ) => {
     const operation = async () =>
       supabase
         .from("roadmap_items")
@@ -793,7 +801,7 @@ export const db = {
     );
   },
 
-  createSecret: async (secret: Record<string, unknown>) => {
+  createSecret: async (secret: InsertRow<"secrets">) => {
     const operation = async () =>
       supabase
         .from("secrets")
@@ -810,7 +818,7 @@ export const db = {
     );
   },
 
-  updateSecret: async (id: string, updates: Record<string, unknown>) => {
+  updateSecret: async (id: string, updates: UpdateRow<"secrets">) => {
     const operation = async () =>
       supabase
         .from("secrets")
@@ -870,7 +878,7 @@ export const db = {
     );
   },
 
-  createTemplate: async (template: Record<string, unknown>) => {
+  createTemplate: async (template: InsertRow<"templates">) => {
     const operation = async () =>
       supabase.from("templates").insert(template).select().single();
 
@@ -881,10 +889,13 @@ export const db = {
     );
   },
 
-  // Generic CRUD operations for backward compatibility
-  getModuleData: async (table: string, projectId: string) => {
+  // Generic CRUD operations for backward compatibility.
+  // Uses a separate untyped client reference because supabase-js can't resolve
+  // column names through a dynamic table parameter at the TypeScript level.
+  getModuleData: async (table: TableName, projectId: string) => {
+    const client = createClient(supabaseUrl, supabaseAnonKey);
     const operation = async () =>
-      supabase
+      client
         .from(table)
         .select("*")
         .eq("project_id", projectId)
@@ -897,9 +908,10 @@ export const db = {
     );
   },
 
-  createModuleData: async (table: string, data: Record<string, unknown>) => {
+  createModuleData: async (table: TableName, data: Record<string, unknown>) => {
+    const client = createClient(supabaseUrl, supabaseAnonKey);
     const operation = async () =>
-      supabase.from(table).insert(data).select().single();
+      client.from(table).insert(data).select().single();
 
     return withTimeout(
       withTiming(`DB CreateModuleData(${table})`, operation),
@@ -909,12 +921,13 @@ export const db = {
   },
 
   updateModuleData: async (
-    table: string,
+    table: TableName,
     id: string,
     updates: Record<string, unknown>
   ) => {
+    const client = createClient(supabaseUrl, supabaseAnonKey);
     const operation = async () =>
-      supabase.from(table).update(updates).eq("id", id).select().single();
+      client.from(table).update(updates).eq("id", id).select().single();
 
     return withTimeout(
       withTiming(`DB UpdateModuleData(${table})`, operation),
@@ -923,8 +936,9 @@ export const db = {
     );
   },
 
-  deleteModuleData: async (table: string, id: string) => {
-    const operation = async () => supabase.from(table).delete().eq("id", id);
+  deleteModuleData: async (table: TableName, id: string) => {
+    const client = createClient(supabaseUrl, supabaseAnonKey);
+    const operation = async () => client.from(table).delete().eq("id", id);
 
     return withTimeout(
       withTiming(`DB DeleteModuleData(${table})`, operation),
@@ -949,7 +963,7 @@ export const db = {
     );
   },
 
-  createDeploymentItem: async (item: Record<string, unknown>) => {
+  createDeploymentItem: async (item: InsertRow<"deployment_items">) => {
     const operation = async () =>
       supabase.from("deployment_items").insert(item).select().single();
 
@@ -962,7 +976,7 @@ export const db = {
 
   updateDeploymentItem: async (
     id: string,
-    updates: Record<string, unknown>
+    updates: UpdateRow<"deployment_items">
   ) => {
     const operation = async () =>
       supabase
@@ -1007,7 +1021,9 @@ export const db = {
     );
   },
 
-  createGitHubRepository: async (repository: Record<string, unknown>) => {
+  createGitHubRepository: async (
+    repository: InsertRow<"github_repositories">
+  ) => {
     const operation = async () =>
       supabase
         .from("github_repositories")
@@ -1027,7 +1043,7 @@ export const db = {
 
   updateGitHubRepository: async (
     id: string,
-    updates: Record<string, unknown>
+    updates: UpdateRow<"github_repositories">
   ) => {
     const operation = async () =>
       supabase
@@ -1105,7 +1121,7 @@ export const db = {
     );
   },
 
-  createGitHubToken: async (token: Record<string, unknown>) => {
+  createGitHubToken: async (token: InsertRow<"github_tokens">) => {
     const operation = async () =>
       supabase
         .from("github_tokens")
@@ -1122,7 +1138,10 @@ export const db = {
     );
   },
 
-  updateGitHubToken: async (id: string, updates: Record<string, unknown>) => {
+  updateGitHubToken: async (
+    id: string,
+    updates: UpdateRow<"github_tokens">
+  ) => {
     const operation = async () =>
       supabase
         .from("github_tokens")
@@ -1196,7 +1215,7 @@ export const db = {
     );
   },
 
-  createGitHubIssue: async (issue: Record<string, unknown>) => {
+  createGitHubIssue: async (issue: InsertRow<"github_issues">) => {
     const operation = async () =>
       supabase
         .from("github_issues")
@@ -1216,7 +1235,10 @@ export const db = {
     );
   },
 
-  updateGitHubIssue: async (id: string, updates: Record<string, unknown>) => {
+  updateGitHubIssue: async (
+    id: string,
+    updates: UpdateRow<"github_issues">
+  ) => {
     const operation = async () =>
       supabase
         .from("github_issues")
@@ -1268,7 +1290,7 @@ export const db = {
     );
   },
 
-  createAttachment: async (attachment: Record<string, unknown>) => {
+  createAttachment: async (attachment: InsertRow<"attachments">) => {
     const operation = async () =>
       supabase.from("attachments").insert(attachment).select().single();
 
@@ -1279,7 +1301,7 @@ export const db = {
     );
   },
 
-  updateAttachment: async (id: string, updates: Record<string, unknown>) => {
+  updateAttachment: async (id: string, updates: UpdateRow<"attachments">) => {
     const operation = async () =>
       supabase
         .from("attachments")

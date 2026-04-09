@@ -193,11 +193,11 @@ export const parseRepoFullName = (
 // Format task data for GitHub issue creation
 export const formatTaskAsIssue = (task: {
   title: string;
-  description?: string;
+  description?: string | null;
   tags?: string[];
-  priority?: string;
-  status?: string;
-  due_date?: string;
+  priority?: string | null;
+  status?: string | null;
+  due_date?: string | null;
 }): CreateIssueRequest => {
   let body = "";
 

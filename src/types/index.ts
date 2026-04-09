@@ -12,9 +12,11 @@ export interface User {
 export interface Project {
   id: string;
   name: string;
-  description?: string;
+  description: string | null;
   user_id: string;
-  workspace_layout: WorkspaceLayout;
+  workspace_layout: WorkspaceLayout | null;
+  settings: Record<string, unknown> | null;
+  is_archived: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -152,40 +154,20 @@ export interface DeploymentItem {
   project_id: string;
   title: string;
   description: string;
-  category:
-    | "general"
-    | "hosting"
-    | "database"
-    | "auth"
-    | "env"
-    | "security"
-    | "monitoring"
-    | "testing"
-    | "dns"
-    | "ssl"
-    | "performance";
-  platform:
-    | "universal"
-    | "vercel"
-    | "netlify"
-    | "aws"
-    | "gcp"
-    | "azure"
-    | "heroku"
-    | "digitalocean"
-    | "supabase";
-  environment: "development" | "staging" | "production";
-  status: "todo" | "in_progress" | "done" | "blocked" | "not_applicable";
-  priority: "low" | "medium" | "high" | "critical";
+  category: string;
+  platform: string;
+  environment: string;
+  status: string;
+  priority: string;
   is_required: boolean;
   is_auto_generated: boolean;
-  estimated_hours?: number;
-  actual_hours?: number;
-  due_date?: string;
-  completion_date?: string;
+  estimated_hours: number | null;
+  actual_hours: number | null;
+  due_date: string | null;
+  completion_date: string | null;
   tags: string[];
   dependencies: string[];
-  assignee_id?: string;
+  assignee_id: string | null;
   verification_notes: string;
   helpful_links: Array<{ title: string; url: string; description?: string }>;
   position: number;

@@ -1,3 +1,48 @@
+// String literal types for enum-like columns
+export type TaskStatus =
+  | "todo"
+  | "in_progress"
+  | "done"
+  | "blocked"
+  | "cancelled";
+export type TaskPriority = "low" | "medium" | "high" | "highest";
+export type RoadmapStatus =
+  | "planned"
+  | "in_progress"
+  | "completed"
+  | "cancelled";
+export type RoadmapPhase = "mvp" | "phase_2" | "backlog";
+export type DeploymentCategory =
+  | "general"
+  | "hosting"
+  | "database"
+  | "auth"
+  | "env"
+  | "security"
+  | "monitoring"
+  | "testing"
+  | "dns"
+  | "ssl"
+  | "performance";
+export type DeploymentPlatform =
+  | "universal"
+  | "vercel"
+  | "netlify"
+  | "aws"
+  | "gcp"
+  | "azure"
+  | "heroku"
+  | "digitalocean"
+  | "supabase";
+export type DeploymentEnvironment = "development" | "staging" | "production";
+export type DeploymentStatus =
+  | "todo"
+  | "in_progress"
+  | "done"
+  | "blocked"
+  | "not_applicable";
+export type DeploymentPriority = "low" | "medium" | "high" | "critical";
+
 export interface Database {
   public: {
     Tables: {
@@ -12,6 +57,8 @@ export interface Database {
           twitter_username: string | null;
           website_url: string | null;
           preferences: any;
+          is_anonymous: boolean;
+          anonymous_claimed_at: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -25,6 +72,8 @@ export interface Database {
           twitter_username?: string | null;
           website_url?: string | null;
           preferences?: any;
+          is_anonymous?: boolean;
+          anonymous_claimed_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -38,9 +87,12 @@ export interface Database {
           twitter_username?: string | null;
           website_url?: string | null;
           preferences?: any;
+          is_anonymous?: boolean;
+          anonymous_claimed_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       projects: {
         Row: {
@@ -76,6 +128,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       workspace_modules: {
         Row: {
@@ -111,6 +164,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       prds: {
         Row: {
@@ -161,6 +215,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       prd_versions: {
         Row: {
@@ -193,6 +248,15 @@ export interface Database {
           created_by?: string | null;
           created_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: "prd_versions_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       tasks: {
         Row: {
@@ -249,6 +313,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       prompts: {
         Row: {
@@ -299,6 +364,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       scratchpad_notes: {
         Row: {
@@ -340,6 +406,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       global_notes: {
         Row: {
@@ -384,6 +451,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       roadmap_items: {
         Row: {
@@ -437,6 +505,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       secrets: {
         Row: {
@@ -475,6 +544,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       templates: {
         Row: {
@@ -528,6 +598,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       template_tags: {
         Row: {
@@ -548,6 +619,7 @@ export interface Database {
           tag?: string;
           created_at?: string;
         };
+        Relationships: [];
       };
       community_posts: {
         Row: {
@@ -604,6 +676,15 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: "community_posts_author_id_fkey";
+            columns: ["author_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       community_comments: {
         Row: {
@@ -642,6 +723,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       community_post_votes: {
         Row: {
@@ -665,6 +747,7 @@ export interface Database {
           vote_type?: string;
           created_at?: string;
         };
+        Relationships: [];
       };
       community_comment_votes: {
         Row: {
@@ -688,6 +771,7 @@ export interface Database {
           vote_type?: string;
           created_at?: string;
         };
+        Relationships: [];
       };
       community_post_saves: {
         Row: {
@@ -708,6 +792,15 @@ export interface Database {
           user_id?: string;
           created_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: "community_post_saves_post_id_fkey";
+            columns: ["post_id"];
+            isOneToOne: false;
+            referencedRelation: "community_posts";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       community_post_tags: {
         Row: {
@@ -728,6 +821,225 @@ export interface Database {
           tag?: string;
           created_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: "community_post_tags_post_id_fkey";
+            columns: ["post_id"];
+            isOneToOne: false;
+            referencedRelation: "community_posts";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      deployment_items: {
+        Row: {
+          id: string;
+          project_id: string;
+          title: string;
+          description: string;
+          category: string;
+          platform: string;
+          environment: string;
+          status: string;
+          priority: string;
+          is_required: boolean;
+          is_auto_generated: boolean;
+          estimated_hours: number | null;
+          actual_hours: number | null;
+          due_date: string | null;
+          completion_date: string | null;
+          tags: string[];
+          dependencies: string[];
+          assignee_id: string | null;
+          verification_notes: string;
+          helpful_links: any;
+          position: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          project_id: string;
+          title: string;
+          description?: string;
+          category?: string;
+          platform?: string;
+          environment?: string;
+          status?: string;
+          priority?: string;
+          is_required?: boolean;
+          is_auto_generated?: boolean;
+          estimated_hours?: number | null;
+          actual_hours?: number | null;
+          due_date?: string | null;
+          completion_date?: string | null;
+          tags?: string[];
+          dependencies?: string[];
+          assignee_id?: string | null;
+          verification_notes?: string;
+          helpful_links?: any;
+          position?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          project_id?: string;
+          title?: string;
+          description?: string;
+          category?: string;
+          platform?: string;
+          environment?: string;
+          status?: string;
+          priority?: string;
+          is_required?: boolean;
+          is_auto_generated?: boolean;
+          estimated_hours?: number | null;
+          actual_hours?: number | null;
+          due_date?: string | null;
+          completion_date?: string | null;
+          tags?: string[];
+          dependencies?: string[];
+          assignee_id?: string | null;
+          verification_notes?: string;
+          helpful_links?: any;
+          position?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      github_tokens: {
+        Row: {
+          id: string;
+          user_id: string;
+          encrypted_token: string;
+          token_scope: string;
+          github_username: string | null;
+          github_user_id: string | null;
+          expires_at: string | null;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          encrypted_token: string;
+          token_scope?: string;
+          github_username?: string | null;
+          github_user_id?: string | null;
+          expires_at?: string | null;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          encrypted_token?: string;
+          token_scope?: string;
+          github_username?: string | null;
+          github_user_id?: string | null;
+          expires_at?: string | null;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      github_repositories: {
+        Row: {
+          id: string;
+          project_id: string;
+          user_id: string;
+          repo_full_name: string;
+          repo_name: string;
+          repo_owner: string;
+          repo_url: string;
+          default_branch: string;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          project_id: string;
+          user_id: string;
+          repo_full_name: string;
+          repo_name: string;
+          repo_owner: string;
+          repo_url: string;
+          default_branch?: string;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          project_id?: string;
+          user_id?: string;
+          repo_full_name?: string;
+          repo_name?: string;
+          repo_owner?: string;
+          repo_url?: string;
+          default_branch?: string;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      github_issues: {
+        Row: {
+          id: string;
+          task_id: string;
+          repository_id: string;
+          issue_number: number;
+          issue_url: string;
+          issue_title: string;
+          issue_state: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          task_id: string;
+          repository_id: string;
+          issue_number: number;
+          issue_url: string;
+          issue_title: string;
+          issue_state?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          task_id?: string;
+          repository_id?: string;
+          issue_number?: number;
+          issue_url?: string;
+          issue_title?: string;
+          issue_state?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "github_issues_task_id_fkey";
+            columns: ["task_id"];
+            isOneToOne: false;
+            referencedRelation: "tasks";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "github_issues_repository_id_fkey";
+            columns: ["repository_id"];
+            isOneToOne: false;
+            referencedRelation: "github_repositories";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       attachments: {
         Row: {
@@ -769,6 +1081,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
     };
     Views: {
@@ -788,6 +1101,13 @@ export interface Database {
           project_uuid: string;
         };
         Returns: string;
+      };
+      claim_anonymous_account: {
+        Args: {
+          anonymous_user_id: string;
+          new_user_id: string;
+        };
+        Returns: void;
       };
       get_prd_version_comparison: {
         Args: {
