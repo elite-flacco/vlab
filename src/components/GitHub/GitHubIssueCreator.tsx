@@ -1,8 +1,9 @@
-import { ExternalLink, Github, Loader2 } from "lucide-react";
+import { ExternalLink, Loader2 } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
 import { supabase, db } from "../../lib/supabase";
 import { formatTaskAsIssue } from "../../lib/github";
 import { GitHubAuthButton } from "./GitHubAuthButton";
+import { GitHubIcon } from "./GitHubIcon";
 import { GitHubRepositorySelector } from "./GitHubRepositorySelector";
 
 interface TaskItem {
@@ -203,7 +204,7 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
         className={`p-4 bg-primary/5 border border-primary/20 rounded-md ${className}`}
       >
         <div className="flex items-start space-x-3">
-          <Github className="w-5 h-5 text-primary mt-0.5" />
+          <GitHubIcon className="w-5 h-5 text-primary mt-0.5" />
           <div className="flex-1">
             <h4 className="text-sm font-medium text-primary">
               GitHub Issue Created
@@ -231,7 +232,7 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
   return (
     <div className={`space-y-4 bg-secondary rounded-lg ${className}`}>
       {/* <div className="flex items-center space-x-2">
-        <Github className="w-5 h-5" />
+        <GitHubIcon className="w-5 h-5" />
         <h3 className="text-lg font-medium">Create GitHub Issue</h3>
       </div> */}
 
@@ -330,7 +331,7 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
                     </>
                   ) : (
                     <>
-                      <Github className="w-4 h-4 mr-2" />
+                      <GitHubIcon className="w-4 h-4 mr-2" />
                       Create GitHub Issue
                     </>
                   )}
@@ -369,7 +370,7 @@ export const GitHubIssueCreator: React.FC<GitHubIssueCreatorProps> = ({
           />
           <div className="flex items-center justify-end mt-4">
             <div className="flex items-center space-x-2 bg-primary/10 p-2 mr-2 rounded-md">
-              <Github className="w-4 h-4 text-primary" />
+              <GitHubIcon className="w-4 h-4 text-primary" />
               <span className="text-xs text-primary">Connected</span>
             </div>
             <button
