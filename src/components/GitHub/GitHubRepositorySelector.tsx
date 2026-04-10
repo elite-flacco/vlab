@@ -1,10 +1,4 @@
-import {
-  ChevronDown,
-  ExternalLink,
-  Loader2,
-  Plus,
-  Search,
-} from "lucide-react";
+import { ChevronDown, ExternalLink, Loader2, Plus, Search } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { supabase, db } from "../../lib/supabase";
 import { createGitHubClient, GitHubRepository } from "../../lib/github";
