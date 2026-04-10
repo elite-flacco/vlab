@@ -1,7 +1,8 @@
-import { Github, Loader2, Unlink } from "lucide-react";
+import { Loader2, Unlink } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { supabase, db } from "../../lib/supabase";
 import { GITHUB_OAUTH_CONFIG, validateGitHubConfig } from "../../lib/github";
+import { GitHubIcon } from "./GitHubIcon";
 
 interface GitHubAuthButtonProps {
   onAuthChange?: (isAuthenticated: boolean, username?: string) => void;
@@ -228,7 +229,7 @@ export const GitHubAuthButton: React.FC<GitHubAuthButtonProps> = ({
       <div className={`space-y-2 ${className}`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Github className="w-4 h-4 text-primary" />
+            <GitHubIcon className="w-4 h-4 text-primary" />
             <span className="text-sm text-primary">
               Connected as <strong>@{githubUsername}</strong>
             </span>
@@ -263,7 +264,7 @@ export const GitHubAuthButton: React.FC<GitHubAuthButtonProps> = ({
           </>
         ) : (
           <>
-            <Github className="w-4 h-4 mr-2" />
+            <GitHubIcon className="w-4 h-4 mr-2" />
             Connect GitHub
           </>
         )}

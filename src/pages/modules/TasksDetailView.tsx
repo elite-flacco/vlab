@@ -5,7 +5,6 @@ import {
   CheckSquare,
   Edit3,
   ExternalLink,
-  Github,
   Loader2,
   Minus,
   Plus,
@@ -27,6 +26,7 @@ import {
 } from "../../components/common/ImageUpload";
 import { ModuleContainer } from "../../components/Workspace/ModuleContainer";
 import { GitHubIssueCreator } from "../../components/GitHub/GitHubIssueCreator";
+import { GitHubIcon } from "../../components/GitHub/GitHubIcon";
 import { db } from "../../lib/supabase";
 
 interface TaskItem {
@@ -1295,7 +1295,7 @@ export const TasksDetailView: React.FC = () => {
                                 className="p-1.5 text-foreground-dim hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
                                 title="Create GitHub issue"
                               >
-                                <Github className="w-3 h-3" />
+                                <GitHubIcon className="w-3 h-3" />
                               </button>
                             )}
                             <button
@@ -1343,7 +1343,7 @@ export const TasksDetailView: React.FC = () => {
                             className="flex items-center space-x-1 text-xs text-primary hover:text-primary/80 transition-colors"
                             title="Linked to GitHub issue"
                           >
-                            <Github className="w-3 h-3" />
+                            <GitHubIcon className="w-3 h-3" />
                             <span>#{task.github_issue.issue_number}</span>
                           </a>
                         )}
@@ -1411,7 +1411,7 @@ export const TasksDetailView: React.FC = () => {
           <div className="bg-secondary border border-foreground-dim/20 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-4 border-b border-foreground-dim/20 flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <Github className="w-5 h-5" />
+                <GitHubIcon className="w-5 h-5" />
                 <h3 className="text-lg font-medium">Create GitHub Issue</h3>
               </div>
               <button

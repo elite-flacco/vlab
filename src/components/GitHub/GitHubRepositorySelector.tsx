@@ -1,14 +1,8 @@
-import {
-  ChevronDown,
-  ExternalLink,
-  Github,
-  Loader2,
-  Plus,
-  Search,
-} from "lucide-react";
+import { ChevronDown, ExternalLink, Loader2, Plus, Search } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { supabase, db } from "../../lib/supabase";
 import { createGitHubClient, GitHubRepository } from "../../lib/github";
+import { GitHubIcon } from "./GitHubIcon";
 
 interface GitHubRepo {
   id: string;
@@ -243,7 +237,7 @@ export const GitHubRepositorySelector: React.FC<
 
       {repositories.length === 0 ? (
         <div className="text-center p-4 bg-secondary border-2 border-dashed border-foreground/20 rounded-md">
-          <Github className="w-8 h-8 text-foreground-dim mx-auto mb-2" />
+          <GitHubIcon className="w-8 h-8 text-foreground-dim mx-auto mb-2" />
           <p className="text-sm text-foreground-dim mb-3">
             No repositories linked to this project
           </p>
@@ -346,7 +340,7 @@ export const GitHubRepositorySelector: React.FC<
                 </div>
               ) : filteredAvailableRepos.length === 0 ? (
                 <div className="text-center py-8">
-                  <Github className="w-8 h-8 text-foreground-dim mx-auto mb-2" />
+                  <GitHubIcon className="w-8 h-8 text-foreground-dim mx-auto mb-2" />
                   <p className="text-sm text-foreground-dim">
                     {searchTerm
                       ? "No repositories match your search"
