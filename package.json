@@ -20,7 +20,7 @@
     "dev:full": "concurrently \"npm run dev\" \"npm run server\""
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.107.0",
+    "@supabase/supabase-js": "^2.108.1",
     "date-fns": "^4.4.0",
     "lucide-react": "^1.17.0",
     "react": "^18.3.1",
