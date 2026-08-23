@@ -29,7 +29,7 @@
     "react-hook-form": "^7.85.0",
     "react-markdown": "^10.1.0",
     "react-router-dom": "^7.18.2",
-    "uuid": "^14.0.1",
+    "uuid": "^14.0.2",
     "zustand": "^5.0.15"
   },
   "devDependencies": {
