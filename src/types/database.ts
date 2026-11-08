@@ -1,16 +1,9 @@
 // String literal types for enum-like columns
 export type TaskStatus =
-  | "todo"
-  | "in_progress"
-  | "done"
-  | "blocked"
-  | "cancelled";
+  "todo" | "in_progress" | "done" | "blocked" | "cancelled";
 export type TaskPriority = "low" | "medium" | "high" | "highest";
 export type RoadmapStatus =
-  | "planned"
-  | "in_progress"
-  | "completed"
-  | "cancelled";
+  "planned" | "in_progress" | "completed" | "cancelled";
 export type RoadmapPhase = "mvp" | "phase_2" | "backlog";
 export type DeploymentCategory =
   | "general"
@@ -36,11 +29,7 @@ export type DeploymentPlatform =
   | "supabase";
 export type DeploymentEnvironment = "development" | "staging" | "production";
 export type DeploymentStatus =
-  | "todo"
-  | "in_progress"
-  | "done"
-  | "blocked"
-  | "not_applicable";
+  "todo" | "in_progress" | "done" | "blocked" | "not_applicable";
 export type DeploymentPriority = "low" | "medium" | "high" | "critical";
 
 export interface Database {
